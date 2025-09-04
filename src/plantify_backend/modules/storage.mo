@@ -51,6 +51,20 @@ module Storage {
     );
     private var nextStartupId : Nat = 1;
 
+    // Collateral Storage
+    private var collaterals = HashMap.HashMap<Text, Types.Collateral>(
+      0,
+      Text.equal,
+      Text.hash,
+    );
+    private var startupCollaterals = HashMap.HashMap<Text, [Text]>(
+      0,
+      Text.equal,
+      Text.hash,
+    );
+    private var nextCollateralId : Nat = 1;
+    private var nextTopUpId : Nat = 1;
+
     // ========================================
     // FOUNDER METHODS
     // ========================================
@@ -244,6 +258,115 @@ module Storage {
       switch (startups.get(startupId)) {
         case null { null };
         case (?startup) { founders.get(startup.founderId) };
+      };
+    };
+
+    // ========================================
+    // COLLATERAL METHODS
+    // ========================================
+
+    public func addCollateral(collateral : Types.Collateral) : Text {
+      let id = Nat.toText(nextCollateralId);
+      nextCollateralId += 1;
+      let newCollateral = {
+        id = id;
+        startupId = collateral.startupId;
+        founderId = collateral.founderId;
+        totalRequiredAmount = collateral.totalRequiredAmount;
+        currentAmount = collateral.currentAmount;
+        currency = collateral.currency;
+        status = collateral.status;
+        topUpHistory = collateral.topUpHistory;
+        createdAt = collateral.createdAt;
+        updatedAt = collateral.updatedAt;
+      };
+      collaterals.put(id, newCollateral);
+
+      // Update startup's collateral list
+      switch (startupCollaterals.get(collateral.startupId)) {
+        case null { startupCollaterals.put(collateral.startupId, [id]) };
+        case (?existingCollaterals) {
+          let updatedCollaterals = Array.append(existingCollaterals, [id]);
+          startupCollaterals.put(collateral.startupId, updatedCollaterals);
+        };
+      };
+      id;
+    };
+
+    public func getCollateral(id : Text) : ?Types.Collateral {
+      collaterals.get(id);
+    };
+
+    public func getCollateralsByStartup(startupId : Text) : [Types.Collateral] {
+      switch (startupCollaterals.get(startupId)) {
+        case null { [] };
+        case (?collateralIds) {
+          let collateralArray = Array.map<Text, ?Types.Collateral>(
+            collateralIds,
+            func(id : Text) : ?Types.Collateral { collaterals.get(id) },
+          );
+          let validCollaterals = Array.filter<?Types.Collateral>(
+            collateralArray,
+            func(collateral : ?Types.Collateral) : Bool {
+              switch (collateral) {
+                case null { false };
+                case (?_) { true };
+              };
+            },
+          );
+          Array.map<?Types.Collateral, Types.Collateral>(
+            validCollaterals,
+            func(collateral : ?Types.Collateral) : Types.Collateral {
+              switch (collateral) {
+                case null { assert false; loop {} };
+                case (?c) { c };
+              };
+            },
+          );
+        };
+      };
+    };
+
+    public func updateCollateral(id : Text, updatedCollateral : Types.Collateral) : Bool {
+      switch (collaterals.get(id)) {
+        case null { false };
+        case (?_) {
+          collaterals.put(id, updatedCollateral);
+          true;
+        };
+      };
+    };
+
+    public func addTopUpToCollateral(collateralId : Text, topUp : Types.CollateralTopUp) : Bool {
+      switch (collaterals.get(collateralId)) {
+        case null { false };
+        case (?collateral) {
+          let topUpId = Nat.toText(nextTopUpId);
+          nextTopUpId += 1;
+          let newTopUp = {
+            id = topUpId;
+            collateralId = topUp.collateralId;
+            amount = topUp.amount;
+            transactionHash = topUp.transactionHash;
+            status = topUp.status;
+            createdAt = topUp.createdAt;
+          };
+          let updatedTopUpHistory = Array.append(collateral.topUpHistory, [newTopUp]);
+          let updatedCollateral = {
+            id = collateral.id;
+            startupId = collateral.startupId;
+            founderId = collateral.founderId;
+            totalRequiredAmount = collateral.totalRequiredAmount;
+            currentAmount = topUp.amount;
+            currency = collateral.currency;
+            status = collateral.status;
+            topUpHistory = updatedTopUpHistory;
+            createdAt = collateral.createdAt;
+            updatedAt = Time.now();
+          };
+          collaterals.put(collateralId, updatedCollateral);
+          true;
+        };
       };
     };
 

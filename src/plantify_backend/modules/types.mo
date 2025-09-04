@@ -146,4 +146,36 @@ module Types {
     legalDocuments : ?Text;
     status : Text;
   };
+
+  public type Collateral = {
+    id : Text;
+    startupId : Text;
+    founderId : Text;
+    totalRequiredAmount : Text;
+    currentAmount : Text;
+    currency : Text;
+    status : Text;
+    topUpHistory : [CollateralTopUp];
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+  };
+
+  public type CollateralTopUp = {
+    id : Text;
+    collateralId : Text;
+    amount : Text;
+    transactionHash : ?Text;
+    status : Text;
+    createdAt : Time.Time;
+  };
+
+  public type CollateralTopUpRequest = {
+    startupId : Text;
+    amount : Text;
+  };
+
+  public type CollateralTransferRequest = {
+    to : Principal;
+    amount : Text;
+  };
 };
