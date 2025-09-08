@@ -147,4 +147,65 @@ module Types {
     status : Text;
   };
 
+  public type CollateralStatus = {
+    #Pending;
+    #Active;
+    #Locked;
+    #Released;
+  };
+
+  public type CollateralTopUp = {
+    id : Text;
+    startupId : Text;
+    amount : Nat;
+    timestamp : Time.Time;
+    transactionId : ?Text;
+    status : Text;
+  };
+
+  public type CollateralInfo = {
+    startupId : Text;
+    requiredAmount : Nat;
+    currentAmount : Nat;
+    status : CollateralStatus;
+    topUpHistory : [CollateralTopUp];
+    lockStartTime : ?Time.Time;
+    lockEndTime : ?Time.Time;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+  };
+
+  public type TopUpRequest = {
+    startupId : Text;
+    amount : Nat;
+    paymentMethod : Text;
+  };
+
+  public type TopUpResult = {
+    #Success : {
+      transactionId : Text;
+      newTotal : Nat;
+      remainingAmount : Nat;
+      isFullyPaid : Bool;
+    };
+    #Error : Text;
+  };
+
+  public type TokenConfig = {
+    #TestToken;
+    #MainnetToken : {
+      canisterId : Text;
+      ledgerId : Text;
+    };
+  };
+
+  public type EnvironmentConfig = {
+    useTestToken : Bool;
+    mainnetCkUSDC : ?{
+      canisterId : Text;
+      ledgerId : Text;
+    };
+    plantifyAccount : Text;
+  };
+
 };
