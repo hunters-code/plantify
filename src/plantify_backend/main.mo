@@ -1,6 +1,5 @@
 import Text "mo:base/Text";
 import Result "mo:base/Result";
-import Nat "mo:base/Nat";
 import Types "./modules/types";
 import RegistrationService "./modules/services/registration";
 import StartupCreation "./modules/services/startupCreation";
