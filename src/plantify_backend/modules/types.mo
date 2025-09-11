@@ -143,8 +143,130 @@ module Types {
     status : Text;
   };
 
+  public type TokenConfig = {
+    canisterId : Text;
+    ledgerId : Text;
+    name : Text;
+    symbol : Text;
+    decimals : Nat8;
+    fee : Nat;
+  };
+
   public type EnvironmentConfig = {
-    // Add your new configuration fields here
+    environment : Text;
+    icpToken : TokenConfig;
+    ckUSDCToken : TokenConfig;
+    plantifyAccount : Text;
+    useTestTokens : Bool;
+  };
+
+  // Transfer Service Types
+  public type TransferAccount = {
+    owner : Principal;
+    subaccount : ?Blob;
+  };
+
+  public type TransferArgs = {
+    amount : Nat;
+    toAccount : TransferAccount;
+    tokenType : Text; // "ICP" or "ckUSDC"
+    memo : ?Text;
+  };
+
+  public type TransferResponse = {
+    #Success : {
+      blockIndex : Nat;
+      transactionId : Text;
+      amount : Nat;
+      toAccount : TransferAccount;
+      tokenType : Text;
+    };
+    #Error : Text;
+  };
+
+  public type BalanceResponse = {
+    #Success : {
+      balance : Nat;
+      tokenType : Text;
+      account : TransferAccount;
+    };
+    #Error : Text;
+  };
+
+  public type TokenInfoResponse = {
+    #Success : {
+      name : Text;
+      symbol : Text;
+      decimals : Nat8;
+      fee : Nat;
+      tokenType : Text;
+    };
+    #Error : Text;
+  };
+
+  // Collateral Service Types
+  public type CollateralStatus = {
+    #Pending;
+    #Active;
+    #Locked;
+    #Released;
+  };
+
+  public type CollateralInfo = {
+    startupId : Text;
+    requiredAmount : Nat;
+    currentAmount : Nat;
+    status : CollateralStatus;
+    tokenType : Text; // "ICP" or "ckUSDC"
+    topUpHistory : [CollateralTopUp];
+    lockStartTime : ?Time.Time;
+    lockEndTime : ?Time.Time;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+  };
+
+  public type CollateralTopUp = {
+    id : Text;
+    startupId : Text;
+    amount : Nat;
+    tokenType : Text;
+    timestamp : Time.Time;
+    transactionId : ?Text;
+    status : Text;
+  };
+
+  public type TopUpRequest = {
+    startupId : Text;
+    amount : Nat;
+    tokenType : Text; // "ICP" or "ckUSDC"
+    memo : ?Text;
+  };
+
+  public type TopUpResponse = {
+    #Success : {
+      topUpId : Text;
+      transactionId : Text;
+      amount : Nat;
+      newTotal : Nat;
+      remainingAmount : Nat;
+      isFullyPaid : Bool;
+      tokenType : Text;
+    };
+    #Error : Text;
+  };
+
+  public type CollateralProgress = {
+    currentAmount : Nat;
+    requiredAmount : Nat;
+    percentage : Nat;
+    status : Text;
+    isFullyPaid : Bool;
+    tokenType : Text;
+  };
+
+  public type CollateralProgressResponse = {
+    #Success : CollateralProgress;
+    #Error : Text;
   };
 
 };
