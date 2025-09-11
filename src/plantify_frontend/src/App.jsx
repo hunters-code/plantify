@@ -1,31 +1,31 @@
-import { useState } from 'react';
-import { plantify_backend } from 'declarations/plantify_backend';
+// import { plantify_backend } from "declarations/plantify_backend";
+import { useState } from "react";
+import Navbar from "./components/Navbar.jsx";
+import Hero from "./components/Hero.jsx";
+import HowItWork from "./components/HowItWork.jsx";
+import SupportedSectors from "./components/SupportedSectors";
+import FeaturedStartups, { StartupCard } from "./components/FeaturedStartups";
+import WhyPlantify from "./components/WhyPlantify";
+import Footer from "./components/Footer";
 
-function App() {
-  const [greeting, setGreeting] = useState('');
+export default function App() {
+  // const [greeting, setGreeting] = useState("");
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const name = event.target.elements.name.value;
-    plantify_backend.greet(name).then((greeting) => {
-      setGreeting(greeting);
-    });
-    return false;
-  }
+  // function handleSubmit(e) {
+  //   e.preventDefault();
+  //   const name = e.target.elements.name.value;
+  //   plantify_backend.greet(name).then((g) => setGreeting(g));
+  // }
 
   return (
-    <main>
-      <img src="/logo2.svg" alt="DFINITY logo" />
-      <br />
-      <br />
-      <form action="#" onSubmit={handleSubmit}>
-        <label htmlFor="name">Enter your name: &nbsp;</label>
-        <input id="name" alt="Name" type="text" />
-        <button type="submit">Click Me!</button>
-      </form>
-      <section id="greeting">{greeting}</section>
-    </main>
+    <div className="bg-gray-50 text-gray-900">
+      <Navbar />
+      <Hero />
+      <HowItWork />
+      <SupportedSectors />
+      <FeaturedStartups />
+      <WhyPlantify />
+      <Footer />
+    </div>
   );
 }
-
-export default App;
