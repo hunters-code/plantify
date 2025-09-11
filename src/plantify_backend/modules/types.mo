@@ -89,6 +89,7 @@ module Types {
     website : Text;
     location : Text;
     companyType : Text;
+    companyLogo : ?Text;
     problemStatement : Text;
     solution : Text;
     targetMarket : Text;
@@ -121,6 +122,7 @@ module Types {
     website : Text;
     location : Text;
     companyType : Text;
+    companyLogo : ?Text;
     problemStatement : Text;
     solution : Text;
     targetMarket : Text;
@@ -152,10 +154,28 @@ module Types {
     fee : Nat;
   };
 
+  public type NFTConfig = {
+    canisterId : Text;
+    name : Text;
+    symbol : Text;
+    description : Text;
+    logo : ?Text;
+    maxMemoSize : Nat;
+    txWindow : Nat;
+    permittedDrift : Nat;
+    supplyCap : ?Nat;
+    maxQueryBatchSize : ?Nat;
+    maxUpdateBatchSize : ?Nat;
+    defaultTakeValue : ?Nat;
+    maxTakeValue : ?Nat;
+    atomicBatchTransfers : ?Bool;
+  };
+
   public type EnvironmentConfig = {
     environment : Text;
     icpToken : TokenConfig;
     ckUSDCToken : TokenConfig;
+    nftToken : NFTConfig;
     plantifyAccount : Text;
     useTestTokens : Bool;
   };
@@ -266,6 +286,74 @@ module Types {
 
   public type CollateralProgressResponse = {
     #Success : CollateralProgress;
+    #Error : Text;
+  };
+
+  // NFT Service Types
+  public type NFTAccount = {
+    owner : Principal;
+    subaccount : ?Blob;
+  };
+
+  public type NFTMetadata = {
+    tokenUri : Text;
+    name : ?Text;
+    description : ?Text;
+    image : ?Text;
+    attributes : ?[(Text, Text)];
+  };
+
+  public type MintNFTRequest = {
+    startupId : Text;
+    toAccount : NFTAccount;
+    metadata : NFTMetadata;
+    memo : ?Text;
+  };
+
+  public type MintNFTResponse = {
+    #Success : {
+      tokenId : Nat;
+      transactionId : ?Text;
+      startupId : Text;
+    };
+    #Error : Text;
+  };
+
+  public type NFTInfo = {
+    tokenId : Nat;
+    startupId : Text;
+    owner : NFTAccount;
+    metadata : NFTMetadata;
+    mintedAt : Time.Time;
+  };
+
+  public type TransferNFTRequest = {
+    tokenId : Nat;
+    toAccount : NFTAccount;
+    memo : ?Text;
+  };
+
+  public type TransferNFTResponse = {
+    #Success : {
+      tokenId : Nat;
+      transactionId : ?Text;
+    };
+    #Error : Text;
+  };
+
+  public type NFTBalanceResponse = {
+    #Success : {
+      balance : Nat;
+      account : NFTAccount;
+    };
+    #Error : Text;
+  };
+
+  public type NFTOwnerResponse = {
+    #Success : {
+      tokenId : Nat;
+      owner : ?NFTAccount;
+    };
     #Error : Text;
   };
 

@@ -9,11 +9,12 @@ import Result "mo:base/Result";
 import Debug "mo:base/Debug";
 import Types "../types";
 import TransferService "./transfer";
+import Storage "../storage";
+import NFTService "./nft";
 
 module Collateral {
   public class CollateralService(config : Types.EnvironmentConfig) {
     
-    // Storage for collateral information
     private var collateralInfo = HashMap.HashMap<Text, Types.CollateralInfo>(
       0,
       Text.equal,
@@ -26,10 +27,10 @@ module Collateral {
     );
     private var nextTopUpId : Nat = 1;
 
-    // Transfer service instance
     private let transferService = TransferService.TransferService(config);
+    private let storage = Storage.UserStorage();
+    private let nftService = NFTService.NFTService(config);
 
-    // Initialize collateral for a startup
     public func initializeCollateral(
       startupId : Text, 
       requiredAmount : Nat, 
@@ -47,7 +48,6 @@ module Collateral {
         return #err("Token type must be either 'ICP' or 'ckUSDC'");
       };
 
-      // Check if collateral already exists
       switch (collateralInfo.get(startupId)) {
         case (?_) {
           return #err("Collateral already initialized for this startup");
@@ -72,16 +72,12 @@ module Collateral {
       };
     };
 
-    // Top up collateral using transfer service
     public func topUpCollateral(
       _principal : Principal,
       request : Types.TopUpRequest
     ) : async Result.Result<Types.TopUpResponse, Text> {
-      Debug.print(
-        "Top up collateral request: " # debug_show(request)
-      );
+      Debug.print("Top up collateral request: " # debug_show(request));
 
-      // Validate request
       if (Text.size(request.startupId) == 0) {
         return #err("Startup ID is required");
       };
@@ -94,7 +90,6 @@ module Collateral {
         return #err("Token type must be either 'ICP' or 'ckUSDC'");
       };
 
-      // Get collateral info
       switch (collateralInfo.get(request.startupId)) {
         case null {
           return #err("Collateral not initialized for this startup");
@@ -104,13 +99,11 @@ module Collateral {
             return #err("Collateral is already fully paid and active");
           };
 
-          // Create Plantify account for receiving tokens
           let plantifyAccount : Types.TransferAccount = {
             owner = Principal.fromText(config.plantifyAccount);
             subaccount = null;
           };
 
-          // Perform the transfer
           let transferResult = switch (request.tokenType) {
             case ("ICP") {
               await transferService.transferICP(plantifyAccount, request.amount, request.memo);
@@ -128,7 +121,6 @@ module Collateral {
               return #err("Transfer failed: " # error);
             };
             case (#Success(transferSuccess)) {
-              // Record the top-up
               let topUpId = Nat.toText(nextTopUpId);
               nextTopUpId += 1;
               let now = Time.now();
@@ -145,7 +137,6 @@ module Collateral {
               
               collateralTopUps.put(topUpId, topUp);
               
-              // Update collateral info
               let newCurrentAmount = info.currentAmount + request.amount;
               let newStatus = if (newCurrentAmount >= info.requiredAmount) {
                 #Active;
@@ -170,6 +161,10 @@ module Collateral {
               
               collateralInfo.put(request.startupId, updatedInfo);
 
+              if (newStatus == #Active) {
+                ignore await updateStartupStatus(request.startupId, "Active");
+              };
+
               let remainingAmount = if (newCurrentAmount >= info.requiredAmount) {
                 0;
               } else {
@@ -193,7 +188,6 @@ module Collateral {
       };
     };
 
-    // Get collateral status
     public func getCollateralStatus(startupId : Text) : Result.Result<Types.CollateralInfo, Text> {
       switch (collateralInfo.get(startupId)) {
         case null {
@@ -205,7 +199,6 @@ module Collateral {
       };
     };
 
-    // Get collateral top-up history
     public func getCollateralTopUpHistory(startupId : Text) : Result.Result<[Types.CollateralTopUp], Text> {
       switch (collateralInfo.get(startupId)) {
         case null {
@@ -217,7 +210,6 @@ module Collateral {
       };
     };
 
-    // Get collateral progress
     public func getCollateralProgress(startupId : Text) : Result.Result<Types.CollateralProgress, Text> {
       switch (collateralInfo.get(startupId)) {
         case null {
@@ -250,14 +242,12 @@ module Collateral {
       };
     };
 
-    // Calculate required collateral based on monthly profit sharing
     public func calculateRequiredCollateral(monthlyProfitSharing : Nat, _tokenType : Text) : Nat {
-      let baseAmount = monthlyProfitSharing * 12; // 12 months
-      let bufferAmount = baseAmount / 10; // 10% buffer
+      let baseAmount = monthlyProfitSharing * 12;
+      let bufferAmount = baseAmount / 10;
       baseAmount + bufferAmount;
     };
 
-    // Get all collateral info (for admin purposes)
     public func getAllCollateralInfo() : [Types.CollateralInfo] {
       let infoArray = Buffer.Buffer<Types.CollateralInfo>(collateralInfo.size());
       for ((_, info) in collateralInfo.entries()) {
@@ -266,12 +256,94 @@ module Collateral {
       Buffer.toArray(infoArray);
     };
 
-    // Update startup status when collateral is fully paid
-    public func updateStartupStatus(_startupId : Text, _newStatus : Text) : Bool {
-      // This would typically update the startup status in the main storage
-      // For now, we'll just return true as a placeholder
-      // In a real implementation, you'd call the startup service here
-      true;
+    public func updateStartupStatus(startupId : Text, newStatus : Text) : async Bool {
+      let updateResult = storage.updateStartupStatus(startupId, newStatus);
+      
+      if (updateResult and newStatus == "Active") {
+        await mintStartupNFT(startupId);
+      };
+      
+      updateResult;
+    };
+
+    private func mintStartupNFT(startupId : Text) : async () {
+      switch (storage.getStartup(startupId)) {
+        case null {
+          Debug.print("Startup not found for NFT minting: " # startupId);
+        };
+        case (?startup) {
+          switch (storage.getFounderOfStartup(startupId)) {
+            case null {
+              Debug.print("Founder not found for startup: " # startupId);
+            };
+            case (?founder) {
+              let startupImage = switch (startup.companyLogo) {
+                case (?logoUrl) {
+                  logoUrl;
+                };
+                case null {
+                  "https://plantify.com/images/startup-nft.png";
+                };
+              };
+
+              let metadata : Types.NFTMetadata = {
+                tokenUri = "https://plantify.com/nft/" # startupId;
+                name = ?("Plantify: " # startup.startupName);
+                description = ?("Plantify ownership share in " # startup.startupName # " - " # startup.description);
+                image = ?startupImage;
+                attributes = ?[
+                  ("startup_id", startupId),
+                  ("startup_name", startup.startupName),
+                  ("sector", startup.sector),
+                  ("founded_year", startup.foundedYear),
+                  ("founder", founder.fullName),
+                  ("plantify_share", "true")
+                ];
+              };
+
+              let founderAccount : Types.NFTAccount = {
+                owner = founder.principal;
+                subaccount = null;
+              };
+
+              let mintRequest : Types.MintNFTRequest = {
+                startupId = startupId;
+                toAccount = founderAccount;
+                metadata = metadata;
+                memo = ?("Auto-minted when startup became active - " # startupId);
+              };
+
+              switch (await nftService.mintNFT(founder.principal, mintRequest)) {
+                case (#ok(#Success(result))) {
+                  Debug.print("Successfully minted NFT for startup " # startupId # " with token ID: " # Nat.toText(result.tokenId));
+                };
+                case (#ok(#Error(error))) {
+                  Debug.print("Error minting NFT for startup " # startupId # ": " # error);
+                };
+                case (#err(error)) {
+                  Debug.print("Failed to mint NFT for startup " # startupId # ": " # error);
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+
+    public func mintNFTForStartup(startupId : Text) : async Result.Result<Text, Text> {
+      switch (storage.getStartup(startupId)) {
+        case null {
+          #err("Startup not found");
+        };
+        case (?startup) {
+          if (startup.status != "Active") {
+            #err("Startup must be active to mint NFT");
+          } else {
+            await mintStartupNFT(startupId);
+            #ok("NFT minted successfully for startup " # startupId);
+          };
+        };
+      };
     };
   };
 };

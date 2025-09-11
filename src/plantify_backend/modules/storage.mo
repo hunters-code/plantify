@@ -153,6 +153,7 @@ module Storage {
             website = startupRequest.website;
             location = startupRequest.location;
             companyType = startupRequest.companyType;
+            companyLogo = startupRequest.companyLogo;
 
             problemStatement = startupRequest.problemStatement;
             solution = startupRequest.solution;
@@ -261,6 +262,7 @@ module Storage {
             website = startup.website;
             location = startup.location;
             companyType = startup.companyType;
+            companyLogo = startup.companyLogo;
             problemStatement = startup.problemStatement;
             solution = startup.solution;
             targetMarket = startup.targetMarket;

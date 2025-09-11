@@ -5,6 +5,7 @@ import RegistrationService "./modules/services/registration";
 import StartupCreation "./modules/services/startupCreation";
 import TransferService "./modules/services/transfer";
 import CollateralService "./modules/services/collateral";
+import NFTService "./modules/services/nft";
 import Config "./config";
 
 persistent actor PlantifyBackend {
@@ -14,6 +15,7 @@ persistent actor PlantifyBackend {
   private transient let startupCreationService = StartupCreation.StartupCreationService();
   private transient let transferService = TransferService.TransferService(config);
   private transient let collateralService = CollateralService.CollateralService(config);
+  private transient let nftService = NFTService.NFTService(config);
 
   public shared (msg) func registerFounder(request : Types.FounderRegistrationRequest) : async Result.Result<Types.Founder, Text> {
     registrationService.registerFounder(msg.caller, request);
@@ -182,5 +184,61 @@ persistent actor PlantifyBackend {
 
   public shared (_msg) func getAllCollateralInfo() : async [Types.CollateralInfo] {
     collateralService.getAllCollateralInfo();
+  };
+
+  public shared (_msg) func updateStartupStatus(startupId : Text, newStatus : Text) : async Bool {
+    await collateralService.updateStartupStatus(startupId, newStatus);
+  };
+
+  public shared (_msg) func mintNFTForStartup(startupId : Text) : async Result.Result<Text, Text> {
+    await collateralService.mintNFTForStartup(startupId);
+  };
+
+  // ========================================
+  // NFT SERVICE METHODS
+  // ========================================
+
+  public shared (msg) func mintNFT(request : Types.MintNFTRequest) : async Result.Result<Types.MintNFTResponse, Text> {
+    await nftService.mintNFT(msg.caller, request);
+  };
+
+  public shared (msg) func transferNFT(request : Types.TransferNFTRequest) : async Result.Result<Types.TransferNFTResponse, Text> {
+    await nftService.transferNFT(msg.caller, request);
+  };
+
+  public shared (_msg) func getNFTInfo(tokenId : Nat) : async Result.Result<Types.NFTInfo, Text> {
+    nftService.getNFTInfo(tokenId);
+  };
+
+  public shared (_msg) func getNFTsByStartup(startupId : Text) : async Result.Result<[Types.NFTInfo], Text> {
+    nftService.getNFTsByStartup(startupId);
+  };
+
+  public shared (_msg) func getNFTBalance(account : Types.NFTAccount) : async Result.Result<Types.NFTBalanceResponse, Text> {
+    nftService.getNFTBalance(account);
+  };
+
+  public shared (_msg) func getNFTOwner(tokenId : Nat) : async Result.Result<Types.NFTOwnerResponse, Text> {
+    nftService.getNFTOwner(tokenId);
+  };
+
+  public shared (_msg) func getAllNFTs() : async [Types.NFTInfo] {
+    nftService.getAllNFTs();
+  };
+
+  public shared (_msg) func getCollectionInfo() : async Types.NFTConfig {
+    nftService.getCollectionInfo();
+  };
+
+  public shared (_msg) func canMintNFT(startupId : Text) : async Result.Result<Bool, Text> {
+    nftService.canMintNFT(startupId);
+  };
+
+  public shared (_msg) func getNFTStats() : async {
+    totalSupply : Nat;
+    totalStartups : Nat;
+    nextTokenId : Nat;
+  } {
+    nftService.getNFTStats();
   };
 };

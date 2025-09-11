@@ -21,6 +21,22 @@ module Config {
         decimals = 8;
         fee = 10000;
       };
+      nftToken = {
+        canisterId = "NFT_CANISTER_ID_HERE"; // Replace with actual NFT canister ID
+        name = "Plantify Startup NFTs";
+        symbol = "PLANT";
+        description = "NFTs representing ownership shares in Plantify startups";
+        logo = ?"https://plantify.com/logo.png";
+        maxMemoSize = 256;
+        txWindow = 86400000000000; // 24 hours in nanoseconds
+        permittedDrift = 60000000000; // 1 minute in nanoseconds
+        supplyCap = ?10000;
+        maxQueryBatchSize = ?100;
+        maxUpdateBatchSize = ?50;
+        defaultTakeValue = ?20;
+        maxTakeValue = ?100;
+        atomicBatchTransfers = ?true;
+      };
       plantifyAccount = "rrkah-fqaaa-aaaah-qcvmq-cai";
       useTestTokens = true;
     };
@@ -46,6 +62,22 @@ module Config {
         decimals = 8;
         fee = 10000;
       };
+      nftToken = {
+        canisterId = "NFT_PRODUCTION_CANISTER_ID_HERE"; // Replace with production NFT canister ID
+        name = "Plantify Startup NFTs";
+        symbol = "PLANT";
+        description = "NFTs representing ownership shares in Plantify startups";
+        logo = ?"https://plantify.com/logo.png";
+        maxMemoSize = 256;
+        txWindow = 86400000000000; // 24 hours in nanoseconds
+        permittedDrift = 60000000000; // 1 minute in nanoseconds
+        supplyCap = ?10000;
+        maxQueryBatchSize = ?100;
+        maxUpdateBatchSize = ?50;
+        defaultTakeValue = ?20;
+        maxTakeValue = ?100;
+        atomicBatchTransfers = ?true;
+      };
       plantifyAccount = "PLANTIFY_PRODUCTION_ACCOUNT_HERE"; // Replace with actual production account
       useTestTokens = false;
     };
@@ -70,6 +102,22 @@ module Config {
         symbol = "ckUSDC";
         decimals = 8;
         fee = 10000;
+      };
+      nftToken = {
+        canisterId = "NFT_TESTNET_CANISTER_ID_HERE"; // Replace with testnet NFT canister ID
+        name = "Plantify Startup NFTs";
+        symbol = "PLANT";
+        description = "NFTs representing ownership shares in Plantify startups";
+        logo = ?"https://plantify.com/logo.png";
+        maxMemoSize = 256;
+        txWindow = 86400000000000; // 24 hours in nanoseconds
+        permittedDrift = 60000000000; // 1 minute in nanoseconds
+        supplyCap = ?10000;
+        maxQueryBatchSize = ?100;
+        maxUpdateBatchSize = ?50;
+        defaultTakeValue = ?20;
+        maxTakeValue = ?100;
+        atomicBatchTransfers = ?true;
       };
       plantifyAccount = "PLANTIFY_TESTNET_ACCOUNT_HERE"; // Replace with testnet account
       useTestTokens = true;
