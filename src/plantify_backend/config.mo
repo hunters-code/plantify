@@ -3,31 +3,19 @@ import Types "./modules/types";
 module Config {
     public func getDevelopmentConfig() : Types.EnvironmentConfig {
         {
-            useTestToken = true;
-            mainnetCkUSDC = null;
-            plantifyAccount = "rrkah-fqaaa-aaaah-qcvmq-cai";
+            // Add your development configuration fields here
         }
     };
 
     public func getProductionConfig() : Types.EnvironmentConfig {
         {
-            useTestToken = false;
-            mainnetCkUSDC = ?{
-                canisterId = "ckUSDC_CANISTER_ID_HERE";
-                ledgerId = "ckUSDC_LEDGER_ID_HERE";
-            };
-            plantifyAccount = "PLANTIFY_PRODUCTION_ACCOUNT_HERE";
+            // Add your production configuration fields here
         }
     };
 
     public func getTestnetConfig() : Types.EnvironmentConfig {
         {
-            useTestToken = false;
-            mainnetCkUSDC = ?{
-                canisterId = "ckUSDC_TESTNET_CANISTER_ID_HERE";
-                ledgerId = "ckUSDC_TESTNET_LEDGER_ID_HERE";
-            };
-            plantifyAccount = "PLANTIFY_TESTNET_ACCOUNT_HERE";
+            // Add your testnet configuration fields here
         }
     };
 

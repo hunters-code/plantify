@@ -51,18 +51,6 @@ module Storage {
     );
     private var nextStartupId : Nat = 1;
 
-    // Collateral Storage
-    private var collateralInfo = HashMap.HashMap<Text, Types.CollateralInfo>(
-      0,
-      Text.equal,
-      Text.hash,
-    );
-    private var collateralTopUps = HashMap.HashMap<Text, Types.CollateralTopUp>(
-      0,
-      Text.equal,
-      Text.hash,
-    );
-    private var nextTopUpId : Nat = 1;
 
 
     // ========================================
@@ -187,9 +175,6 @@ module Storage {
             monthlyExpenses = startupRequest.monthlyExpenses;
             useOfFunds = startupRequest.useOfFunds;
 
-            // Collateral
-            collateralSource = startupRequest.collateralSource;
-            collateralAmount = startupRequest.collateralAmount;
 
             // Documents
             businessPlan = startupRequest.businessPlan;
@@ -261,78 +246,6 @@ module Storage {
       };
     };
 
-    // ========================================
-    // COLLATERAL METHODS
-    // ========================================
-
-    public func createCollateralInfo(startupId : Text, requiredAmount : Nat) : Text {
-      let now = Time.now();
-      let newCollateralInfo : Types.CollateralInfo = {
-        startupId = startupId;
-        requiredAmount = requiredAmount;
-        currentAmount = 0;
-        status = #Pending;
-        topUpHistory = [];
-        lockStartTime = null;
-        lockEndTime = null;
-        createdAt = now;
-        updatedAt = now;
-      };
-      collateralInfo.put(startupId, newCollateralInfo);
-      startupId;
-    };
-
-    public func getCollateralInfo(startupId : Text) : ?Types.CollateralInfo {
-      collateralInfo.get(startupId);
-    };
-
-    public func addCollateralTopUp(startupId : Text, amount : Nat, transactionId : ?Text) : Text {
-      let topUpId = Nat.toText(nextTopUpId);
-      nextTopUpId += 1;
-      let now = Time.now();
-      
-      let topUp : Types.CollateralTopUp = {
-        id = topUpId;
-        startupId = startupId;
-        amount = amount;
-        timestamp = now;
-        transactionId = transactionId;
-        status = "completed";
-      };
-      
-      collateralTopUps.put(topUpId, topUp);
-      
-      // Update collateral info
-      switch (collateralInfo.get(startupId)) {
-        case null { };
-        case (?info) {
-          let newCurrentAmount = info.currentAmount + amount;
-          let newStatus = if (newCurrentAmount >= info.requiredAmount) {
-            #Active;
-          } else {
-            #Pending;
-          };
-          
-          let updatedTopUpHistory = Array.append(info.topUpHistory, [topUp]);
-          
-          let updatedInfo : Types.CollateralInfo = {
-            startupId = info.startupId;
-            requiredAmount = info.requiredAmount;
-            currentAmount = newCurrentAmount;
-            status = newStatus;
-            topUpHistory = updatedTopUpHistory;
-            lockStartTime = if (newStatus == #Active) { ?now } else { info.lockStartTime };
-            lockEndTime = if (newStatus == #Active) { ?(now + 36 * 30 * 24 * 60 * 60 * 1000000000) } else { info.lockEndTime };
-            createdAt = info.createdAt;
-            updatedAt = now;
-          };
-          
-          collateralInfo.put(startupId, updatedInfo);
-        };
-      };
-      
-      topUpId;
-    };
 
     public func updateStartupStatus(startupId : Text, newStatus : Text) : Bool {
       switch (startups.get(startupId)) {
@@ -364,8 +277,6 @@ module Storage {
             monthlyRevenue = startup.monthlyRevenue;
             monthlyExpenses = startup.monthlyExpenses;
             useOfFunds = startup.useOfFunds;
-            collateralSource = startup.collateralSource;
-            collateralAmount = startup.collateralAmount;
             businessPlan = startup.businessPlan;
             financialProjections = startup.financialProjections;
             legalDocuments = startup.legalDocuments;
@@ -379,12 +290,6 @@ module Storage {
       };
     };
 
-    public func getCollateralTopUps(startupId : Text) : [Types.CollateralTopUp] {
-      switch (collateralInfo.get(startupId)) {
-        case null { [] };
-        case (?info) { info.topUpHistory };
-      };
-    };
 
 
   };

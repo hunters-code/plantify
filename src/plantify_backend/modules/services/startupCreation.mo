@@ -91,13 +91,6 @@ module StartupCreation {
         errors := Array.append(errors, ["Monthly expenses is required"]);
       };
 
-      // Collateral Validation
-      if (Text.size(request.collateralSource) == 0) {
-        errors := Array.append(errors, ["Collateral source is required"]);
-      };
-      if (Text.size(request.collateralAmount) == 0) {
-        errors := Array.append(errors, ["Collateral amount is required"]);
-      };
 
       // Status Validation
       if (Text.size(request.status) == 0) {
