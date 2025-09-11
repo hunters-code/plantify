@@ -126,6 +126,14 @@ persistent actor PlantifyBackend {
     };
   };
 
+  // ========================================
+  // AUTHENTICATION METHODS
+  // ========================================
+
+  public shared (msg) func whoami() : async Principal {
+    msg.caller;
+  };
+
   public shared func getTokenInfo(tokenType : Text) : async Types.TokenInfoResponse {
     switch (await transferService.getTokenInfo(tokenType)) {
       case (#ok(info)) {
