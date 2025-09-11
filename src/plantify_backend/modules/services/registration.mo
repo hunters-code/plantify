@@ -90,6 +90,10 @@ module Registration {
             }
         };
 
+        public func getAllFounders(): [Types.Founder] {
+            storage.getAllFounders();
+        };
+
         private func validateFounderRequest(request: Types.FounderRegistrationRequest): [Text] {
             var errors: [Text] = [];
 

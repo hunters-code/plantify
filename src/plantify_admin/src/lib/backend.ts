@@ -1,35 +1,61 @@
-import { Actor, HttpAgent } from '@dfinity/agent';
+import { Actor, HttpAgent, Identity } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
 import { idlFactory } from '../declarations/plantify_backend';
+import type { 
+  Founder, 
+  Investor, 
+  Startup, 
+  EnvironmentConfig,
+  BalanceResponse,
+  TransferAccount,
+  TopUpRequest,
+  CollateralInfo,
+  CollateralProgressResponse,
+  MintNFTRequest,
+  NFTInfo,
+  FounderRegistrationRequest,
+  InvestorRegistrationRequest,
+  StartupCreationRequest,
+  TransferResponse,
+  TopUpResponse,
+  MintNFTResponse
+} from '../declarations/plantify_backend/plantify_backend.did';
+
+type NFTStats = {
+  nextTokenId: number;
+  totalStartups: number;
+  totalSupply: number;
+};
 
 export interface BackendActor {
-  registerFounder: (request: any) => Promise<any>;
-  registerInvestor: (request: any) => Promise<any>;
-  createStartup: (request: any) => Promise<any>;
+  registerFounder: (request: FounderRegistrationRequest) => Promise<{ ok: Founder } | { err: string }>;
+  registerInvestor: (request: InvestorRegistrationRequest) => Promise<{ ok: Investor } | { err: string }>;
+  createStartup: (request: StartupCreationRequest) => Promise<{ ok: Startup } | { err: string }>;
   whoami: () => Promise<Principal>;
-  getEnvironmentConfig: () => Promise<any>;
+  getEnvironmentConfig: () => Promise<EnvironmentConfig>;
   getEnvironment: () => Promise<string>;
-  getICPBalance: (account: any) => Promise<any>;
-  getCkUSDCBalance: (account: any) => Promise<any>;
-  transferICP: (toAccount: any, amount: number, memo?: string) => Promise<any>;
-  transferCkUSDC: (toAccount: any, amount: number, memo?: string) => Promise<any>;
-  initializeCollateral: (startupId: string, requiredAmount: number, tokenType: string) => Promise<any>;
-  topUpCollateral: (request: any) => Promise<any>;
-  getCollateralStatus: (startupId: string) => Promise<any>;
-  getCollateralProgress: (startupId: string) => Promise<any>;
-  getAllCollateralInfo: () => Promise<any>;
-  mintNFT: (request: any) => Promise<any>;
-  getNFTInfo: (tokenId: number) => Promise<any>;
-  getNFTsByStartup: (startupId: string) => Promise<any>;
-  getAllNFTs: () => Promise<any>;
-  getNFTStats: () => Promise<any>;
+  getICPBalance: (account: TransferAccount) => Promise<BalanceResponse>;
+  getCkUSDCBalance: (account: TransferAccount) => Promise<BalanceResponse>;
+  transferICP: (toAccount: TransferAccount, amount: number, memo?: string) => Promise<TransferResponse>;
+  transferCkUSDC: (toAccount: TransferAccount, amount: number, memo?: string) => Promise<TransferResponse>;
+  initializeCollateral: (startupId: string, requiredAmount: number, tokenType: string) => Promise<{ ok: string } | { err: string }>;
+  topUpCollateral: (request: TopUpRequest) => Promise<{ ok: TopUpResponse } | { err: string }>;
+  getCollateralStatus: (startupId: string) => Promise<{ ok: CollateralInfo } | { err: string }>;
+  getCollateralProgress: (startupId: string) => Promise<CollateralProgressResponse>;
+  getAllCollateralInfo: () => Promise<CollateralInfo[]>;
+  mintNFT: (request: MintNFTRequest) => Promise<{ ok: MintNFTResponse } | { err: string }>;
+  getNFTInfo: (tokenId: number) => Promise<{ ok: NFTInfo } | { err: string }>;
+  getNFTsByStartup: (startupId: string) => Promise<{ ok: NFTInfo[] } | { err: string }>;
+  getAllNFTs: () => Promise<NFTInfo[]>;
+  getNFTStats: () => Promise<NFTStats>;
+  getFounders: () => Promise<Founder[]>;
 }
 
 export class BackendService {
   private actor: BackendActor | null = null;
   private agent: HttpAgent | null = null;
 
-  async initialize(identity: any) {
+  async initialize(identity: Identity) {
     const canisterId = 'a5ptu-ryaaa-aaaai-q32cq-cai'; // Mainnet canister ID from dfx.json
     
     this.agent = new HttpAgent({
@@ -85,36 +111,7 @@ export class BackendService {
     return await this.actor.registerInvestor(request);
   }
 
-  async createStartup(request: {
-    startupName: string;
-    sector: string;
-    foundedYear: string;
-    description: string;
-    website: string;
-    location: string;
-    companyType: string;
-    companyLogo?: string;
-    problemStatement: string;
-    solution: string;
-    targetMarket: string;
-    competitiveAdvantage: string;
-    marketingStrategy: string;
-    operationalProcess: string;
-    founderBackground: string;
-    teamMembers: any[];
-    advisors: string;
-    fundingGoal: string;
-    nftPrice: string;
-    periodicProfitSharing: string;
-    revenueModel: string;
-    monthlyRevenue: string;
-    monthlyExpenses: string;
-    useOfFunds: string;
-    businessPlan?: string;
-    financialProjections?: string;
-    legalDocuments?: string;
-    status: string;
-  }) {
+  async createStartup(request: StartupCreationRequest) {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.createStartup(request);
   }
@@ -129,12 +126,12 @@ export class BackendService {
     return await this.actor.getEnvironmentConfig();
   }
 
-  async getICPBalance(account: { owner: Principal; subaccount?: Uint8Array }) {
+  async getICPBalance(account: TransferAccount) {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getICPBalance(account);
   }
 
-  async getCkUSDCBalance(account: { owner: Principal; subaccount?: Uint8Array }) {
+  async getCkUSDCBalance(account: TransferAccount) {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getCkUSDCBalance(account);
   }
@@ -144,12 +141,7 @@ export class BackendService {
     return await this.actor.initializeCollateral(startupId, requiredAmount, tokenType);
   }
 
-  async topUpCollateral(request: {
-    startupId: string;
-    amount: number;
-    tokenType: string;
-    memo?: string;
-  }) {
+  async topUpCollateral(request: TopUpRequest) {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.topUpCollateral(request);
   }
@@ -169,18 +161,7 @@ export class BackendService {
     return await this.actor.getAllCollateralInfo();
   }
 
-  async mintNFT(request: {
-    startupId: string;
-    toAccount: { owner: Principal; subaccount?: Uint8Array };
-    metadata: {
-      tokenUri: string;
-      name?: string;
-      description?: string;
-      image?: string;
-      attributes?: [string, string][];
-    };
-    memo?: string;
-  }) {
+  async mintNFT(request: MintNFTRequest) {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.mintNFT(request);
   }
@@ -204,6 +185,12 @@ export class BackendService {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getNFTStats();
   }
+
+  async getFounders() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getFounders();
+  }
+
 }
 
 export const backendService = new BackendService();

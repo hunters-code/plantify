@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Principal } from '@dfinity/principal';
 import { authService, AuthState } from '../lib/auth';
 
 interface AuthContextType extends AuthState {

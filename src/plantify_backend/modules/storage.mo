@@ -4,6 +4,7 @@ import Nat "mo:base/Nat";
 import HashMap "mo:base/HashMap";
 import Time "mo:base/Time";
 import Array "mo:base/Array";
+import Iter "mo:base/Iter";
 import Types "./types";
 
 module Storage {
@@ -90,6 +91,14 @@ module Storage {
         case null { null };
         case (?id) { founders.get(id) };
       };
+    };
+
+    public func getAllFounders() : [Types.Founder] {
+      let founderArray = Array.map<(Text, Types.Founder), Types.Founder>(
+        Iter.toArray(founders.entries()),
+        func((id, founder) : (Text, Types.Founder)) : Types.Founder { founder }
+      );
+      founderArray;
     };
 
     // ========================================

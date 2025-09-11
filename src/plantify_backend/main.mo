@@ -29,6 +29,10 @@ persistent actor PlantifyBackend {
     startupCreationService.createStartup(msg.caller, request);
   };
 
+  public shared func getFounders() : async [Types.Founder] {
+    registrationService.getAllFounders();
+  };
+
   // ========================================
   // CONFIGURATION METHODS
   // ========================================

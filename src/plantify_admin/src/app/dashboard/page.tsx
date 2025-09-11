@@ -192,6 +192,14 @@ export default function Dashboard() {
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                 Admin Actions
               </h3>
+              <div className="space-y-4">
+                <button 
+                  onClick={() => router.push("/testing-data")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                >
+                  Create Testing Data
+                </button>
+              </div>
             </div>
           </div>
         </div>
