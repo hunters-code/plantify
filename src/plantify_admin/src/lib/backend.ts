@@ -51,6 +51,7 @@ export interface BackendActor {
   getNFTStats: () => Promise<NFTStats>;
   getFounders: () => Promise<Founder[]>;
   getAllStartups: () => Promise<Startup[]>;
+  updateStartupStatus: (startupId: string, status: string) => Promise<boolean>;
 }
 
 export class BackendService {
@@ -201,6 +202,11 @@ export class BackendService {
   async getAllStartups() {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getAllStartups();
+  }
+
+  async updateStartupStatus(startupId: string, status: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.updateStartupStatus(startupId, status);
   }
 
 }
