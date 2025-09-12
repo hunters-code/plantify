@@ -1,4 +1,4 @@
-import { Globe, ShieldUser } from "lucide-react";
+import { CircleDollarSign, DraftingCompass, Globe, ShieldUser, UsersRound } from "lucide-react";
 import Button from "./Button";
 
 export default function Hero() {
@@ -48,16 +48,16 @@ export default function Hero() {
         {/* Stats bar */}
         <div className="mt-6 flex gap-3 justify-center">
           <div className="flex items-center gap-3 rounded-xl px-4 py-3">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-              A
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full shadow-md">
+              <DraftingCompass size={18} className="text-amber-500" />
             </span>
             <div>
               <div className="text-sm font-semibold">247 Active Startups</div>
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-xl px-4 py-3">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-purple-700">
-              $
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full shadow-md">
+              <CircleDollarSign size={18} className="text-amber-500" />
             </span>
             <div>
               <div className="text-sm font-semibold">
@@ -66,8 +66,8 @@ export default function Hero() {
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-xl px-4 py-3">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 text-rose-700">
-              👥
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full shadow-md">
+              <UsersRound size={18} className="text-amber-500" />
             </span>
             <div>
               <div className="text-sm font-semibold">

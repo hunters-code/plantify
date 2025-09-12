@@ -39,10 +39,11 @@ export default function Footer() {
             {/* Brand / blurb */}
             <div className="sm:col-span-4">
               <a href="/" className="inline-flex items-center gap-2">
-                <span className="inline-block h-5 w-5 rounded-md bg-violet-500" />
-                <span className="font-ibm text-lg font-semibold text-gray-900">
-                  Plantify
-                </span>
+                <img
+                  src="/assets/images/company-logo.png"
+                  alt="Coworking founders and investors"
+                  className="w-32 object-cover"
+                />
               </a>
               <p className="mt-3 max-w-xs text-sm text-gray-600">
                 A decentralized startup investment platform offering stable
@@ -81,7 +82,11 @@ export default function Footer() {
             <p className="text-sm text-gray-600">©2025 Plantify</p>
 
             <div className="inline-flex items-center gap-2 text-sm text-gray-600">
-              <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-gradient-to-r from-pink-500 to-violet-500" />
+              <img
+                src="/assets/images/icp.png"
+                alt="ICP"
+                className="w-6 object-cover"
+              />
               <span>Built on Internet Computer Protocol.</span>
             </div>
           </div>
