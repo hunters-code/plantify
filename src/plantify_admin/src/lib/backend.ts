@@ -13,6 +13,8 @@ import type {
   CollateralProgressResponse,
   MintNFTRequest,
   NFTInfo,
+  NFTAccount,
+  NFTMetadata,
   FounderRegistrationRequest,
   InvestorRegistrationRequest,
   StartupCreationRequest,
@@ -207,6 +209,42 @@ export class BackendService {
   async updateStartupStatus(startupId: string, status: string) {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.updateStartupStatus(startupId, status);
+  }
+
+  async mintNFTForStartup(startupId: string, startup: Startup, toPrincipal: Principal) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    
+    // Create NFT account for the recipient
+    const nftAccount: NFTAccount = {
+      owner: toPrincipal,
+      subaccount: []
+    };
+
+    // Create NFT metadata
+    const metadata: NFTMetadata = {
+      tokenUri: `https://plantify.ic0.app/startup/${startupId}`,
+      name: [startup.startupName || `Startup ${startupId}`],
+      description: [startup.description || 'Plantify active startup NFT'],
+      attributes: [[
+        ['startup_id', startupId],
+        ['status', startup.status || 'approved'],
+        ['sector', startup.sector || 'Unknown'],
+        ['founded_year', startup.foundedYear || 'Unknown'],
+        ['funding_goal', startup.fundingGoal || '0'],
+        ['company_type', startup.companyType || 'Startup']
+      ]],
+      image: startup.companyLogo.length > 0 ? startup.companyLogo : []
+    };
+
+    // Create mint request
+    const mintRequest: MintNFTRequest = {
+      startupId: startupId,
+      metadata: metadata,
+      memo: [`Minted for active startup: ${startup.startupName || startupId}`],
+      toAccount: nftAccount
+    };
+
+    return await this.actor.mintNFT(mintRequest);
   }
 
 }

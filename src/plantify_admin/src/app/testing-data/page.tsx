@@ -17,7 +17,7 @@ import {
 import type { Founder, Startup } from "../../declarations/plantify_backend/plantify_backend.did";
 
 export default function TestingDataPage() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, principal } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [founders, setFounders] = useState<Founder[]>([]);
@@ -320,7 +320,9 @@ export default function TestingDataPage() {
     const startupName = startup?.startupName || startup?.id || "Unknown Startup";
     
     const confirmed = window.confirm(
-      `Are you sure you want to update the status of "${startupName}" to "${newStatus}"?\n\nThis action will be performed on the mainnet backend and cannot be undone.`
+      `Are you sure you want to update the status of "${startupName}" to "${newStatus}"?\n\nThis action will be performed on the mainnet backend and cannot be undone.${
+        newStatus === 'Active' ? '\n\nAn NFT will be automatically minted for this active startup.' : ''
+      }`
     );
     
     if (!confirmed) {
@@ -332,11 +334,38 @@ export default function TestingDataPage() {
       const result = await backendService.updateStartupStatus(selectedStartup, newStatus);
       
       if (result) {
-        alert(`Startup "${startupName}" status updated to "${newStatus}" successfully!`);
-        setNewStatus("");
+        let successMessage = `Startup "${startupName}" status updated to "${newStatus}" successfully!`;
+        
+        // If status is active, mint an NFT
+        if (newStatus === 'Active' && startup && principal) {
+          try {
+            console.log('Minting NFT for active startup:', startupName);
+            const nftResult = await backendService.mintNFTForStartup(selectedStartup, startup, principal);
+            
+            if ('ok' in nftResult) {
+              const nftResponse = nftResult.ok;
+              if ('Success' in nftResponse) {
+                successMessage += `\n\nNFT minted successfully! Token ID: ${nftResponse.Success.tokenId}`;
+                console.log('NFT minted successfully:', nftResponse.Success);
+              } else {
+                console.warn('NFT minting failed:', nftResponse.Error);
+                successMessage += `\n\nNote: Status updated but NFT minting failed: ${nftResponse.Error}`;
+              }
+            } else {
+              console.warn('NFT minting failed:', nftResult.err);
+              successMessage += `\n\nNote: Status updated but NFT minting failed: ${nftResult.err}`;
+            }
+          } catch (nftError) {
+            console.error('NFT minting error:', nftError);
+            successMessage += `\n\nNote: Status updated but NFT minting failed: ${nftError instanceof Error ? nftError.message : 'Unknown error'}`;
+          }
+        }
+        
+        alert(successMessage);
+      setNewStatus("");
         setSelectedStartup("");
         await loadData();
-        setCurrentStep(1);
+      setCurrentStep(1);
       } else {
         alert("Failed to update startup status. Please try again.");
       }

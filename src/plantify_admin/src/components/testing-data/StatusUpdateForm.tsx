@@ -82,9 +82,9 @@ export default function StatusUpdateForm({
               <div className="flex justify-between">
                 <span className="text-gray-600">Current Status:</span>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  selectedStartupData.status === 'approved' ? 'bg-green-100 text-green-800' :
-                  selectedStartupData.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                  selectedStartupData.status === 'active' ? 'bg-blue-100 text-blue-800' :
+                  selectedStartupData.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                  selectedStartupData.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                  selectedStartupData.status === 'Active' ? 'bg-blue-100 text-blue-800' :
                   'bg-yellow-100 text-yellow-800'
                 }`}>
                   {selectedStartupData.status || 'pending'}
@@ -115,17 +115,17 @@ export default function StatusUpdateForm({
             disabled={!selectedStartup}
           >
             <option value="">Select new status</option>
-            {selectedStartupData && selectedStartupData.status !== 'pending' && (
-              <option value="pending">Pending</option>
+            {selectedStartupData && selectedStartupData.status !== 'Pending' && (
+              <option value="Pending">Pending</option>
             )}
-            {selectedStartupData && selectedStartupData.status !== 'approved' && (
-              <option value="approved">Approved</option>
+            {selectedStartupData && selectedStartupData.status !== 'Approved' && (
+              <option value="Approved">Approved</option>
             )}
-            {selectedStartupData && selectedStartupData.status !== 'rejected' && (
-              <option value="rejected">Rejected</option>
+            {selectedStartupData && selectedStartupData.status !== 'Rejected' && (
+              <option value="Rejected">Rejected</option>
             )}
-            {selectedStartupData && selectedStartupData.status !== 'active' && (
-              <option value="active">Active</option>
+            {selectedStartupData && selectedStartupData.status !== 'Active' && (
+              <option value="Active">Active</option>
             )}
           </select>
           <p className="mt-1 text-xs text-gray-500">
@@ -134,6 +134,21 @@ export default function StatusUpdateForm({
               "Please select a startup first"
             }
           </p>
+          {newStatus === 'Active' && (
+            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start space-x-2">
+                <svg className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p className="text-xs font-medium text-blue-800">NFT Auto-Minting</p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    When set to active, an NFT will be automatically minted for this startup with metadata including company details and logo.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           {selectedStartupData && selectedStartupData.status === newStatus && (
             <p className="mt-1 text-xs text-amber-600">
               ⚠️ Selected status is the same as current status

@@ -3,6 +3,13 @@ interface Founder {
   email?: string;
 }
 
+interface TeamMember {
+  name: string;
+  role: string;
+  email: string;
+  isFounder: boolean;
+}
+
 interface Startup {
   id: string;
   startupName?: string;
@@ -10,7 +17,7 @@ interface Startup {
   status?: string;
   sector?: string;
   foundedYear?: string;
-  teamMembers?: any[];
+  teamMembers?: TeamMember[];
   fundingGoal?: string;
   website?: string;
 }
@@ -50,9 +57,9 @@ export default function DataOverview({ founders, startups }: DataOverviewProps) 
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-medium text-gray-900">{startup.startupName || "Unknown Startup"}</h4>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    startup.status === 'approved' ? 'bg-green-100 text-green-800' :
-                    startup.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                    startup.status === 'active' ? 'bg-blue-100 text-blue-800' :
+                    startup.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                    startup.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                    startup.status === 'Active' ? 'bg-blue-100 text-blue-800' :
                     'bg-yellow-100 text-yellow-800'
                   }`}>
                     {startup.status || 'pending'}
