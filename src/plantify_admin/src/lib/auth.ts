@@ -29,9 +29,7 @@ export class AuthService {
 
     return new Promise((resolve, reject) => {
       this.authClient!.login({
-        identityProvider: process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:4943/?canisterId=rdmx6-jaaaa-aaaah-qcaiq-cai'
-          : 'https://identity.ic0.app',
+        identityProvider: 'https://identity.ic0.app',
         onSuccess: async () => {
           this.principal = this.authClient!.getIdentity().getPrincipal();
           try {

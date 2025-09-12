@@ -31,6 +31,7 @@ export interface BackendActor {
   registerFounder: (request: FounderRegistrationRequest) => Promise<{ ok: Founder } | { err: string }>;
   registerInvestor: (request: InvestorRegistrationRequest) => Promise<{ ok: Investor } | { err: string }>;
   createStartup: (request: StartupCreationRequest) => Promise<{ ok: Startup } | { err: string }>;
+  createStartupForFounder: (founderId: string, request: StartupCreationRequest) => Promise<{ ok: Startup } | { err: string }>;
   whoami: () => Promise<Principal>;
   getEnvironmentConfig: () => Promise<EnvironmentConfig>;
   getEnvironment: () => Promise<string>;
@@ -49,6 +50,7 @@ export interface BackendActor {
   getAllNFTs: () => Promise<NFTInfo[]>;
   getNFTStats: () => Promise<NFTStats>;
   getFounders: () => Promise<Founder[]>;
+  getAllStartups: () => Promise<Startup[]>;
 }
 
 export class BackendService {
@@ -114,6 +116,11 @@ export class BackendService {
   async createStartup(request: StartupCreationRequest) {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.createStartup(request);
+  }
+
+  async createStartupForFounder(founderId: string, request: StartupCreationRequest) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.createStartupForFounder(founderId, request);
   }
 
   async whoami() {
@@ -189,6 +196,11 @@ export class BackendService {
   async getFounders() {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getFounders();
+  }
+
+  async getAllStartups() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getAllStartups();
   }
 
 }

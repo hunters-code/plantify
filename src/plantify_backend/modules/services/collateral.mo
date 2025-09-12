@@ -13,7 +13,7 @@ import Storage "../storage";
 import NFTService "./nft";
 
 module Collateral {
-  public class CollateralService(config : Types.EnvironmentConfig) {
+  public class CollateralService(config : Types.EnvironmentConfig, storage : Storage.UserStorage) {
     
     private var collateralInfo = HashMap.HashMap<Text, Types.CollateralInfo>(
       0,
@@ -28,8 +28,7 @@ module Collateral {
     private var nextTopUpId : Nat = 1;
 
     private let transferService = TransferService.TransferService(config);
-    private let storage = Storage.UserStorage();
-    private let nftService = NFTService.NFTService(config);
+    private let nftService = NFTService.NFTService(config, storage);
 
     public func initializeCollateral(
       startupId : Text, 

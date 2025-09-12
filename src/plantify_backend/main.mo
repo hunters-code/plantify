@@ -1,6 +1,8 @@
 import Text "mo:base/Text";
 import Result "mo:base/Result";
+import Iter "mo:base/Iter";
 import Types "./modules/types";
+import Storage "./modules/storage";
 import RegistrationService "./modules/services/registration";
 import StartupCreation "./modules/services/startupCreation";
 import TransferService "./modules/services/transfer";
@@ -11,11 +13,33 @@ import Config "./config";
 persistent actor PlantifyBackend {
   private let config : Types.EnvironmentConfig = Config.getCurrentConfig();
   
-  private transient let registrationService = RegistrationService.RegistrationService();
-  private transient let startupCreationService = StartupCreation.StartupCreationService();
+  // Stable storage variables
+  private var foundersEntries : [(Text, Types.Founder)] = [];
+  private var founderPrincipalsEntries : [(Principal, Text)] = [];
+  private var investorsEntries : [(Text, Types.Investor)] = [];
+  private var investorPrincipalsEntries : [(Principal, Text)] = [];
+  private var startupsEntries : [(Text, Types.Startup)] = [];
+  private var founderStartupsEntries : [(Text, [Text])] = [];
+  private var nextFounderId : Nat = 1;
+  private var nextInvestorId : Nat = 1;
+  private var nextStartupId : Nat = 1;
+  
+  private transient let storage = Storage.UserStorage(
+    foundersEntries,
+    founderPrincipalsEntries,
+    investorsEntries,
+    investorPrincipalsEntries,
+    startupsEntries,
+    founderStartupsEntries,
+    nextFounderId,
+    nextInvestorId,
+    nextStartupId
+  );
+  private transient let registrationService = RegistrationService.RegistrationService(storage);
+  private transient let startupCreationService = StartupCreation.StartupCreationService(storage);
   private transient let transferService = TransferService.TransferService(config);
-  private transient let collateralService = CollateralService.CollateralService(config);
-  private transient let nftService = NFTService.NFTService(config);
+  private transient let collateralService = CollateralService.CollateralService(config, storage);
+  private transient let nftService = NFTService.NFTService(config, storage);
 
   public shared (msg) func registerFounder(request : Types.FounderRegistrationRequest) : async Result.Result<Types.Founder, Text> {
     registrationService.registerFounder(msg.caller, request);
@@ -29,8 +53,17 @@ persistent actor PlantifyBackend {
     startupCreationService.createStartup(msg.caller, request);
   };
 
+  // Admin function to create startup for any founder
+  public shared (_msg) func createStartupForFounder(founderId : Text, request : Types.StartupCreationRequest) : async Result.Result<Types.Startup, Text> {
+    startupCreationService.createStartupForFounder(founderId, request);
+  };
+
   public shared func getFounders() : async [Types.Founder] {
     registrationService.getAllFounders();
+  };
+
+  public shared func getAllStartups() : async [Types.Startup] {
+    storage.getAllStartups();
   };
 
   // ========================================
@@ -252,5 +285,33 @@ persistent actor PlantifyBackend {
     nextTokenId : Nat;
   } {
     nftService.getNFTStats();
+  };
+
+  // ========================================
+  // PERSISTENCE METHODS
+  // ========================================
+
+  system func preupgrade() {
+    foundersEntries := Iter.toArray(storage.founders.entries());
+    founderPrincipalsEntries := Iter.toArray(storage.founderPrincipals.entries());
+    investorsEntries := Iter.toArray(storage.investors.entries());
+    investorPrincipalsEntries := Iter.toArray(storage.investorPrincipals.entries());
+    startupsEntries := Iter.toArray(storage.startups.entries());
+    founderStartupsEntries := Iter.toArray(storage.founderStartups.entries());
+    nextFounderId := storage.nextFounderId;
+    nextInvestorId := storage.nextInvestorId;
+    nextStartupId := storage.nextStartupId;
+  };
+
+  system func postupgrade() {
+    foundersEntries := [];
+    founderPrincipalsEntries := [];
+    investorsEntries := [];
+    investorPrincipalsEntries := [];
+    startupsEntries := [];
+    founderStartupsEntries := [];
+    nextFounderId := 1;
+    nextInvestorId := 1;
+    nextStartupId := 1;
   };
 };

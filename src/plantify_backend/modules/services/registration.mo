@@ -7,8 +7,7 @@ import Types "../types";
 import Storage "../storage";
 
 module Registration {
-    public class RegistrationService() {
-        private let storage = Storage.UserStorage();
+    public class RegistrationService(storage: Storage.UserStorage) {
 
         public func registerFounder(
             principal: Principal,

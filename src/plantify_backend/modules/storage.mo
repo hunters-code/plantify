@@ -8,49 +8,65 @@ import Iter "mo:base/Iter";
 import Types "./types";
 
 module Storage {
-  public class UserStorage() {
+  public class UserStorage(
+    foundersEntries: [(Text, Types.Founder)],
+    founderPrincipalsEntries: [(Principal, Text)],
+    investorsEntries: [(Text, Types.Investor)],
+    investorPrincipalsEntries: [(Principal, Text)],
+    startupsEntries: [(Text, Types.Startup)],
+    founderStartupsEntries: [(Text, [Text])],
+    initialNextFounderId: Nat,
+    initialNextInvestorId: Nat,
+    initialNextStartupId: Nat
+  ) {
     // ========================================
     // STORAGE VARIABLES
     // ========================================
     
     // Founder Storage
-    private var founders = HashMap.HashMap<Text, Types.Founder>(
-      0,
+    public var founders = HashMap.fromIter<Text, Types.Founder>(
+      foundersEntries.vals(),
+      foundersEntries.size(),
       Text.equal,
       Text.hash,
     );
-    private var founderPrincipals = HashMap.HashMap<Principal, Text>(
-      0,
+    public var founderPrincipals = HashMap.fromIter<Principal, Text>(
+      founderPrincipalsEntries.vals(),
+      founderPrincipalsEntries.size(),
       Principal.equal,
       Principal.hash,
     );
-    private var nextFounderId : Nat = 1;
+    public var nextFounderId : Nat = initialNextFounderId;
 
     // Investor Storage
-    private var investors = HashMap.HashMap<Text, Types.Investor>(
-      0,
+    public var investors = HashMap.fromIter<Text, Types.Investor>(
+      investorsEntries.vals(),
+      investorsEntries.size(),
       Text.equal,
       Text.hash,
     );
-    private var investorPrincipals = HashMap.HashMap<Principal, Text>(
-      0,
+    public var investorPrincipals = HashMap.fromIter<Principal, Text>(
+      investorPrincipalsEntries.vals(),
+      investorPrincipalsEntries.size(),
       Principal.equal,
       Principal.hash,
     );
-    private var nextInvestorId : Nat = 1;
+    public var nextInvestorId : Nat = initialNextInvestorId;
 
     // Startup Storage
-    private var startups = HashMap.HashMap<Text, Types.Startup>(
-      0,
+    public var startups = HashMap.fromIter<Text, Types.Startup>(
+      startupsEntries.vals(),
+      startupsEntries.size(),
       Text.equal,
       Text.hash,
     );
-    private var founderStartups = HashMap.HashMap<Text, [Text]>(
-      0,
+    public var founderStartups = HashMap.fromIter<Text, [Text]>(
+      founderStartupsEntries.vals(),
+      founderStartupsEntries.size(),
       Text.equal,
       Text.hash,
     );
-    private var nextStartupId : Nat = 1;
+    public var nextStartupId : Nat = initialNextStartupId;
 
 
 
@@ -245,6 +261,17 @@ module Storage {
       };
     };
 
+    public func getAllStartups() : [Types.Startup] {
+      let startupArray = Array.map<(Text, Types.Startup), Types.Startup>(
+        Iter.toArray(startups.entries()),
+        func(entry : (Text, Types.Startup)) : Types.Startup {
+          let (id, startup) = entry;
+          startup;
+        },
+      );
+      startupArray;
+    };
+
     // ========================================
     // FOUNDER-STARTUP RELATIONSHIP METHODS
     // ========================================
@@ -300,7 +327,6 @@ module Storage {
         };
       };
     };
-
 
 
   };

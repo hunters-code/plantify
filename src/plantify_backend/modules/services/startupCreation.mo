@@ -6,8 +6,7 @@ import Types "../types";
 import Storage "../storage";
 
 module StartupCreation {
-  public class StartupCreationService() {
-    private let storage = Storage.UserStorage();
+  public class StartupCreationService(storage: Storage.UserStorage) {
 
     public func createStartup(
       principal : Principal,
@@ -28,6 +27,43 @@ module StartupCreation {
 
           // Create startup with founder validation
           switch (storage.addStartup(founder.id, request)) {
+            case null {
+              #err("Failed to create startup");
+            };
+            case (?startupId) {
+              switch (storage.getStartup(startupId)) {
+                case null {
+                  #err("Failed to retrieve created startup");
+                };
+                case (?createdStartup) {
+                  #ok(createdStartup);
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+
+    public func createStartupForFounder(
+      founderId : Text,
+      request : Types.StartupCreationRequest,
+    ) : Result.Result<Types.Startup, Text> {
+      // Validate that founder exists
+      switch (storage.getFounder(founderId)) {
+        case null {
+          #err("Founder not found with ID: " # founderId);
+        };
+        case (?_) {
+          let validationErrors = validateStartupRequest(request);
+
+          if (validationErrors.size() > 0) {
+            let errorMessage = Text.join("; ", validationErrors.vals());
+            return #err(errorMessage);
+          };
+
+          // Create startup with founder validation
+          switch (storage.addStartup(founderId, request)) {
             case null {
               #err("Failed to create startup");
             };

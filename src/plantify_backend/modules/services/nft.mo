@@ -13,7 +13,7 @@ import Types "../types";
 import Storage "../storage";
 
 module NFT {
-  public class NFTService(config : Types.EnvironmentConfig) {
+  public class NFTService(config : Types.EnvironmentConfig, storage : Storage.UserStorage) {
     
     // Storage for NFT information
     private var nftInfo = HashMap.HashMap<Nat, Types.NFTInfo>(
@@ -27,9 +27,6 @@ module NFT {
       Text.hash,
     );
     private var nextTokenId : Nat = 1;
-
-    // Storage service instance
-    private let storage = Storage.UserStorage();
 
     // Mint NFT for a startup
     public func mintNFT(

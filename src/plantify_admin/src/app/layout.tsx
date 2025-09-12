@@ -9,8 +9,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="light" style={{ colorScheme: 'light' }}>
+      <body className="light" style={{ colorScheme: 'light' }}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
