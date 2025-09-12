@@ -1,0 +1,476 @@
+type TransferResponse = 
+ variant {
+   Error: text;
+   Success:
+    record {
+      amount: nat;
+      blockIndex: nat;
+      toAccount: TransferAccount;
+      tokenType: text;
+      transactionId: text;
+    };
+ };
+type TransferNFTResponse = 
+ variant {
+   Error: text;
+   Success: record {
+              tokenId: nat;
+              transactionId: opt text;
+            };
+ };
+type TransferNFTRequest = 
+ record {
+   memo: opt text;
+   toAccount: NFTAccount;
+   tokenId: nat;
+ };
+type TransferArgs = 
+ record {
+   amount: nat;
+   memo: opt text;
+   toAccount: TransferAccount;
+   tokenType: text;
+ };
+type TransferAccount = 
+ record {
+   owner: principal;
+   subaccount: opt blob;
+ };
+type TopUpResponse = 
+ variant {
+   Error: text;
+   Success:
+    record {
+      amount: nat;
+      isFullyPaid: bool;
+      newTotal: nat;
+      remainingAmount: nat;
+      tokenType: text;
+      topUpId: text;
+      transactionId: text;
+    };
+ };
+type TopUpRequest = 
+ record {
+   amount: nat;
+   memo: opt text;
+   startupId: text;
+   tokenType: text;
+ };
+type TokenInfoResponse = 
+ variant {
+   Error: text;
+   Success:
+    record {
+      decimals: nat8;
+      fee: nat;
+      name: text;
+      symbol: text;
+      tokenType: text;
+    };
+ };
+type TokenConfig = 
+ record {
+   canisterId: text;
+   decimals: nat8;
+   fee: nat;
+   ledgerId: text;
+   name: text;
+   symbol: text;
+ };
+type Time = int;
+type TeamMember = 
+ record {
+   background: text;
+   email: text;
+   id: nat;
+   isFounder: bool;
+   linkedin: text;
+   name: text;
+   photo: opt text;
+   role: text;
+ };
+type StartupCreationRequest = 
+ record {
+   advisors: text;
+   businessPlan: opt text;
+   companyLogo: opt text;
+   companyType: text;
+   competitiveAdvantage: text;
+   description: text;
+   financialProjections: opt text;
+   foundedYear: text;
+   founderBackground: text;
+   fundingGoal: text;
+   legalDocuments: opt text;
+   location: text;
+   marketingStrategy: text;
+   monthlyExpenses: text;
+   monthlyRevenue: text;
+   nftPrice: text;
+   operationalProcess: text;
+   periodicProfitSharing: text;
+   problemStatement: text;
+   revenueModel: text;
+   sector: text;
+   solution: text;
+   startupName: text;
+   status: text;
+   targetMarket: text;
+   teamMembers: vec TeamMember;
+   useOfFunds: text;
+   website: text;
+ };
+type Startup = 
+ record {
+   advisors: text;
+   businessPlan: opt text;
+   companyLogo: opt text;
+   companyType: text;
+   competitiveAdvantage: text;
+   createdAt: Time;
+   description: text;
+   financialProjections: opt text;
+   foundedYear: text;
+   founderBackground: text;
+   founderId: text;
+   fundingGoal: text;
+   id: text;
+   legalDocuments: opt text;
+   location: text;
+   marketingStrategy: text;
+   monthlyExpenses: text;
+   monthlyRevenue: text;
+   nftPrice: text;
+   operationalProcess: text;
+   periodicProfitSharing: text;
+   problemStatement: text;
+   revenueModel: text;
+   sector: text;
+   solution: text;
+   startupName: text;
+   status: text;
+   targetMarket: text;
+   teamMembers: vec TeamMember;
+   updatedAt: Time;
+   useOfFunds: text;
+   website: text;
+ };
+type Result_9 = 
+ variant {
+   err: text;
+   ok: NFTBalanceResponse;
+ };
+type Result_8 = 
+ variant {
+   err: text;
+   ok: NFTInfo;
+ };
+type Result_7 = 
+ variant {
+   err: text;
+   ok: NFTOwnerResponse;
+ };
+type Result_6 = 
+ variant {
+   err: text;
+   ok: vec NFTInfo;
+ };
+type Result_5 = 
+ variant {
+   err: text;
+   ok: MintNFTResponse;
+ };
+type Result_4 = 
+ variant {
+   err: text;
+   ok: text;
+ };
+type Result_3 = 
+ variant {
+   err: text;
+   ok: Founder;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: Investor;
+ };
+type Result_13 = 
+ variant {
+   err: text;
+   ok: bool;
+ };
+type Result_12 = 
+ variant {
+   err: text;
+   ok: Startup;
+ };
+type Result_11 = 
+ variant {
+   err: text;
+   ok: CollateralInfo;
+ };
+type Result_10 = 
+ variant {
+   err: text;
+   ok: vec CollateralTopUp;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: TopUpResponse;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: TransferNFTResponse;
+ };
+type NFTOwnerResponse = 
+ variant {
+   Error: text;
+   Success: record {
+              owner: opt NFTAccount;
+              tokenId: nat;
+            };
+ };
+type NFTMetadata = 
+ record {
+   attributes: opt vec record {
+                         text;
+                         text;
+                       };
+   description: opt text;
+   image: opt text;
+   name: opt text;
+   tokenUri: text;
+ };
+type NFTInfo = 
+ record {
+   metadata: NFTMetadata;
+   mintedAt: Time;
+   owner: NFTAccount;
+   startupId: text;
+   tokenId: nat;
+ };
+type NFTConfig = 
+ record {
+   atomicBatchTransfers: opt bool;
+   canisterId: text;
+   defaultTakeValue: opt nat;
+   description: text;
+   logo: opt text;
+   maxMemoSize: nat;
+   maxQueryBatchSize: opt nat;
+   maxTakeValue: opt nat;
+   maxUpdateBatchSize: opt nat;
+   name: text;
+   permittedDrift: nat;
+   supplyCap: opt nat;
+   symbol: text;
+   txWindow: nat;
+ };
+type NFTBalanceResponse = 
+ variant {
+   Error: text;
+   Success: record {
+              account: NFTAccount;
+              balance: nat;
+            };
+ };
+type NFTAccount = 
+ record {
+   owner: principal;
+   subaccount: opt blob;
+ };
+type MintNFTResponse = 
+ variant {
+   Error: text;
+   Success: record {
+              startupId: text;
+              tokenId: nat;
+              transactionId: opt text;
+            };
+ };
+type MintNFTRequest = 
+ record {
+   memo: opt text;
+   metadata: NFTMetadata;
+   startupId: text;
+   toAccount: NFTAccount;
+ };
+type InvestorRegistrationRequest = 
+ record {
+   availableCapital: text;
+   city: text;
+   country: text;
+   email: text;
+   fullName: text;
+   investmentExperience: text;
+   investmentGoals: text;
+   monthlyBudget: text;
+   phone: text;
+   riskTolerance: text;
+ };
+type Investor = 
+ record {
+   availableCapital: text;
+   city: text;
+   country: text;
+   createdAt: Time;
+   email: text;
+   fullName: text;
+   id: text;
+   investmentExperience: text;
+   investmentGoals: text;
+   monthlyBudget: text;
+   phone: text;
+   "principal": principal;
+   riskTolerance: text;
+   updatedAt: Time;
+ };
+type FounderRegistrationRequest = 
+ record {
+   address: text;
+   email: text;
+   experience: text;
+   expertise: text;
+   fullName: text;
+   idNumber: text;
+   linkedIn: text;
+   phone: text;
+   previousBusinesses: text;
+   taxNumber: text;
+ };
+type Founder = 
+ record {
+   address: text;
+   createdAt: Time;
+   email: text;
+   experience: text;
+   expertise: text;
+   fullName: text;
+   id: text;
+   idNumber: text;
+   linkedIn: text;
+   phone: text;
+   previousBusinesses: text;
+   "principal": principal;
+   taxNumber: text;
+   updatedAt: Time;
+ };
+type EnvironmentConfig = 
+ record {
+   ckUSDCToken: TokenConfig;
+   environment: text;
+   icpToken: TokenConfig;
+   nftToken: NFTConfig;
+   plantifyAccount: text;
+   useTestTokens: bool;
+ };
+type CollateralTopUp = 
+ record {
+   amount: nat;
+   id: text;
+   startupId: text;
+   status: text;
+   timestamp: Time;
+   tokenType: text;
+   transactionId: opt text;
+ };
+type CollateralStatus = 
+ variant {
+   Active;
+   Locked;
+   Pending;
+   Released;
+ };
+type CollateralProgressResponse = 
+ variant {
+   Error: text;
+   Success: CollateralProgress;
+ };
+type CollateralProgress = 
+ record {
+   currentAmount: nat;
+   isFullyPaid: bool;
+   percentage: nat;
+   requiredAmount: nat;
+   status: text;
+   tokenType: text;
+ };
+type CollateralInfo = 
+ record {
+   createdAt: Time;
+   currentAmount: nat;
+   lockEndTime: opt Time;
+   lockStartTime: opt Time;
+   requiredAmount: nat;
+   startupId: text;
+   status: CollateralStatus;
+   tokenType: text;
+   topUpHistory: vec CollateralTopUp;
+   updatedAt: Time;
+ };
+type BalanceResponse = 
+ variant {
+   Error: text;
+   Success: record {
+              account: TransferAccount;
+              balance: nat;
+              tokenType: text;
+            };
+ };
+service : {
+  calculateRequiredCollateral: (monthlyProfitSharing: nat, tokenType:
+   text) -> (nat);
+  canMintNFT: (startupId: text) -> (Result_13);
+  createStartup: (request: StartupCreationRequest) -> (Result_12);
+  createStartupForFounder: (founderId: text, request:
+   StartupCreationRequest) -> (Result_12);
+  getAllCollateralInfo: () -> (vec CollateralInfo);
+  getAllNFTs: () -> (vec NFTInfo);
+  getAllStartups: () -> (vec Startup);
+  getBalance: (account: TransferAccount, tokenType: text) ->
+   (BalanceResponse);
+  getCkUSDCBalance: (account: TransferAccount) -> (BalanceResponse);
+  getCkUSDCTokenConfig: () -> (TokenConfig);
+  getCollateralProgress: (startupId: text) -> (CollateralProgressResponse);
+  getCollateralStatus: (startupId: text) -> (Result_11);
+  getCollateralTopUpHistory: (startupId: text) -> (Result_10);
+  getCollectionInfo: () -> (NFTConfig);
+  getEnvironment: () -> (text);
+  getEnvironmentConfig: () -> (EnvironmentConfig);
+  getFounders: () -> (vec Founder);
+  getICPBalance: (account: TransferAccount) -> (BalanceResponse);
+  getICPTokenConfig: () -> (TokenConfig);
+  getNFTBalance: (account: NFTAccount) -> (Result_9);
+  getNFTInfo: (tokenId: nat) -> (Result_8);
+  getNFTOwner: (tokenId: nat) -> (Result_7);
+  getNFTStats: () ->
+   (record {
+      nextTokenId: nat;
+      totalStartups: nat;
+      totalSupply: nat;
+    });
+  getNFTsByStartup: (startupId: text) -> (Result_6);
+  getPlantifyAccount: () -> (text);
+  getTokenCanisterId: (tokenType: text) -> (opt text);
+  getTokenInfo: (tokenType: text) -> (TokenInfoResponse);
+  initializeCollateral: (startupId: text, requiredAmount: nat, tokenType:
+   text) -> (Result_4);
+  isUsingTestTokens: () -> (bool);
+  mintNFT: (request: MintNFTRequest) -> (Result_5);
+  mintNFTForStartup: (startupId: text) -> (Result_4);
+  registerFounder: (request: FounderRegistrationRequest) -> (Result_3);
+  registerInvestor: (request: InvestorRegistrationRequest) -> (Result_2);
+  topUpCollateral: (request: TopUpRequest) -> (Result_1);
+  transferCkUSDC: (toAccount: TransferAccount, amount: nat, memo:
+   opt text) -> (TransferResponse);
+  transferICP: (toAccount: TransferAccount, amount: nat, memo: opt text) ->
+   (TransferResponse);
+  transferNFT: (request: TransferNFTRequest) -> (Result);
+  transferTokens: (args: TransferArgs) -> (TransferResponse);
+  updateStartupStatus: (startupId: text, newStatus: text) -> (bool);
+  whoami: () -> (principal);
+}
