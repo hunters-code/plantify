@@ -1,11 +1,7 @@
 "use client";
 
 import { Funnel, ListFilter, Search } from "lucide-react";
-import Navbar from "../components/Navbar";
-import ProductCard from "../components/ProductCard";
-import Pagination from "../components/Pagination";
-import WhyPlantify from "../components/WhyPlantify";
-import Footer from "../components/Footer";
+import { Navbar, ProductCard, Pagination, WhyPlantify, Footer } from "../../components";
 
 export default function Explores() {
   const startups = [

@@ -1,5 +1,5 @@
 import { CircleDollarSign, DraftingCompass, Globe, ShieldUser, UsersRound } from "lucide-react";
-import Button from "./Button";
+import Button from "../ui/Button";
 
 export default function Hero() {
   return (

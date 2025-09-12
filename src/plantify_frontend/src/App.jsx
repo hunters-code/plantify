@@ -1,31 +1,30 @@
-// import { plantify_backend } from "declarations/plantify_backend";
-import { useState } from "react";
-import Navbar from "./components/Navbar.jsx";
-import Hero from "./components/Hero.jsx";
-import HowItWork from "./components/HowItWork.jsx";
-import SupportedSectors from "./components/SupportedSectors";
-import FeaturedStartups, { StartupCard } from "./components/FeaturedStartups";
-import WhyPlantify from "./components/WhyPlantify";
-import Footer from "./components/Footer";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  HomePage,
+  AuthPage,
+  ExplorePage,
+  FounderRegistrationPage,
+  InvestorRegistrationPage,
+  StartupDetailsPage,
+  CreateStartupPage
+} from "./pages";
 
-export default function App() {
-  // const [greeting, setGreeting] = useState("");
-
-  // function handleSubmit(e) {
-  //   e.preventDefault();
-  //   const name = e.target.elements.name.value;
-  //   plantify_backend.greet(name).then((g) => setGreeting(g));
-  // }
-
+function App() {
   return (
-    <div className="bg-gray-50 text-gray-900">
-      <Navbar />
-      <Hero />
-      <HowItWork />
-      <SupportedSectors />
-      <FeaturedStartups />
-      <WhyPlantify />
-      <Footer />
-    </div>
+    <Router>
+      <div className="bg-gray-50 text-gray-900">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/explore" element={<ExplorePage />} />
+          <Route path="/register/founder" element={<FounderRegistrationPage />} />
+          <Route path="/register/investor" element={<InvestorRegistrationPage />} />
+          <Route path="/startup/:id" element={<StartupDetailsPage />} />
+          <Route path="/startup/create" element={<CreateStartupPage />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
+
+export default App;

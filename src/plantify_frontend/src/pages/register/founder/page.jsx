@@ -9,12 +9,11 @@ import {
     CircleCheckBig,
     CircleArrowLeft,
 } from "lucide-react";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import PersonalInformationForm from "./partial/PersonalInformationForm";
-import ProfessionalBackgroundForm from "./partial/ProfessionalBackgroundForm";
-import VerificationDocumentsForm from "./partial/VerificationDocumentsForm";
-import TermsAgreementForm from "./partial/TermsAgreementForm";
+import { Navbar, Footer } from "../../../components";
+import PersonalInformationForm from "./components/PersonalInformationForm";
+import ProfessionalBackgroundForm from "./components/ProfessionalBackgroundForm";
+import VerificationDocumentsForm from "./components/VerificationDocumentsForm";
+import TermsAgreementForm from "./components/TermsAgreementForm";
 
 export default function RegisterFounder() {
     const [step, setStep] = useState(1);
