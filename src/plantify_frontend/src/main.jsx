@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./globals.css";
 import App from "./App";
 import Explores from "./explores/page"; 
+import Auth from "./auth/page"; 
+import WelcomePage from "./welcome-page/page"; 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -11,6 +13,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/explores" element={<Explores />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/welcome-page" element={<WelcomePage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
