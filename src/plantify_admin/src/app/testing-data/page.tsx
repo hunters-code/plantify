@@ -244,6 +244,7 @@ export default function TestingDataPage() {
       // Check if the result is an error
       console.log(result);
       
+      
       if ('err' in result) {
         throw new Error(result.err);
       }
