@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { AlertTriangle, Banknote, BanknoteArrowUp, BarChart3, ChartCandlestick, Eye, FileText, FolderOpen, GalleryHorizontalEnd, Sparkle, ThumbsUp, Users } from "lucide-react";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import Tabs from "../../components/layout/Tabs";
+import Navbar from "../../../components/layout/Navbar";
+import Footer from "../../../components/layout/Footer";
+import Tabs from "../../../components/layout/Tabs";
 
 // partials
 import Overview from "./partial/Overview";
