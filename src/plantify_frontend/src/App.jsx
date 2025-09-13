@@ -3,6 +3,7 @@ import {
   HomePage,
   AuthPage,
   ExplorePage,
+  ExploreDetailPage,
   FounderRegistrationPage,
   InvestorRegistrationPage,
   StartupDetailsPage,
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/explore" element={<ExplorePage />} />
+          <Route path="/explore/detail" element={<ExploreDetailPage />} />
           <Route path="/register/founder" element={<FounderRegistrationPage />} />
           <Route path="/register/investor" element={<InvestorRegistrationPage />} />
           <Route path="/startup/:id" element={<StartupDetailsPage />} />
