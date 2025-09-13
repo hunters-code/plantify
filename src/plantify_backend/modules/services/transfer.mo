@@ -3,228 +3,249 @@ import Text "mo:base/Text";
 import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Result "mo:base/Result";
+import Debug "mo:base/Debug";
+import Error "mo:base/Error";
 import Types "../types";
-import Storage "../storage";
-import TokenFactory "../tokens/tokenFactory";
 
 module Transfer {
   public class TransferService(config : Types.EnvironmentConfig) {
-    private let storage = Storage.UserStorage();
-    private let tokenService = TokenFactory.TokenService(config);
+    
+    // ICRC-1 Ledger Interface Types
+    public type Account = {
+      owner : Principal;
+      subaccount : ?Blob;
+    };
 
-    public func initializeCollateral(startupId : Text, requiredAmount : Nat) : Result.Result<Text, Text> {
-      switch (storage.getStartup(startupId)) {
-        case null {
-          #err("Startup not found");
+    public type Subaccount = Blob;
+    public type Tokens = Nat;
+    public type Memo = Blob;
+    public type Timestamp = Nat64;
+    public type BlockIndex = Nat;
+    public type TransferArg = {
+      from_subaccount : ?Subaccount;
+      to : Account;
+      amount : Tokens;
+      fee : ?Tokens;
+      memo : ?Memo;
+      created_at_time : ?Timestamp;
+    };
+    public type TransferError = {
+      #BadFee : { expected_fee : Tokens };
+      #BadBurn : { min_burn_amount : Tokens };
+      #InsufficientFunds : { balance : Tokens };
+      #TooOld;
+      #CreatedInFuture : { ledger_time : Timestamp };
+      #TemporarilyUnavailable;
+      #Duplicate : { duplicate_of : BlockIndex };
+      #GenericError : { error_code : Nat; message : Text };
+    };
+    public type TransferResult = Result.Result<BlockIndex, TransferError>;
+
+    // Transfer Arguments
+    public type TransferArgs = {
+      amount : Nat;
+      toAccount : Account;
+      tokenType : Text; // "ICP" or "ckUSDC"
+      memo : ?Text;
+    };
+
+    public type TransferResponse = {
+      #Success : {
+        blockIndex : BlockIndex;
+        transactionId : Text;
+        amount : Nat;
+        toAccount : Account;
+        tokenType : Text;
+      };
+      #Error : Text;
+    };
+
+    // Get the appropriate ledger canister based on token type
+    private func getLedgerCanister(tokenType : Text) : Text {
+      switch (tokenType) {
+        case ("ICP") { config.icpToken.canisterId };
+        case ("ckUSDC") { config.ckUSDCToken.canisterId };
+        case (_) { "" };
+      };
+    };
+
+    // Get token fee based on token type
+    private func getTokenFee(tokenType : Text) : Nat {
+      switch (tokenType) {
+        case ("ICP") { config.icpToken.fee };
+        case ("ckUSDC") { config.ckUSDCToken.fee };
+        case (_) { 0 };
+      };
+    };
+
+    // Validate transfer arguments
+    private func validateTransferArgs(args : TransferArgs) : Result.Result<(), Text> {
+      if (args.amount == 0) {
+        return #err("Transfer amount must be greater than 0");
+      };
+
+      if (Text.size(args.tokenType) == 0) {
+        return #err("Token type must be specified");
+      };
+
+      if (args.tokenType != "ICP" and args.tokenType != "ckUSDC") {
+        return #err("Token type must be either 'ICP' or 'ckUSDC'");
+      };
+
+      #ok(());
+    };
+
+    // Convert text memo to blob
+    private func textToMemo(memo : ?Text) : ?Memo {
+      switch (memo) {
+        case null { null };
+        case (?text) { ?Text.encodeUtf8(text) };
+      };
+    };
+
+    // Perform ICRC-1 transfer
+    public func transfer(args : TransferArgs) : async TransferResponse {
+      Debug.print(
+        "Transferring "
+        # debug_show (args.amount)
+        # " " # args.tokenType
+        # " tokens to account "
+        # debug_show (args.toAccount)
+      );
+
+      // Validate arguments
+      switch (validateTransferArgs(args)) {
+        case (#err(error)) {
+          return #Error(error);
         };
-        case (?startup) {
-          if (startup.status != "approved") {
-            #err("Startup must be approved before collateral can be initialized");
-          } else {
-            let collateralId = storage.createCollateralInfo(startupId, requiredAmount);
-            #ok(collateralId);
+        case (#ok(_)) {};
+      };
+
+      let ledgerCanisterId = getLedgerCanister(args.tokenType);
+      if (ledgerCanisterId == "") {
+        return #Error("Invalid token type: " # args.tokenType);
+      };
+
+      let fee = getTokenFee(args.tokenType);
+
+      let transferArgs : TransferArg = {
+        memo = textToMemo(args.memo);
+        amount = args.amount;
+        from_subaccount = null;
+        fee = ?fee;
+        to = args.toAccount;
+        created_at_time = null;
+      };
+
+      try {
+        // Create ledger actor
+        let ledger = actor (ledgerCanisterId) : actor {
+          icrc1_transfer : (TransferArg) -> async TransferResult;
+        };
+
+        // Initiate the transfer
+        let transferResult = await ledger.icrc1_transfer(transferArgs);
+
+        // Check if the transfer was successful
+        switch (transferResult) {
+          case (#err(transferError)) {
+            let errorMessage = "Transfer failed: " # debug_show(transferError);
+            return #Error(errorMessage);
+          };
+          case (#ok(blockIndex)) {
+            let transactionId = Nat.toText(blockIndex);
+            return #Success({
+              blockIndex = blockIndex;
+              transactionId = transactionId;
+              amount = args.amount;
+              toAccount = args.toAccount;
+              tokenType = args.tokenType;
+            });
           };
         };
+      } catch (error : Error) {
+        // Catch any errors that might occur during the transfer
+        return #Error("Transfer error: " # Error.message(error));
       };
     };
 
-     public func topUpCollateral(
-       principal : Principal,
-       request : Types.TopUpRequest,
-     ) : async Result.Result<Types.TopUpResult, Text> {
-      switch (storage.getStartup(request.startupId)) {
-        case null {
-          #err("Startup not found");
+    // Transfer ICP tokens
+    public func transferICP(toAccount : Account, amount : Nat, memo : ?Text) : async TransferResponse {
+      let args : TransferArgs = {
+        amount = amount;
+        toAccount = toAccount;
+        tokenType = "ICP";
+        memo = memo;
+      };
+      await transfer(args);
+    };
+
+    // Transfer ckUSDC tokens
+    public func transferCkUSDC(toAccount : Account, amount : Nat, memo : ?Text) : async TransferResponse {
+      let args : TransferArgs = {
+        amount = amount;
+        toAccount = toAccount;
+        tokenType = "ckUSDC";
+        memo = memo;
+      };
+      await transfer(args);
+    };
+
+    // Get account balance
+    public func getBalance(account : Account, tokenType : Text) : async Result.Result<Nat, Text> {
+      let ledgerCanisterId = getLedgerCanister(tokenType);
+      if (ledgerCanisterId == "") {
+        return #err("Invalid token type: " # tokenType);
+      };
+
+      try {
+        let ledger = actor (ledgerCanisterId) : actor {
+          icrc1_balance_of : (Account) -> async Nat;
         };
-        case (?_) {
-          switch (storage.getCollateralInfo(request.startupId)) {
-            case null {
-              #err("Collateral info not initialized for this startup");
-            };
-            case (?collateralInfo) {
-              if (collateralInfo.status == #Active) {
-                #err("Collateral is already fully paid and active");
-              } else {
-                let _founderAccount = {
-                  owner = principal;
-                  subaccount = null;
-                };
 
-                let plantifyAccount = {
-                  owner = Principal.fromText("rrkah-fqaaa-aaaah-qcvmq-cai");
-                  subaccount = null;
-                };
-
-                 let transferResult = await tokenService.icrc1_transfer({
-                   from_subaccount = null;
-                   to = plantifyAccount;
-                   amount = request.amount;
-                   fee = ?1000;
-                   memo = null;
-                   created_at_time = null;
-                 });
-
-                switch (transferResult) {
-                  case (#Err(error)) {
-                    #err("Transfer failed: " # _transferErrorToString(error));
-                  };
-                  case (#Ok(txId)) {
-                    let _topUpId = storage.addCollateralTopUp(
-                      request.startupId,
-                      request.amount,
-                      ?Nat.toText(txId),
-                    );
-
-                    switch (storage.getCollateralInfo(request.startupId)) {
-                      case null {
-                        #err("Failed to retrieve updated collateral info");
-                      };
-                      case (?updatedInfo) {
-                        let remainingAmount = if (updatedInfo.currentAmount >= updatedInfo.requiredAmount) {
-                          0;
-                        } else {
-                          updatedInfo.requiredAmount - updatedInfo.currentAmount;
-                        };
-
-                        let isFullyPaid = updatedInfo.status == #Active;
-
-                        if (isFullyPaid) {
-                          let statusUpdateResult = storage.updateStartupStatus(request.startupId, "active");
-                          if (not statusUpdateResult) {
-                            #err("Failed to update startup status to active");
-                          } else {
-                            #ok(#Success({ transactionId = Nat.toText(txId); newTotal = updatedInfo.currentAmount; remainingAmount = remainingAmount; isFullyPaid = isFullyPaid }));
-                          };
-                        } else {
-                          #ok(#Success({ transactionId = Nat.toText(txId); newTotal = updatedInfo.currentAmount; remainingAmount = remainingAmount; isFullyPaid = isFullyPaid }));
-                        };
-                      };
-                    };
-                  };
-                };
-              };
-            };
-          };
-        };
+        let balance = await ledger.icrc1_balance_of(account);
+        #ok(balance);
+      } catch (error : Error) {
+        #err("Failed to get balance: " # Error.message(error));
       };
     };
 
-    public func getCollateralStatus(startupId : Text) : Result.Result<Types.CollateralInfo, Text> {
-      switch (storage.getCollateralInfo(startupId)) {
-        case null {
-          #err("Collateral info not found for this startup");
-        };
-        case (?info) {
-          #ok(info);
-        };
-      };
+    // Get ICP balance
+    public func getICPBalance(account : Account) : async Result.Result<Nat, Text> {
+      await getBalance(account, "ICP");
     };
 
-    public func getCollateralTopUpHistory(startupId : Text) : Result.Result<[Types.CollateralTopUp], Text> {
-      switch (storage.getStartup(startupId)) {
-        case null {
-          #err("Startup not found");
-        };
-        case (?_) {
-          let topUps = storage.getCollateralTopUps(startupId);
-          #ok(topUps);
-        };
-      };
+    // Get ckUSDC balance
+    public func getCkUSDCBalance(account : Account) : async Result.Result<Nat, Text> {
+      await getBalance(account, "ckUSDC");
     };
 
-     public func mintTestTokens(principal : Principal, amount : Nat) : async Result.Result<Text, Text> {
-      let account = {
-        owner = principal;
-        subaccount = null;
-      };
-
-       switch (await tokenService.mint(account, amount)) {
-         case (#err(error)) {
-           #err("Failed to mint tokens: " # error);
-         };
-         case (#ok(txId)) {
-           #ok("Successfully minted " # Nat.toText(amount) # " ckUSDC tokens. Transaction ID: " # Nat.toText(txId));
-         };
-       };
-    };
-
-    public func getTokenBalance(principal : Principal) : async Nat {
-      let account = {
-        owner = principal;
-        subaccount = null;
-      };
-      await tokenService.get_balance(account);
-    };
-
-    public func getTokenInfo() : async (Text, Text, Nat8, Nat) {
-      let name = await tokenService.icrc1_name();
-      let symbol = await tokenService.icrc1_symbol();
-      let decimals = await tokenService.icrc1_decimals();
-      let fee = await tokenService.icrc1_fee();
-      (name, symbol, decimals, fee);
-    };
-
-    private func _transferErrorToString(error : TokenFactory.TransferError) : Text {
-      switch (error) {
-        case (#BadFee { expected_fee }) {
-          "Bad fee. Expected: " # Nat.toText(expected_fee);
-        };
-        case (#BadBurn { min_burn_amount }) {
-          "Bad burn amount. Minimum: " # Nat.toText(min_burn_amount);
-        };
-        case (#InsufficientFunds { balance }) {
-          "Insufficient funds. Balance: " # Nat.toText(balance);
-        };
-        case (#TooOld) {
-          "Transaction too old";
-        };
-        case (#CreatedInFuture { ledger_time }) {
-          "Transaction created in future. Ledger time: " # Nat64.toText(ledger_time);
-        };
-        case (#TemporarilyUnavailable) {
-          "Temporarily unavailable";
-        };
-        case (#Duplicate { duplicate_of }) {
-          "Duplicate transaction. Duplicate of: " # Nat.toText(duplicate_of);
-        };
-        case (#GenericError { error_code; message }) {
-          "Generic error " # Nat.toText(error_code) # ": " # message;
-        };
-      };
-    };
-
-    public func calculateRequiredCollateral(monthlyProfitSharing : Nat) : Nat {
-      let baseAmount = monthlyProfitSharing * 12;
-      let bufferAmount = baseAmount / 10;
-      baseAmount + bufferAmount;
-    };
-
-    public func getCollateralProgress(startupId : Text) : Result.Result<{ currentAmount : Nat; requiredAmount : Nat; percentage : Nat; status : Text; isFullyPaid : Bool }, Text> {
-      switch (storage.getCollateralInfo(startupId)) {
-        case null {
-          #err("Collateral info not found");
-        };
-        case (?info) {
-          let percentage = if (info.requiredAmount > 0) {
-            (info.currentAmount * 100) / info.requiredAmount;
-          } else {
-            0;
-          };
-
-          let statusText = switch (info.status) {
-            case (#Pending) { "Pending" };
-            case (#Active) { "Active" };
-            case (#Locked) { "Locked" };
-            case (#Released) { "Released" };
-          };
-
+    // Get token info
+    public func getTokenInfo(tokenType : Text) : async Result.Result<{
+      name : Text;
+      symbol : Text;
+      decimals : Nat8;
+      fee : Nat;
+    }, Text> {
+      switch (tokenType) {
+        case ("ICP") {
           #ok({
-            currentAmount = info.currentAmount;
-            requiredAmount = info.requiredAmount;
-            percentage = percentage;
-            status = statusText;
-            isFullyPaid = info.status == #Active;
+            name = config.icpToken.name;
+            symbol = config.icpToken.symbol;
+            decimals = config.icpToken.decimals;
+            fee = config.icpToken.fee;
           });
+        };
+        case ("ckUSDC") {
+          #ok({
+            name = config.ckUSDCToken.name;
+            symbol = config.ckUSDCToken.symbol;
+            decimals = config.ckUSDCToken.decimals;
+            fee = config.ckUSDCToken.fee;
+          });
+        };
+        case (_) {
+          #err("Invalid token type: " # tokenType);
         };
       };
     };

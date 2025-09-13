@@ -1,18 +1,45 @@
 import Text "mo:base/Text";
 import Result "mo:base/Result";
-import Nat "mo:base/Nat";
+import Iter "mo:base/Iter";
 import Types "./modules/types";
+import Storage "./modules/storage";
 import RegistrationService "./modules/services/registration";
 import StartupCreation "./modules/services/startupCreation";
 import TransferService "./modules/services/transfer";
+import CollateralService "./modules/services/collateral";
+import NFTService "./modules/services/nft";
 import Config "./config";
 
 persistent actor PlantifyBackend {
-  private let config : Types.EnvironmentConfig = Config.getDevelopmentConfig();
+  private let config : Types.EnvironmentConfig = Config.getCurrentConfig();
   
-  private transient let registrationService = RegistrationService.RegistrationService();
-  private transient let startupCreationService = StartupCreation.StartupCreationService();
+  // Stable storage variables
+  private var foundersEntries : [(Text, Types.Founder)] = [];
+  private var founderPrincipalsEntries : [(Principal, Text)] = [];
+  private var investorsEntries : [(Text, Types.Investor)] = [];
+  private var investorPrincipalsEntries : [(Principal, Text)] = [];
+  private var startupsEntries : [(Text, Types.Startup)] = [];
+  private var founderStartupsEntries : [(Text, [Text])] = [];
+  private var nextFounderId : Nat = 1;
+  private var nextInvestorId : Nat = 1;
+  private var nextStartupId : Nat = 1;
+  
+  private transient let storage = Storage.UserStorage(
+    foundersEntries,
+    founderPrincipalsEntries,
+    investorsEntries,
+    investorPrincipalsEntries,
+    startupsEntries,
+    founderStartupsEntries,
+    nextFounderId,
+    nextInvestorId,
+    nextStartupId
+  );
+  private transient let registrationService = RegistrationService.RegistrationService(storage);
+  private transient let startupCreationService = StartupCreation.StartupCreationService(storage);
   private transient let transferService = TransferService.TransferService(config);
+  private transient let collateralService = CollateralService.CollateralService(config, storage);
+  private transient let nftService = NFTService.NFTService(config, storage);
 
   public shared (msg) func registerFounder(request : Types.FounderRegistrationRequest) : async Result.Result<Types.Founder, Text> {
     registrationService.registerFounder(msg.caller, request);
@@ -26,48 +53,17 @@ persistent actor PlantifyBackend {
     startupCreationService.createStartup(msg.caller, request);
   };
 
-  // ========================================
-  // TRANSFER & COLLATERAL METHODS
-  // ========================================
-
-  public shared (_msg) func initializeCollateral(startupId : Text, requiredAmount : Nat) : async Result.Result<Text, Text> {
-    transferService.initializeCollateral(startupId, requiredAmount);
+  // Admin function to create startup for any founder
+  public shared (_msg) func createStartupForFounder(founderId : Text, request : Types.StartupCreationRequest) : async Result.Result<Types.Startup, Text> {
+    startupCreationService.createStartupForFounder(founderId, request);
   };
 
-  public shared (msg) func topUpCollateral(request : Types.TopUpRequest) : async Result.Result<Types.TopUpResult, Text> {
-    await transferService.topUpCollateral(msg.caller, request);
+  public shared func getFounders() : async [Types.Founder] {
+    registrationService.getAllFounders();
   };
 
-  public shared (_msg) func getCollateralStatus(startupId : Text) : async Result.Result<Types.CollateralInfo, Text> {
-    transferService.getCollateralStatus(startupId);
-  };
-
-  public shared (_msg) func getCollateralTopUpHistory(startupId : Text) : async Result.Result<[Types.CollateralTopUp], Text> {
-    transferService.getCollateralTopUpHistory(startupId);
-  };
-
-  public shared (_msg) func getCollateralProgress(startupId : Text) : async Result.Result<{ currentAmount : Nat; requiredAmount : Nat; percentage : Nat; status : Text; isFullyPaid : Bool }, Text> {
-    transferService.getCollateralProgress(startupId);
-  };
-
-  // ========================================
-  // TOKEN MANAGEMENT METHODS
-  // ========================================
-
-  public shared (msg) func mintTestTokens(amount : Nat) : async Result.Result<Text, Text> {
-    await transferService.mintTestTokens(msg.caller, amount);
-  };
-
-  public shared (msg) func getTokenBalance() : async Nat {
-    await transferService.getTokenBalance(msg.caller);
-  };
-
-  public shared func getTokenInfo() : async (Text, Text, Nat8, Nat) {
-    await transferService.getTokenInfo();
-  };
-
-  public shared func calculateRequiredCollateral(monthlyProfitSharing : Nat) : async Nat {
-    transferService.calculateRequiredCollateral(monthlyProfitSharing);
+  public shared func getAllStartups() : async [Types.Startup] {
+    storage.getAllStartups();
   };
 
   // ========================================
@@ -78,15 +74,244 @@ persistent actor PlantifyBackend {
     config;
   };
 
-  public shared func isUsingTestToken() : async Bool {
-    config.useTestToken;
+  public shared func getEnvironment() : async Text {
+    config.environment;
+  };
+
+  public shared func getICPTokenConfig() : async Types.TokenConfig {
+    config.icpToken;
+  };
+
+  public shared func getCkUSDCTokenConfig() : async Types.TokenConfig {
+    config.ckUSDCToken;
   };
 
   public shared func getPlantifyAccount() : async Text {
     config.plantifyAccount;
   };
 
-  public shared func getMainnetConfig() : async ?{ canisterId : Text; ledgerId : Text } {
-    config.mainnetCkUSDC;
+  public shared func isUsingTestTokens() : async Bool {
+    config.useTestTokens;
+  };
+
+  public shared func getTokenCanisterId(tokenType : Text) : async ?Text {
+    switch (tokenType) {
+      case ("ICP") { ?config.icpToken.canisterId };
+      case ("ckUSDC") { ?config.ckUSDCToken.canisterId };
+      case (_) { null };
+    };
+  };
+
+  // ========================================
+  // TRANSFER SERVICE METHODS
+  // ========================================
+
+  public shared func transferTokens(args : Types.TransferArgs) : async Types.TransferResponse {
+    await transferService.transfer(args);
+  };
+
+  public shared func transferICP(toAccount : Types.TransferAccount, amount : Nat, memo : ?Text) : async Types.TransferResponse {
+    await transferService.transferICP(toAccount, amount, memo);
+  };
+
+  public shared func transferCkUSDC(toAccount : Types.TransferAccount, amount : Nat, memo : ?Text) : async Types.TransferResponse {
+    await transferService.transferCkUSDC(toAccount, amount, memo);
+  };
+
+  public shared func getBalance(account : Types.TransferAccount, tokenType : Text) : async Types.BalanceResponse {
+    switch (await transferService.getBalance(account, tokenType)) {
+      case (#ok(balance)) {
+        #Success({
+          balance = balance;
+          tokenType = tokenType;
+          account = account;
+        });
+      };
+      case (#err(error)) {
+        #Error(error);
+      };
+    };
+  };
+
+  public shared func getICPBalance(account : Types.TransferAccount) : async Types.BalanceResponse {
+    switch (await transferService.getICPBalance(account)) {
+      case (#ok(balance)) {
+        #Success({
+          balance = balance;
+          tokenType = "ICP";
+          account = account;
+        });
+      };
+      case (#err(error)) {
+        #Error(error);
+      };
+    };
+  };
+
+  public shared func getCkUSDCBalance(account : Types.TransferAccount) : async Types.BalanceResponse {
+    switch (await transferService.getCkUSDCBalance(account)) {
+      case (#ok(balance)) {
+        #Success({
+          balance = balance;
+          tokenType = "ckUSDC";
+          account = account;
+        });
+      };
+      case (#err(error)) {
+        #Error(error);
+      };
+    };
+  };
+
+  // ========================================
+  // AUTHENTICATION METHODS
+  // ========================================
+
+  public shared (msg) func whoami() : async Principal {
+    msg.caller;
+  };
+
+  public shared func getTokenInfo(tokenType : Text) : async Types.TokenInfoResponse {
+    switch (await transferService.getTokenInfo(tokenType)) {
+      case (#ok(info)) {
+        #Success({
+          name = info.name;
+          symbol = info.symbol;
+          decimals = info.decimals;
+          fee = info.fee;
+          tokenType = tokenType;
+        });
+      };
+      case (#err(error)) {
+        #Error(error);
+      };
+    };
+  };
+
+  // ========================================
+  // COLLATERAL SERVICE METHODS
+  // ========================================
+
+  public shared (_msg) func initializeCollateral(
+    startupId : Text, 
+    requiredAmount : Nat, 
+    tokenType : Text
+  ) : async Result.Result<Text, Text> {
+    collateralService.initializeCollateral(startupId, requiredAmount, tokenType);
+  };
+
+  public shared (msg) func topUpCollateral(request : Types.TopUpRequest) : async Result.Result<Types.TopUpResponse, Text> {
+    await collateralService.topUpCollateral(msg.caller, request);
+  };
+
+  public shared (_msg) func getCollateralStatus(startupId : Text) : async Result.Result<Types.CollateralInfo, Text> {
+    collateralService.getCollateralStatus(startupId);
+  };
+
+  public shared (_msg) func getCollateralTopUpHistory(startupId : Text) : async Result.Result<[Types.CollateralTopUp], Text> {
+    collateralService.getCollateralTopUpHistory(startupId);
+  };
+
+  public shared (_msg) func getCollateralProgress(startupId : Text) : async Types.CollateralProgressResponse {
+    switch (collateralService.getCollateralProgress(startupId)) {
+      case (#ok(progress)) {
+        #Success(progress);
+      };
+      case (#err(error)) {
+        #Error(error);
+      };
+    };
+  };
+
+  public shared func calculateRequiredCollateral(monthlyProfitSharing : Nat, tokenType : Text) : async Nat {
+    collateralService.calculateRequiredCollateral(monthlyProfitSharing, tokenType);
+  };
+
+  public shared (_msg) func getAllCollateralInfo() : async [Types.CollateralInfo] {
+    collateralService.getAllCollateralInfo();
+  };
+
+  public shared (_msg) func updateStartupStatus(startupId : Text, newStatus : Text) : async Bool {
+    await collateralService.updateStartupStatus(startupId, newStatus);
+  };
+
+  public shared (_msg) func mintNFTForStartup(startupId : Text) : async Result.Result<Text, Text> {
+    await collateralService.mintNFTForStartup(startupId);
+  };
+
+  // ========================================
+  // NFT SERVICE METHODS
+  // ========================================
+
+  public shared (msg) func mintNFT(request : Types.MintNFTRequest) : async Result.Result<Types.MintNFTResponse, Text> {
+    await nftService.mintNFT(msg.caller, request);
+  };
+
+  public shared (msg) func transferNFT(request : Types.TransferNFTRequest) : async Result.Result<Types.TransferNFTResponse, Text> {
+    await nftService.transferNFT(msg.caller, request);
+  };
+
+  public shared (_msg) func getNFTInfo(tokenId : Nat) : async Result.Result<Types.NFTInfo, Text> {
+    nftService.getNFTInfo(tokenId);
+  };
+
+  public shared (_msg) func getNFTsByStartup(startupId : Text) : async Result.Result<[Types.NFTInfo], Text> {
+    nftService.getNFTsByStartup(startupId);
+  };
+
+  public shared (_msg) func getNFTBalance(account : Types.NFTAccount) : async Result.Result<Types.NFTBalanceResponse, Text> {
+    nftService.getNFTBalance(account);
+  };
+
+  public shared (_msg) func getNFTOwner(tokenId : Nat) : async Result.Result<Types.NFTOwnerResponse, Text> {
+    nftService.getNFTOwner(tokenId);
+  };
+
+  public shared (_msg) func getAllNFTs() : async [Types.NFTInfo] {
+    nftService.getAllNFTs();
+  };
+
+  public shared (_msg) func getCollectionInfo() : async Types.NFTConfig {
+    nftService.getCollectionInfo();
+  };
+
+  public shared (_msg) func canMintNFT(startupId : Text) : async Result.Result<Bool, Text> {
+    nftService.canMintNFT(startupId);
+  };
+
+  public shared (_msg) func getNFTStats() : async {
+    totalSupply : Nat;
+    totalStartups : Nat;
+    nextTokenId : Nat;
+  } {
+    nftService.getNFTStats();
+  };
+
+  // ========================================
+  // PERSISTENCE METHODS
+  // ========================================
+
+  system func preupgrade() {
+    foundersEntries := Iter.toArray(storage.founders.entries());
+    founderPrincipalsEntries := Iter.toArray(storage.founderPrincipals.entries());
+    investorsEntries := Iter.toArray(storage.investors.entries());
+    investorPrincipalsEntries := Iter.toArray(storage.investorPrincipals.entries());
+    startupsEntries := Iter.toArray(storage.startups.entries());
+    founderStartupsEntries := Iter.toArray(storage.founderStartups.entries());
+    nextFounderId := storage.nextFounderId;
+    nextInvestorId := storage.nextInvestorId;
+    nextStartupId := storage.nextStartupId;
+  };
+
+  system func postupgrade() {
+    foundersEntries := [];
+    founderPrincipalsEntries := [];
+    investorsEntries := [];
+    investorPrincipalsEntries := [];
+    startupsEntries := [];
+    founderStartupsEntries := [];
+    nextFounderId := 1;
+    nextInvestorId := 1;
+    nextStartupId := 1;
   };
 };

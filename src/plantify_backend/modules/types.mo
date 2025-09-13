@@ -89,6 +89,7 @@ module Types {
     website : Text;
     location : Text;
     companyType : Text;
+    companyLogo : ?Text;
     problemStatement : Text;
     solution : Text;
     targetMarket : Text;
@@ -105,8 +106,6 @@ module Types {
     monthlyRevenue : Text;
     monthlyExpenses : Text;
     useOfFunds : Text;
-    collateralSource : Text;
-    collateralAmount : Text;
     businessPlan : ?Text;
     financialProjections : ?Text;
     legalDocuments : ?Text;
@@ -123,6 +122,7 @@ module Types {
     website : Text;
     location : Text;
     companyType : Text;
+    companyLogo : ?Text;
     problemStatement : Text;
     solution : Text;
     targetMarket : Text;
@@ -139,14 +139,92 @@ module Types {
     monthlyRevenue : Text;
     monthlyExpenses : Text;
     useOfFunds : Text;
-    collateralSource : Text;
-    collateralAmount : Text;
     businessPlan : ?Text;
     financialProjections : ?Text;
     legalDocuments : ?Text;
     status : Text;
   };
 
+  public type TokenConfig = {
+    canisterId : Text;
+    ledgerId : Text;
+    name : Text;
+    symbol : Text;
+    decimals : Nat8;
+    fee : Nat;
+  };
+
+  public type NFTConfig = {
+    canisterId : Text;
+    name : Text;
+    symbol : Text;
+    description : Text;
+    logo : ?Text;
+    maxMemoSize : Nat;
+    txWindow : Nat;
+    permittedDrift : Nat;
+    supplyCap : ?Nat;
+    maxQueryBatchSize : ?Nat;
+    maxUpdateBatchSize : ?Nat;
+    defaultTakeValue : ?Nat;
+    maxTakeValue : ?Nat;
+    atomicBatchTransfers : ?Bool;
+  };
+
+  public type EnvironmentConfig = {
+    environment : Text;
+    icpToken : TokenConfig;
+    ckUSDCToken : TokenConfig;
+    nftToken : NFTConfig;
+    plantifyAccount : Text;
+    useTestTokens : Bool;
+  };
+
+  // Transfer Service Types
+  public type TransferAccount = {
+    owner : Principal;
+    subaccount : ?Blob;
+  };
+
+  public type TransferArgs = {
+    amount : Nat;
+    toAccount : TransferAccount;
+    tokenType : Text; // "ICP" or "ckUSDC"
+    memo : ?Text;
+  };
+
+  public type TransferResponse = {
+    #Success : {
+      blockIndex : Nat;
+      transactionId : Text;
+      amount : Nat;
+      toAccount : TransferAccount;
+      tokenType : Text;
+    };
+    #Error : Text;
+  };
+
+  public type BalanceResponse = {
+    #Success : {
+      balance : Nat;
+      tokenType : Text;
+      account : TransferAccount;
+    };
+    #Error : Text;
+  };
+
+  public type TokenInfoResponse = {
+    #Success : {
+      name : Text;
+      symbol : Text;
+      decimals : Nat8;
+      fee : Nat;
+      tokenType : Text;
+    };
+    #Error : Text;
+  };
+
+  // Collateral Service Types
   public type CollateralStatus = {
     #Pending;
     #Active;
@@ -154,20 +232,12 @@ module Types {
     #Released;
   };
 
-  public type CollateralTopUp = {
-    id : Text;
-    startupId : Text;
-    amount : Nat;
-    timestamp : Time.Time;
-    transactionId : ?Text;
-    status : Text;
-  };
-
   public type CollateralInfo = {
     startupId : Text;
     requiredAmount : Nat;
     currentAmount : Nat;
     status : CollateralStatus;
+    tokenType : Text; // "ICP" or "ckUSDC"
     topUpHistory : [CollateralTopUp];
     lockStartTime : ?Time.Time;
     lockEndTime : ?Time.Time;
@@ -175,37 +245,116 @@ module Types {
     updatedAt : Time.Time;
   };
 
+  public type CollateralTopUp = {
+    id : Text;
+    startupId : Text;
+    amount : Nat;
+    tokenType : Text;
+    timestamp : Time.Time;
+    transactionId : ?Text;
+    status : Text;
+  };
+
   public type TopUpRequest = {
     startupId : Text;
     amount : Nat;
-    paymentMethod : Text;
+    tokenType : Text; // "ICP" or "ckUSDC"
+    memo : ?Text;
   };
 
-  public type TopUpResult = {
+  public type TopUpResponse = {
     #Success : {
+      topUpId : Text;
       transactionId : Text;
+      amount : Nat;
       newTotal : Nat;
       remainingAmount : Nat;
       isFullyPaid : Bool;
+      tokenType : Text;
     };
     #Error : Text;
   };
 
-  public type TokenConfig = {
-    #TestToken;
-    #MainnetToken : {
-      canisterId : Text;
-      ledgerId : Text;
-    };
+  public type CollateralProgress = {
+    currentAmount : Nat;
+    requiredAmount : Nat;
+    percentage : Nat;
+    status : Text;
+    isFullyPaid : Bool;
+    tokenType : Text;
   };
 
-  public type EnvironmentConfig = {
-    useTestToken : Bool;
-    mainnetCkUSDC : ?{
-      canisterId : Text;
-      ledgerId : Text;
+  public type CollateralProgressResponse = {
+    #Success : CollateralProgress;
+    #Error : Text;
+  };
+
+  // NFT Service Types
+  public type NFTAccount = {
+    owner : Principal;
+    subaccount : ?Blob;
+  };
+
+  public type NFTMetadata = {
+    tokenUri : Text;
+    name : ?Text;
+    description : ?Text;
+    image : ?Text;
+    attributes : ?[(Text, Text)];
+  };
+
+  public type MintNFTRequest = {
+    startupId : Text;
+    toAccount : NFTAccount;
+    metadata : NFTMetadata;
+    memo : ?Text;
+  };
+
+  public type MintNFTResponse = {
+    #Success : {
+      tokenId : Nat;
+      transactionId : ?Text;
+      startupId : Text;
     };
-    plantifyAccount : Text;
+    #Error : Text;
+  };
+
+  public type NFTInfo = {
+    tokenId : Nat;
+    startupId : Text;
+    owner : NFTAccount;
+    metadata : NFTMetadata;
+    mintedAt : Time.Time;
+  };
+
+  public type TransferNFTRequest = {
+    tokenId : Nat;
+    toAccount : NFTAccount;
+    memo : ?Text;
+  };
+
+  public type TransferNFTResponse = {
+    #Success : {
+      tokenId : Nat;
+      transactionId : ?Text;
+    };
+    #Error : Text;
+  };
+
+  public type NFTBalanceResponse = {
+    #Success : {
+      balance : Nat;
+      account : NFTAccount;
+    };
+    #Error : Text;
+  };
+
+  public type NFTOwnerResponse = {
+    #Success : {
+      tokenId : Nat;
+      owner : ?NFTAccount;
+    };
+    #Error : Text;
   };
 
 };
