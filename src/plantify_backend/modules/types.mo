@@ -357,4 +357,70 @@ module Types {
     #Error : Text;
   };
 
+  // NFT Purchase Service Types
+  public type NFTPurchaseRequest = {
+    startupId : Text;
+    investorId : Text;
+    amount : Nat; // Amount in ckUSDC
+    memo : ?Text;
+  };
+
+  public type NFTPurchaseResponse = {
+    #Success : {
+      tokenId : Nat;
+      transactionId : Text;
+      startupId : Text;
+      investorId : Text;
+      amount : Nat;
+      nftPrice : Nat;
+      change : Nat; // Amount returned to investor if overpaid
+    };
+    #Error : Text;
+  };
+
+  public type NFTPurchaseInfo = {
+    id : Text;
+    startupId : Text;
+    investorId : Text;
+    tokenId : Nat;
+    amount : Nat;
+    nftPrice : Nat;
+    change : Nat;
+    transactionId : Text;
+    timestamp : Time.Time;
+    status : Text; // "Pending", "Completed", "Failed", "Refunded"
+  };
+
+  public type NFTPurchaseStatus = {
+    #Pending;
+    #Completed;
+    #Failed;
+    #Refunded;
+  };
+
+  public type NFTPurchaseHistory = {
+    purchases : [NFTPurchaseInfo];
+    totalPurchases : Nat;
+    totalSpent : Nat;
+    totalNFTs : Nat;
+  };
+
+  public type NFTPurchaseHistoryResponse = {
+    #Success : NFTPurchaseHistory;
+    #Error : Text;
+  };
+
+  public type NFTPurchaseStats = {
+    totalPurchases : Nat;
+    totalRevenue : Nat;
+    totalNFTsSold : Nat;
+    averagePurchaseAmount : Nat;
+    topStartup : ?Text;
+  };
+
+  public type NFTPurchaseStatsResponse = {
+    #Success : NFTPurchaseStats;
+    #Error : Text;
+  };
+
 };

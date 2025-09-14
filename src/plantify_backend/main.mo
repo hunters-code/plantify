@@ -8,6 +8,7 @@ import StartupCreation "./modules/services/startupCreation";
 import TransferService "./modules/services/transfer";
 import CollateralService "./modules/services/collateral";
 import NFTService "./modules/services/nft";
+import NFTPurchaseService "./modules/services/nftPurchase";
 import Config "./config";
 
 persistent actor PlantifyBackend {
@@ -40,6 +41,7 @@ persistent actor PlantifyBackend {
   private transient let transferService = TransferService.TransferService(config);
   private transient let collateralService = CollateralService.CollateralService(config, storage);
   private transient let nftService = NFTService.NFTService(config, storage);
+  private transient let nftPurchaseService = NFTPurchaseService.NFTPurchaseService(config, storage, transferService, nftService);
 
   public shared (msg) func registerFounder(request : Types.FounderRegistrationRequest) : async Result.Result<Types.Founder, Text> {
     registrationService.registerFounder(msg.caller, request);
@@ -285,6 +287,42 @@ persistent actor PlantifyBackend {
     nextTokenId : Nat;
   } {
     nftService.getNFTStats();
+  };
+
+  // ========================================
+  // NFT PURCHASE SERVICE METHODS
+  // ========================================
+
+  public shared (msg) func purchaseNFT(request : Types.NFTPurchaseRequest) : async Result.Result<Types.NFTPurchaseResponse, Text> {
+    await nftPurchaseService.purchaseNFT(msg.caller, request);
+  };
+
+  public shared (_msg) func getPurchaseInfo(purchaseId : Text) : async Result.Result<Types.NFTPurchaseInfo, Text> {
+    nftPurchaseService.getPurchaseInfo(purchaseId);
+  };
+
+  public shared (_msg) func getInvestorPurchaseHistory(investorId : Text) : async Result.Result<Types.NFTPurchaseHistory, Text> {
+    nftPurchaseService.getInvestorPurchaseHistory(investorId);
+  };
+
+  public shared (_msg) func getStartupPurchaseHistory(startupId : Text) : async Result.Result<Types.NFTPurchaseHistory, Text> {
+    nftPurchaseService.getStartupPurchaseHistory(startupId);
+  };
+
+  public shared (_msg) func getAllPurchases() : async [Types.NFTPurchaseInfo] {
+    nftPurchaseService.getAllPurchases();
+  };
+
+  public shared (_msg) func getPurchaseStats() : async Types.NFTPurchaseStats {
+    nftPurchaseService.getPurchaseStats();
+  };
+
+  public shared (_msg) func canPurchaseNFT(investorId : Text, startupId : Text) : async Result.Result<Bool, Text> {
+    nftPurchaseService.canPurchaseNFT(investorId, startupId);
+  };
+
+  public shared (_msg) func getNFTPrice(startupId : Text) : async Result.Result<Nat, Text> {
+    nftPurchaseService.getNFTPrice(startupId);
   };
 
   // ========================================
