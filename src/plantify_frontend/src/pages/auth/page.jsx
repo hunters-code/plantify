@@ -5,8 +5,31 @@ import {
   UserX,
   CircleOff,
 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginRequired() {
+  const { signIn, isLoading } = useAuth();
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSignIn = async () => {
+    try {
+      setIsSigningIn(true);
+      await signIn();
+      // Redirect to home page after successful sign in
+      navigate('/');
+    } catch (error) {
+      console.error('Sign in failed:', error);
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
+  const handleCancel = () => {
+    navigate('/');
+  };
   return (
     <div className='min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50 px-4'>
       <div>
@@ -53,24 +76,30 @@ export default function LoginRequired() {
 
           <div className='mt-6 space-y-3'>
             <button
+              onClick={handleSignIn}
+              disabled={isSigningIn || isLoading}
               className='w-full flex items-center justify-center gap-[6px] 
              px-4 py-3 rounded-xl 
              border border-white/20 
              bg-purple-500 
              text-white font-medium 
              shadow-[0_2px_4px_rgba(0,0,0,0.16),inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25)] 
-             hover:bg-purple-600 transition text-[16px]'
+             hover:bg-purple-600 transition text-[16px]
+             disabled:opacity-50 disabled:cursor-not-allowed'
             >
               <Fingerprint size={16} />
-              Sign In with Internet Identity
+              {isSigningIn ? 'Signing In...' : 'Sign In with Internet Identity'}
             </button>
             <button
+              onClick={handleCancel}
+              disabled={isSigningIn || isLoading}
               className='w-full flex items-center justify-center gap-[6px] 
              px-4 py-3 rounded-xl 
              border border-[#E5E5E5] 
              bg-[#F5F5F5] text-gray-700 font-medium 
              shadow-[inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] 
-             hover:bg-gray-100 transition text-[16px]'
+             hover:bg-gray-100 transition text-[16px]
+             disabled:opacity-50 disabled:cursor-not-allowed'
             >
               <CircleOff size={16} />
               Cancel

@@ -1,33 +1,32 @@
-"use client";
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authService, AuthState } from '../lib/auth';
+import { authService } from '../lib/auth';
 
-interface AuthContextType extends AuthState {
-  signIn: () => Promise<void>;
-  signOut: () => Promise<void>;
-  refreshUserInfo: () => Promise<void>;
-  getUserInfo: () => Promise<any>;
-  isUserRegistered: () => Promise<boolean>;
-}
+const AuthContext = createContext();
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [authState, setAuthState] = useState<AuthState>({
+export function AuthProvider({ children }) {
+  const [authState, setAuthState] = useState({
     isAuthenticated: false,
     principal: null,
     isLoading: true,
+    userInfo: null,
+    isRegistered: false,
   });
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         await authService.initialize();
+        const isAuthenticated = authService.isAuthenticated();
+        const principal = authService.getPrincipal();
+        const userInfo = isAuthenticated ? await authService.getUserInfo() : null;
+        const isRegistered = isAuthenticated ? await authService.isUserRegistered() : false;
+
         setAuthState({
-          isAuthenticated: authService.isAuthenticated(),
-          principal: authService.getPrincipal(),
+          isAuthenticated,
+          principal,
           isLoading: false,
+          userInfo,
+          isRegistered,
         });
       } catch (error) {
         console.error('Failed to initialize auth:', error);
@@ -35,6 +34,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isAuthenticated: false,
           principal: null,
           isLoading: false,
+          userInfo: null,
+          isRegistered: false,
         });
       }
     };
@@ -46,14 +47,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true }));
       const principal = await authService.signIn();
+      const userInfo = await authService.getUserInfo();
+      const isRegistered = await authService.isUserRegistered();
+
       setAuthState({
         isAuthenticated: true,
         principal,
         isLoading: false,
+        userInfo,
+        isRegistered,
       });
+
+      return principal;
     } catch (error) {
       console.error('Sign in failed:', error);
       setAuthState(prev => ({ ...prev, isLoading: false }));
+      throw error;
     }
   };
 
@@ -64,34 +73,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: false,
         principal: null,
         isLoading: false,
+        userInfo: null,
+        isRegistered: false,
       });
     } catch (error) {
       console.error('Sign out failed:', error);
+      throw error;
     }
   };
 
   const refreshUserInfo = async () => {
     if (!authService.isAuthenticated()) return;
-    // This could trigger a re-render if needed
+
+    try {
+      const userInfo = await authService.getUserInfo();
+      const isRegistered = await authService.isUserRegistered();
+      
+      setAuthState(prev => ({
+        ...prev,
+        userInfo,
+        isRegistered,
+      }));
+    } catch (error) {
+      console.error('Failed to refresh user info:', error);
+    }
   };
 
-  const getUserInfo = async () => {
-    return await authService.getUserInfo();
-  };
-
-  const isUserRegistered = async () => {
-    return await authService.isUserRegistered();
+  const value = {
+    ...authState,
+    signIn,
+    signOut,
+    refreshUserInfo,
+    getActor: () => authService.getActor(),
+    getAgent: () => authService.getAgent(),
+    initializeBackendActor: () => authService.initializeBackendActor(),
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      ...authState, 
-      signIn, 
-      signOut, 
-      refreshUserInfo,
-      getUserInfo,
-      isUserRegistered
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

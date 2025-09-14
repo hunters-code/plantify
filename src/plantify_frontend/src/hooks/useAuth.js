@@ -1,61 +1,37 @@
-import { useState, useEffect } from 'react';
-import { authService } from '../lib';
+import { useAuth as useAuthContext } from '../contexts/AuthContext';
 
-export const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [principal, setPrincipal] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function useAuth() {
+  return useAuthContext();
+}
 
-  useEffect(() => {
-    initializeAuth();
-  }, []);
-
-  const initializeAuth = async () => {
-    try {
-      await authService.initialize();
-      const isAuth = authService.isAuthenticated();
-      const userPrincipal = authService.getPrincipal();
-
-      setIsAuthenticated(isAuth);
-      setPrincipal(userPrincipal);
-    } catch (error) {
-      console.error('Auth initialization failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signIn = async () => {
-    try {
-      setIsLoading(true);
-      const userPrincipal = await authService.signIn();
-      setPrincipal(userPrincipal);
-      setIsAuthenticated(true);
-      return userPrincipal;
-    } catch (error) {
-      console.error('Sign in failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      await authService.signOut();
-      setPrincipal(null);
-      setIsAuthenticated(false);
-    } catch (error) {
-      console.error('Sign out failed:', error);
-      throw error;
-    }
-  };
-
+export function useRequireAuth() {
+  const { isAuthenticated, isLoading } = useAuth();
+  
   return {
     isAuthenticated,
-    principal,
     isLoading,
-    signIn,
-    signOut,
+    requiresAuth: !isAuthenticated && !isLoading,
   };
-};
+}
+
+export function useUserInfo() {
+  const { userInfo, principal, isAuthenticated } = useAuth();
+  
+  return {
+    userInfo,
+    principal,
+    isAuthenticated,
+    principalString: principal?.toString(),
+  };
+}
+
+export function useBackend() {
+  const { getActor, getAgent, initializeBackendActor } = useAuth();
+  
+  return {
+    actor: getActor(),
+    agent: getAgent(),
+    initializeBackendActor,
+    isBackendAvailable: getActor() !== null,
+  };
+}
