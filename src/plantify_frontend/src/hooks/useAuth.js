@@ -15,7 +15,7 @@ export const useAuth = () => {
       await authService.initialize();
       const isAuth = authService.isAuthenticated();
       const userPrincipal = authService.getPrincipal();
-      
+
       setIsAuthenticated(isAuth);
       setPrincipal(userPrincipal);
     } catch (error) {
@@ -56,6 +56,6 @@ export const useAuth = () => {
     principal,
     isLoading,
     signIn,
-    signOut
+    signOut,
   };
 };

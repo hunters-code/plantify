@@ -13,17 +13,17 @@ export const STARTUP_SECTORS = [
   { value: 'logistics', label: 'Logistics' },
   { value: 'realestate', label: 'Real Estate' },
   { value: 'foodtech', label: 'Food Technology' },
-  { value: 'other', label: 'Other' }
+  { value: 'other', label: 'Other' },
 ];
 
 export const INVESTMENT_EXPERIENCE_LEVELS = [
   { value: 'beginner', label: 'Beginner (0-2 years)' },
   { value: 'intermediate', label: 'Intermediate (2-5 years)' },
-  { value: 'advanced', label: 'Advanced (5+ years)' }
+  { value: 'advanced', label: 'Advanced (5+ years)' },
 ];
 
 export const RISK_TOLERANCE_LEVELS = [
   { value: 'conservative', label: 'Conservative' },
   { value: 'moderate', label: 'Moderate' },
-  { value: 'aggressive', label: 'Aggressive' }
+  { value: 'aggressive', label: 'Aggressive' },
 ];

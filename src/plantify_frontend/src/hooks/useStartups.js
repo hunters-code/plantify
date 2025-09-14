@@ -20,7 +20,7 @@ export const useStartups = () => {
     }
   };
 
-  const createStartup = async (startupData) => {
+  const createStartup = async startupData => {
     try {
       setLoading(true);
       setError(null);
@@ -48,6 +48,6 @@ export const useStartups = () => {
     loading,
     error,
     fetchStartups,
-    createStartup
+    createStartup,
   };
 };

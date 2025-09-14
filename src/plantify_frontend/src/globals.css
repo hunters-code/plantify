@@ -1,13 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=IBM+Plex+Serif:wght@400;500;600;700&display=swap');
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: "Geist", sans-serif;
+  font-family: 'Geist', sans-serif;
   font-size: 1.5rem;
 }
 
@@ -28,7 +27,7 @@ form {
   align-items: baseline;
 }
 
-button[type="submit"] {
+button[type='submit'] {
   padding: 5px 20px;
   margin: 10px auto;
   float: right;

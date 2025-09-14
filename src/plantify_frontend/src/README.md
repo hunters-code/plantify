@@ -41,11 +41,13 @@ src/
 ## 🎯 Key Improvements
 
 ### 1. **Organized Components**
+
 - **UI Components**: Basic reusable components like Button, Input
 - **Layout Components**: Navigation, Footer, Layout wrappers
 - **Feature Components**: Business logic components like Hero, FeaturedStartups
 
 ### 2. **Structured Pages**
+
 - **Home**: Landing page with all main sections
 - **Auth**: Authentication pages
 - **Explore**: Browse and discover startups
@@ -53,38 +55,44 @@ src/
 - **Startup**: Startup details and creation pages
 
 ### 3. **Custom Hooks**
+
 - **useAuth**: Manages authentication state and operations
 - **useStartups**: Handles startup data fetching and management
 
 ### 4. **Utility Functions**
+
 - **Formatting**: Currency, dates, numbers, percentages
 - **Validation**: Form validation helpers
 
 ### 5. **Constants**
+
 - **Routes**: Centralized route definitions
 - **Options**: Dropdown options and form choices
 
 ## 🚀 Usage Examples
 
 ### Importing Components
+
 ```javascript
 import { Button, Navbar, Hero } from './components';
 import { HomePage, StartupDetailsPage } from './pages';
 ```
 
 ### Using Hooks
+
 ```javascript
 import { useAuth, useStartups } from './hooks';
 
 function MyComponent() {
   const { isAuthenticated, signIn, signOut } = useAuth();
   const { startups, loading, createStartup } = useStartups();
-  
+
   // Component logic
 }
 ```
 
 ### Using Utilities
+
 ```javascript
 import { formatCurrency, validateEmail } from './utils';
 
@@ -93,6 +101,7 @@ const isValid = validateEmail('user@example.com'); // true
 ```
 
 ### Using Constants
+
 ```javascript
 import { ROUTES, STARTUP_SECTORS } from './constants';
 
@@ -132,12 +141,15 @@ The `lib/` directory contains all backend integration services:
 ## 🎨 Component Organization
 
 ### UI Components (`components/ui/`)
+
 Basic, reusable components that don't contain business logic.
 
 ### Layout Components (`components/layout/`)
+
 Components that define the overall page structure.
 
 ### Feature Components (`components/features/`)
+
 Components that contain specific business logic and features.
 
 ## 📝 Best Practices

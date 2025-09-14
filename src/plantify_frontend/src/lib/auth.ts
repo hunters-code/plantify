@@ -14,7 +14,7 @@ export class AuthService {
 
   async initialize(): Promise<void> {
     this.authClient = await AuthClient.create();
-    
+
     const isAuthenticated = await this.authClient.isAuthenticated();
     if (isAuthenticated) {
       this.principal = this.authClient.getIdentity().getPrincipal();
@@ -40,7 +40,7 @@ export class AuthService {
             reject(error);
           }
         },
-        onError: (error) => {
+        onError: error => {
           console.error('Sign in failed:', error);
           reject(error);
         },

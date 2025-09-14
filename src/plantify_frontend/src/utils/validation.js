@@ -1,14 +1,14 @@
-export const validateEmail = (email) => {
+export const validateEmail = email => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-export const validatePhone = (phone) => {
+export const validatePhone = phone => {
   const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
   return phoneRegex.test(phone.replace(/\s/g, ''));
 };
 
-export const validateUrl = (url) => {
+export const validateUrl = url => {
   try {
     new URL(url);
     return true;
@@ -17,7 +17,7 @@ export const validateUrl = (url) => {
   }
 };
 
-export const validateRequired = (value) => {
+export const validateRequired = value => {
   return value && value.trim().length > 0;
 };
 
@@ -39,20 +39,20 @@ export const validateNumber = (value, min = null, max = null) => {
 
 export const validateForm = (formData, rules) => {
   const errors = {};
-  
+
   Object.keys(rules).forEach(field => {
     const fieldRules = rules[field];
     const value = formData[field];
-    
+
     fieldRules.forEach(rule => {
       if (!rule.validator(value)) {
         errors[field] = rule.message;
       }
     });
   });
-  
+
   return {
     isValid: Object.keys(errors).length === 0,
-    errors
+    errors,
   };
 };
