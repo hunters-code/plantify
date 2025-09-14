@@ -277,7 +277,8 @@ export class BackendService {
           ['company_type', startup.companyType || 'Startup'],
         ],
       ],
-      image: startup.companyLogo.length > 0 ? startup.companyLogo : [],
+      image: startup.nftImage && startup.nftImage.length > 0 ? startup.nftImage : 
+             (startup.companyLogo && startup.companyLogo.length > 0 ? startup.companyLogo : []),
     };
 
     const mintRequest: MintNFTRequest = {

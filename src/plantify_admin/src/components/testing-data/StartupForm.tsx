@@ -36,10 +36,12 @@ interface StartupFormProps {
   founders: Founder[];
   teamMembers: TeamMember[];
   aiGeneratedLogo: string;
+  aiGeneratedNFTImage: string;
   isGeneratingStartupAI: boolean;
   isCreatingStartup: boolean;
   onInputChange: (field: string, value: string) => void;
   onGenerateAI: () => void;
+  onGenerateNFTImage: () => void;
   onCreate: () => void;
   onNext: () => void;
   onBack: () => void;
@@ -53,10 +55,12 @@ export default function StartupForm({
   founders,
   teamMembers,
   aiGeneratedLogo,
+  aiGeneratedNFTImage,
   isGeneratingStartupAI,
   isCreatingStartup,
   onInputChange,
   onGenerateAI,
+  onGenerateNFTImage,
   onCreate,
   onNext,
   onBack,
@@ -79,25 +83,38 @@ export default function StartupForm({
             <span>Back to Founder Creation</span>
           </button>
         </div>
-        <button
-          onClick={onGenerateAI}
-          disabled={isGeneratingStartupAI}
-          className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
-        >
-          {isGeneratingStartupAI ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              <span>Generating...</span>
-            </>
-          ) : (
-            <>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span>Generate with AI</span>
-            </>
-          )}
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={onGenerateAI}
+            disabled={isGeneratingStartupAI}
+            className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
+          >
+            {isGeneratingStartupAI ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Generating...</span>
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>Generate All</span>
+              </>
+            )}
+          </button>
+          <button
+            onClick={onGenerateNFTImage}
+            disabled={!formData.description || !formData.industry}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
+            title={!formData.description || !formData.industry ? "Please fill in description and industry first" : "Generate NFT image based on startup description and industry"}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Generate NFT Image</span>
+          </button>
+        </div>
       </div>
       
       <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -110,6 +127,22 @@ export default function StartupForm({
             <p className="text-sm text-green-700 mt-1">
               You can create startups for any founder by selecting them from the dropdown below. 
               If no founder is selected, the startup will be created for the currently logged-in user.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-start space-x-3">
+          <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <h4 className="text-sm font-medium text-blue-800">Image Generation</h4>
+            <p className="text-sm text-blue-700 mt-1">
+              <strong>Company Logo:</strong> Used for startup branding and display. 
+              <strong> NFT Image:</strong> Used specifically for the NFT representing ownership/investment in the startup. 
+              Generate both to have distinct images for different purposes.
             </p>
           </div>
         </div>
@@ -252,6 +285,26 @@ export default function StartupForm({
             <div>
               <p className="text-sm font-medium text-green-800">AI Generated Company Logo</p>
               <p className="text-xs text-green-600">This logo will be used for the startup</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {aiGeneratedNFTImage && (
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <div className="flex-shrink-0">
+              <Image 
+                src={aiGeneratedNFTImage} 
+                alt="Generated NFT Image" 
+                width={48}
+                height={48}
+                className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+              />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-800">AI Generated NFT Image</p>
+              <p className="text-xs text-blue-600">This image will be used for the NFT representing ownership in the startup</p>
             </div>
           </div>
         </div>

@@ -90,6 +90,7 @@ module Types {
     location : Text;
     companyType : Text;
     companyLogo : ?Text;
+    nftImage : ?Text;
     problemStatement : Text;
     solution : Text;
     targetMarket : Text;
@@ -123,6 +124,7 @@ module Types {
     location : Text;
     companyType : Text;
     companyLogo : ?Text;
+    nftImage : ?Text;
     problemStatement : Text;
     solution : Text;
     targetMarket : Text;

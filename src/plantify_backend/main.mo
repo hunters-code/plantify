@@ -1,6 +1,7 @@
 import Text "mo:base/Text";
 import Result "mo:base/Result";
 import Iter "mo:base/Iter";
+import Array "mo:base/Array";
 import Types "./modules/types";
 import Storage "./modules/storage";
 import RegistrationService "./modules/services/registration";
@@ -342,14 +343,48 @@ persistent actor PlantifyBackend {
   };
 
   system func postupgrade() {
-    foundersEntries := [];
-    founderPrincipalsEntries := [];
-    investorsEntries := [];
-    investorPrincipalsEntries := [];
-    startupsEntries := [];
-    founderStartupsEntries := [];
-    nextFounderId := 1;
-    nextInvestorId := 1;
-    nextStartupId := 1;
+    // Migration: Add nftImage field to existing startups
+    let migratedStartups = Array.map<(Text, Types.Startup), (Text, Types.Startup)>(
+      startupsEntries,
+      func((id, startup) : (Text, Types.Startup)) : (Text, Types.Startup) {
+        let migratedStartup : Types.Startup = {
+          id = startup.id;
+          founderId = startup.founderId;
+          startupName = startup.startupName;
+          sector = startup.sector;
+          foundedYear = startup.foundedYear;
+          description = startup.description;
+          website = startup.website;
+          location = startup.location;
+          companyType = startup.companyType;
+          companyLogo = startup.companyLogo;
+          nftImage = null; // Initialize new field as null for existing startups
+          problemStatement = startup.problemStatement;
+          solution = startup.solution;
+          targetMarket = startup.targetMarket;
+          competitiveAdvantage = startup.competitiveAdvantage;
+          marketingStrategy = startup.marketingStrategy;
+          operationalProcess = startup.operationalProcess;
+          founderBackground = startup.founderBackground;
+          teamMembers = startup.teamMembers;
+          advisors = startup.advisors;
+          fundingGoal = startup.fundingGoal;
+          nftPrice = startup.nftPrice;
+          periodicProfitSharing = startup.periodicProfitSharing;
+          revenueModel = startup.revenueModel;
+          monthlyRevenue = startup.monthlyRevenue;
+          monthlyExpenses = startup.monthlyExpenses;
+          useOfFunds = startup.useOfFunds;
+          businessPlan = startup.businessPlan;
+          financialProjections = startup.financialProjections;
+          legalDocuments = startup.legalDocuments;
+          status = startup.status;
+          createdAt = startup.createdAt;
+          updatedAt = startup.updatedAt;
+        };
+        (id, migratedStartup);
+      }
+    );
+    startupsEntries := migratedStartups;
   };
 };

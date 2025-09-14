@@ -68,6 +68,7 @@ export default function TestingDataPage() {
   }>>([]);
 
   const [aiGeneratedLogo, setAiGeneratedLogo] = useState<string>("");
+  const [aiGeneratedNFTImage, setAiGeneratedNFTImage] = useState<string>("");
 
   const [selectedStartup, setSelectedStartup] = useState<string>("");
   const [collateralAmount, setCollateralAmount] = useState<string>("");
@@ -159,11 +160,31 @@ export default function TestingDataPage() {
       });
       setTeamMembers(aiData.teamMembers);
       setAiGeneratedLogo(aiData.companyLogo);
+      setAiGeneratedNFTImage(aiData.nftImage);
     } catch (error) {
       console.error("Failed to generate startup AI data:", error);
       alert("Failed to generate startup AI data. Please check your API configuration.");
     } finally {
       setIsGeneratingStartupAI(false);
+    }
+  };
+
+  const generateNFTImage = async () => {
+    if (!startupFormData.description || !startupFormData.industry) {
+      alert("Please fill in both description and industry fields before generating NFT image.");
+      return;
+    }
+
+    try {
+      const nftImage = await AIService.generateNFTImage(
+        startupFormData.description,
+        startupFormData.industry,
+        startupFormData.companyName // Use company name as temp ID
+      );
+      setAiGeneratedNFTImage(nftImage);
+    } catch (error) {
+      console.error("Failed to generate NFT image:", error);
+      alert("Failed to generate NFT image. Please try again.");
     }
   };
 
@@ -197,8 +218,11 @@ export default function TestingDataPage() {
   const createStartup = async () => {
     setIsCreatingStartup(true);
     try {
-      // Use AI generated logo if available, otherwise use default
-      const logoToUse = aiGeneratedLogo || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+      // Use AI generated logo if available, otherwise use empty array
+      const logoToUse = aiGeneratedLogo || "";
+      
+      // Use AI generated NFT image if available, otherwise use logo as fallback
+      const nftImageToUse = aiGeneratedNFTImage || logoToUse;
       
       const startupRequest = {
         status: "pending",
@@ -223,7 +247,8 @@ export default function TestingDataPage() {
         targetMarket: startupFormData.targetMarket,
         revenueModel: "Not specified",
         solution: startupFormData.description,
-        companyLogo: [logoToUse] as [] | [string],
+        companyLogo: logoToUse ? [logoToUse] as [] | [string] : [] as [] | [string],
+        nftImage: nftImageToUse ? [nftImageToUse] as [] | [string] : [] as [] | [string], // Use AI generated NFT image
         companyType: "Startup",
         financialProjections: [] as [] | [string],
         marketingStrategy: "Not specified",
@@ -423,10 +448,12 @@ export default function TestingDataPage() {
             founders={founders}
             teamMembers={teamMembers}
             aiGeneratedLogo={aiGeneratedLogo}
+            aiGeneratedNFTImage={aiGeneratedNFTImage}
             isGeneratingStartupAI={isGeneratingStartupAI}
             isCreatingStartup={isCreatingStartup}
             onInputChange={handleStartupInputChange}
             onGenerateAI={generateStartupAIData}
+            onGenerateNFTImage={generateNFTImage}
             onCreate={createStartup}
             onNext={() => setCurrentStep(3)}
             onBack={() => setCurrentStep(1)}

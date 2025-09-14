@@ -276,12 +276,19 @@ module Collateral {
               Debug.print("Founder not found for startup: " # startupId);
             };
             case (?founder) {
-              let startupImage = switch (startup.companyLogo) {
-                case (?logoUrl) {
-                  logoUrl;
+              let startupImage = switch (startup.nftImage) {
+                case (?nftImageUrl) {
+                  nftImageUrl;
                 };
                 case null {
-                  "https://plantify.com/images/startup-nft.png";
+                  switch (startup.companyLogo) {
+                    case (?logoUrl) {
+                      logoUrl;
+                    };
+                    case null {
+                      "https://plantify.com/images/startup-nft.png";
+                    };
+                  };
                 };
               };
 

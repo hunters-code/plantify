@@ -233,7 +233,8 @@ export class BackendService {
         ['funding_goal', startup.fundingGoal || '0'],
         ['company_type', startup.companyType || 'Startup']
       ]],
-      image: startup.companyLogo.length > 0 ? startup.companyLogo : []
+      image: startup.nftImage && startup.nftImage.length > 0 ? startup.nftImage : 
+             (startup.companyLogo && startup.companyLogo.length > 0 ? startup.companyLogo : [])
     };
 
     // Create mint request
