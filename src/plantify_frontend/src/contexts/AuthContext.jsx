@@ -15,19 +15,56 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Start initialization
+        
+        // Initialize auth service
         await authService.initialize();
-        const isAuthenticated = authService.isAuthenticated();
-        const principal = authService.getPrincipal();
-        const userInfo = isAuthenticated ? await authService.getUserInfo() : null;
-        const isRegistered = isAuthenticated ? await authService.isUserRegistered() : false;
-
-        setAuthState({
+        
+        // Get authentication state immediately
+        let isAuthenticated = authService.isAuthenticated();
+        let principal = authService.getPrincipal();
+        
+        
+        // Update state with initial values (fast path)
+        setAuthState(prev => ({
+          ...prev,
+          isAuthenticated,
+          principal,
+          // Keep isLoading true until we get user info
+        }));
+        
+        // Get user info if authenticated
+        const userInfo = isAuthenticated
+          ? await authService.getUserInfo()
+          : null;
+        
+        // Check registration status in the background
+        let isRegistered = false;
+        if (isAuthenticated) {
+          try {
+            // This can be slow, so we'll update in the background
+            authService.isUserRegistered().then(registered => {
+              setAuthState(prev => ({
+                ...prev,
+                isRegistered: registered
+              }));
+            }).catch(error => {
+              console.warn('Could not check user registration status - backend may not be available');
+            });
+          } catch (error) {
+            console.warn('Could not check user registration status - backend may not be available');
+          }
+        }
+        
+        // Update state with complete info
+        setAuthState(prev => ({
+          ...prev,
           isAuthenticated,
           principal,
           isLoading: false,
           userInfo,
-          isRegistered,
-        });
+          // isRegistered will be updated separately
+        }));
       } catch (error) {
         console.error('Failed to initialize auth:', error);
         setAuthState({
@@ -48,7 +85,14 @@ export function AuthProvider({ children }) {
       setAuthState(prev => ({ ...prev, isLoading: true }));
       const principal = await authService.signIn();
       const userInfo = await authService.getUserInfo();
-      const isRegistered = await authService.isUserRegistered();
+      
+      let isRegistered = false;
+      try {
+        isRegistered = await authService.isUserRegistered();
+      } catch (error) {
+        console.warn('Could not check user registration status - backend may not be available');
+        isRegistered = false;
+      }
 
       setAuthState({
         isAuthenticated: true,
@@ -56,6 +100,7 @@ export function AuthProvider({ children }) {
         isLoading: false,
         userInfo,
         isRegistered,
+        userData: userInfo,
       });
 
       return principal;
@@ -87,12 +132,20 @@ export function AuthProvider({ children }) {
 
     try {
       const userInfo = await authService.getUserInfo();
-      const isRegistered = await authService.isUserRegistered();
       
+      let isRegistered = false;
+      try {
+        isRegistered = await authService.isUserRegistered();
+      } catch (error) {
+        console.warn('Could not check user registration status - backend may not be available');
+        isRegistered = false;
+      }
+
       setAuthState(prev => ({
         ...prev,
         userInfo,
         isRegistered,
+        userData: userInfo,
       }));
     } catch (error) {
       console.error('Failed to refresh user info:', error);
@@ -107,13 +160,13 @@ export function AuthProvider({ children }) {
     getActor: () => authService.getActor(),
     getAgent: () => authService.getAgent(),
     initializeBackendActor: () => authService.initializeBackendActor(),
+    isBackendDeclarationsAvailable: () =>
+      authService.isBackendDeclarationsAvailable(),
+    setBackendDeclarations: idlFactory =>
+      authService.setBackendDeclarations(idlFactory),
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

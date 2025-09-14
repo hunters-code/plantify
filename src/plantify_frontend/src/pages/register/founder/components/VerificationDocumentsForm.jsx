@@ -97,28 +97,13 @@ function FileUpload({
 
 // Verification Documents Form Component
 function VerificationDocumentsForm({ formData, handleInputChange }) {
-  const [verificationData, setVerificationData] = useState({
-    governmentId: formData.governmentId || '',
-    taxId: formData.taxId || '',
-    governmentIdFile: null,
-    taxIdFile: null,
-  });
-
   const handleChange = (field, value) => {
-    setVerificationData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
     if (handleInputChange) {
       handleInputChange(field, value);
     }
   };
 
   const handleFileChange = (field, file) => {
-    setVerificationData(prev => ({
-      ...prev,
-      [field]: file,
-    }));
     if (handleInputChange) {
       handleInputChange(field, file);
     }
@@ -139,8 +124,8 @@ function VerificationDocumentsForm({ formData, handleInputChange }) {
           <input
             type='text'
             placeholder='Enter your government-issued ID number (SSN, Passport, etc.)'
-            value={verificationData.governmentId}
-            onChange={e => handleChange('governmentId', e.target.value)}
+            value={formData.idNumber || ''}
+            onChange={e => handleChange('idNumber', e.target.value)}
             className='flex w-full px-4 py-3 items-center gap-1.5 self-stretch rounded-xl border border-neutral-200 bg-white shadow-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]'
           />
         </div>
@@ -153,8 +138,8 @@ function VerificationDocumentsForm({ formData, handleInputChange }) {
           <input
             type='text'
             placeholder='Enter your tax identification number'
-            value={verificationData.taxId}
-            onChange={e => handleChange('taxId', e.target.value)}
+            value={formData.taxNumber || ''}
+            onChange={e => handleChange('taxNumber', e.target.value)}
             className='flex w-full px-4 py-3 items-center gap-1.5 self-stretch rounded-xl border border-neutral-200 bg-white shadow-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]'
           />
         </div>

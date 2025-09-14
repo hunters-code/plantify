@@ -26,12 +26,13 @@ export function useUserInfo() {
 }
 
 export function useBackend() {
-  const { getActor, getAgent, initializeBackendActor } = useAuth();
+  const { getActor, getAgent, initializeBackendActor, isBackendDeclarationsAvailable } = useAuth();
   
   return {
     actor: getActor(),
     agent: getAgent(),
     initializeBackendActor,
     isBackendAvailable: getActor() !== null,
+    isBackendDeclarationsAvailable: isBackendDeclarationsAvailable(),
   };
 }

@@ -49,7 +49,7 @@ export default function LoginRequired() {
             Login Required
           </h2>
           <p className='mt-1 text-center text-sm text-gray-600 font-geist'>
-            To invest in startups, you need to link your Internet Identity and
+            To invest in startups, you need to authenticate with ID.ai and
             set up an investor account.
           </p>
         </div>
@@ -88,7 +88,7 @@ export default function LoginRequired() {
              disabled:opacity-50 disabled:cursor-not-allowed'
             >
               <Fingerprint size={16} />
-              {isSigningIn ? 'Signing In...' : 'Sign In with Internet Identity'}
+              {isSigningIn ? 'Authenticating...' : 'Sign In with ID.ai'}
             </button>
             <button
               onClick={handleCancel}
@@ -107,7 +107,7 @@ export default function LoginRequired() {
           </div>
 
           <p className='mt-4 text-center text-xs text-gray-500'>
-            By authenticating with Internet Identity, you agree to our{' '}
+            By authenticating with ID.ai, you agree to our{' '}
             <a href='#' className='underline hover:text-gray-700'>
               Terms of Service
             </a>{' '}
@@ -118,8 +118,8 @@ export default function LoginRequired() {
             .
           </p>
           <p className='mt-2 text-center text-xs text-gray-500'>
-            New to Internet Identity?{' '}
-            <a href='#' className='underline hover:text-gray-700'>
+            New to ID.ai?{' '}
+            <a href='https://id.ai' target='_blank' rel='noopener noreferrer' className='underline hover:text-gray-700'>
               Learn more
             </a>
           </p>

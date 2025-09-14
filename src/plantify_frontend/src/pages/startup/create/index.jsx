@@ -23,7 +23,6 @@ export default function CreateStartupPage() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log('Startup creation:', formData);
   };
 
   const handleChange = e => {
