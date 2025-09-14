@@ -6,6 +6,9 @@ import { authService, AuthState } from '../lib/auth';
 interface AuthContextType extends AuthState {
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUserInfo: () => Promise<void>;
+  getUserInfo: () => Promise<any>;
+  isUserRegistered: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,8 +70,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const refreshUserInfo = async () => {
+    if (!authService.isAuthenticated()) return;
+    // This could trigger a re-render if needed
+  };
+
+  const getUserInfo = async () => {
+    return await authService.getUserInfo();
+  };
+
+  const isUserRegistered = async () => {
+    return await authService.isUserRegistered();
+  };
+
   return (
-    <AuthContext.Provider value={{ ...authState, signIn, signOut }}>
+    <AuthContext.Provider value={{ 
+      ...authState, 
+      signIn, 
+      signOut, 
+      refreshUserInfo,
+      getUserInfo,
+      isUserRegistered
+    }}>
       {children}
     </AuthContext.Provider>
   );

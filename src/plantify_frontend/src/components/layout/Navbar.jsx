@@ -1,8 +1,51 @@
-import { Fingerprint } from 'lucide-react';
-import { useState } from 'react';
+import { Fingerprint, User, LogOut, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { isAuthenticated, principal, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  // Add effect to handle loading state
+  useEffect(() => {
+    // Check if auth data is loaded
+    if (isAuthenticated !== undefined) {
+      // Give a small delay for smoother UX
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, principal]);
+
+  const handleConnectClick = () => {
+    if (isAuthenticated) {
+      // If already logged in, do nothing or show user menu
+      return;
+    } else {
+      // If not logged in, navigate to auth page
+      navigate('/auth');
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Sign out failed:', error);
+    }
+  };
+
+  const formatPrincipal = principal => {
+    if (!principal) return '';
+    const principalStr = principal.toString();
+    return `${principalStr.slice(0, 5)}...${principalStr.slice(-5)}`;
+  };
 
   return (
     <header className='sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-gray-100'>
@@ -44,10 +87,29 @@ export default function Navbar() {
 
           {/* Kanan: CTA */}
           <div className='hidden md:flex justify-end'>
-            <button className='inline-flex items-center gap-2 rounded-full bg-black text-white px-3.5 py-1.5 text-sm font-medium shadow hover:opacity-90 transition'>
-              <Fingerprint size={18} />
-              Connect ID
-            </button>
+            {isAuthenticated ? (
+              <div className='flex items-center gap-3'>
+                <div className='flex items-center gap-2 rounded-full bg-green-100 text-green-800 px-3.5 py-1.5 text-sm font-medium'>
+                  <User size={16} />
+                  {formatPrincipal(principal)}
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className='inline-flex items-center gap-2 rounded-full bg-gray-100 text-gray-700 px-3.5 py-1.5 text-sm font-medium hover:bg-gray-200 transition'
+                >
+                  <LogOut size={16} />
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleConnectClick}
+                className='inline-flex items-center gap-2 rounded-full bg-black text-white px-3.5 py-1.5 text-sm font-medium shadow hover:opacity-90 transition'
+              >
+                <Fingerprint size={18} />
+                Connect ID
+              </button>
+            )}
           </div>
 
           {/* Hamburger (mobile) */}
@@ -103,9 +165,28 @@ export default function Navbar() {
                 </a>
               </li>
               <li className='pt-2'>
-                <button className='w-full rounded-full bg-black text-white px-3.5 py-2 text-sm font-medium shadow hover:opacity-90'>
-                  Connect ID
-                </button>
+                {isAuthenticated ? (
+                  <div className='space-y-2'>
+                    <div className='flex items-center gap-2 rounded-full bg-green-100 text-green-800 px-3.5 py-2 text-sm font-medium justify-center'>
+                      <User size={16} />
+                      {formatPrincipal(principal)}
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className='w-full rounded-full bg-gray-100 text-gray-700 px-3.5 py-2 text-sm font-medium hover:bg-gray-200 transition'
+                    >
+                      <LogOut size={16} className='inline mr-2' />
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleConnectClick}
+                    className='w-full rounded-full bg-black text-white px-3.5 py-2 text-sm font-medium shadow hover:opacity-90'
+                  >
+                    Connect ID
+                  </button>
+                )}
               </li>
             </ul>
           </div>

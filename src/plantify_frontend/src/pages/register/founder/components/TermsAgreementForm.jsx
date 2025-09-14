@@ -2,20 +2,10 @@ import { useState } from 'react';
 import { Check } from 'lucide-react';
 
 function TermsAgreementForm({ formData, handleInputChange }) {
-  const [agreements, setAgreements] = useState({
-    terms: formData.terms || false,
-    risks: formData.risks || false,
-    transparency: formData.transparency || false,
-  });
-
   const handleCheckboxChange = field => {
-    setAgreements(prev => {
-      const updated = { ...prev, [field]: !prev[field] };
-      if (handleInputChange) {
-        handleInputChange(field, updated[field]);
-      }
-      return updated;
-    });
+    if (handleInputChange) {
+      handleInputChange(field, !formData[field]);
+    }
   };
 
   return (
@@ -45,7 +35,7 @@ function TermsAgreementForm({ formData, handleInputChange }) {
         {/* Terms & Conditions */}
         <div
           className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${
-            agreements.terms
+            formData.terms
               ? 'border-blue-500 bg-blue-50'
               : 'border-neutral-200 bg-white hover:border-gray-300'
           }`}
@@ -54,12 +44,12 @@ function TermsAgreementForm({ formData, handleInputChange }) {
           <div className='flex items-start gap-3'>
             <div
               className={`w-5 h-5 flex items-center justify-center rounded-md border ${
-                agreements.terms
+                formData.terms
                   ? 'bg-blue-600 border-blue-600'
                   : 'border-gray-300'
               }`}
             >
-              {agreements.terms && <Check className='w-4 h-4 text-white' />}
+              {formData.terms && <Check className='w-4 h-4 text-white' />}
             </div>
             <div>
               <div className='font-medium text-gray-900 text-[16px]'>
@@ -76,7 +66,7 @@ function TermsAgreementForm({ formData, handleInputChange }) {
         {/* Risks and Commitments */}
         <div
           className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${
-            agreements.risks
+            formData.risks
               ? 'border-blue-500 bg-blue-50'
               : 'border-neutral-200 bg-white hover:border-gray-300'
           }`}
@@ -85,12 +75,12 @@ function TermsAgreementForm({ formData, handleInputChange }) {
           <div className='flex items-start gap-3'>
             <div
               className={`w-5 h-5 flex items-center justify-center rounded-md border ${
-                agreements.risks
+                formData.risks
                   ? 'bg-blue-600 border-blue-600'
                   : 'border-gray-300'
               }`}
             >
-              {agreements.risks && <Check className='w-4 h-4 text-white' />}
+              {formData.risks && <Check className='w-4 h-4 text-white' />}
             </div>
             <div>
               <div className='font-medium text-gray-900 text-[16px]'>
@@ -107,7 +97,7 @@ function TermsAgreementForm({ formData, handleInputChange }) {
         {/* Transparency and Community Values */}
         <div
           className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${
-            agreements.transparency
+            formData.transparency
               ? 'border-blue-500 bg-blue-50'
               : 'border-neutral-200 bg-white hover:border-gray-300'
           }`}
@@ -116,12 +106,12 @@ function TermsAgreementForm({ formData, handleInputChange }) {
           <div className='flex items-start gap-3'>
             <div
               className={`w-5 h-5 flex items-center justify-center rounded-md border ${
-                agreements.transparency
+                formData.transparency
                   ? 'bg-blue-600 border-blue-600'
                   : 'border-gray-300'
               }`}
             >
-              {agreements.transparency && (
+              {formData.transparency && (
                 <Check className='w-4 h-4 text-white' />
               )}
             </div>

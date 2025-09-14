@@ -161,32 +161,32 @@ type Startup =
 type Result_9 = 
  variant {
    err: text;
-   ok: vec NFTInfo;
+   ok: NFTBalanceResponse;
  };
 type Result_8 = 
  variant {
    err: text;
-   ok: NFTPurchaseInfo;
+   ok: NFTInfo;
  };
 type Result_7 = 
  variant {
    err: text;
-   ok: NFTPurchaseHistory;
+   ok: NFTOwnerResponse;
  };
 type Result_6 = 
  variant {
    err: text;
-   ok: MintNFTResponse;
+   ok: vec NFTInfo;
  };
 type Result_5 = 
  variant {
    err: text;
-   ok: text;
+   ok: MintNFTResponse;
  };
 type Result_4 = 
  variant {
    err: text;
-   ok: NFTPurchaseResponse;
+   ok: text;
  };
 type Result_3 = 
  variant {
@@ -198,45 +198,25 @@ type Result_2 =
    err: text;
    ok: Investor;
  };
-type Result_17 = 
+type Result_13 = 
  variant {
    err: text;
    ok: bool;
  };
-type Result_16 = 
+type Result_12 = 
  variant {
    err: text;
    ok: Startup;
  };
-type Result_15 = 
+type Result_11 = 
  variant {
    err: text;
    ok: CollateralInfo;
  };
-type Result_14 = 
- variant {
-   err: text;
-   ok: vec CollateralTopUp;
- };
-type Result_13 = 
- variant {
-   err: text;
-   ok: NFTBalanceResponse;
- };
-type Result_12 = 
- variant {
-   err: text;
-   ok: NFTInfo;
- };
-type Result_11 = 
- variant {
-   err: text;
-   ok: NFTOwnerResponse;
- };
 type Result_10 = 
  variant {
    err: text;
-   ok: nat;
+   ok: vec CollateralTopUp;
  };
 type Result_1 = 
  variant {
@@ -247,55 +227,6 @@ type Result =
  variant {
    err: text;
    ok: TransferNFTResponse;
- };
-type NFTPurchaseStats = 
- record {
-   averagePurchaseAmount: nat;
-   topStartup: opt text;
-   totalNFTsSold: nat;
-   totalPurchases: nat;
-   totalRevenue: nat;
- };
-type NFTPurchaseResponse = 
- variant {
-   Error: text;
-   Success:
-    record {
-      amount: nat;
-      change: nat;
-      investorId: text;
-      nftPrice: nat;
-      startupId: text;
-      tokenId: nat;
-      transactionId: text;
-    };
- };
-type NFTPurchaseRequest = 
- record {
-   amount: nat;
-   investorId: text;
-   memo: opt text;
-   startupId: text;
- };
-type NFTPurchaseInfo = 
- record {
-   amount: nat;
-   change: nat;
-   id: text;
-   investorId: text;
-   nftPrice: nat;
-   startupId: text;
-   status: text;
-   timestamp: Time;
-   tokenId: nat;
-   transactionId: text;
- };
-type NFTPurchaseHistory = 
- record {
-   purchases: vec NFTPurchaseInfo;
-   totalNFTs: nat;
-   totalPurchases: nat;
-   totalSpent: nat;
  };
 type NFTOwnerResponse = 
  variant {
@@ -495,52 +426,44 @@ type BalanceResponse =
 service : {
   calculateRequiredCollateral: (monthlyProfitSharing: nat, tokenType:
    text) -> (nat);
-  canMintNFT: (startupId: text) -> (Result_17);
-  canPurchaseNFT: (investorId: text, startupId: text) -> (Result_17);
-  createStartup: (request: StartupCreationRequest) -> (Result_16);
+  canMintNFT: (startupId: text) -> (Result_13);
+  createStartup: (request: StartupCreationRequest) -> (Result_12);
   createStartupForFounder: (founderId: text, request:
-   StartupCreationRequest) -> (Result_16);
+   StartupCreationRequest) -> (Result_12);
   getAllCollateralInfo: () -> (vec CollateralInfo);
   getAllNFTs: () -> (vec NFTInfo);
-  getAllPurchases: () -> (vec NFTPurchaseInfo);
   getAllStartups: () -> (vec Startup);
   getBalance: (account: TransferAccount, tokenType: text) ->
    (BalanceResponse);
   getCkUSDCBalance: (account: TransferAccount) -> (BalanceResponse);
   getCkUSDCTokenConfig: () -> (TokenConfig);
   getCollateralProgress: (startupId: text) -> (CollateralProgressResponse);
-  getCollateralStatus: (startupId: text) -> (Result_15);
-  getCollateralTopUpHistory: (startupId: text) -> (Result_14);
+  getCollateralStatus: (startupId: text) -> (Result_11);
+  getCollateralTopUpHistory: (startupId: text) -> (Result_10);
   getCollectionInfo: () -> (NFTConfig);
   getEnvironment: () -> (text);
   getEnvironmentConfig: () -> (EnvironmentConfig);
   getFounders: () -> (vec Founder);
   getICPBalance: (account: TransferAccount) -> (BalanceResponse);
   getICPTokenConfig: () -> (TokenConfig);
-  getInvestorPurchaseHistory: (investorId: text) -> (Result_7);
-  getNFTBalance: (account: NFTAccount) -> (Result_13);
-  getNFTInfo: (tokenId: nat) -> (Result_12);
-  getNFTOwner: (tokenId: nat) -> (Result_11);
-  getNFTPrice: (startupId: text) -> (Result_10);
+  getNFTBalance: (account: NFTAccount) -> (Result_9);
+  getNFTInfo: (tokenId: nat) -> (Result_8);
+  getNFTOwner: (tokenId: nat) -> (Result_7);
   getNFTStats: () ->
    (record {
       nextTokenId: nat;
       totalStartups: nat;
       totalSupply: nat;
     });
-  getNFTsByStartup: (startupId: text) -> (Result_9);
+  getNFTsByStartup: (startupId: text) -> (Result_6);
   getPlantifyAccount: () -> (text);
-  getPurchaseInfo: (purchaseId: text) -> (Result_8);
-  getPurchaseStats: () -> (NFTPurchaseStats);
-  getStartupPurchaseHistory: (startupId: text) -> (Result_7);
   getTokenCanisterId: (tokenType: text) -> (opt text);
   getTokenInfo: (tokenType: text) -> (TokenInfoResponse);
   initializeCollateral: (startupId: text, requiredAmount: nat, tokenType:
-   text) -> (Result_5);
+   text) -> (Result_4);
   isUsingTestTokens: () -> (bool);
-  mintNFT: (request: MintNFTRequest) -> (Result_6);
-  mintNFTForStartup: (startupId: text) -> (Result_5);
-  purchaseNFT: (request: NFTPurchaseRequest) -> (Result_4);
+  mintNFT: (request: MintNFTRequest) -> (Result_5);
+  mintNFTForStartup: (startupId: text) -> (Result_4);
   registerFounder: (request: FounderRegistrationRequest) -> (Result_3);
   registerInvestor: (request: InvestorRegistrationRequest) -> (Result_2);
   topUpCollateral: (request: TopUpRequest) -> (Result_1);

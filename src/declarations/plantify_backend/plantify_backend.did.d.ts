@@ -161,84 +161,33 @@ export interface NFTMetadata {
 }
 export type NFTOwnerResponse = { 'Error' : string } |
   { 'Success' : { 'tokenId' : bigint, 'owner' : [] | [NFTAccount] } };
-export interface NFTPurchaseHistory {
-  'totalNFTs' : bigint,
-  'totalPurchases' : bigint,
-  'totalSpent' : bigint,
-  'purchases' : Array<NFTPurchaseInfo>,
-}
-export interface NFTPurchaseInfo {
-  'id' : string,
-  'status' : string,
-  'tokenId' : bigint,
-  'startupId' : string,
-  'investorId' : string,
-  'timestamp' : Time,
-  'change' : bigint,
-  'amount' : bigint,
-  'nftPrice' : bigint,
-  'transactionId' : string,
-}
-export interface NFTPurchaseRequest {
-  'startupId' : string,
-  'memo' : [] | [string],
-  'investorId' : string,
-  'amount' : bigint,
-}
-export type NFTPurchaseResponse = { 'Error' : string } |
-  {
-    'Success' : {
-      'tokenId' : bigint,
-      'startupId' : string,
-      'investorId' : string,
-      'change' : bigint,
-      'amount' : bigint,
-      'nftPrice' : bigint,
-      'transactionId' : string,
-    }
-  };
-export interface NFTPurchaseStats {
-  'totalNFTsSold' : bigint,
-  'totalPurchases' : bigint,
-  'topStartup' : [] | [string],
-  'averagePurchaseAmount' : bigint,
-  'totalRevenue' : bigint,
-}
 export type Result = { 'ok' : TransferNFTResponse } |
   { 'err' : string };
 export type Result_1 = { 'ok' : TopUpResponse } |
   { 'err' : string };
-export type Result_10 = { 'ok' : bigint } |
+export type Result_10 = { 'ok' : Array<CollateralTopUp> } |
   { 'err' : string };
-export type Result_11 = { 'ok' : NFTOwnerResponse } |
+export type Result_11 = { 'ok' : CollateralInfo } |
   { 'err' : string };
-export type Result_12 = { 'ok' : NFTInfo } |
+export type Result_12 = { 'ok' : Startup } |
   { 'err' : string };
-export type Result_13 = { 'ok' : NFTBalanceResponse } |
-  { 'err' : string };
-export type Result_14 = { 'ok' : Array<CollateralTopUp> } |
-  { 'err' : string };
-export type Result_15 = { 'ok' : CollateralInfo } |
-  { 'err' : string };
-export type Result_16 = { 'ok' : Startup } |
-  { 'err' : string };
-export type Result_17 = { 'ok' : boolean } |
+export type Result_13 = { 'ok' : boolean } |
   { 'err' : string };
 export type Result_2 = { 'ok' : Investor } |
   { 'err' : string };
 export type Result_3 = { 'ok' : Founder } |
   { 'err' : string };
-export type Result_4 = { 'ok' : NFTPurchaseResponse } |
+export type Result_4 = { 'ok' : string } |
   { 'err' : string };
-export type Result_5 = { 'ok' : string } |
+export type Result_5 = { 'ok' : MintNFTResponse } |
   { 'err' : string };
-export type Result_6 = { 'ok' : MintNFTResponse } |
+export type Result_6 = { 'ok' : Array<NFTInfo> } |
   { 'err' : string };
-export type Result_7 = { 'ok' : NFTPurchaseHistory } |
+export type Result_7 = { 'ok' : NFTOwnerResponse } |
   { 'err' : string };
-export type Result_8 = { 'ok' : NFTPurchaseInfo } |
+export type Result_8 = { 'ok' : NFTInfo } |
   { 'err' : string };
-export type Result_9 = { 'ok' : Array<NFTInfo> } |
+export type Result_9 = { 'ok' : NFTBalanceResponse } |
   { 'err' : string };
 export interface Startup {
   'id' : string,
@@ -382,50 +331,42 @@ export type TransferResponse = { 'Error' : string } |
   };
 export interface _SERVICE {
   'calculateRequiredCollateral' : ActorMethod<[bigint, string], bigint>,
-  'canMintNFT' : ActorMethod<[string], Result_17>,
-  'canPurchaseNFT' : ActorMethod<[string, string], Result_17>,
-  'createStartup' : ActorMethod<[StartupCreationRequest], Result_16>,
+  'canMintNFT' : ActorMethod<[string], Result_13>,
+  'createStartup' : ActorMethod<[StartupCreationRequest], Result_12>,
   'createStartupForFounder' : ActorMethod<
     [string, StartupCreationRequest],
-    Result_16
+    Result_12
   >,
   'getAllCollateralInfo' : ActorMethod<[], Array<CollateralInfo>>,
   'getAllNFTs' : ActorMethod<[], Array<NFTInfo>>,
-  'getAllPurchases' : ActorMethod<[], Array<NFTPurchaseInfo>>,
   'getAllStartups' : ActorMethod<[], Array<Startup>>,
   'getBalance' : ActorMethod<[TransferAccount, string], BalanceResponse>,
   'getCkUSDCBalance' : ActorMethod<[TransferAccount], BalanceResponse>,
   'getCkUSDCTokenConfig' : ActorMethod<[], TokenConfig>,
   'getCollateralProgress' : ActorMethod<[string], CollateralProgressResponse>,
-  'getCollateralStatus' : ActorMethod<[string], Result_15>,
-  'getCollateralTopUpHistory' : ActorMethod<[string], Result_14>,
+  'getCollateralStatus' : ActorMethod<[string], Result_11>,
+  'getCollateralTopUpHistory' : ActorMethod<[string], Result_10>,
   'getCollectionInfo' : ActorMethod<[], NFTConfig>,
   'getEnvironment' : ActorMethod<[], string>,
   'getEnvironmentConfig' : ActorMethod<[], EnvironmentConfig>,
   'getFounders' : ActorMethod<[], Array<Founder>>,
   'getICPBalance' : ActorMethod<[TransferAccount], BalanceResponse>,
   'getICPTokenConfig' : ActorMethod<[], TokenConfig>,
-  'getInvestorPurchaseHistory' : ActorMethod<[string], Result_7>,
-  'getNFTBalance' : ActorMethod<[NFTAccount], Result_13>,
-  'getNFTInfo' : ActorMethod<[bigint], Result_12>,
-  'getNFTOwner' : ActorMethod<[bigint], Result_11>,
-  'getNFTPrice' : ActorMethod<[string], Result_10>,
+  'getNFTBalance' : ActorMethod<[NFTAccount], Result_9>,
+  'getNFTInfo' : ActorMethod<[bigint], Result_8>,
+  'getNFTOwner' : ActorMethod<[bigint], Result_7>,
   'getNFTStats' : ActorMethod<
     [],
     { 'totalSupply' : bigint, 'totalStartups' : bigint, 'nextTokenId' : bigint }
   >,
-  'getNFTsByStartup' : ActorMethod<[string], Result_9>,
+  'getNFTsByStartup' : ActorMethod<[string], Result_6>,
   'getPlantifyAccount' : ActorMethod<[], string>,
-  'getPurchaseInfo' : ActorMethod<[string], Result_8>,
-  'getPurchaseStats' : ActorMethod<[], NFTPurchaseStats>,
-  'getStartupPurchaseHistory' : ActorMethod<[string], Result_7>,
   'getTokenCanisterId' : ActorMethod<[string], [] | [string]>,
   'getTokenInfo' : ActorMethod<[string], TokenInfoResponse>,
-  'initializeCollateral' : ActorMethod<[string, bigint, string], Result_5>,
+  'initializeCollateral' : ActorMethod<[string, bigint, string], Result_4>,
   'isUsingTestTokens' : ActorMethod<[], boolean>,
-  'mintNFT' : ActorMethod<[MintNFTRequest], Result_6>,
-  'mintNFTForStartup' : ActorMethod<[string], Result_5>,
-  'purchaseNFT' : ActorMethod<[NFTPurchaseRequest], Result_4>,
+  'mintNFT' : ActorMethod<[MintNFTRequest], Result_5>,
+  'mintNFTForStartup' : ActorMethod<[string], Result_4>,
   'registerFounder' : ActorMethod<[FounderRegistrationRequest], Result_3>,
   'registerInvestor' : ActorMethod<[InvestorRegistrationRequest], Result_2>,
   'topUpCollateral' : ActorMethod<[TopUpRequest], Result_1>,

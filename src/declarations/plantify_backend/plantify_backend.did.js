@@ -1,5 +1,5 @@
 export const idlFactory = ({ IDL }) => {
-  const Result_17 = IDL.Variant({ 'ok' : IDL.Bool, 'err' : IDL.Text });
+  const Result_13 = IDL.Variant({ 'ok' : IDL.Bool, 'err' : IDL.Text });
   const TeamMember = IDL.Record({
     'id' : IDL.Nat,
     'linkedin' : IDL.Text,
@@ -77,7 +77,7 @@ export const idlFactory = ({ IDL }) => {
     'problemStatement' : IDL.Text,
     'founderBackground' : IDL.Text,
   });
-  const Result_16 = IDL.Variant({ 'ok' : Startup, 'err' : IDL.Text });
+  const Result_12 = IDL.Variant({ 'ok' : Startup, 'err' : IDL.Text });
   const CollateralStatus = IDL.Variant({
     'Active' : IDL.Null,
     'Released' : IDL.Null,
@@ -123,18 +123,6 @@ export const idlFactory = ({ IDL }) => {
     'metadata' : NFTMetadata,
     'mintedAt' : Time,
   });
-  const NFTPurchaseInfo = IDL.Record({
-    'id' : IDL.Text,
-    'status' : IDL.Text,
-    'tokenId' : IDL.Nat,
-    'startupId' : IDL.Text,
-    'investorId' : IDL.Text,
-    'timestamp' : Time,
-    'change' : IDL.Nat,
-    'amount' : IDL.Nat,
-    'nftPrice' : IDL.Nat,
-    'transactionId' : IDL.Text,
-  });
   const TransferAccount = IDL.Record({
     'owner' : IDL.Principal,
     'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
@@ -167,8 +155,8 @@ export const idlFactory = ({ IDL }) => {
     'Error' : IDL.Text,
     'Success' : CollateralProgress,
   });
-  const Result_15 = IDL.Variant({ 'ok' : CollateralInfo, 'err' : IDL.Text });
-  const Result_14 = IDL.Variant({
+  const Result_11 = IDL.Variant({ 'ok' : CollateralInfo, 'err' : IDL.Text });
+  const Result_10 = IDL.Variant({
     'ok' : IDL.Vec(CollateralTopUp),
     'err' : IDL.Text,
   });
@@ -212,22 +200,12 @@ export const idlFactory = ({ IDL }) => {
     'phone' : IDL.Text,
     'previousBusinesses' : IDL.Text,
   });
-  const NFTPurchaseHistory = IDL.Record({
-    'totalNFTs' : IDL.Nat,
-    'totalPurchases' : IDL.Nat,
-    'totalSpent' : IDL.Nat,
-    'purchases' : IDL.Vec(NFTPurchaseInfo),
-  });
-  const Result_7 = IDL.Variant({ 'ok' : NFTPurchaseHistory, 'err' : IDL.Text });
   const NFTBalanceResponse = IDL.Variant({
     'Error' : IDL.Text,
     'Success' : IDL.Record({ 'balance' : IDL.Nat, 'account' : NFTAccount }),
   });
-  const Result_13 = IDL.Variant({
-    'ok' : NFTBalanceResponse,
-    'err' : IDL.Text,
-  });
-  const Result_12 = IDL.Variant({ 'ok' : NFTInfo, 'err' : IDL.Text });
+  const Result_9 = IDL.Variant({ 'ok' : NFTBalanceResponse, 'err' : IDL.Text });
+  const Result_8 = IDL.Variant({ 'ok' : NFTInfo, 'err' : IDL.Text });
   const NFTOwnerResponse = IDL.Variant({
     'Error' : IDL.Text,
     'Success' : IDL.Record({
@@ -235,17 +213,8 @@ export const idlFactory = ({ IDL }) => {
       'owner' : IDL.Opt(NFTAccount),
     }),
   });
-  const Result_11 = IDL.Variant({ 'ok' : NFTOwnerResponse, 'err' : IDL.Text });
-  const Result_10 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
-  const Result_9 = IDL.Variant({ 'ok' : IDL.Vec(NFTInfo), 'err' : IDL.Text });
-  const Result_8 = IDL.Variant({ 'ok' : NFTPurchaseInfo, 'err' : IDL.Text });
-  const NFTPurchaseStats = IDL.Record({
-    'totalNFTsSold' : IDL.Nat,
-    'totalPurchases' : IDL.Nat,
-    'topStartup' : IDL.Opt(IDL.Text),
-    'averagePurchaseAmount' : IDL.Nat,
-    'totalRevenue' : IDL.Nat,
-  });
+  const Result_7 = IDL.Variant({ 'ok' : NFTOwnerResponse, 'err' : IDL.Text });
+  const Result_6 = IDL.Variant({ 'ok' : IDL.Vec(NFTInfo), 'err' : IDL.Text });
   const TokenInfoResponse = IDL.Variant({
     'Error' : IDL.Text,
     'Success' : IDL.Record({
@@ -256,7 +225,7 @@ export const idlFactory = ({ IDL }) => {
       'symbol' : IDL.Text,
     }),
   });
-  const Result_5 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
+  const Result_4 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
   const MintNFTRequest = IDL.Record({
     'startupId' : IDL.Text,
     'metadata' : NFTMetadata,
@@ -271,29 +240,7 @@ export const idlFactory = ({ IDL }) => {
       'transactionId' : IDL.Opt(IDL.Text),
     }),
   });
-  const Result_6 = IDL.Variant({ 'ok' : MintNFTResponse, 'err' : IDL.Text });
-  const NFTPurchaseRequest = IDL.Record({
-    'startupId' : IDL.Text,
-    'memo' : IDL.Opt(IDL.Text),
-    'investorId' : IDL.Text,
-    'amount' : IDL.Nat,
-  });
-  const NFTPurchaseResponse = IDL.Variant({
-    'Error' : IDL.Text,
-    'Success' : IDL.Record({
-      'tokenId' : IDL.Nat,
-      'startupId' : IDL.Text,
-      'investorId' : IDL.Text,
-      'change' : IDL.Nat,
-      'amount' : IDL.Nat,
-      'nftPrice' : IDL.Nat,
-      'transactionId' : IDL.Text,
-    }),
-  });
-  const Result_4 = IDL.Variant({
-    'ok' : NFTPurchaseResponse,
-    'err' : IDL.Text,
-  });
+  const Result_5 = IDL.Variant({ 'ok' : MintNFTResponse, 'err' : IDL.Text });
   const FounderRegistrationRequest = IDL.Record({
     'linkedIn' : IDL.Text,
     'fullName' : IDL.Text,
@@ -390,17 +337,15 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Nat],
         [],
       ),
-    'canMintNFT' : IDL.Func([IDL.Text], [Result_17], []),
-    'canPurchaseNFT' : IDL.Func([IDL.Text, IDL.Text], [Result_17], []),
-    'createStartup' : IDL.Func([StartupCreationRequest], [Result_16], []),
+    'canMintNFT' : IDL.Func([IDL.Text], [Result_13], []),
+    'createStartup' : IDL.Func([StartupCreationRequest], [Result_12], []),
     'createStartupForFounder' : IDL.Func(
         [IDL.Text, StartupCreationRequest],
-        [Result_16],
+        [Result_12],
         [],
       ),
     'getAllCollateralInfo' : IDL.Func([], [IDL.Vec(CollateralInfo)], []),
     'getAllNFTs' : IDL.Func([], [IDL.Vec(NFTInfo)], []),
-    'getAllPurchases' : IDL.Func([], [IDL.Vec(NFTPurchaseInfo)], []),
     'getAllStartups' : IDL.Func([], [IDL.Vec(Startup)], []),
     'getBalance' : IDL.Func([TransferAccount, IDL.Text], [BalanceResponse], []),
     'getCkUSDCBalance' : IDL.Func([TransferAccount], [BalanceResponse], []),
@@ -410,19 +355,17 @@ export const idlFactory = ({ IDL }) => {
         [CollateralProgressResponse],
         [],
       ),
-    'getCollateralStatus' : IDL.Func([IDL.Text], [Result_15], []),
-    'getCollateralTopUpHistory' : IDL.Func([IDL.Text], [Result_14], []),
+    'getCollateralStatus' : IDL.Func([IDL.Text], [Result_11], []),
+    'getCollateralTopUpHistory' : IDL.Func([IDL.Text], [Result_10], []),
     'getCollectionInfo' : IDL.Func([], [NFTConfig], []),
     'getEnvironment' : IDL.Func([], [IDL.Text], []),
     'getEnvironmentConfig' : IDL.Func([], [EnvironmentConfig], []),
     'getFounders' : IDL.Func([], [IDL.Vec(Founder)], []),
     'getICPBalance' : IDL.Func([TransferAccount], [BalanceResponse], []),
     'getICPTokenConfig' : IDL.Func([], [TokenConfig], []),
-    'getInvestorPurchaseHistory' : IDL.Func([IDL.Text], [Result_7], []),
-    'getNFTBalance' : IDL.Func([NFTAccount], [Result_13], []),
-    'getNFTInfo' : IDL.Func([IDL.Nat], [Result_12], []),
-    'getNFTOwner' : IDL.Func([IDL.Nat], [Result_11], []),
-    'getNFTPrice' : IDL.Func([IDL.Text], [Result_10], []),
+    'getNFTBalance' : IDL.Func([NFTAccount], [Result_9], []),
+    'getNFTInfo' : IDL.Func([IDL.Nat], [Result_8], []),
+    'getNFTOwner' : IDL.Func([IDL.Nat], [Result_7], []),
     'getNFTStats' : IDL.Func(
         [],
         [
@@ -434,22 +377,18 @@ export const idlFactory = ({ IDL }) => {
         ],
         [],
       ),
-    'getNFTsByStartup' : IDL.Func([IDL.Text], [Result_9], []),
+    'getNFTsByStartup' : IDL.Func([IDL.Text], [Result_6], []),
     'getPlantifyAccount' : IDL.Func([], [IDL.Text], []),
-    'getPurchaseInfo' : IDL.Func([IDL.Text], [Result_8], []),
-    'getPurchaseStats' : IDL.Func([], [NFTPurchaseStats], []),
-    'getStartupPurchaseHistory' : IDL.Func([IDL.Text], [Result_7], []),
     'getTokenCanisterId' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], []),
     'getTokenInfo' : IDL.Func([IDL.Text], [TokenInfoResponse], []),
     'initializeCollateral' : IDL.Func(
         [IDL.Text, IDL.Nat, IDL.Text],
-        [Result_5],
+        [Result_4],
         [],
       ),
     'isUsingTestTokens' : IDL.Func([], [IDL.Bool], []),
-    'mintNFT' : IDL.Func([MintNFTRequest], [Result_6], []),
-    'mintNFTForStartup' : IDL.Func([IDL.Text], [Result_5], []),
-    'purchaseNFT' : IDL.Func([NFTPurchaseRequest], [Result_4], []),
+    'mintNFT' : IDL.Func([MintNFTRequest], [Result_5], []),
+    'mintNFTForStartup' : IDL.Func([IDL.Text], [Result_4], []),
     'registerFounder' : IDL.Func([FounderRegistrationRequest], [Result_3], []),
     'registerInvestor' : IDL.Func(
         [InvestorRegistrationRequest],

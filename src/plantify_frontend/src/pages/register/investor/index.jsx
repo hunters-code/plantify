@@ -17,7 +17,6 @@ export default function InvestorRegistrationPage() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log('Investor registration:', formData);
   };
 
   const handleChange = e => {
