@@ -1,19 +1,21 @@
-import { Fingerprint, User, LogOut, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Fingerprint, User, LogOut, Loader2, Copy, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { isAuthenticated, principal, signOut } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [icpBalance, setIcpBalance] = useState('0');
+  const [ckUSDCBalance, setCkUSDCBalance] = useState('0');
+  const [balanceLoading, setBalanceLoading] = useState(false);
+  const { isAuthenticated, principal, signOut, getActor } = useAuth();
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
 
-  // Add effect to handle loading state
   useEffect(() => {
-    // Check if auth data is loaded
     if (isAuthenticated !== undefined) {
-      // Give a small delay for smoother UX
       const timer = setTimeout(() => {
         setLoading(false);
       }, 300);
@@ -22,12 +24,23 @@ export default function Navbar() {
     }
   }, [isAuthenticated, principal]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleConnectClick = () => {
     if (isAuthenticated) {
-      // If already logged in, do nothing or show user menu
       return;
     } else {
-      // If not logged in, navigate to auth page
       navigate('/auth');
     }
   };
@@ -38,6 +51,57 @@ export default function Navbar() {
       navigate('/');
     } catch (error) {
       console.error('Sign out failed:', error);
+    }
+  };
+
+  const fetchBalances = async () => {
+    if (!principal || !getActor()) return;
+    
+    setBalanceLoading(true);
+    try {
+      const actor = getActor();
+      const account = {
+        owner: principal,
+        subaccount: [new Uint8Array()]
+      };
+
+      const [icpResult, ckUSDCResult] = await Promise.all([
+        actor.getICPBalance(account),
+        actor.getCkUSDCBalance(account)
+      ]);
+
+      if ('ok' in icpResult) {
+        setIcpBalance((Number(icpResult.ok.balance) / 100000000).toFixed(4));
+      }
+      
+      if ('ok' in ckUSDCResult) {
+        setCkUSDCBalance((Number(ckUSDCResult.ok.balance) / 1000000).toFixed(2));
+      }
+    } catch (error) {
+      console.error('Failed to fetch balances:', error);
+    } finally {
+      setBalanceLoading(false);
+    }
+  };
+
+  const handlePrincipalClick = () => {
+    if (dropdownOpen) {
+      setDropdownOpen(false);
+    } else {
+      setDropdownOpen(true);
+      if (icpBalance === '0' && ckUSDCBalance === '0') {
+        fetchBalances();
+      }
+    }
+  };
+
+  const copyPrincipal = async () => {
+    if (principal) {
+      try {
+        await navigator.clipboard.writeText(principal.toString());
+      } catch (error) {
+        console.error('Failed to copy principal:', error);
+      }
     }
   };
 
@@ -89,10 +153,63 @@ export default function Navbar() {
           <div className='hidden md:flex justify-end'>
             {isAuthenticated ? (
               <div className='flex items-center gap-3'>
-                <div className='flex items-center gap-2 rounded-full bg-green-100 text-green-800 px-3.5 py-1.5 text-sm font-medium'>
-                  <User size={16} />
-                  {formatPrincipal(principal)}
+                <div className='relative' ref={dropdownRef}>
+                  <button
+                    onClick={handlePrincipalClick}
+                    className='flex items-center gap-2 rounded-full bg-green-100 text-green-800 px-3.5 py-1.5 text-sm font-medium hover:bg-green-200 transition'
+                  >
+                    <User size={16} />
+                    {formatPrincipal(principal)}
+                    <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {dropdownOpen && (
+                    <div className='absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50'>
+                      <div className='p-4'>
+                        <div className='mb-4'>
+                          <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Principal ID</label>
+                          <div className='flex items-center gap-2 mt-1'>
+                            <code className='flex-1 text-sm font-mono bg-gray-100 px-2 py-1 rounded text-gray-800 break-all'>
+                              {principal?.toString()}
+                            </code>
+                            <button
+                              onClick={copyPrincipal}
+                              className='p-1 hover:bg-gray-200 rounded transition'
+                              title='Copy Principal ID'
+                            >
+                              <Copy size={16} className='text-gray-600' />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className='grid grid-cols-2 gap-4'>
+                          <div>
+                            <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>ICP Balance</label>
+                            <div className='mt-1 text-lg font-semibold text-gray-900'>
+                              {balanceLoading ? (
+                                <Loader2 size={16} className='animate-spin' />
+                              ) : (
+                                `${icpBalance} ICP`
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>ckUSDC Balance</label>
+                            <div className='mt-1 text-lg font-semibold text-gray-900'>
+                              {balanceLoading ? (
+                                <Loader2 size={16} className='animate-spin' />
+                              ) : (
+                                `${ckUSDCBalance} ckUSDC`
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
+                
                 <button
                   onClick={handleSignOut}
                   className='inline-flex items-center gap-2 rounded-full bg-gray-100 text-gray-700 px-3.5 py-1.5 text-sm font-medium hover:bg-gray-200 transition'
@@ -167,10 +284,63 @@ export default function Navbar() {
               <li className='pt-2'>
                 {isAuthenticated ? (
                   <div className='space-y-2'>
-                    <div className='flex items-center gap-2 rounded-full bg-green-100 text-green-800 px-3.5 py-2 text-sm font-medium justify-center'>
-                      <User size={16} />
-                      {formatPrincipal(principal)}
+                    <div className='relative'>
+                      <button
+                        onClick={handlePrincipalClick}
+                        className='w-full flex items-center gap-2 rounded-full bg-green-100 text-green-800 px-3.5 py-2 text-sm font-medium justify-center hover:bg-green-200 transition'
+                      >
+                        <User size={16} />
+                        {formatPrincipal(principal)}
+                        <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      {dropdownOpen && (
+                        <div className='mt-2 w-full bg-white rounded-lg shadow-lg border border-gray-200'>
+                          <div className='p-4'>
+                            <div className='mb-4'>
+                              <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Principal ID</label>
+                              <div className='flex items-center gap-2 mt-1'>
+                                <code className='flex-1 text-sm font-mono bg-gray-100 px-2 py-1 rounded text-gray-800 break-all'>
+                                  {principal?.toString()}
+                                </code>
+                                <button
+                                  onClick={copyPrincipal}
+                                  className='p-1 hover:bg-gray-200 rounded transition'
+                                  title='Copy Principal ID'
+                                >
+                                  <Copy size={16} className='text-gray-600' />
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>ICP Balance</label>
+                                <div className='mt-1 text-lg font-semibold text-gray-900'>
+                                  {balanceLoading ? (
+                                    <Loader2 size={16} className='animate-spin' />
+                                  ) : (
+                                    `${icpBalance} ICP`
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>ckUSDC Balance</label>
+                                <div className='mt-1 text-lg font-semibold text-gray-900'>
+                                  {balanceLoading ? (
+                                    <Loader2 size={16} className='animate-spin' />
+                                  ) : (
+                                    `${ckUSDCBalance} ckUSDC`
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
+                    
                     <button
                       onClick={handleSignOut}
                       className='w-full rounded-full bg-gray-100 text-gray-700 px-3.5 py-2 text-sm font-medium hover:bg-gray-200 transition'

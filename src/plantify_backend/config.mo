@@ -129,13 +129,14 @@ module Config {
     switch (environment) {
       case ("production") { getProductionConfig() };
       case ("testnet") { getTestnetConfig() };
-      case (_) { getDevelopmentConfig() };
+      case ("development") { getDevelopmentConfig() };
+      case (_) { getProductionConfig() }; // Default to production for mainnet
     };
   };
 
   // Helper function to get current environment (can be modified based on your needs)
   public func getCurrentEnvironment() : Text {
-    "development"; // Default to development, can be changed to "production" or "testnet"
+    "production"; // Default to production for mainnet deployment
   };
 
   // Get the current configuration
