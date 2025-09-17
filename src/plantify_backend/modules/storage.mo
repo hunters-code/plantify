@@ -117,6 +117,14 @@ module Storage {
       founderArray;
     };
 
+    public func getAllInvestors() : [Types.Investor] {
+      let investorArray = Array.map<(Text, Types.Investor), Types.Investor>(
+        Iter.toArray(investors.entries()),
+        func((id, investor) : (Text, Types.Investor)) : Types.Investor { investor }
+      );
+      investorArray;
+    };
+
     // ========================================
     // INVESTOR METHODS
     // ========================================

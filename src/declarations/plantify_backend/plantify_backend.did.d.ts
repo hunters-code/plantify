@@ -408,6 +408,7 @@ export interface _SERVICE {
   'getICPBalance' : ActorMethod<[TransferAccount], BalanceResponse>,
   'getICPTokenConfig' : ActorMethod<[], TokenConfig>,
   'getInvestorPurchaseHistory' : ActorMethod<[string], Result_7>,
+  'getInvestors' : ActorMethod<[], Array<Investor>>,
   'getNFTBalance' : ActorMethod<[NFTAccount], Result_13>,
   'getNFTInfo' : ActorMethod<[bigint], Result_12>,
   'getNFTOwner' : ActorMethod<[bigint], Result_11>,

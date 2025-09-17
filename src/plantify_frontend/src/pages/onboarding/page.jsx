@@ -41,7 +41,7 @@ export default function OnboardingPage() {
         <h1 className='text-2xl sm:text-[40px] text-center font-ibm'>
           Welcome to Plantify
         </h1>
-        <p className='text-gray-600 text-sm mt-2 text-center'>
+        <p className='text-gray-600 text-sm mt-4 text-center'>
           You’re successfully connected! <br />
           Now choose how you’d like to participate in our ecosystem.
         </p>
@@ -163,7 +163,7 @@ export default function OnboardingPage() {
                   Requirements
                 </h3>
                 <ul className='text-sm bg-orange-100 text-orange-600 mt-2 space-y-1 p-4 rounded-xl border border-orange-400'>
-                  <li>Legal business entity (CV/PT/Koperasi) required.</li>
+                  <li>Legal business entity required.</li>
                   <li>At least 6 months of operational history.</li>
                   <li>Stable currency collateral for 12 months.</li>
                 </ul>

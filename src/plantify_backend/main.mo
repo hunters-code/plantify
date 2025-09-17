@@ -68,6 +68,10 @@ persistent actor PlantifyBackend {
     registrationService.getAllFounders();
   };
 
+  public shared func getInvestors() : async [Types.Investor] {
+    registrationService.getAllInvestors();
+  };
+
   public shared func getAllStartups() : async [Types.Startup] {
     storage.getAllStartups();
   };

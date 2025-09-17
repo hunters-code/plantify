@@ -93,6 +93,10 @@ module Registration {
             storage.getAllFounders();
         };
 
+        public func getAllInvestors(): [Types.Investor] {
+            storage.getAllInvestors();
+        };
+
         private func validateFounderRequest(request: Types.FounderRegistrationRequest): [Text] {
             var errors: [Text] = [];
 

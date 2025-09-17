@@ -520,6 +520,7 @@ service : {
   getICPBalance: (account: TransferAccount) -> (BalanceResponse);
   getICPTokenConfig: () -> (TokenConfig);
   getInvestorPurchaseHistory: (investorId: text) -> (Result_7);
+  getInvestors: () -> (vec Investor);
   getNFTBalance: (account: NFTAccount) -> (Result_13);
   getNFTInfo: (tokenId: nat) -> (Result_12);
   getNFTOwner: (tokenId: nat) -> (Result_11);

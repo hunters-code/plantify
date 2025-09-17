@@ -6,19 +6,35 @@ import {
   CircleOff,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function LoginRequired() {
-  const { signIn, isLoading } = useAuth();
+  const { signIn, isLoading, userType, isRegistered, isAuthenticated } = useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const navigate = useNavigate();
+
+  // Handle redirect after successful authentication
+  useEffect(() => {
+    if (isAuthenticated && !isLoading && !isSigningIn) {
+      if (isRegistered && userType) {
+        if (userType === 'investor') {
+          navigate('/investor');
+        } else if (userType === 'founder') {
+          navigate('/founder');
+        } else {
+          navigate('/onboarding');
+        }
+      } else {
+        navigate('/onboarding');
+      }
+    }
+  }, [isAuthenticated, isLoading, isRegistered, userType, isSigningIn, navigate]);
 
   const handleSignIn = async () => {
     try {
       setIsSigningIn(true);
       await signIn();
-      navigate('/onboarding');
     } catch (error) {
       console.error('Sign in failed:', error);
     } finally {

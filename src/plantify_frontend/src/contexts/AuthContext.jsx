@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
     isLoading: true,
     userInfo: null,
     isRegistered: false,
+    userType: null, // 'founder', 'investor', or null
   });
 
   useEffect(() => {
@@ -38,15 +39,20 @@ export function AuthProvider({ children }) {
           ? await authService.getUserInfo()
           : null;
         
-        // Check registration status in the background
+        // Check registration status and user type in the background
         let isRegistered = false;
+        let userType = null;
         if (isAuthenticated) {
           try {
             // This can be slow, so we'll update in the background
-            authService.isUserRegistered().then(registered => {
+            Promise.all([
+              authService.isUserRegistered(),
+              authService.getUserType()
+            ]).then(([registered, type]) => {
               setAuthState(prev => ({
                 ...prev,
-                isRegistered: registered
+                isRegistered: registered,
+                userType: type
               }));
             }).catch(error => {
               console.warn('Could not check user registration status - backend may not be available');
@@ -73,6 +79,7 @@ export function AuthProvider({ children }) {
           isLoading: false,
           userInfo: null,
           isRegistered: false,
+          userType: null,
         });
       }
     };
@@ -87,11 +94,14 @@ export function AuthProvider({ children }) {
       const userInfo = await authService.getUserInfo();
       
       let isRegistered = false;
+      let userType = null;
       try {
         isRegistered = await authService.isUserRegistered();
+        userType = await authService.getUserType();
       } catch (error) {
         console.warn('Could not check user registration status - backend may not be available');
         isRegistered = false;
+        userType = null;
       }
 
       setAuthState({
@@ -100,6 +110,7 @@ export function AuthProvider({ children }) {
         isLoading: false,
         userInfo,
         isRegistered,
+        userType,
         userData: userInfo,
       });
 
@@ -120,6 +131,7 @@ export function AuthProvider({ children }) {
         isLoading: false,
         userInfo: null,
         isRegistered: false,
+        userType: null,
       });
     } catch (error) {
       console.error('Sign out failed:', error);
@@ -134,17 +146,21 @@ export function AuthProvider({ children }) {
       const userInfo = await authService.getUserInfo();
       
       let isRegistered = false;
+      let userType = null;
       try {
         isRegistered = await authService.isUserRegistered();
+        userType = await authService.getUserType();
       } catch (error) {
         console.warn('Could not check user registration status - backend may not be available');
         isRegistered = false;
+        userType = null;
       }
 
       setAuthState(prev => ({
         ...prev,
         userInfo,
         isRegistered,
+        userType,
         userData: userInfo,
       }));
     } catch (error) {

@@ -3,6 +3,8 @@ import {
   HomePage,
   AuthPage,
   OnboardingPage,
+  InvestorDashboard,
+  FounderDashboard,
   ExplorePage,
   ExploreDetailPage,
   FounderRegistrationPage,
@@ -22,6 +24,22 @@ function App() {
           element={
             <ProtectedRoute>
               <OnboardingPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/investor' 
+          element={
+            <ProtectedRoute>
+              <InvestorDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/founder' 
+          element={
+            <ProtectedRoute>
+              <FounderDashboard />
             </ProtectedRoute>
           } 
         />

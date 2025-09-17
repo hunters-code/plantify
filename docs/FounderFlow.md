@@ -19,7 +19,7 @@ Namun perlu diingat: Ini bukan "dana gratis"—Anda berkomitmen memberikan profi
 
 ### Persyaratan Minimal
 
-- **Legal Entity**: Memiliki CV/PT/Koperasi yang legal.
+- **Legal Entity**: Memiliki  yang legal.
 - **Business Track Record**: Minimal 6 bulan operasional atau _proof of concept_.
 - **Revenue Potential**: Bisnis harus punya potensi untuk menghasilkan pendapatan berulang (recurring revenue).
 - **Komitmen**: Siap terikat komitmen profit sharing selama 3 tahun.
@@ -57,7 +57,7 @@ Namun perlu diingat: Ini bukan "dana gratis"—Anda berkomitmen memberikan profi
 
 **Dokumen Legal**
 
-- Akta pendirian perusahaan (CV/PT/Koperasi)
+- Akta pendirian perusahaan
 - SIUP (Surat Izin Usaha Perdagangan)
 - NPWP Perusahaan dan Personal
 - KTP Founder/Co-founder

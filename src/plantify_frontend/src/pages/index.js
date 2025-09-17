@@ -1,6 +1,8 @@
 export { default as HomePage } from './home';
 export { default as AuthPage } from './auth/page';
 export { default as OnboardingPage } from './onboarding/page';
+export { default as InvestorDashboard } from './investor/page';
+export { default as FounderDashboard } from './founder/page';
 export { default as ExplorePage } from './explore/page';
 export { default as ExploreDetailPage } from './explore/detail/page';
 export { default as FounderRegistrationPage } from './register/founder/page';

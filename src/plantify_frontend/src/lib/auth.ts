@@ -180,16 +180,67 @@ export class AuthService {
     }
 
     try {
-      // Call the backend to get all founders
+      // Check if user is either a founder or investor
+      const isFounder = await this.isUserFounder();
+      const isInvestor = await this.isUserInvestor();
+      return isFounder || isInvestor;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // Method to check if user is a founder
+  async isUserFounder() {
+    if (!this.isAuthenticated() || !this.actor) {
+      return false;
+    }
+
+    try {
       const founders = await this.actor.getFounders();
       const currentPrincipal = this.principal?.toString();
 
-      // Check if current user's principal is in the list of founders
       return founders.some(
         founder => founder.principal.toString() === currentPrincipal
       );
     } catch (error) {
       return false;
+    }
+  }
+
+  // Method to check if user is an investor
+  async isUserInvestor() {
+    if (!this.isAuthenticated() || !this.actor) {
+      return false;
+    }
+
+    try {
+      const investors = await this.actor.getInvestors();
+      const currentPrincipal = this.principal?.toString();
+
+      return investors.some(
+        (investor: any) => investor.principal.toString() === currentPrincipal
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // Method to get user type
+  async getUserType() {
+    if (!this.isAuthenticated() || !this.actor) {
+      return null;
+    }
+
+    try {
+      const isFounder = await this.isUserFounder();
+      if (isFounder) return 'founder';
+
+      const isInvestor = await this.isUserInvestor();
+      if (isInvestor) return 'investor';
+
+      return null;
+    } catch (error) {
+      return null;
     }
   }
 

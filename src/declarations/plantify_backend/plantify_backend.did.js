@@ -221,6 +221,22 @@ export const idlFactory = ({ IDL }) => {
     'purchases' : IDL.Vec(NFTPurchaseInfo),
   });
   const Result_7 = IDL.Variant({ 'ok' : NFTPurchaseHistory, 'err' : IDL.Text });
+  const Investor = IDL.Record({
+    'id' : IDL.Text,
+    'principal' : IDL.Principal,
+    'country' : IDL.Text,
+    'riskTolerance' : IDL.Text,
+    'monthlyBudget' : IDL.Text,
+    'city' : IDL.Text,
+    'createdAt' : Time,
+    'fullName' : IDL.Text,
+    'email' : IDL.Text,
+    'updatedAt' : Time,
+    'investmentGoals' : IDL.Text,
+    'availableCapital' : IDL.Text,
+    'phone' : IDL.Text,
+    'investmentExperience' : IDL.Text,
+  });
   const NFTBalanceResponse = IDL.Variant({
     'Error' : IDL.Text,
     'Success' : IDL.Record({ 'balance' : IDL.Nat, 'account' : NFTAccount }),
@@ -321,22 +337,6 @@ export const idlFactory = ({ IDL }) => {
     'phone' : IDL.Text,
     'investmentExperience' : IDL.Text,
   });
-  const Investor = IDL.Record({
-    'id' : IDL.Text,
-    'principal' : IDL.Principal,
-    'country' : IDL.Text,
-    'riskTolerance' : IDL.Text,
-    'monthlyBudget' : IDL.Text,
-    'city' : IDL.Text,
-    'createdAt' : Time,
-    'fullName' : IDL.Text,
-    'email' : IDL.Text,
-    'updatedAt' : Time,
-    'investmentGoals' : IDL.Text,
-    'availableCapital' : IDL.Text,
-    'phone' : IDL.Text,
-    'investmentExperience' : IDL.Text,
-  });
   const Result_2 = IDL.Variant({ 'ok' : Investor, 'err' : IDL.Text });
   const TopUpRequest = IDL.Record({
     'startupId' : IDL.Text,
@@ -421,6 +421,7 @@ export const idlFactory = ({ IDL }) => {
     'getICPBalance' : IDL.Func([TransferAccount], [BalanceResponse], []),
     'getICPTokenConfig' : IDL.Func([], [TokenConfig], []),
     'getInvestorPurchaseHistory' : IDL.Func([IDL.Text], [Result_7], []),
+    'getInvestors' : IDL.Func([], [IDL.Vec(Investor)], []),
     'getNFTBalance' : IDL.Func([NFTAccount], [Result_13], []),
     'getNFTInfo' : IDL.Func([IDL.Nat], [Result_12], []),
     'getNFTOwner' : IDL.Func([IDL.Nat], [Result_11], []),

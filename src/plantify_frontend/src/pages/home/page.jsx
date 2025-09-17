@@ -129,7 +129,7 @@ export default function WelcomePage() {
                   Requirements
                 </h3>
                 <ul className='text-sm bg-orange-100 text-orange-600 mt-2 space-y-1 p-4 rounded-xl border border-orange-400'>
-                  <li>Legal business entity (CV/PT/Koperasi) required.</li>
+                  <li>Legal business entity required.</li>
                   <li>At least 6 months of operational history.</li>
                   <li>Stable currency collateral for 12 months.</li>
                 </ul>
