@@ -18,8 +18,7 @@ export default function LoginRequired() {
     try {
       setIsSigningIn(true);
       await signIn();
-      // Redirect to home page after successful sign in
-      navigate('/');
+      navigate('/onboarding');
     } catch (error) {
       console.error('Sign in failed:', error);
     } finally {

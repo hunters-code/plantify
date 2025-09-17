@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import {
   HomePage,
   AuthPage,
+  OnboardingPage,
   ExplorePage,
   ExploreDetailPage,
   FounderRegistrationPage,
@@ -9,24 +10,69 @@ import {
   StartupDetailsPage,
   CreateStartupPage,
 } from './pages';
+import { ProtectedRoute } from './components';
 
 function App() {
   return (
      <Routes>
         <Route path='/' element={<HomePage />} />
         <Route path='/auth' element={<AuthPage />} />
-        <Route path='/explore' element={<ExplorePage />} />
-        <Route path='/explore/detail' element={<ExploreDetailPage />} />
+        <Route 
+          path='/onboarding' 
+          element={
+            <ProtectedRoute>
+              <OnboardingPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/explore' 
+          element={
+            <ProtectedRoute>
+              <ExplorePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/explore/detail' 
+          element={
+            <ProtectedRoute>
+              <ExploreDetailPage />
+            </ProtectedRoute>
+          } 
+        />
         <Route
           path='/register/founder'
-          element={<FounderRegistrationPage />}
+          element={
+            <ProtectedRoute>
+              <FounderRegistrationPage />
+            </ProtectedRoute>
+          }
         />
         <Route
           path='/register/investor'
-          element={<InvestorRegistrationPage />}
+          element={
+            <ProtectedRoute>
+              <InvestorRegistrationPage />
+            </ProtectedRoute>
+          }
         />
-        <Route path='/startup/:id' element={<StartupDetailsPage />} />
-        <Route path='/startup/create' element={<CreateStartupPage />} />
+        <Route 
+          path='/startup/:id' 
+          element={
+            <ProtectedRoute>
+              <StartupDetailsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/startup/create' 
+          element={
+            <ProtectedRoute>
+              <CreateStartupPage />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
   );
 }

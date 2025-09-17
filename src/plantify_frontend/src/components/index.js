@@ -6,6 +6,9 @@ export { default as Layout } from './layout/Layout';
 export { default as Navbar } from './layout/Navbar';
 export { default as Footer } from './layout/Footer';
 
+// Auth Components
+export { default as ProtectedRoute } from './ProtectedRoute';
+
 // Feature Components
 export { default as Hero } from './features/Hero';
 export { default as HowItWork } from './features/HowItWork';
