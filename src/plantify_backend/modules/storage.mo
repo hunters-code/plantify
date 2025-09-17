@@ -179,6 +179,7 @@ module Storage {
             location = startupRequest.location;
             companyType = startupRequest.companyType;
             companyLogo = startupRequest.companyLogo;
+            companyImages = startupRequest.companyImages;
             nftImage = startupRequest.nftImage;
 
             problemStatement = startupRequest.problemStatement;
@@ -300,6 +301,7 @@ module Storage {
             location = startup.location;
             companyType = startup.companyType;
             companyLogo = startup.companyLogo;
+            companyImages = startup.companyImages;
             nftImage = startup.nftImage;
             problemStatement = startup.problemStatement;
             solution = startup.solution;

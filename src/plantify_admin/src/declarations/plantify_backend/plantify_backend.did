@@ -94,6 +94,7 @@ type StartupCreationRequest =
  record {
    advisors: text;
    businessPlan: opt text;
+   companyImages: vec text;
    companyLogo: opt text;
    companyType: text;
    competitiveAdvantage: text;
@@ -126,6 +127,7 @@ type Startup =
  record {
    advisors: text;
    businessPlan: opt text;
+   companyImages: vec text;
    companyLogo: opt text;
    companyType: text;
    competitiveAdvantage: text;

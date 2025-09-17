@@ -26,6 +26,9 @@ persistent actor PlantifyBackend {
   private var nextInvestorId : Nat = 1;
   private var nextStartupId : Nat = 1;
   
+  // Migration flag to handle type changes
+  private var migrationCompleted : Bool = false;
+  
   private transient let storage = Storage.UserStorage(
     foundersEntries,
     founderPrincipalsEntries,
@@ -343,7 +346,8 @@ persistent actor PlantifyBackend {
   };
 
   system func postupgrade() {
-    // Migration: Add nftImage field to existing startups
+    // Migration: Add companyImages field to existing startups
+    // For existing startups, initialize companyImages as empty array
     let migratedStartups = Array.map<(Text, Types.Startup), (Text, Types.Startup)>(
       startupsEntries,
       func((id, startup) : (Text, Types.Startup)) : (Text, Types.Startup) {
@@ -358,7 +362,8 @@ persistent actor PlantifyBackend {
           location = startup.location;
           companyType = startup.companyType;
           companyLogo = startup.companyLogo;
-          nftImage = null; // Initialize new field as null for existing startups
+          companyImages = []; // Initialize new field as empty array for existing startups
+          nftImage = startup.nftImage;
           problemStatement = startup.problemStatement;
           solution = startup.solution;
           targetMarket = startup.targetMarket;
