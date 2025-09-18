@@ -83,7 +83,21 @@ export function useRegistration(): UseRegistrationReturn {
 
   // Register investor
   const registerInvestor = useCallback(async (formData: InvestorRegistrationRequest): Promise<BackendResponse<Investor>> => {
+    if (!isAuthenticated) {
+      setError('Please authenticate first before registering.');
+      return { success: false, error: 'Authentication required' };
+    }
+
+    if (!isBackendDeclarationsAvailable()) {
+      await loadDeclarations();
+      if (!isBackendDeclarationsAvailable()) {
+        setError('Backend declarations not found. Please run "dfx generate plantify_backend" first.');
+        return { success: false, error: 'Backend declarations not available' };
+      }
+    }
+
     if (!service) {
+      setError('Backend service not available. Please try again later.');
       return { success: false, error: 'Backend service not available' };
     }
 
@@ -117,7 +131,7 @@ export function useRegistration(): UseRegistrationReturn {
     } finally {
       setLoading(false);
     }
-  }, [service]);
+  }, [service, isAuthenticated, isBackendDeclarationsAvailable, loadDeclarations]);
 
   // Get all founders
   const getAllFounders = useCallback(async (): Promise<BackendResponse<Founder[]>> => {

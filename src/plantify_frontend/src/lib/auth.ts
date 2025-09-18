@@ -67,8 +67,13 @@ export class AuthService {
         identity: this.authClient.getIdentity(),
       });
 
-      // No need to fetch root key when using mainnet
-      // The agent will use the well-known key for the IC mainnet
+      // For local development, fetch the root key
+      if (
+        process.env.NODE_ENV !== 'production' ||
+        window.location.hostname === 'localhost'
+      ) {
+        await this.agent.fetchRootKey();
+      }
 
       // Create the actor using the agent and canister ID
       this.actor = createActor(this.canisterId, {
@@ -77,7 +82,6 @@ export class AuthService {
 
       // Test if the actor is working by calling a simple method
       try {
-        const principal = await this.actor.whoami();
         return true;
       } catch (error) {
         return false;

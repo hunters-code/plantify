@@ -31,8 +31,8 @@ export default function InvestmentProfile({
             Investment Experience Level <span className="text-red-500">*</span>
           </label>
           <select
-            value={formData.experienceLevel || ''}
-            onChange={e => handleChange('experienceLevel', e.target.value)}
+            value={formData.investmentExperience || ''}
+            onChange={e => handleChange('investmentExperience', e.target.value)}
             className={inputStyle}
           >
             <option value="">Select your experience level</option>
@@ -83,8 +83,8 @@ export default function InvestmentProfile({
               Available Investment Capital <span className="text-red-500">*</span>
             </label>
             <select
-              value={formData.investmentCapital || ''}
-              onChange={e => handleChange('investmentCapital', e.target.value)}
+            value={formData.availableCapital || ''}
+            onChange={e => handleChange('availableCapital', e.target.value)}
               className={inputStyle}
             >
               <option value="">Select capital range</option>

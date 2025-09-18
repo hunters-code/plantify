@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User,
@@ -31,8 +31,22 @@ export default function RegisterInvestor() {
     success,
     isAvailable,
     isBackendDeclarationsAvailable,
+    initializeBackendActor,
   } = useRegistration();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  // Function to ensure backend connection is initialized
+  const ensureBackendConnection = useCallback(async () => {
+    if (!isAvailable) {
+      try {
+        const initialized = await initializeBackendActor();
+        return initialized;
+      } catch (error) {
+        return false;
+      }
+    }
+    return true;
+  }, [isAvailable, initializeBackendActor]);
 
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
@@ -41,17 +55,21 @@ export default function RegisterInvestor() {
     fullName: '',
     email: '',
     phone: '',
-    address: '',
+    country: '',
+    city: '',
 
-    // Professional Background
-    experience: '',
-    previousBusinesses: '',
-    expertise: '',
-    linkedIn: '',
+    // Investment Profile
+    investmentExperience: '',
+    riskTolerance: '',
+    investmentGoals: '',
+    availableCapital: '',
+    monthlyBudget: '',
 
-    // Verification Documents
-    idNumber: '',
-    taxNumber: '',
+    // Knowledge Assessment
+    investmentRisks: false,
+    nftModel: false,
+    governance: false,
+    liquidity: false,
 
     // Terms & Agreement
     terms: false,
@@ -70,7 +88,11 @@ export default function RegisterInvestor() {
       label: 'Investment Profile',
       icon: <Banknote className='w-4 h-4' />,
     },
-    { id: 3, label: 'Knowladge Assessment', icon: <Brain className='w-4 h-4' /> },
+    {
+      id: 3,
+      label: 'Knowladge Assessment',
+      icon: <Brain className='w-4 h-4' />,
+    },
     {
       id: 4,
       label: 'Terms & Agreement',
@@ -81,8 +103,8 @@ export default function RegisterInvestor() {
   // Handle successful registration
   useEffect(() => {
     if (success) {
-      // Redirect to success page or dashboard
-      // navigate('/auth?registered=true');
+      // Redirect to investor dashboard or success page
+      navigate('/investor?registered=true');
     }
   }, [success, navigate]);
 
@@ -97,6 +119,35 @@ export default function RegisterInvestor() {
       navigate('/auth');
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  // Initialize backend connection when component mounts or authentication changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      ensureBackendConnection()
+        .then(success => {
+          if (!success) {
+            // Try one more time after a short delay
+            setTimeout(() => {
+              ensureBackendConnection()
+                .then(retrySuccess => {
+                  if (!retrySuccess) {
+                    console.warn(
+                      'Failed to initialize backend connection after retry'
+                    );
+                  }
+                })
+                .catch(err => {
+                  console.error(
+                    'Error initializing backend connection on retry:',
+                    err
+                  );
+                });
+            }, 1000);
+          }
+        })
+        .catch(err => {});
+    }
+  }, [isAuthenticated, ensureBackendConnection]);
 
   const nextStep = () => {
     if (step < tabs.length) setStep(step + 1);
@@ -113,6 +164,58 @@ export default function RegisterInvestor() {
     }));
   };
 
+  // Validate form data
+  const validateForm = () => {
+    const errors = [];
+
+    // Required personal information fields
+    if (!formData.fullName || formData.fullName.trim() === '') {
+      errors.push('Full name is required');
+    }
+    if (!formData.email || formData.email.trim() === '') {
+      errors.push('Email is required');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.push('Please enter a valid email address');
+    }
+    if (!formData.phone || formData.phone.trim() === '') {
+      errors.push('Phone number is required');
+    }
+    if (!formData.country || formData.country.trim() === '') {
+      errors.push('Country is required');
+    }
+    if (!formData.city || formData.city.trim() === '') {
+      errors.push('City is required');
+    }
+
+    // Required investment profile fields
+    if (!formData.investmentExperience) {
+      errors.push('Investment experience level is required');
+    }
+    if (!formData.riskTolerance) {
+      errors.push('Risk tolerance is required');
+    }
+    if (!formData.availableCapital) {
+      errors.push('Available investment capital is required');
+    }
+
+    // Required knowledge assessment
+    if (!formData.investmentRisks) {
+      errors.push('You must acknowledge understanding investment risks');
+    }
+    if (!formData.nftModel) {
+      errors.push(
+        'You must acknowledge understanding the NFT investment model'
+      );
+    }
+
+    // Required terms
+    if (!formData.terms || !formData.risks || !formData.transparency) {
+      errors.push('You must agree to all terms and conditions');
+    }
+
+    return errors;
+  };
+
   const handleSubmit = async () => {
     try {
       // Check if user is authenticated first
@@ -121,32 +224,65 @@ export default function RegisterInvestor() {
         return;
       }
 
-      // Try to load backend declarations if not available
-      if (!isBackendDeclarationsAvailable()) {
-        // Check if backend declarations were loaded successfully
-        if (!isBackendDeclarationsAvailable()) {
-          setError(
-            'Failed to load backend declarations. Please ensure the backend is running and try again.'
-          );
-          return;
-        }
+      // Validate form data
+      const validationErrors = validateForm();
+      if (validationErrors.length > 0) {
+        setError(validationErrors.join('. '));
+        return;
       }
 
-      // Check if backend is available
-      if (!isAvailable) {
+      // Initialize backend connection if not already available
+      const backendAvailable = await ensureBackendConnection();
+      if (!backendAvailable) {
         setError(
           'Backend connection not available. Please ensure you are authenticated and the backend is running.'
         );
         return;
       }
 
-      // Register founder
-      const result = await registerFounder(formData);
+      // Check if backend declarations are available
+      if (!isBackendDeclarationsAvailable()) {
+        setError(
+          'Failed to load backend declarations. Please ensure the backend is running and try again.'
+        );
+        return;
+      }
 
-      if (result.success) {
-        // Success is handled by useEffect
-      } else {
-        setError(result.error || 'Registration failed. Please try again.');
+      // Prepare investor data according to backend requirements
+      const investorData = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        country: formData.country,
+        city: formData.city,
+        investmentExperience: formData.investmentExperience || 'beginner',
+        riskTolerance: formData.riskTolerance || 'medium',
+        investmentGoals: formData.investmentGoals || 'growth',
+        availableCapital: formData.availableCapital || '1k_10k',
+        monthlyBudget: formData.monthlyBudget || '0',
+      };
+
+      // Debug logging
+      console.log('Submitting investor registration data:', investorData);
+
+      try {
+        // Register investor
+        const result = await registerInvestor(investorData);
+        console.log('Registration result:', result);
+
+        if (result.success) {
+          // Success is handled by useEffect
+          console.log('Registration successful!');
+        } else {
+          console.error('Registration failed:', result.error);
+          setError(result.error || 'Registration failed. Please try again.');
+        }
+      } catch (registrationError) {
+        console.error('Registration error:', registrationError);
+        setError(
+          registrationError.message ||
+            'Registration failed with an unexpected error.'
+        );
       }
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');

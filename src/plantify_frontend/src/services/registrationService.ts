@@ -148,7 +148,10 @@ export class RegistrationService {
     registrationData: InvestorRegistrationRequest
   ): Promise<BackendResponse<Investor>> {
     try {
+      console.log('Registration service: registerInvestor called with data:', registrationData);
+      
       if (!this.actor) {
+        console.error('Registration service: Backend actor not initialized');
         throw new Error('Backend actor not initialized');
       }
 
@@ -164,9 +167,13 @@ export class RegistrationService {
         availableCapital: registrationData.availableCapital || '',
         monthlyBudget: registrationData.monthlyBudget || '',
       };
+      
+      console.log('Registration service: Calling backend with investor request:', investorRequest);
 
       const result: Result_2 =
         await this.actor.registerInvestor(investorRequest);
+        
+      console.log('Registration service: Backend response:', result);
 
       // Handle the response using the generated Result type
       if ('ok' in result && result.ok) {
