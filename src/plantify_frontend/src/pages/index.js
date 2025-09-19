@@ -9,3 +9,4 @@ export { default as FounderRegistrationPage } from './register/founder/page';
 export { default as InvestorRegistrationPage } from './register/investor';
 export { default as StartupDetailsPage } from './startup/details';
 export { default as CreateStartupPage } from './startup/create';
+export { default as DashboardFounder } from './dashboard-founder/page';
