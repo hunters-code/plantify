@@ -4,8 +4,10 @@ import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import Tabs from "../../components/layout/Tabs";
 import DashboardOverview from "./partial/DashboardOverview";
+import Teams from "./partial/Teams";
+import FoundingStatus from "./partial/FoundingStatus";
 import StartupOverview from "./partial/StartupOverview";
-import { CirclePlus, FileChartLine, FileText } from "lucide-react";
+import { CirclePlus, FileChartLine, FileText, HandCoins, Users } from "lucide-react";
 
 export default function Dashboard() {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -25,8 +27,8 @@ export default function Dashboard() {
     ];
     const tabs = [
         { label: "Overview", icon: <FileChartLine size={16} /> },
-        { label: "Team", content: <div>Team content</div> },
-        { label: "Funding status", content: <div>Funding status content</div> },
+        { label: "Team", icon: <Users size={16} /> },
+        { label: "Funding status", icon: <HandCoins size={16} /> },
         { label: "Monthly reports", content: <div>Reports content</div> },
         { label: "Profit sharing", content: <div>Profit sharing content</div> },
         { label: "Collateral", content: <div>Collateral content</div> },
@@ -37,6 +39,10 @@ export default function Dashboard() {
         switch (activeTab) {
             case 0:
                 return <StartupOverview />;
+            case 1:
+                return <Teams />;
+            case 2:
+                return <FoundingStatus />
             default:
                 return <StartupOverview />;
         }
