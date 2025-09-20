@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Building2,
   Briefcase,
@@ -12,6 +13,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Navbar, Footer } from '../../../components';
+import { backendService } from '../../../lib/backend';
+import { useAuth } from '../../../hooks/useAuth';
 import BasicInformationStep from '../../../components/startup/steps/BasicInformationStep';
 import BusinessDetailsStep from '../../../components/startup/steps/BusinessDetailsStep';
 import TeamBackgroundStep from '../../../components/startup/steps/TeamBackgroundStep';
@@ -20,6 +23,13 @@ import CollateralSetupStep from '../../../components/startup/steps/CollateralSet
 import ReviewSubmitStep from '../../../components/startup/steps/ReviewSubmitStep';
 
 export default function CreateStartupPage() {
+  const navigate = useNavigate();
+  const {
+    isAuthenticated,
+    principal,
+    getIdentity,
+    isLoading: authLoading,
+  } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     // Basic Information
@@ -182,27 +192,145 @@ export default function CreateStartupPage() {
     setStep(stepNumber);
   };
 
+  // Function to convert File to base64 string or filename
+  const fileToString = file => {
+    if (!file) return null;
+    if (typeof file === 'string') return file;
+    // For now, just return the filename. In production, you might want to upload to IPFS or convert to base64
+    return file.name;
+  };
+
+  // Function to convert form data to backend format
+  const mapFormDataToBackend = formData => {
+    // Map team members to backend format
+    const teamMembers = formData.teamMembers.map((member, index) => ({
+      id: index + 1,
+      name: member.name || '',
+      role: member.role || '',
+      background: member.background || '',
+      photo: member.photo ? [fileToString(member.photo)] : [],
+      linkedin: member.linkedin || '',
+      email: member.email || '',
+      isFounder: member.isFounder || false,
+    }));
+
+    // Add founder as first team member if not already included
+    const founderAsMember = {
+      id: 0,
+      name: formData.founderName || '',
+      role: formData.founderRole || '',
+      background: formData.founderBackground || '',
+      photo: formData.founderPhoto ? [fileToString(formData.founderPhoto)] : [],
+      linkedin: formData.founderLinkedIn || '',
+      email: formData.founderEmail || '',
+      isFounder: true,
+    };
+
+    const allTeamMembers = [founderAsMember, ...teamMembers];
+
+    return {
+      startupName: formData.startupName || '',
+      sector: formData.sector || '',
+      foundedYear: formData.foundedYear || '',
+      description: formData.description || '',
+      website: formData.website || '',
+      location: formData.location || '',
+      companyType: formData.companyType || '',
+      companyLogo: formData.logo ? [fileToString(formData.logo)] : [], // Optional text
+      companyImages: [], // Array of text - empty for now
+      nftImage: [], // Optional text - empty for now
+      problemStatement: formData.problemStatement || '',
+      solution: formData.solution || '',
+      targetMarket: formData.targetMarket || '',
+      competitiveAdvantage: formData.competitiveAdvantage || '',
+      marketingStrategy: formData.marketingStrategy || '',
+      operationalProcess: formData.operationalProcess || '',
+      founderBackground: formData.founderBackground || '',
+      teamMembers: allTeamMembers,
+      advisors: formData.advisors || '',
+      fundingGoal: formData.fundingGoal || '',
+      nftPrice: formData.nftPrice || '',
+      periodicProfitSharing: formData.monthlyProfitSharing || '',
+      revenueModel: formData.revenueModel || '',
+      monthlyRevenue: formData.expectedMonthlyRevenue || '',
+      monthlyExpenses: formData.expectedMonthlyExpenses || '',
+      useOfFunds: formData.useOfFunds || '',
+      businessPlan: formData.businessPlan
+        ? [fileToString(formData.businessPlan)]
+        : [], // Optional text
+      financialProjections: formData.financialProjections
+        ? [fileToString(formData.financialProjections)]
+        : [], // Optional text
+      legalDocuments: formData.legalDocuments
+        ? [fileToString(formData.legalDocuments)]
+        : [], // Optional text
+      status: 'pending', // Default status for new startups
+    };
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
+
+    // Get identity
+    const identity = getIdentity();
+    // Check authentication
+    if (!isAuthenticated || !principal || !identity) {
+      alert('Please login to create a startup');
+      navigate('/auth');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Here you would submit the form data to your backend
-      console.log('Submitting startup data:', formData);
+      // Initialize backend service with identity
+      await backendService.initialize(identity);
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Map form data to backend format
+      const startupRequest = mapFormDataToBackend(formData);
+      // Submit to backend
+      const result = await backendService.createStartup(startupRequest);
 
-      // Handle success (redirect, show success message, etc.)
-      alert('Startup submitted successfully!');
+      if ('ok' in result) {
+        // Success
+        alert(
+          'Startup submitted successfully! Your startup is now under review.'
+        );
+
+        // Redirect to dashboard or startup list
+        navigate('/dashboard-founder');
+      } else {
+        // Error from backend
+        alert(`Error creating startup: ${result.err}`);
+      }
     } catch (error) {
-      console.error('Error submitting startup:', error);
       alert('Error submitting startup. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className='bg-gray-50 text-gray-900 min-h-screen'>
+        <Navbar />
+        <div className='flex items-center justify-center min-h-[60vh]'>
+          <div className='text-center'>
+            <Loader2 className='w-8 h-8 animate-spin mx-auto mb-4' />
+            <p className='text-gray-600'>Loading...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Redirect to auth if not authenticated
+  if (!isAuthenticated && !authLoading) {
+    navigate('/auth');
+    return null;
+  }
 
   return (
     <div className='bg-gray-50 text-gray-900 min-h-screen'>

@@ -175,6 +175,7 @@ export function AuthProvider({ children }) {
     refreshUserInfo,
     getActor: () => authService.getActor(),
     getAgent: () => authService.getAgent(),
+    getIdentity: () => authService.getIdentity(),
     initializeBackendActor: () => authService.initializeBackendActor(),
     isBackendDeclarationsAvailable: () =>
       authService.isBackendDeclarationsAvailable(),
