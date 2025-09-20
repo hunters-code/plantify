@@ -11,6 +11,7 @@ import {
   InvestorRegistrationPage,
   StartupDetailsPage,
   CreateStartupPage,
+  DashboardFounder
 } from './pages';
 import { ProtectedRoute } from './components';
 
@@ -32,6 +33,14 @@ function App() {
           element={
             <ProtectedRoute>
               <InvestorDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/dashboard-founder' 
+          element={
+            <ProtectedRoute>
+              <DashboardFounder />
             </ProtectedRoute>
           } 
         />
