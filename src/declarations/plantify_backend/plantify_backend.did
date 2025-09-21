@@ -1,3 +1,8 @@
+type UserType = 
+ variant {
+   Founder;
+   Investor;
+ };
 type TransferResponse = 
  variant {
    Error: text;
@@ -506,7 +511,6 @@ service : {
   getAllNFTs: () -> (vec NFTInfo);
   getAllPurchases: () -> (vec NFTPurchaseInfo);
   getAllStartups: () -> (vec Startup);
-  getStartupDetails: (startupId: text) -> (opt Startup);
   getBalance: (account: TransferAccount, tokenType: text) ->
    (BalanceResponse);
   getCkUSDCBalance: (account: TransferAccount) -> (BalanceResponse);
@@ -517,9 +521,11 @@ service : {
   getCollectionInfo: () -> (NFTConfig);
   getEnvironment: () -> (text);
   getEnvironmentConfig: () -> (EnvironmentConfig);
+  getFounderByPrincipal: () -> (opt Founder);
   getFounders: () -> (vec Founder);
   getICPBalance: (account: TransferAccount) -> (BalanceResponse);
   getICPTokenConfig: () -> (TokenConfig);
+  getInvestorByPrincipal: () -> (opt Investor);
   getInvestorPurchaseHistory: (investorId: text) -> (Result_7);
   getInvestors: () -> (vec Investor);
   getNFTBalance: (account: NFTAccount) -> (Result_13);
@@ -536,11 +542,15 @@ service : {
   getPlantifyAccount: () -> (text);
   getPurchaseInfo: (purchaseId: text) -> (Result_8);
   getPurchaseStats: () -> (NFTPurchaseStats);
+  getStartupDetails: (startupId: text) -> (opt Startup);
   getStartupPurchaseHistory: (startupId: text) -> (Result_7);
   getTokenCanisterId: (tokenType: text) -> (opt text);
   getTokenInfo: (tokenType: text) -> (TokenInfoResponse);
+  getUserType: () -> (opt UserType);
   initializeCollateral: (startupId: text, requiredAmount: nat, tokenType:
    text) -> (Result_5);
+  isUserFounder: () -> (bool);
+  isUserInvestor: () -> (bool);
   isUsingTestTokens: () -> (bool);
   mintNFT: (request: MintNFTRequest) -> (Result_6);
   mintNFTForStartup: (startupId: text) -> (Result_5);

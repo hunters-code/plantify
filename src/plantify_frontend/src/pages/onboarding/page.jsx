@@ -1,14 +1,73 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Copy, DraftingCompass, ShieldCheck, CheckCircle } from 'lucide-react';
+import {
+  Copy,
+  DraftingCompass,
+  ShieldCheck,
+  CheckCircle,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
 
 import { Layout } from '../../components';
 import { useAuth } from '../../hooks/useAuth';
+import { backendService } from '../../lib/backend';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const { principal } = useAuth();
+  const { principal, isAuthenticated, identity } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
+  const [userType, setUserType] = useState(null);
+  const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  useEffect(() => {
+    const checkUserRegistration = async () => {
+      if (!isAuthenticated || !identity) {
+        setIsCheckingRegistration(false);
+        return;
+      }
+
+      try {
+        setError(null);
+        await backendService.initialize(identity);
+        const userTypeResult = await backendService.getUserType();
+
+        if (userTypeResult) {
+          setUserType(userTypeResult);
+          if (userTypeResult === 'Founder') {
+            navigate('/founder');
+          } else if (userTypeResult === 'Investor') {
+            navigate('/investor');
+          }
+        }
+      } catch (error) {
+        console.error('Error checking user registration:', error);
+        let errorMessage = 'Failed to check registration status. ';
+        
+        if (error.message) {
+          if (error.message.includes('Canister') && error.message.includes('does not belong to any subnet')) {
+            errorMessage += 'Cannot connect to the backend canister. Please ensure you are using the correct canister ID.';
+          } else if (error.message.includes('Invalid principal')) {
+            errorMessage += 'Authentication error. Please sign in again and try once more.';
+          } else if (error.message.includes('timeout')) {
+            errorMessage += 'Connection to Internet Computer timed out. Please try again later.';
+          } else {
+            errorMessage += error.message;
+          }
+        } else {
+          errorMessage += 'Please try again later.';
+        }
+        
+        setError(errorMessage);
+      } finally {
+        setIsCheckingRegistration(false);
+      }
+    };
+
+    checkUserRegistration();
+  }, [isAuthenticated, identity, navigate, retryCount]);
 
   const formatPrincipal = principal => {
     if (!principal) return '';
@@ -34,6 +93,60 @@ export default function OnboardingPage() {
   const handleFounderClick = () => {
     navigate('/register/founder');
   };
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+    setIsCheckingRegistration(true);
+  };
+
+  const handleDismissError = () => {
+    setError(null);
+  };
+
+  if (isCheckingRegistration) {
+    return (
+      <Layout>
+        <div className='flex flex-col items-center justify-center min-h-screen px-6 py-20'>
+          <div className='flex flex-col items-center gap-4 p-8'>
+            <Loader2 size={48} className='text-purple-600 animate-spin' />
+            <p className='text-gray-600 text-sm'>
+              Checking your registration status...
+            </p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className='flex flex-col items-center justify-center min-h-screen px-6 py-20'>
+          <div className='max-w-md w-full bg-red-50 border border-red-200 rounded-lg p-6'>
+            <div className='flex items-center gap-3 mb-4'>
+              <AlertCircle className='w-5 h-5 text-red-500 flex-shrink-0' />
+              <h3 className='text-red-800 font-medium'>Connection Error</h3>
+            </div>
+            <p className='text-red-700 text-sm mb-4'>{error}</p>
+            <div className='flex gap-3'>
+              <button
+                onClick={handleRetry}
+                className='flex-1 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors'
+              >
+                Try Again
+              </button>
+              <button
+                onClick={handleDismissError}
+                className='flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors'
+              >
+                Continue Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-import Navbar from "../../components/layout/Navbar";
-import Footer from "../../components/layout/Footer";
-import Tabs from "../../components/layout/Tabs";
+import Navbar from "../../../components/layout/Navbar";
+import Footer from "../../../components/layout/Footer";
+import Tabs from "../../../components/layout/Tabs";
 import DashboardOverview from "./partial/DashboardOverview";
 import Teams from "./partial/Teams";
 import FoundingStatus from "./partial/FoundingStatus";

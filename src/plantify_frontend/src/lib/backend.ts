@@ -85,6 +85,12 @@ export interface BackendActor {
   getAllNFTs: () => Promise<NFTInfo[]>;
   getNFTStats: () => Promise<NFTStats>;
   getFounders: () => Promise<Founder[]>;
+  getInvestors: () => Promise<Investor[]>;
+  getFounderByPrincipal?: () => Promise<Founder | null>;
+  getInvestorByPrincipal?: () => Promise<Investor | null>;
+  getUserType?: () => Promise<'Founder' | 'Investor' | null>;
+  isUserFounder?: () => Promise<boolean>;
+  isUserInvestor?: () => Promise<boolean>;
   getAllStartups: () => Promise<Startup[]>;
   updateStartupStatus: (startupId: string, status: string) => Promise<boolean>;
 }
@@ -256,6 +262,111 @@ export class BackendService {
   async getFounders() {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getFounders();
+  }
+
+  async getFounderByPrincipal() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    if (this.actor.getFounderByPrincipal) {
+      const result = await this.actor.getFounderByPrincipal();
+      return result || null;
+    }
+    // Fallback: find founder by principal
+    const founders = await this.actor.getFounders();
+    const currentPrincipal = await this.actor.whoami();
+    const currentPrincipalText = currentPrincipal.toString();
+    
+    const founder = founders.find((f: any) => f.principal.toString() === currentPrincipalText);
+    return founder || null;
+  }
+
+  async getInvestorByPrincipal() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    if (this.actor.getInvestorByPrincipal) {
+      const result = await this.actor.getInvestorByPrincipal();
+      return result || null;
+    }
+    // Fallback: find investor by principal
+    const investors = await this.actor.getInvestors();
+    const currentPrincipal = await this.actor.whoami();
+    const currentPrincipalText = currentPrincipal.toString();
+    
+    const investor = investors.find((i: any) => i.principal.toString() === currentPrincipalText);
+    return investor || null;
+  }
+
+  async getUserType() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    try {
+      // Try to use the new function if available
+      if (this.actor.getUserType) {
+        const result = await this.actor.getUserType();
+        return result || null;
+      }
+      throw new Error('getUserType not available');
+    } catch (error) {
+      // Fallback: check by getting all founders and investors
+      const [founders, investors] = await Promise.all([
+        this.actor.getFounders(),
+        this.actor.getInvestors()
+      ]);
+      
+      const currentPrincipal = await this.actor.whoami();
+      const currentPrincipalText = currentPrincipal.toString();
+      
+      // Check if current user is a founder
+      const isFounder = founders.some((founder: any) => 
+        founder.principal.toString() === currentPrincipalText
+      );
+      
+      if (isFounder) return 'Founder';
+      
+      // Check if current user is an investor
+      const isInvestor = investors.some((investor: any) => 
+        investor.principal.toString() === currentPrincipalText
+      );
+      
+      if (isInvestor) return 'Investor';
+      
+      return null;
+    }
+  }
+
+  async isUserFounder() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    try {
+      if (this.actor.isUserFounder) {
+        return await this.actor.isUserFounder();
+      }
+      throw new Error('isUserFounder not available');
+    } catch (error) {
+      // Fallback: check by getting all founders
+      const founders = await this.actor.getFounders();
+      const currentPrincipal = await this.actor.whoami();
+      const currentPrincipalText = currentPrincipal.toString();
+      
+      return founders.some((founder: any) => 
+        founder.principal.toString() === currentPrincipalText
+      );
+    }
+  }
+
+  async isUserInvestor() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    try {
+      if (this.actor.isUserInvestor) {
+        return await this.actor.isUserInvestor();
+      }
+      throw new Error('isUserInvestor not available');
+    } catch (error) {
+      // Fallback: check by getting all investors
+      const investors = await this.actor.getInvestors();
+      const currentPrincipal = await this.actor.whoami();
+      const currentPrincipalText = currentPrincipal.toString();
+      
+      return investors.some((investor: any) => 
+        investor.principal.toString() === currentPrincipalText
+      );
+    }
   }
 
   async getAllStartups() {

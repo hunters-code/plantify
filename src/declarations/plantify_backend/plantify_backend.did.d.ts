@@ -382,6 +382,8 @@ export type TransferResponse = { 'Error' : string } |
       'transactionId' : string,
     }
   };
+export type UserType = { 'Founder' : null } |
+  { 'Investor' : null };
 export interface _SERVICE {
   'calculateRequiredCollateral' : ActorMethod<[bigint, string], bigint>,
   'canMintNFT' : ActorMethod<[string], Result_17>,
@@ -404,9 +406,11 @@ export interface _SERVICE {
   'getCollectionInfo' : ActorMethod<[], NFTConfig>,
   'getEnvironment' : ActorMethod<[], string>,
   'getEnvironmentConfig' : ActorMethod<[], EnvironmentConfig>,
+  'getFounderByPrincipal' : ActorMethod<[], [] | [Founder]>,
   'getFounders' : ActorMethod<[], Array<Founder>>,
   'getICPBalance' : ActorMethod<[TransferAccount], BalanceResponse>,
   'getICPTokenConfig' : ActorMethod<[], TokenConfig>,
+  'getInvestorByPrincipal' : ActorMethod<[], [] | [Investor]>,
   'getInvestorPurchaseHistory' : ActorMethod<[string], Result_7>,
   'getInvestors' : ActorMethod<[], Array<Investor>>,
   'getNFTBalance' : ActorMethod<[NFTAccount], Result_13>,
@@ -421,10 +425,14 @@ export interface _SERVICE {
   'getPlantifyAccount' : ActorMethod<[], string>,
   'getPurchaseInfo' : ActorMethod<[string], Result_8>,
   'getPurchaseStats' : ActorMethod<[], NFTPurchaseStats>,
+  'getStartupDetails' : ActorMethod<[string], [] | [Startup]>,
   'getStartupPurchaseHistory' : ActorMethod<[string], Result_7>,
   'getTokenCanisterId' : ActorMethod<[string], [] | [string]>,
   'getTokenInfo' : ActorMethod<[string], TokenInfoResponse>,
+  'getUserType' : ActorMethod<[], [] | [UserType]>,
   'initializeCollateral' : ActorMethod<[string, bigint, string], Result_5>,
+  'isUserFounder' : ActorMethod<[], boolean>,
+  'isUserInvestor' : ActorMethod<[], boolean>,
   'isUsingTestTokens' : ActorMethod<[], boolean>,
   'mintNFT' : ActorMethod<[MintNFTRequest], Result_6>,
   'mintNFTForStartup' : ActorMethod<[string], Result_5>,

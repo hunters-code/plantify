@@ -26,9 +26,6 @@ persistent actor PlantifyBackend {
   private var nextInvestorId : Nat = 1;
   private var nextStartupId : Nat = 1;
   
-  // Migration flag to handle type changes
-  private var migrationCompleted : Bool = false;
-  
   private transient let storage = Storage.UserStorage(
     foundersEntries,
     founderPrincipalsEntries,
@@ -70,6 +67,40 @@ persistent actor PlantifyBackend {
 
   public shared func getInvestors() : async [Types.Investor] {
     registrationService.getAllInvestors();
+  };
+
+  public shared (msg) func getFounderByPrincipal() : async ?Types.Founder {
+    storage.getFounderByPrincipal(msg.caller);
+  };
+
+  public shared (msg) func getInvestorByPrincipal() : async ?Types.Investor {
+    storage.getInvestorByPrincipal(msg.caller);
+  };
+
+  public shared (msg) func getUserType() : async ?Types.UserType {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case (?_founder) { ?#Founder };
+      case null {
+        switch (storage.getInvestorByPrincipal(msg.caller)) {
+          case (?_investor) { ?#Investor };
+          case null { null };
+        };
+      };
+    };
+  };
+
+  public shared (msg) func isUserFounder() : async Bool {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case (?_founder) { true };
+      case null { false };
+    };
+  };
+
+  public shared (msg) func isUserInvestor() : async Bool {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case (?_investor) { true };
+      case null { false };
+    };
   };
 
   public shared func getAllStartups() : async [Types.Startup] {
