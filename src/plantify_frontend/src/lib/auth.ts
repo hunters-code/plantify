@@ -1,6 +1,6 @@
 import { AuthClient } from '@dfinity/auth-client';
 import { Principal } from '@dfinity/principal';
-import { HttpAgent, Actor } from '@dfinity/agent';
+import { HttpAgent } from '@dfinity/agent';
 import { idlFactory, createActor } from '../declarations/plantify_backend';
 import type { _SERVICE } from '../declarations/plantify_backend/plantify_backend.did';
 import type { IDL } from '@dfinity/candid';
@@ -17,20 +17,16 @@ export class AuthService {
   private actor: _SERVICE | null = null;
   private agent: HttpAgent | null = null;
   private isInitialized: boolean = false;
-  private canisterId: string = 'a5ptu-ryaaa-aaaai-q32cq-cai'; // Production plantify_backend canister ID
+  private canisterId: string = 'a5ptu-ryaaa-aaaai-q32cq-cai';
 
-  // Properties for handling backend declarations directly
   private loadedIdlFactory: IDL.InterfaceFactory | null = idlFactory;
 
-  constructor() {
-    // Properties are now declared above
-  }
+  constructor() {}
 
   async initialize() {
     if (this.isInitialized) return;
 
     try {
-      // Create auth client with faster timeout
       this.authClient = await AuthClient.create({
         idleOptions: {
           disableIdle: true,
@@ -38,13 +34,11 @@ export class AuthService {
         },
       });
 
-      // Check if user is already authenticated
       const isAuthenticated = await this.authClient.isAuthenticated();
 
       if (isAuthenticated) {
         this.principal = this.authClient.getIdentity().getPrincipal();
 
-        // Create backend actor in background
         this.createBackendActor()
           .then(success => {})
           .catch(err => {});
@@ -53,7 +47,7 @@ export class AuthService {
       this.isInitialized = true;
     } catch (error) {
       console.error('Failed to initialize auth service:', error);
-      this.isInitialized = true; // Still mark as initialized to prevent further attempts
+      this.isInitialized = true;
     }
   }
 
@@ -61,13 +55,11 @@ export class AuthService {
     if (!this.authClient) return false;
 
     try {
-      // Create a new agent
       this.agent = new HttpAgent({
-        host: 'https://ic0.app', // Always use IC mainnet
+        host: 'https://ic0.app',
         identity: this.authClient.getIdentity(),
       });
 
-      // For local development, fetch the root key
       if (
         process.env.NODE_ENV !== 'production' ||
         window.location.hostname === 'localhost'
@@ -75,12 +67,10 @@ export class AuthService {
         await this.agent.fetchRootKey();
       }
 
-      // Create the actor using the agent and canister ID
       this.actor = createActor(this.canisterId, {
         agent: this.agent,
       }) as _SERVICE;
 
-      // Test if the actor is working by calling a simple method
       try {
         return true;
       } catch (error) {
@@ -106,7 +96,7 @@ export class AuthService {
         onSuccess: async () => {
           try {
             this.principal = this.authClient!.getIdentity().getPrincipal();
-            // Create backend actor after successful login
+
             await this.createBackendActor();
             resolve(this.principal);
           } catch (error) {
@@ -151,7 +141,6 @@ export class AuthService {
     return this.agent;
   }
 
-  // Enhanced method to get user info
   async getUserInfo() {
     if (!this.isAuthenticated()) {
       return null;
@@ -166,14 +155,12 @@ export class AuthService {
       return {
         principal: principal.toString(),
         isAnonymous: principal.isAnonymous(),
-        // Add more user info as needed
       };
     } catch (error) {
       return null;
     }
   }
 
-  // Method to check if user is registered in the system
   async isUserRegistered() {
     if (!this.isAuthenticated()) {
       return false;
@@ -184,7 +171,6 @@ export class AuthService {
     }
 
     try {
-      // Check if user is either a founder or investor
       const isFounder = await this.isUserFounder();
       const isInvestor = await this.isUserInvestor();
       return isFounder || isInvestor;
@@ -193,7 +179,6 @@ export class AuthService {
     }
   }
 
-  // Method to check if user is a founder
   async isUserFounder() {
     if (!this.isAuthenticated() || !this.actor) {
       return false;
@@ -211,7 +196,6 @@ export class AuthService {
     }
   }
 
-  // Method to check if user is an investor
   async isUserInvestor() {
     if (!this.isAuthenticated() || !this.actor) {
       return false;
@@ -229,7 +213,6 @@ export class AuthService {
     }
   }
 
-  // Method to get user type
   async getUserType() {
     if (!this.isAuthenticated() || !this.actor) {
       return null;
@@ -248,7 +231,6 @@ export class AuthService {
     }
   }
 
-  // Methods for backend declarations - now handled directly
   isBackendDeclarationsAvailable() {
     return this.loadedIdlFactory !== null;
   }
@@ -265,11 +247,9 @@ export class AuthService {
     return { idlFactory: null };
   }
 
-  // Method to initialize backend actor
   async initializeBackendActor() {
     return await this.createBackendActor();
   }
 }
 
-// Create and export a singleton instance
 export const authService = new AuthService();

@@ -14,7 +14,7 @@ import {
   Banknote,
   Brain,
 } from 'lucide-react';
-import { Navbar, Footer } from '../../../components';
+import { Navbar, Footer, Layout } from '../../../components';
 import PersonalInformationForm from './components/PersonalInformationForm';
 import InvestmentProfile from './components/InvestmentProfile';
 import KnowladgeAssessment from './components/KnowladgeAssessment';
@@ -35,7 +35,6 @@ export default function RegisterInvestor() {
   } = useRegistration();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Function to ensure backend connection is initialized
   const ensureBackendConnection = useCallback(async () => {
     if (!isAvailable) {
       try {
@@ -51,27 +50,23 @@ export default function RegisterInvestor() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    // Personal Information
     fullName: '',
     email: '',
     phone: '',
     country: '',
     city: '',
 
-    // Investment Profile
     investmentExperience: '',
     riskTolerance: '',
     investmentGoals: '',
     availableCapital: '',
     monthlyBudget: '',
 
-    // Knowledge Assessment
     investmentRisks: false,
     nftModel: false,
     governance: false,
     liquidity: false,
 
-    // Terms & Agreement
     terms: false,
     risks: false,
     transparency: false,
@@ -100,33 +95,26 @@ export default function RegisterInvestor() {
     },
   ];
 
-  // Handle successful registration
   useEffect(() => {
     if (success) {
-      // Redirect to investor dashboard or success page
       navigate('/investor?registered=true');
     }
   }, [success, navigate]);
 
-  // Clear local error when step changes
   useEffect(() => {
     setError(null);
   }, [step]);
-  // Authentication check to redirect if not authenticated
   useEffect(() => {
-    // Only redirect if authentication check is complete and user is not authenticated
     if (!authLoading && isAuthenticated === false) {
       navigate('/auth');
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  // Initialize backend connection when component mounts or authentication changes
   useEffect(() => {
     if (isAuthenticated) {
       ensureBackendConnection()
         .then(success => {
           if (!success) {
-            // Try one more time after a short delay
             setTimeout(() => {
               ensureBackendConnection()
                 .then(retrySuccess => {
@@ -164,11 +152,9 @@ export default function RegisterInvestor() {
     }));
   };
 
-  // Validate form data
   const validateForm = () => {
     const errors = [];
 
-    // Required personal information fields
     if (!formData.fullName || formData.fullName.trim() === '') {
       errors.push('Full name is required');
     }
@@ -187,7 +173,6 @@ export default function RegisterInvestor() {
       errors.push('City is required');
     }
 
-    // Required investment profile fields
     if (!formData.investmentExperience) {
       errors.push('Investment experience level is required');
     }
@@ -198,7 +183,6 @@ export default function RegisterInvestor() {
       errors.push('Available investment capital is required');
     }
 
-    // Required knowledge assessment
     if (!formData.investmentRisks) {
       errors.push('You must acknowledge understanding investment risks');
     }
@@ -208,7 +192,6 @@ export default function RegisterInvestor() {
       );
     }
 
-    // Required terms
     if (!formData.terms || !formData.risks || !formData.transparency) {
       errors.push('You must agree to all terms and conditions');
     }
@@ -218,20 +201,17 @@ export default function RegisterInvestor() {
 
   const handleSubmit = async () => {
     try {
-      // Check if user is authenticated first
       if (!isAuthenticated) {
         setError('Please authenticate first before registering.');
         return;
       }
 
-      // Validate form data
       const validationErrors = validateForm();
       if (validationErrors.length > 0) {
         setError(validationErrors.join('. '));
         return;
       }
 
-      // Initialize backend connection if not already available
       const backendAvailable = await ensureBackendConnection();
       if (!backendAvailable) {
         setError(
@@ -240,7 +220,6 @@ export default function RegisterInvestor() {
         return;
       }
 
-      // Check if backend declarations are available
       if (!isBackendDeclarationsAvailable()) {
         setError(
           'Failed to load backend declarations. Please ensure the backend is running and try again.'
@@ -248,7 +227,6 @@ export default function RegisterInvestor() {
         return;
       }
 
-      // Prepare investor data according to backend requirements
       const investorData = {
         fullName: formData.fullName,
         email: formData.email,
@@ -262,16 +240,13 @@ export default function RegisterInvestor() {
         monthlyBudget: formData.monthlyBudget || '0',
       };
 
-      // Debug logging
       console.log('Submitting investor registration data:', investorData);
 
       try {
-        // Register investor
         const result = await registerInvestor(investorData);
         console.log('Registration result:', result);
 
         if (result.success) {
-          // Success is handled by useEffect
           console.log('Registration successful!');
         } else {
           console.error('Registration failed:', result.error);
@@ -289,7 +264,6 @@ export default function RegisterInvestor() {
     }
   };
 
-  // Show loading spinner while checking authentication
   if (authLoading) {
     return (
       <div className='bg-gray-50 text-gray-900 min-h-screen flex flex-col'>
@@ -304,11 +278,8 @@ export default function RegisterInvestor() {
     );
   }
 
-  // Main content when loaded
   return (
-    <div className='bg-gray-50 text-gray-900 min-h-screen'>
-      <Navbar />
-
+    <Layout>
       <div className='max-w-7xl mx-auto mt-8 mb-8'>
         {/* Error Message */}
         {(error || hookError) && (
@@ -451,8 +422,6 @@ export default function RegisterInvestor() {
           )}
         </div>
       </div>
-
-      <Footer />
-    </div>
+    </Layout>
   );
 }

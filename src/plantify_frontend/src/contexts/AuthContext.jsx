@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authService } from '../lib/auth';
+import { authService, backendService } from '../lib';
 
 const AuthContext = createContext();
 
@@ -24,6 +24,11 @@ export function AuthProvider({ children }) {
         // Get authentication state immediately
         let isAuthenticated = authService.isAuthenticated();
         let principal = authService.getPrincipal();
+        
+        // Initialize backend service if authenticated
+        if (isAuthenticated && authService.getIdentity()) {
+          await backendService.initialize(authService.getIdentity());
+        }
         
         
         // Update state with initial values (fast path)
@@ -91,6 +96,12 @@ export function AuthProvider({ children }) {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true }));
       const principal = await authService.signIn();
+      
+      // Initialize backend service with the authenticated identity
+      if (authService.getIdentity()) {
+        await backendService.initialize(authService.getIdentity());
+      }
+      
       const userInfo = await authService.getUserInfo();
       
       let isRegistered = false;
@@ -125,6 +136,8 @@ export function AuthProvider({ children }) {
   const signOut = async () => {
     try {
       await authService.signOut();
+      // Reset backend service
+      backendService.reset();
       setAuthState({
         isAuthenticated: false,
         principal: null,

@@ -48,6 +48,8 @@ export interface BackendActor {
   getEnvironment: () => Promise<string>;
   getICPBalance: (account: TransferAccount) => Promise<BalanceResponse>;
   getCkUSDCBalance: (account: TransferAccount) => Promise<BalanceResponse>;
+  getICPBalanceByPrincipal: (principalText: string) => Promise<BalanceResponse>;
+  getCkUSDCBalanceByPrincipal: (principalText: string) => Promise<BalanceResponse>;
   transferICP: (
     toAccount: TransferAccount,
     amount: number,
@@ -113,6 +115,11 @@ export class BackendService {
     return this.actor;
   }
 
+  reset() {
+    this.actor = null;
+    this.agent = null;
+  }
+
   async registerFounder(request: {
     fullName: string;
     email: string;
@@ -176,6 +183,16 @@ export class BackendService {
   async getCkUSDCBalance(account: TransferAccount) {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getCkUSDCBalance(account);
+  }
+
+  async getICPBalanceByPrincipal(principalText: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getICPBalanceByPrincipal(principalText);
+  }
+
+  async getCkUSDCBalanceByPrincipal(principalText: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getCkUSDCBalanceByPrincipal(principalText);
   }
 
   async initializeCollateral(
