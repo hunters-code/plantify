@@ -421,6 +421,7 @@ export interface _SERVICE {
   'getPlantifyAccount' : ActorMethod<[], string>,
   'getPurchaseInfo' : ActorMethod<[string], Result_8>,
   'getPurchaseStats' : ActorMethod<[], NFTPurchaseStats>,
+  'getStartupDetails' : ActorMethod<[string], [] | [Startup]>,
   'getStartupPurchaseHistory' : ActorMethod<[string], Result_7>,
   'getTokenCanisterId' : ActorMethod<[string], [] | [string]>,
   'getTokenInfo' : ActorMethod<[string], TokenInfoResponse>,

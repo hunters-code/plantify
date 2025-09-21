@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 
 export default function ProductCard({
+  id,
   image,
   title,
   location,
@@ -108,6 +109,7 @@ export default function ProductCard({
 
         <div className='mt-4 flex gap-2'>
           <button
+            onClick={() => window.location.href = `/explore/detail/${id || title.replace(/\s+/g, '-').toLowerCase()}`}
             className='flex-1 flex items-center justify-center gap-[6px] 
              rounded-[12px] border border-[#E5E5E5] 
              bg-[#F5F5F5] text-xs font-medium text-gray-900 

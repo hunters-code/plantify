@@ -1,7 +1,14 @@
 import { AlertTriangle } from 'lucide-react';
 import { Alert, Card } from '../../../../components/ui';
 
-export default function Risks() {
+export default function Risks({ startup }) {
+  if (!startup) {
+    return (
+      <div className='space-y-6'>
+        <p className='text-gray-500'>Loading risk information...</p>
+      </div>
+    );
+  }
   return (
     <div className='max-w-3xl mt-8 space-y-8'>
       {/* Risk Assessment */}

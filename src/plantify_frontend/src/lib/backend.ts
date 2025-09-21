@@ -93,6 +93,7 @@ export interface BackendActor {
   isUserInvestor?: () => Promise<boolean>;
   getAllStartups: () => Promise<Startup[]>;
   updateStartupStatus: (startupId: string, status: string) => Promise<boolean>;
+  getStartupDetails: (startupId: string) => Promise<[] | [Startup]>;
 }
 
 export class BackendService {
@@ -264,6 +265,11 @@ export class BackendService {
     return await this.actor.getFounders();
   }
 
+  async getInvestors() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getInvestors();
+  }
+
   async getFounderByPrincipal() {
     if (!this.actor) throw new Error('Backend not initialized');
     if (this.actor.getFounderByPrincipal) {
@@ -372,6 +378,13 @@ export class BackendService {
   async getAllStartups() {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getAllStartups();
+  }
+
+  async getStartupDetails(startupId: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    const result = await this.actor.getStartupDetails(startupId);
+    // Handle Motoko optional type: [] means None, [value] means Some(value)
+    return result.length > 0 ? result[0] : null;
   }
 
   async updateStartupStatus(startupId: string, status: string) {
