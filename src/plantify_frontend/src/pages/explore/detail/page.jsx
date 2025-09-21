@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -31,62 +31,107 @@ import Risks from './partial/Risks';
 
 export default function ExploreDetail() {
   const { id } = useParams();
-  const { getIdentity, isAuthenticated } = useAuth();
+  const { getIdentity, isAuthenticated, isLoading: authLoading } = useAuth();
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [startup, setStartup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const fetchedRef = useRef(new Set()); // Track which IDs we've already fetched
+  const isFetchingRef = useRef(false); // Track if we're currently fetching
+
+  // Reset fetch tracking when ID changes
+  useEffect(() => {
+    fetchedRef.current.clear();
+    isFetchingRef.current = false;
+    setStartup(null);
+    setError(null);
+    setLoading(true);
+  }, [id]);
 
   useEffect(() => {
+    console.log(
+      '🔄 useEffect triggered - id:',
+      id,
+      'isAuthenticated:',
+      isAuthenticated,
+      'authLoading:',
+      authLoading
+    );
+
+    // Don't do anything if auth is still loading
+    if (authLoading) {
+      console.log('⏳ Auth still loading, waiting...');
+      return;
+    }
+
     const fetchStartupDetails = async () => {
       if (!id) {
+        console.log('❌ No ID provided');
         setError('No startup ID provided');
         setLoading(false);
         return;
       }
 
       if (!isAuthenticated) {
+        console.log('❌ Not authenticated');
         setError('Please sign in to view startup details');
         setLoading(false);
         return;
       }
-      
+
+      // Prevent concurrent fetches
+      if (isFetchingRef.current) {
+        return;
+      }
+
       try {
+        isFetchingRef.current = true;
         setLoading(true);
         setError(null);
-        
+
         const identity = getIdentity();
         if (!identity) {
           setError('Authentication required');
           setLoading(false);
           return;
         }
-        
+
         // Initialize backend service if not already done
         if (!backendService.getActor()) {
           await backendService.initialize(identity);
         }
-        
-        console.log('Fetching startup details for ID:', id);
+
         const startupData = await backendService.getStartupDetails(id);
-        console.log('Startup data received:', startupData);
-        
+
         if (startupData) {
           setStartup(startupData);
         } else {
           setError('Startup not found');
         }
       } catch (err) {
-        console.error('Error fetching startup details:', err);
         setError(`Failed to load startup details: ${err.message}`);
       } finally {
+        isFetchingRef.current = false;
         setLoading(false);
       }
     };
-    
-    fetchStartupDetails();
-  }, [id, isAuthenticated, getIdentity]);
+
+    // Only fetch if we have both id and authentication, and haven't fetched this ID yet
+    if (id && isAuthenticated && !authLoading) {
+      const fetchKey = `${id}-${isAuthenticated}`;
+      if (!fetchedRef.current.has(fetchKey)) {
+        console.log('🎯 First time fetching this startup');
+        fetchedRef.current.add(fetchKey);
+        fetchStartupDetails();
+      } else {
+        console.log('🔄 Already fetched this startup, skipping');
+        setLoading(false); // Make sure loading is false if we're skipping
+      }
+    } else {
+      console.log('⏸️ Skipping fetch - missing requirements or auth loading');
+    }
+  }, [id, isAuthenticated, authLoading]);
 
   const tabs = [
     { label: 'Overview', icon: <FileText size={16} /> },
@@ -97,9 +142,15 @@ export default function ExploreDetail() {
   ];
 
   // Use company images from startup data or fallback to default
-  const images = startup?.companyImages?.length > 0 
-    ? startup.companyImages 
-    : ['/assets/images/product.png', '/assets/images/product.png', '/assets/images/product.png', '/assets/images/product.png'];
+  const images =
+    startup?.companyImages?.length > 0
+      ? startup.companyImages
+      : [
+          '/assets/images/product.png',
+          '/assets/images/product.png',
+          '/assets/images/product.png',
+          '/assets/images/product.png',
+        ];
 
   const renderContent = () => {
     switch (activeTab) {
@@ -139,9 +190,13 @@ export default function ExploreDetail() {
         <Navbar />
         <div className='max-w-6xl mx-auto px-6 py-10 flex items-center justify-center min-h-[60vh]'>
           <div className='text-center'>
-            <h2 className='text-2xl font-semibold text-gray-900 mb-4'>Startup Not Found</h2>
-            <p className='text-gray-600 mb-6'>{error || 'The startup you are looking for does not exist.'}</p>
-            <button 
+            <h2 className='text-2xl font-semibold text-gray-900 mb-4'>
+              Startup Not Found
+            </h2>
+            <p className='text-gray-600 mb-6'>
+              {error || 'The startup you are looking for does not exist.'}
+            </p>
+            <button
               onClick={() => window.history.back()}
               className='bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors'
             >
@@ -231,9 +286,17 @@ export default function ExploreDetail() {
           <div className='flex gap-3'>
             <div>
               {startup.companyLogo && startup.companyLogo.length > 0 ? (
-                <img src={startup.companyLogo[0]} className='w-8 h-8 rounded' alt='Company Logo' />
+                <img
+                  src={startup.companyLogo[0]}
+                  className='w-8 h-8 rounded'
+                  alt='Company Logo'
+                />
               ) : (
-                <img src='/assets/images/icon-startup.png' className='w-8 h-8' alt='Default Logo' />
+                <img
+                  src='/assets/images/icon-startup.png'
+                  className='w-8 h-8'
+                  alt='Default Logo'
+                />
               )}
             </div>
             <h2 className='text-2xl font-semibold font-ibm'>
@@ -244,38 +307,54 @@ export default function ExploreDetail() {
             {startup.description || 'No description available.'}
           </p>
           <p className='text-sm text-gray-500 border border-neutral-200 w-fit rounded-full px-2 py-1'>
-            📍 {startup.location || 'Location not specified'} · {startup.teamMembers?.length || 0} team members
+            📍 {startup.location || 'Location not specified'} ·{' '}
+            {startup.teamMembers?.length || 0} team members
           </p>
 
           {/* Stats */}
           <div className='space-y-2 text-sm'>
             <p className='flex gap-2 items-center'>
               <ChartCandlestick size={20} className='text-neutral-500' />{' '}
-              Periodic Returns: <span className='font-semibold'>{startup.periodicProfitSharing || 'TBD'}</span>
+              Periodic Returns:{' '}
+              <span className='font-semibold'>
+                {startup.periodicProfitSharing || 'TBD'}
+              </span>
             </p>
             <p className='flex gap-2 items-center'>
-              <BanknoteArrowUp size={20} className='text-neutral-500' /> Monthly Revenue: <span className='font-semibold'>${startup.monthlyRevenue || '0'}</span>
+              <BanknoteArrowUp size={20} className='text-neutral-500' /> Monthly
+              Revenue:{' '}
+              <span className='font-semibold'>
+                ${startup.monthlyRevenue || '0'}
+              </span>
             </p>
             <p className='flex gap-2 items-center'>
               <GalleryHorizontalEnd size={20} className='text-neutral-500' />{' '}
-              NFT Price: <span className='font-semibold'>${startup.nftPrice || '0'}</span>
+              NFT Price:{' '}
+              <span className='font-semibold'>${startup.nftPrice || '0'}</span>
             </p>
             <p className='flex gap-2 items-center'>
               <Sparkle size={20} className='text-neutral-500' /> Funding Goal:{' '}
-              <span className='text-orange-500 font-semibold'>${startup.fundingGoal || '0'}</span>
+              <span className='text-orange-500 font-semibold'>
+                ${startup.fundingGoal || '0'}
+              </span>
             </p>
           </div>
 
           {/* Target */}
           <div className='flex justify-between items-center text-sm'>
             <span className='text-gray-500'>Target:</span>
-            <span className='text-orange-600 font-semibold'>${startup.fundingGoal || '0'}</span>
+            <span className='text-orange-600 font-semibold'>
+              ${startup.fundingGoal || '0'}
+            </span>
           </div>
 
           <div className='p-4 border border-netural-500 rounded-[16px]'>
             {/* NFT Price */}
             <div className='text-sm'>
-              NFT Price: <span className='font-semibold'>${startup.nftPrice || '0'} ckUSDC</span>
+              NFT Price:{' '}
+              <span className='font-semibold'>
+                ${startup.nftPrice || '0'} ckUSDC
+              </span>
             </div>
 
             {/* Button */}
