@@ -76,6 +76,10 @@ persistent actor PlantifyBackend {
     storage.getAllStartups();
   };
 
+  public shared func getStartupDetails(startupId : Text) : async ?Types.Startup {
+    storage.getStartup(startupId);
+  };
+
   // ========================================
   // CONFIGURATION METHODS
   // ========================================

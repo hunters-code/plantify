@@ -506,6 +506,7 @@ service : {
   getAllNFTs: () -> (vec NFTInfo);
   getAllPurchases: () -> (vec NFTPurchaseInfo);
   getAllStartups: () -> (vec Startup);
+  getStartupDetails: (startupId: text) -> (opt Startup);
   getBalance: (account: TransferAccount, tokenType: text) ->
    (BalanceResponse);
   getCkUSDCBalance: (account: TransferAccount) -> (BalanceResponse);
