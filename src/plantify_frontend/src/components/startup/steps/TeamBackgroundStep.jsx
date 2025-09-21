@@ -1,5 +1,6 @@
 import React from 'react';
 import FileUpload from '../FileUpload';
+import { Input, Textarea, Button } from '../../../components/ui';
 
 const TeamBackgroundStep = ({ formData, setFormData, errors = {} }) => {
   const handleChange = (e) => {
@@ -10,7 +11,6 @@ const TeamBackgroundStep = ({ formData, setFormData, errors = {} }) => {
     }));
   };
 
-  const inputStyle = `w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]`;
 
   const handleFounderPhotoUpload = (file) => {
     setFormData(prev => ({
@@ -65,100 +65,65 @@ const TeamBackgroundStep = ({ formData, setFormData, errors = {} }) => {
         <div className="space-y-6">
           {/* Founder Name and Role */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="founderName"
-                value={formData.founderName || ''}
-                onChange={handleChange}
-                placeholder="Insert founder full name here"
-                className={`${inputStyle} ${errors.founderName ? 'border-red-500' : ''}`}
-                required
-              />
-              {errors.founderName && (
-                <p className="mt-1 text-sm text-red-600">{errors.founderName}</p>
-              )}
-            </div>
+            <Input
+              type="text"
+              name="founderName"
+              label="Full name"
+              value={formData.founderName || ''}
+              onChange={handleChange}
+              placeholder="Insert founder full name here"
+              required
+              error={errors.founderName}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Role <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="founderRole"
-                value={formData.founderRole || ''}
-                onChange={handleChange}
-                placeholder="CEO, CTO, CFO, etc."
-                className={`${inputStyle} ${errors.founderRole ? 'border-red-500' : ''}`}
-                required
-              />
-              {errors.founderRole && (
-                <p className="mt-1 text-sm text-red-600">{errors.founderRole}</p>
-              )}
-            </div>
+            <Input
+              type="text"
+              name="founderRole"
+              label="Role"
+              value={formData.founderRole || ''}
+              onChange={handleChange}
+              placeholder="CEO, CTO, CFO, etc."
+              required
+              error={errors.founderRole}
+            />
           </div>
 
           {/* Founder Email and LinkedIn */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                name="founderEmail"
-                value={formData.founderEmail || ''}
-                onChange={handleChange}
-                placeholder="Insert founder email here"
-                className={`${inputStyle} ${errors.founderEmail ? 'border-red-500' : ''}`}
-                required
-              />
-              {errors.founderEmail && (
-                <p className="mt-1 text-sm text-red-600">{errors.founderEmail}</p>
-              )}
-            </div>
+            <Input
+              type="email"
+              name="founderEmail"
+              label="Email"
+              value={formData.founderEmail || ''}
+              onChange={handleChange}
+              placeholder="Insert founder email here"
+              required
+              error={errors.founderEmail}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                LinkedIn profile <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="url"
-                name="founderLinkedIn"
-                value={formData.founderLinkedIn || ''}
-                onChange={handleChange}
-                placeholder="Insert founder LinkedIn profile here"
-                className={`${inputStyle} ${errors.founderLinkedIn ? 'border-red-500' : ''}`}
-                required
-              />
-              {errors.founderLinkedIn && (
-                <p className="mt-1 text-sm text-red-600">{errors.founderLinkedIn}</p>
-              )}
-            </div>
+            <Input
+              type="url"
+              name="founderLinkedIn"
+              label="LinkedIn profile"
+              value={formData.founderLinkedIn || ''}
+              onChange={handleChange}
+              placeholder="Insert founder LinkedIn profile here"
+              required
+              error={errors.founderLinkedIn}
+            />
           </div>
 
           {/* Professional Background */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Professional background <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              name="founderBackground"
-              value={formData.founderBackground || ''}
-              onChange={handleChange}
-              rows={4}
-              placeholder="Describe professional experience, education, achievements, and relevant skills"
-              className={`${inputStyle} resize-none ${errors.founderBackground ? 'border-red-500' : ''}`}
-              required
-            />
-            {errors.founderBackground && (
-              <p className="mt-1 text-sm text-red-600">{errors.founderBackground}</p>
-            )}
-          </div>
+          <Textarea
+            name="founderBackground"
+            label="Professional background"
+            value={formData.founderBackground || ''}
+            onChange={handleChange}
+            rows={4}
+            placeholder="Describe professional experience, education, achievements, and relevant skills"
+            required
+            error={errors.founderBackground}
+          />
 
           {/* Profile Photo */}
           <FileUpload
@@ -193,80 +158,55 @@ const TeamBackgroundStep = ({ formData, setFormData, errors = {} }) => {
             <div className="space-y-6">
               {/* Team Member Name and Role */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={member.name || ''}
-                    onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
-                    placeholder="Insert team member 1 full name here"
-                    className={inputStyle}
-                    required
-                  />
-                </div>
+                <Input
+                  type="text"
+                  label="Full name"
+                  value={member.name || ''}
+                  onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
+                  placeholder="Insert team member 1 full name here"
+                  required
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Role <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={member.role || ''}
-                    onChange={(e) => handleTeamMemberChange(index, 'role', e.target.value)}
-                    placeholder="CEO, CTO, CFO, etc."
-                    className={inputStyle}
-                    required
-                  />
-                </div>
+                <Input
+                  type="text"
+                  label="Role"
+                  value={member.role || ''}
+                  onChange={(e) => handleTeamMemberChange(index, 'role', e.target.value)}
+                  placeholder="CEO, CTO, CFO, etc."
+                  required
+                />
               </div>
 
               {/* Team Member Email and LinkedIn */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={member.email || ''}
-                    onChange={(e) => handleTeamMemberChange(index, 'email', e.target.value)}
-                    placeholder="Insert team member 1 email here"
-                    className={inputStyle}
-                    required
-                  />
-                </div>
+                <Input
+                  type="email"
+                  label="Email"
+                  value={member.email || ''}
+                  onChange={(e) => handleTeamMemberChange(index, 'email', e.target.value)}
+                  placeholder="Insert team member 1 email here"
+                  required
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    LinkedIn profile <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="url"
-                    value={member.linkedIn || ''}
-                    onChange={(e) => handleTeamMemberChange(index, 'linkedIn', e.target.value)}
-                    placeholder="Insert team member 1 LinkedIn profile here"
-                    className={inputStyle}
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Professional Background */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Professional background <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={member.background || ''}
-                  onChange={(e) => handleTeamMemberChange(index, 'background', e.target.value)}
-                  rows={4}
-                  placeholder="Describe professional experience, education, achievements, and relevant skills"
-                  className={`${inputStyle} resize-none`}
+                <Input
+                  type="url"
+                  label="LinkedIn profile"
+                  value={member.linkedIn || ''}
+                  onChange={(e) => handleTeamMemberChange(index, 'linkedIn', e.target.value)}
+                  placeholder="Insert team member 1 LinkedIn profile here"
                   required
                 />
               </div>
+
+              {/* Professional Background */}
+              <Textarea
+                label="Professional background"
+                value={member.background || ''}
+                onChange={(e) => handleTeamMemberChange(index, 'background', e.target.value)}
+                rows={4}
+                placeholder="Describe professional experience, education, achievements, and relevant skills"
+                required
+              />
 
               {/* Profile Photo */}
               <FileUpload
@@ -282,36 +222,30 @@ const TeamBackgroundStep = ({ formData, setFormData, errors = {} }) => {
         ))}
 
         {/* Add Team Member Button */}
-        <button
+        <Button
           type="button"
           onClick={addTeamMember}
-          className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200"
+          variant='outline'
+          className="w-full flex items-center justify-center border-2 border-dashed border-blue-300 text-blue-600 hover:border-blue-400 hover:bg-blue-50"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           Add team member
-        </button>
+        </Button>
       </div>
 
       {/* Advisors & Mentors */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Advisors & mentors <span className="text-red-500">*</span>
-        </label>
-        <textarea
-          name="advisors"
-          value={formData.advisors || ''}
-          onChange={handleChange}
-          rows={4}
-          placeholder="List any advisors, mentors, or industry experts supporting your startup"
-          className={`${inputStyle} resize-none ${errors.advisors ? 'border-red-500' : ''}`}
-          required
-        />
-        {errors.advisors && (
-          <p className="mt-1 text-sm text-red-600">{errors.advisors}</p>
-        )}
-      </div>
+      <Textarea
+        name="advisors"
+        label="Advisors & mentors"
+        value={formData.advisors || ''}
+        onChange={handleChange}
+        rows={4}
+        placeholder="List any advisors, mentors, or industry experts supporting your startup"
+        required
+        error={errors.advisors}
+      />
     </div>
   );
 };

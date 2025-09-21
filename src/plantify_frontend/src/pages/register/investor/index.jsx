@@ -15,6 +15,7 @@ import {
   Brain,
 } from 'lucide-react';
 import { Navbar, Footer, Layout } from '../../../components';
+import { Alert, Button, LoadingSpinner } from '../../../components/ui';
 import PersonalInformationForm from './components/PersonalInformationForm';
 import InvestmentProfile from './components/InvestmentProfile';
 import KnowladgeAssessment from './components/KnowladgeAssessment';
@@ -270,9 +271,7 @@ export default function RegisterInvestor() {
         <Navbar />
 
         <div className='flex-1 flex flex-col items-center justify-center'>
-          <div className='flex flex-col items-center gap-4 p-8'>
-            <Loader2 size={48} className='text-purple-600 animate-spin' />
-          </div>
+          <LoadingSpinner size='xl' />
         </div>
       </div>
     );
@@ -283,35 +282,37 @@ export default function RegisterInvestor() {
       <div className='max-w-7xl mx-auto mt-8 mb-8'>
         {/* Error Message */}
         {(error || hookError) && (
-          <div className='mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3'>
-            <AlertCircle className='w-5 h-5 text-red-500 flex-shrink-0' />
-            <div className='text-red-700 text-sm'>{error || hookError}</div>
-          </div>
+          <Alert
+            type='error'
+            message={error || hookError}
+            className='mb-6'
+          />
         )}
 
         {/* Authentication Status - only show if not authenticated */}
         {!isAuthenticated && (
-          <div className='mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-3'>
-            <AlertCircle className='w-5 h-5 text-yellow-500 flex-shrink-0' />
-            <div className='text-yellow-700 text-sm'>
-              Please authenticate first before registering.{' '}
-              <a href='/auth' className='underline'>
-                Click here to sign in
-              </a>
-              .
-            </div>
-          </div>
+          <Alert
+            type='warning'
+            message={
+              <>
+                Please authenticate first before registering.{' '}
+                <a href='/auth' className='underline'>
+                  Click here to sign in
+                </a>
+                .
+              </>
+            }
+            className='mb-6'
+          />
         )}
 
         {/* Backend Status - Only show when submitting form */}
         {error && error.includes('backend') && (
-          <div className='mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3'>
-            <AlertCircle className='w-5 h-5 text-blue-500 flex-shrink-0' />
-            <div className='text-blue-700 text-sm'>
-              Backend connection issue. The form will try to connect
-              automatically when submitting.
-            </div>
-          </div>
+          <Alert
+            type='info'
+            message='Backend connection issue. The form will try to connect automatically when submitting.'
+            className='mb-6'
+          />
         )}
 
         {/* Progress Steps */}
@@ -378,27 +379,27 @@ export default function RegisterInvestor() {
         <div className='flex justify-between mt-2 pt-6 border-t border-gray-100'>
           {/* Previous Button */}
           {step > 1 ? (
-            <button
+            <Button
               onClick={prevStep}
-              className='flex justify-center items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-[#F5F5F5] shadow-[inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 font-medium text-[16px]'
+              variant='secondary'
             >
               <CircleArrowLeft size={16} /> Previous
-            </button>
+            </Button>
           ) : (
             <div></div>
           )}
 
           {/* Next / Submit Button */}
           {step < tabs.length ? (
-            <button
+            <Button
               onClick={nextStep}
               disabled={loading}
-              className='flex justify-center items-center gap-[6px] px-4 py-3 rounded-[12px] border border-white/20 bg-[#7A5AF8] shadow-[inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] text-white font-medium transition-all duration-200 hover:opacity-90 text-[16px] disabled:opacity-50 disabled:cursor-not-allowed'
+              variant='primary'
             >
               Next <CircleArrowRight size={16} />
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               onClick={handleSubmit}
               disabled={
                 loading ||
@@ -406,7 +407,7 @@ export default function RegisterInvestor() {
                 !formData.risks ||
                 !formData.transparency
               }
-              className='flex justify-center items-center gap-[6px] px-4 py-3 rounded-[12px] border border-white/20 bg-[#7A5AF8] shadow-[inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] text-white font-medium transition-all duration-200 hover:opacity-90 text-[16px] disabled:opacity-50 disabled:cursor-not-allowed'
+              variant='primary'
             >
               {loading ? (
                 <>
@@ -418,7 +419,7 @@ export default function RegisterInvestor() {
                   <CircleCheckBig size={16} /> Complete Registration
                 </>
               )}
-            </button>
+            </Button>
           )}
         </div>
       </div>

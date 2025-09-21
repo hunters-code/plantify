@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Input, Select } from '../../../../components/ui';
 
 export default function InvestmentProfile({
   formData,
@@ -10,13 +11,30 @@ export default function InvestmentProfile({
     }
   };
 
-  const inputStyle = `
-    w-full flex items-center gap-2 px-4 py-3 
-    rounded-xl border border-gray-200 bg-white 
-    shadow-md text-gray-900 placeholder-gray-400
-    focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-    transition-all duration-200 text-[16px]
-  `;
+  const experienceOptions = [
+    { value: 'beginner', label: 'Beginner' },
+    { value: 'intermediate', label: 'Intermediate' },
+    { value: 'expert', label: 'Expert' },
+  ];
+
+  const riskOptions = [
+    { value: 'low', label: 'Low' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'high', label: 'High' },
+  ];
+
+  const goalOptions = [
+    { value: 'growth', label: 'Growth' },
+    { value: 'income', label: 'Income' },
+    { value: 'preservation', label: 'Capital Preservation' },
+  ];
+
+  const capitalOptions = [
+    { value: 'under_1k', label: 'Under $1,000' },
+    { value: '1k_10k', label: '$1,000 - $10,000' },
+    { value: '10k_100k', label: '$10,000 - $100,000' },
+    { value: '100k_plus', label: '$100,000+' },
+  ];
 
   return (
     <div>
@@ -25,88 +43,49 @@ export default function InvestmentProfile({
       </h2>
 
       <div className="space-y-6">
-        {/* Investment Experience Level */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Investment Experience Level <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.investmentExperience || ''}
-            onChange={e => handleChange('investmentExperience', e.target.value)}
-            className={inputStyle}
-          >
-            <option value="">Select your experience level</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="expert">Expert</option>
-          </select>
-        </div>
+        <Select
+          label="Investment Experience Level"
+          value={formData.investmentExperience || ''}
+          onChange={e => handleChange('investmentExperience', e.target.value)}
+          options={experienceOptions}
+          placeholder="Select your experience level"
+          required
+        />
 
-        {/* Risk Tolerance */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Risk Tolerance <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.riskTolerance || ''}
-            onChange={e => handleChange('riskTolerance', e.target.value)}
-            className={inputStyle}
-          >
-            <option value="">Select your risk tolerance</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-        </div>
+        <Select
+          label="Risk Tolerance"
+          value={formData.riskTolerance || ''}
+          onChange={e => handleChange('riskTolerance', e.target.value)}
+          options={riskOptions}
+          placeholder="Select your risk tolerance"
+          required
+        />
 
-        {/* Primary Investment Goals */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Primary Investment Goals
-          </label>
-          <select
-            value={formData.investmentGoals || ''}
-            onChange={e => handleChange('investmentGoals', e.target.value)}
-            className={inputStyle}
-          >
-            <option value="">Select your primary goal</option>
-            <option value="growth">Growth</option>
-            <option value="income">Income</option>
-            <option value="preservation">Capital Preservation</option>
-          </select>
-        </div>
+        <Select
+          label="Primary Investment Goals"
+          value={formData.investmentGoals || ''}
+          onChange={e => handleChange('investmentGoals', e.target.value)}
+          options={goalOptions}
+          placeholder="Select your primary goal"
+        />
 
-        {/* Available Investment Capital & Monthly Investment Budget */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Available Investment Capital <span className="text-red-500">*</span>
-            </label>
-            <select
+          <Select
+            label="Available Investment Capital"
             value={formData.availableCapital || ''}
             onChange={e => handleChange('availableCapital', e.target.value)}
-              className={inputStyle}
-            >
-              <option value="">Select capital range</option>
-              <option value="under_1k">Under $1,000</option>
-              <option value="1k_10k">$1,000 - $10,000</option>
-              <option value="10k_100k">$10,000 - $100,000</option>
-              <option value="100k_plus">$100,000+</option>
-            </select>
-          </div>
+            options={capitalOptions}
+            placeholder="Select capital range"
+            required
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Monthly Investment Budget
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. $100"
-              value={formData.monthlyBudget || ''}
-              onChange={e => handleChange('monthlyBudget', e.target.value)}
-              className={inputStyle}
-            />
-          </div>
+          <Input
+            type="text"
+            label="Monthly Investment Budget"
+            placeholder="e.g. $100"
+            value={formData.monthlyBudget || ''}
+            onChange={e => handleChange('monthlyBudget', e.target.value)}
+          />
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Layout } from '../../components';
+import { Button, Card, StatsCard } from '../../components/ui';
 
 export default function InvestorDashboard() {
   return (
@@ -13,59 +14,72 @@ export default function InvestorDashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Portfolio Overview */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Portfolio Overview</h3>
               <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Investments</span>
-                  <span className="font-semibold">$0</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Active Startups</span>
-                  <span className="font-semibold">0</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Returns</span>
-                  <span className="font-semibold text-green-600">$0</span>
-                </div>
+                <StatsCard
+                  label="Total Investments"
+                  value="$0"
+                />
+                <StatsCard
+                  label="Active Startups"
+                  value="0"
+                />
+                <StatsCard
+                  label="Total Returns"
+                  value="$0"
+                  className="text-green-600"
+                />
               </div>
-            </div>
+            </Card>
 
             {/* Recent Investments */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Investments</h3>
               <div className="text-center py-8">
                 <p className="text-gray-500">No investments yet</p>
-                <button className="mt-4 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition">
+                <Button
+                  variant='primary'
+                  className="mt-4 bg-purple-500 hover:bg-purple-600"
+                >
                   Browse Startups
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
 
             {/* Investment History */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Investment History</h3>
               <div className="text-center py-8">
                 <p className="text-gray-500">No history available</p>
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Quick Actions */}
-          <div className="mt-8 bg-white rounded-lg shadow p-6">
+          <Card className="mt-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition">
+              <Button
+                variant='primary'
+                className="bg-purple-500 hover:bg-purple-600"
+              >
                 Explore Startups
-              </button>
-              <button className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition">
+              </Button>
+              <Button
+                variant='secondary'
+                className="bg-gray-500 hover:bg-gray-600 text-white"
+              >
                 View Portfolio
-              </button>
-              <button className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition">
+              </Button>
+              <Button
+                variant='primary'
+                className="bg-green-500 hover:bg-green-600"
+              >
                 Investment History
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </Layout>

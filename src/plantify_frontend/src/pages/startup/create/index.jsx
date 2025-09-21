@@ -13,6 +13,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Navbar, Footer } from '../../../components';
+import { Button, LoadingSpinner } from '../../../components/ui';
 import { backendService } from '../../../lib/backend';
 import { useAuth } from '../../../hooks/useAuth';
 import BasicInformationStep from '../../../components/startup/steps/BasicInformationStep';
@@ -317,8 +318,8 @@ export default function CreateStartupPage() {
         <Navbar />
         <div className='flex items-center justify-center min-h-[60vh]'>
           <div className='text-center'>
-            <Loader2 className='w-8 h-8 animate-spin mx-auto mb-4' />
-            <p className='text-gray-600'>Loading...</p>
+            <LoadingSpinner size='lg' />
+            <p className='text-gray-600 mt-4'>Loading...</p>
           </div>
         </div>
         <Footer />
@@ -417,30 +418,33 @@ export default function CreateStartupPage() {
         <div className='flex justify-between mt-2 pt-6 border-t border-gray-100'>
           {/* Previous Button */}
           {step > 1 ? (
-            <button
+            <Button
               onClick={prevStep}
-              className='flex justify-center items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-[#F5F5F5] shadow-[inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 font-medium text-[16px]'
+              variant='secondary'
+              className='flex items-center gap-2'
             >
               <CircleArrowLeft size={16} /> Previous
-            </button>
+            </Button>
           ) : (
             <div></div>
           )}
 
           {/* Next / Submit Button */}
           {step < tabs.length ? (
-            <button
+            <Button
               onClick={nextStep}
               disabled={isSubmitting}
-              className='flex justify-center items-center gap-[6px] px-4 py-3 rounded-[12px] border border-white/20 bg-[#7A5AF8] shadow-[inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] text-white font-medium transition-all duration-200 hover:opacity-90 text-[16px] disabled:opacity-50 disabled:cursor-not-allowed'
+              variant='primary'
+              className='flex items-center gap-2'
             >
               Next <CircleArrowRight size={16} />
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className='flex justify-center items-center gap-[6px] px-4 py-3 rounded-[12px] border border-white/20 bg-[#7A5AF8] shadow-[inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] text-white font-medium transition-all duration-200 hover:opacity-90 text-[16px] disabled:opacity-50 disabled:cursor-not-allowed'
+              variant='primary'
+              className='flex items-center gap-2'
             >
               {isSubmitting ? (
                 <>
@@ -452,7 +456,7 @@ export default function CreateStartupPage() {
                   <CircleCheckBig size={16} /> Submit Startup
                 </>
               )}
-            </button>
+            </Button>
           )}
         </div>
       </div>

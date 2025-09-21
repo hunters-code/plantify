@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Card } from '../../components/ui';
 
 export default function LoginRequired() {
   const { signIn, isLoading, userType, isRegistered, isAuthenticated } = useAuth();
@@ -58,7 +59,7 @@ export default function LoginRequired() {
         </div>
       </div>
 
-      <div className='w-full max-w-md bg-white rounded-2xl shadow-2xl p-4'>
+      <Card className='w-full max-w-md shadow-2xl p-4'>
         <div className='flex flex-col gap-3 mb-8 mt-4'>
           <h2 className='text-center text-4xl font-ibm text-gray-900'>
             Login Required
@@ -69,7 +70,7 @@ export default function LoginRequired() {
           </p>
         </div>
 
-        <div className='bg-neutral-100 rounded-[16px] p-4 sm:p-4'>
+        <Card className='bg-neutral-100 p-4 sm:p-4'>
           <div className='space-y-3 text-sm text-gray-700'>
             <div className='flex items-center gap-2'>
               <Fingerprint size={16} className='text-gray-500' />
@@ -90,35 +91,24 @@ export default function LoginRequired() {
           </div>
 
           <div className='mt-6 space-y-3'>
-            <button
+            <Button
               onClick={handleSignIn}
               disabled={isSigningIn || isLoading}
-              className='w-full flex items-center justify-center gap-[6px] 
-             px-4 py-3 rounded-xl 
-             border border-white/20 
-             bg-purple-500 
-             text-white font-medium 
-             shadow-[0_2px_4px_rgba(0,0,0,0.16),inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25)] 
-             hover:bg-purple-600 transition text-[16px]
-             disabled:opacity-50 disabled:cursor-not-allowed'
+              variant='primary'
+              className='w-full bg-purple-500 hover:bg-purple-600'
             >
               <Fingerprint size={16} />
               {isSigningIn ? 'Authenticating...' : 'Sign In with ID.ai'}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleCancel}
               disabled={isSigningIn || isLoading}
-              className='w-full flex items-center justify-center gap-[6px] 
-             px-4 py-3 rounded-xl 
-             border border-[#E5E5E5] 
-             bg-[#F5F5F5] text-gray-700 font-medium 
-             shadow-[inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] 
-             hover:bg-gray-100 transition text-[16px]
-             disabled:opacity-50 disabled:cursor-not-allowed'
+              variant='secondary'
+              className='w-full'
             >
               <CircleOff size={16} />
               Cancel
-            </button>
+            </Button>
           </div>
 
           <p className='mt-4 text-center text-xs text-gray-500'>
@@ -138,8 +128,8 @@ export default function LoginRequired() {
               Learn more
             </a>
           </p>
-        </div>
-      </div>
+        </Card>
+      </Card>
     </div>
   );
 }

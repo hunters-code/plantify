@@ -1,23 +1,24 @@
 import { AlertTriangle } from 'lucide-react';
+import { Alert, Card } from '../../../../components/ui';
 
 export default function Risks() {
   return (
     <div className='max-w-3xl mt-8 space-y-8'>
       {/* Risk Assessment */}
-      <div className='rounded-2xl bg-neutral-100 p-6 shadow-sm'>
+      <Card className='bg-neutral-100'>
         <h2 className='text-lg font-semibold text-gray-900 font-ibm'>
           Risk Assessment
         </h2>
 
-        {/* Alert */}
-        <div className='mt-4 flex items-center gap-2 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-gray-800'>
-          <AlertTriangle className='text-orange-600 w-5 h-5 shrink-0' />
-          <span className='font-medium text-orange-600'>Moderate Risk</span>
-        </div>
+        <Alert
+          type='warning'
+          message='Moderate Risk'
+          className='mt-4'
+          icon={<AlertTriangle className='text-orange-600 w-5 h-5 shrink-0' />}
+        />
 
-        {/* Risks List */}
         <div className='mt-6 space-y-5'>
-          <div className='bg-white p-4 rounded-lg'>
+          <Card>
             <h3 className='text-sm font-semibold text-black'>
               Weather Dependency
             </h3>
@@ -28,8 +29,8 @@ export default function Risks() {
               <br />
               Controlled greenhouse environment and weather monitoring systems
             </p>
-          </div>
-          <div className='bg-white p-4 rounded-lg'>
+          </Card>
+          <Card>
             <h3 className='text-sm font-semibold text-black'>
               Market Competition
             </h3>
@@ -40,17 +41,17 @@ export default function Risks() {
               <br />
               Strong IP protection and established customer relationships
             </p>
-          </div>
+          </Card>
         </div>
-      </div>
+      </Card>
 
       {/* General Investment Risks */}
-      <div className='rounded-2xl bg-neutral-100 p-6 shadow-sm'>
+      <Card className='bg-neutral-100'>
         <h2 className='text-lg font-semibold text-gray-900 font-ibm'>
           General Investment Risks
         </h2>
 
-        <div className='mt-4 bg-white p-4 rounded-lg'>
+        <Card className='mt-4'>
           <h3 className='text-sm font-medium text-gray-900'>
             Investment Risks Include:
           </h3>
@@ -61,8 +62,8 @@ export default function Risks() {
             <li>Potential loss of principal investment</li>
             <li>Market volatility impact</li>
           </ul>
-        </div>
-      </div>
+        </Card>
+      </Card>
     </div>
   );
 }

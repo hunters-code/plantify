@@ -1,4 +1,5 @@
 import { Lock, Banknote, Sparkle, BanknoteArrowDown } from "lucide-react";
+import { Button, Card, ProgressBar } from "../../../../components/ui";
 
 export default function FundingStatus() {
     return (
@@ -14,9 +15,12 @@ export default function FundingStatus() {
                             Overall Progress: <span className="text-orange-500 font-medium">45% Funded</span>
                         </span>
                     </div>
-                    <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-                        <div className="bg-orange-500 h-2 w-[45%]" />
-                    </div>
+                    <ProgressBar
+                        value={45}
+                        max={100}
+                        className="mb-2"
+                        color="orange"
+                    />
                     <div className="flex justify-between text-sm mt-2">
                         <span className="text-orange-600 font-medium">$22,500</span>
                         <span className="text-gray-500">$50,000</span>
@@ -27,26 +31,24 @@ export default function FundingStatus() {
             {/* Funds Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Available Funds */}
-                <div className="bg-white rounded-xl p-4 flex flex-col justify-between">
+                <Card className="flex flex-col justify-between">
                     <div>
                         <p className="text-2xl font-semibold text-gray-900">$32,000</p>
                         <p className="text-gray-500 text-sm">80% of raised funds (ckUSDC)</p>
                     </div>
                     <div className="flex justify-end">
-                        <button
-                            className="mt-4 flex justify-center items-center gap-2 px-4 py-3 
-            rounded-xl border border-gray-200 bg-[#F5F5F5] text-sm font-medium text-gray-800
-            shadow-[inset_0_3px_3px_rgba(255,255,255,0.4),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)]
-            hover:bg-gray-200 w-fit"
+                        <Button
+                            variant='secondary'
+                            className="mt-4 flex items-center gap-2 w-fit"
                         >
                             <BanknoteArrowDown size={16} />
                             Request Withdrawal
-                        </button>
+                        </Button>
                     </div>
-                </div>
+                </Card>
 
                 {/* Platform Reserve */}
-                <div className="bg-white rounded-xl p-4 flex flex-col justify-between">
+                <Card className="flex flex-col justify-between">
                     <div>
                         <p className="text-2xl font-semibold text-gray-900">$8,000</p>
                         <p className="text-gray-500 text-sm">20% platform reserve (ckUSDC)</p>
@@ -58,7 +60,7 @@ export default function FundingStatus() {
                         <Lock size={16} />
                         Locked for investor protection
                     </div>
-                </div>
+                </Card>
             </div>
         </div>
     );

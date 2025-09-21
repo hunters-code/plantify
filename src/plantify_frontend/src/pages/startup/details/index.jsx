@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '../../../components/layout/Layout';
+import { Button, Card, LoadingSpinner } from '../../../components/ui';
 
 export default function StartupDetailsPage() {
   const { id } = useParams();
@@ -17,7 +18,7 @@ export default function StartupDetailsPage() {
       <Layout>
         <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
           <div className='text-center'>
-            <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto'></div>
+            <LoadingSpinner size='xl' />
             <p className='mt-4 text-gray-600'>Loading startup details...</p>
           </div>
         </div>
@@ -29,7 +30,7 @@ export default function StartupDetailsPage() {
     <Layout>
       <div className='min-h-screen bg-gray-50 py-8'>
         <div className='max-w-6xl mx-auto px-4'>
-          <div className='bg-white rounded-lg shadow-md overflow-hidden'>
+          <Card className='overflow-hidden'>
             <div className='p-8'>
               <div className='flex items-start justify-between mb-6'>
                 <div>
@@ -94,7 +95,7 @@ export default function StartupDetailsPage() {
                 </div>
 
                 <div className='space-y-6'>
-                  <div className='bg-gray-50 rounded-lg p-6'>
+                  <Card className='bg-gray-50'>
                     <h3 className='text-lg font-semibold text-gray-900 mb-4'>
                       Investment Details
                     </h3>
@@ -118,9 +119,9 @@ export default function StartupDetailsPage() {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </Card>
 
-                  <div className='bg-gray-50 rounded-lg p-6'>
+                  <Card className='bg-gray-50'>
                     <h3 className='text-lg font-semibold text-gray-900 mb-4'>
                       Team
                     </h3>
@@ -150,20 +151,20 @@ export default function StartupDetailsPage() {
                         </p>
                       )}
                     </div>
-                  </div>
+                  </Card>
 
                   <div className='space-y-3'>
-                    <button className='w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200'>
+                    <Button variant='primary' className='w-full'>
                       Invest Now
-                    </button>
-                    <button className='w-full bg-gray-200 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200'>
+                    </Button>
+                    <Button variant='secondary' className='w-full'>
                       Contact Team
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </Layout>

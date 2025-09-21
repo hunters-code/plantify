@@ -1,26 +1,28 @@
 import { AlertTriangle, FileText, Eye, Download } from 'lucide-react';
+import { Alert, Button, Card } from '../../../../components/ui';
 
 export default function Documents() {
   return (
-    <div className='max-w-2xl mt-8 bg-neutral-100 p-4 rounded-lg'>
+    <Card className='max-w-2xl mt-8 bg-neutral-100'>
       <h2 className='text-xl font-semibold text-gray-900 font-ibm'>
         Official Documents
       </h2>
 
-      {/* Alert Box */}
-      <div className='mt-4 flex items-start gap-2 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-gray-800'>
-        <AlertTriangle className='text-orange-600 w-5 h-5 mt-0.5 shrink-0' />
-        <p>
-          <span className='font-medium text-orange-600'>Important</span> <br />
-          All documents are verified and audited. Access is provided for due
-          diligence purposes.
-        </p>
-      </div>
+      <Alert
+        type='warning'
+        message={
+          <>
+            <span className='font-medium text-orange-600'>Important</span> <br />
+            All documents are verified and audited. Access is provided for due
+            diligence purposes.
+          </>
+        }
+        className='mt-4'
+        icon={<AlertTriangle className='text-orange-600 w-5 h-5 mt-0.5 shrink-0' />}
+      />
 
-      {/* Documents List */}
       <div className='mt-6 space-y-4'>
-        {/* Item 1 */}
-        <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
+        <Card>
           <div className='flex items-start gap-3 w-full'>
             <FileText className='w-6 h-6 text-gray-700 mt-1' />
             <div className='w-full'>
@@ -41,19 +43,26 @@ export default function Documents() {
               <hr />
 
               <div className='mt-2 flex gap-4 text-xs font-medium'>
-                <button className='flex items-center gap-1 text-purple-600 hover:underline'>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='flex items-center gap-1 text-purple-600 hover:underline p-0 h-auto'
+                >
                   <Eye size={14} /> Preview
-                </button>
-                <button className='flex items-center gap-1 text-purple-600 hover:underline'>
+                </Button>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='flex items-center gap-1 text-purple-600 hover:underline p-0 h-auto'
+                >
                   <Download size={14} /> Download
-                </button>
+                </Button>
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
-        {/* Item 2 */}
-        <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
+        <Card>
           <div className='flex items-start gap-3 w-full'>
             <FileText className='w-6 h-6 text-gray-700 mt-1' />
             <div className='w-full'>
@@ -74,17 +83,25 @@ export default function Documents() {
               <hr />
 
               <div className='mt-2 flex gap-4 text-xs font-medium'>
-                <button className='flex items-center gap-1 text-purple-600 hover:underline'>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='flex items-center gap-1 text-purple-600 hover:underline p-0 h-auto'
+                >
                   <Eye size={14} /> Preview
-                </button>
-                <button className='flex items-center gap-1 text-purple-600 hover:underline'>
+                </Button>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='flex items-center gap-1 text-purple-600 hover:underline p-0 h-auto'
+                >
                   <Download size={14} /> Download
-                </button>
+                </Button>
               </div>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
-    </div>
+    </Card>
   );
 }

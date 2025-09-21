@@ -1,3 +1,5 @@
+import { Input } from '../../../../components/ui';
+
 export default function PersonalInformationForm({
   formData,
   handleInputChange,
@@ -8,74 +10,51 @@ export default function PersonalInformationForm({
         Personal Information
       </h2>
       <div className='space-y-6'>
-        {/* Full name */}
-        <div>
-          <label className='block text-sm font-medium text-gray-700 mb-2'>
-            Full name <span className='text-red-500'>*</span>
-          </label>
-          <input
-            type='text'
-            placeholder='Enter your full name here'
-            value={formData.fullName}
-            onChange={e => handleInputChange('fullName', e.target.value)}
-            className='w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]'
+        <Input
+          type='text'
+          label='Full name'
+          placeholder='Enter your full name here'
+          value={formData.fullName}
+          onChange={e => handleInputChange('fullName', e.target.value)}
+          required
+        />
+
+        <div className='grid md:grid-cols-2 gap-6'>
+          <Input
+            type='email'
+            label='Email'
+            placeholder='Enter your email here'
+            value={formData.email}
+            onChange={e => handleInputChange('email', e.target.value)}
+            required
+          />
+          <Input
+            type='tel'
+            label='Phone number'
+            placeholder='Enter your phone number here'
+            value={formData.phone}
+            onChange={e => handleInputChange('phone', e.target.value)}
+            required
           />
         </div>
 
-        {/* Email + Phone */}
         <div className='grid md:grid-cols-2 gap-6'>
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Email <span className='text-red-500'>*</span>
-            </label>
-            <input
-              type='email'
-              placeholder='Enter your email here'
-              value={formData.email}
-              onChange={e => handleInputChange('email', e.target.value)}
-              className='w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]'
-            />
-          </div>
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Phone number <span className='text-red-500'>*</span>
-            </label>
-            <input
-              type='tel'
-              placeholder='Enter your phone number here'
-              value={formData.phone}
-              onChange={e => handleInputChange('phone', e.target.value)}
-              className='w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]'
-            />
-          </div>
-        </div>
-
-        {/* Address */}
-        <div className='grid md:grid-cols-2 gap-6'>
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Country <span className='text-red-500'>*</span>
-            </label>
-            <input
-              type='text'
-              placeholder='Enter your country here'
-              value={formData.country}
-              onChange={e => handleInputChange('country', e.target.value)}
-              className='w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]'
-            />
-          </div>
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
-              City <span className='text-red-500'>*</span>
-            </label>
-            <input
-              type='text'
-              placeholder='Enter your city here'
-              value={formData.city}
-              onChange={e => handleInputChange('city', e.target.value)}
-              className='w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]'
-            />
-          </div>
+          <Input
+            type='text'
+            label='Country'
+            placeholder='Enter your country here'
+            value={formData.country}
+            onChange={e => handleInputChange('country', e.target.value)}
+            required
+          />
+          <Input
+            type='text'
+            label='City'
+            placeholder='Enter your city here'
+            value={formData.city}
+            onChange={e => handleInputChange('city', e.target.value)}
+            required
+          />
         </div>
       </div>
     </div>

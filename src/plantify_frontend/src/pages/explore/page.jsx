@@ -8,6 +8,7 @@ import {
   WhyPlantify,
   Footer,
 } from '../../components';
+import { Button, Input } from '../../components/ui';
 
 export default function Explores() {
   const startups = [
@@ -59,66 +60,61 @@ export default function Explores() {
         </p>
 
         <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6'>
-          <div
-            className='flex items-center gap-1 w-[450px] px-4 py-3 
-                rounded-xl border border-gray-200 bg-white 
-                shadow-md'
-          >
-            <Search size={20} className='text-gray-500' />
-            <input
+          <div className='w-[450px]'>
+            <Input
               type='text'
               placeholder='Search by name, sector, location, or tags...'
-              className='flex-1 outline-none text-sm placeholder-gray-500'
+              className='w-full'
+              icon={<Search size={20} className='text-gray-500' />}
             />
           </div>
 
           <div className='flex items-center gap-2'>
-            <button
-              className='flex items-center justify-center gap-4 
-             px-4 py-3 
-             rounded-xl border border-gray-200 
-             bg-gray-100 
-             text-sm font-medium 
-             shadow-[inset_0_3px_3px_rgba(255,255,255,0.4),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] 
-             hover:bg-gray-200'
+            <Button
+              variant='secondary'
+              className='flex items-center gap-2'
             >
               <Funnel size={20} /> Filters
-            </button>
-            <button
-              className='flex items-center justify-center gap-4 
-             px-4 py-3 
-             rounded-xl border border-gray-200 
-             bg-gray-100 
-             text-sm font-medium 
-             shadow-[inset_0_3px_3px_rgba(255,255,255,0.4),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] 
-             hover:bg-gray-200'
+            </Button>
+            <Button
+              variant='secondary'
+              className='flex items-center gap-2'
             >
               <ListFilter size={20} /> Filters
-            </button>
+            </Button>
           </div>
         </div>
 
         <hr />
 
         <div className='flex items-center gap-3 mb-8 mt-8'>
-          <button className='flex items-center gap-1 border border-gray-300 rounded-lg px-3 py-3 text-sm font-medium hover:bg-gray-50'>
+          <Button
+            variant='secondary'
+            className='flex items-center gap-1'
+          >
             All Startups
             <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
               16
             </span>
-          </button>
-          <button className='flex items-center gap-1 border border-gray-300 rounded-lg px-3 py-3 text-sm font-medium hover:bg-gray-50'>
+          </Button>
+          <Button
+            variant='secondary'
+            className='flex items-center gap-1'
+          >
             Available
             <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
               16
             </span>
-          </button>
-          <button className='flex items-center gap-1 border border-gray-300 rounded-lg px-3 py-3 text-sm font-medium hover:bg-gray-50'>
+          </Button>
+          <Button
+            variant='secondary'
+            className='flex items-center gap-1'
+          >
             Featured
             <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
               3
             </span>
-          </button>
+          </Button>
         </div>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>

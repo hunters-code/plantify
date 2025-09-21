@@ -1,4 +1,5 @@
 import { Plus, MoreHorizontal } from "lucide-react";
+import { Button, Card } from "../../../../components/ui";
 
 const teamMembers = [
     {
@@ -29,26 +30,21 @@ export default function TeamSection() {
                 <h2 className="text-2xl font-semibold text-gray-900 font-ibm">
                     EcoFarm Solutions Team
                 </h2>
-                <button
-                    className="flex justify-center items-center gap-2 px-4 py-3 
-  rounded-xl
-  bg-[#F5F5F5] 
-  text-sm font-medium text-gray-800
-  shadow-[inset_0_3px_3px_rgba(255,255,255,0.4),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)]
-  hover:bg-gray-200"
+                <Button
+                    variant='secondary'
+                    className="flex items-center gap-2"
                 >
                     <Plus size={16} />
                     Add new member
-                </button>
-
+                </Button>
             </div>
 
             {/* Team Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {teamMembers.map((member) => (
-                    <div
+                    <Card
                         key={member.id}
-                        className="bg-white rounded-xl shadow-sm overflow-hidden"
+                        className="overflow-hidden"
                     >
                         <div className="p-2">
                             <img
@@ -62,18 +58,15 @@ export default function TeamSection() {
                                 <p className="text-gray-900 font-medium text-[16px]">{member.name}</p>
                                 <p className="text-gray-500 text-sm">{member.role}</p>
                             </div>
-                            <button
-                                className="flex justify-center items-center gap-1 p-3
-  rounded-xl
-  bg-[#F5F5F5] 
-  shadow-[inset_0_3px_3px_rgba(255,255,255,0.4),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)] 
-  hover:bg-gray-200"
+                            <Button
+                                variant='secondary'
+                                size='sm'
+                                className="p-3"
                             >
                                 <MoreHorizontal size={18} className="text-gray-600" />
-                            </button>
+                            </Button>
                         </div>
-                    </div>
-
+                    </Card>
                 ))}
             </div>
         </div>

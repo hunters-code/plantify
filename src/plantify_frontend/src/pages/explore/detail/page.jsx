@@ -18,6 +18,7 @@ import {
 import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
 import Tabs from '../../../components/layout/Tabs';
+import { Badge, Button, Card, ImageGallery, ProgressBar } from '../../../components/ui';
 
 // partials
 import Overview from './partial/Overview';
@@ -68,69 +69,25 @@ export default function ExploreDetail() {
 
       <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
         {/* Left Side (Images) */}
-        <div>
-          {/* Main Image */}
-          <div className='rounded-xl overflow-hidden shadow-md'>
-            <img
-              src={images[activeIndex]}
-              alt='Product'
-              width={600}
-              height={400}
-              className='object-cover w-full h-[350px] transition-all duration-300'
-            />
-          </div>
-
-          {/* Thumbnail List */}
-          <div className='flex gap-3 mt-4'>
-            {images.map((img, i) => (
-              <div
-                key={i}
-                onClick={() => setActiveIndex(i)}
-                className={`w-20 h-20 rounded-lg overflow-hidden shadow cursor-pointer border-2 transition-all duration-200 ${
-                  activeIndex === i ? 'border-purple-500' : 'border-transparent'
-                }`}
-              >
-                <img
-                  src={img}
-                  alt={`Thumbnail ${i}`}
-                  width={80}
-                  height={80}
-                  className='object-cover w-full h-full'
-                />
-              </div>
-            ))}
-
-            <div className='relative w-20 h-20 rounded-lg overflow-hidden cursor-pointer'>
-              {/* Background Image */}
-              <img
-                src='/assets/images/product.png'
-                alt='View More'
-                className='object-cover w-full h-full'
-              />
-
-              {/* Overlay */}
-              <div className='absolute inset-0 bg-purple-600 bg-opacity-70 flex flex-col items-center justify-center text-white font-medium'>
-                <Eye size={16} />
-                <span className='text-xs'>View More</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ImageGallery
+          images={images}
+          showViewMore={true}
+          onViewMore={() => console.log('View more clicked')}
+        />
 
         {/* Right Side (Detail Card) */}
-        <div className='bg-neutral-100 rounded-2xl p-6 flex flex-col gap-4'>
+        <Card className='bg-neutral-100 flex flex-col gap-4'>
           {/* Tags */}
           <div className='flex gap-2'>
-            <span className='bg-purple-100 text-purple-700 border border-purple-700 px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-2'>
-              <ThumbsUp size={16} />
+            <Badge variant='primary' icon={<ThumbsUp size={16} />}>
               Featured
-            </span>
-            <span className='bg-green-100 text-green-700 border border-green-700 px-3 py-1 rounded-lg text-xs font-medium'>
+            </Badge>
+            <Badge variant='success'>
               Agriculture
-            </span>
-            <span className='bg-yellow-100 text-yellow-700 border border-yellow-700 px-3 py-1 rounded-lg text-xs font-medium'>
+            </Badge>
+            <Badge variant='warning'>
               Moderate Risk
-            </span>
+            </Badge>
           </div>
 
           {/* Title & Desc */}
@@ -169,9 +126,12 @@ export default function ExploreDetail() {
               Progress:{' '}
               <span className='text-orange-500 font-semibold'>45% Funded</span>
             </p>
-            <div className='w-full bg-gray-200 h-2 rounded-full'>
-              <div className='bg-orange-500 h-2 rounded-full w-[45%]' />
-            </div>
+            <ProgressBar
+              value={45}
+              max={100}
+              color='bg-orange-500'
+              showValue={false}
+            />
           </div>
 
           {/* Target */}
@@ -180,23 +140,21 @@ export default function ExploreDetail() {
             <span className='text-gray-400'>$50,000</span>
           </div>
 
-          <div className='p-4 border border-netural-500 rounded-[16px]'>
+          <Card className='p-4 border border-neutral-500'>
             {/* NFT Price */}
             <div className='text-sm'>
               NFT Price: <span className='font-semibold'>$75 cKUSDC</span>
             </div>
 
             {/* Button */}
-            <button
-              className='w-full mt-3 flex justify-center items-center gap-[6px] px-4 py-3 
-             rounded-[12px] border border-white/20 bg-[#7A5AF8] 
-             shadow-[0_2px_4px_rgba(0,0,0,0.16),inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25)] 
-             text-white font-medium transition-all duration-200 hover:opacity-90 text-[16px]'
+            <Button
+              variant='primary'
+              className='w-full mt-3'
             >
               <Banknote size={20} /> Invest Now
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Card>
+        </Card>
       </div>
 
       <div className='max-w-6xl mx-auto'>

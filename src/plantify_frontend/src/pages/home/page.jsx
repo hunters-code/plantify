@@ -2,6 +2,7 @@ import { Copy, DraftingCompass, ShieldCheck } from 'lucide-react';
 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { Button, Card, Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '../components/ui';
 
 export default function WelcomePage() {
   const internetIdentity = 'rdmx6-jaaaa-aaaaa-aaadq-cai';
@@ -50,9 +51,9 @@ export default function WelcomePage() {
           }}
         >
           {/* Investor Card */}
-          <div className='bg-neutral-100 backdrop-blur-md rounded-2xl flex flex-col justify-between shadow-md'>
+          <Card className='bg-neutral-100 backdrop-blur-md flex flex-col justify-between'>
             <div>
-              <div className='bg-white shadow-xl rounded-2xl p-6'>
+              <Card className='bg-white shadow-xl'>
                 <h2 className='text-lg font-bold text-gray-900 mb-4'>
                   Investor
                 </h2>
@@ -73,7 +74,7 @@ export default function WelcomePage() {
                     Diversify across multiple sectors and startups
                   </li>
                 </ul>
-              </div>
+              </Card>
 
               <div className='p-6'>
                 <h3 className='text-sm font-medium text-gray-800 font-ibm'>
@@ -84,24 +85,20 @@ export default function WelcomePage() {
                   <li>Minimum investment capital required.</li>
                   <li>Active participation in the community.</li>
                 </ul>
-                <button
-                  className='mt-6 w-full flex items-center justify-center gap-[6px] 
-             rounded-xl border border-white/20 
-             bg-neutral-950 text-white font-medium 
-             py-3 px-4 
-             shadow-[0_2px_4px_rgba(0,0,0,0.16),0_3px_3px_rgba(255,255,255,0.40)_inset,0_-2px_1px_rgba(0,0,0,0.25)_inset] 
-             transition hover:bg-neutral-900 text-[16px]'
+                <Button
+                  variant='primary'
+                  className='mt-6 w-full flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-900'
                 >
                   <ShieldCheck size={16} /> Continue as Investor
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Startup Founder Card */}
-          <div className='bg-neutral-100 backdrop-blur-md rounded-2xl flex flex-col justify-between shadow-md'>
+          <Card className='bg-neutral-100 backdrop-blur-md flex flex-col justify-between'>
             <div>
-              <div className='bg-white shadow-xl rounded-2xl p-6'>
+              <Card className='bg-white shadow-xl'>
                 <h2 className='text-lg font-bold text-gray-900 mb-4'>
                   Startup Founder
                 </h2>
@@ -122,7 +119,7 @@ export default function WelcomePage() {
                     Commit to a 36-month term with profit sharing.
                   </li>
                 </ul>
-              </div>
+              </Card>
 
               <div className='p-6'>
                 <h3 className='text-sm font-medium text-gray-800 font-ibm'>
@@ -133,19 +130,15 @@ export default function WelcomePage() {
                   <li>At least 6 months of operational history.</li>
                   <li>Stable currency collateral for 12 months.</li>
                 </ul>
-                <button
-                  className='mt-6 w-full flex items-center justify-center gap-[6px] 
-             rounded-xl border border-white/20 
-             bg-purple-500 text-white font-medium 
-             py-3 px-4 
-             shadow-[0_2px_4px_rgba(0,0,0,0.16),0_3px_3px_rgba(255,255,255,0.40)_inset,0_-2px_1px_rgba(0,0,0,0.25)_inset] 
-             transition hover:bg-purple-600 text-[16px]'
+                <Button
+                  variant='primary'
+                  className='mt-6 w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600'
                 >
                   <DraftingCompass size={16} /> Continue as Founder
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 
@@ -155,50 +148,50 @@ export default function WelcomePage() {
         </h2>
 
         <div className='overflow-x-auto'>
-          <table className='w-full border-collapse text-sm'>
-            <thead>
-              <tr>
-                <th className='text-left py-8 px-4 font-medium text-gray-500'>
+          <Table className='w-full'>
+            <TableHead>
+              <TableRow>
+                <TableHeader className='text-left py-8 px-4 font-medium text-gray-500'>
                   Aspect
-                </th>
-                <th className='py-8 px-4 font-medium text-gray-900 bg-purple-50'>
+                </TableHeader>
+                <TableHeader className='py-8 px-4 font-medium text-gray-900 bg-purple-50'>
                   Investor
-                </th>
-                <th className='py-8 px-4 font-medium text-gray-900'>
+                </TableHeader>
+                <TableHeader className='py-8 px-4 font-medium text-gray-900'>
                   Startup Founder
-                </th>
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-gray-200'>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Investment Required</td>
-                <td className='py-8 px-4 bg-purple-50'>$50+ per startup</td>
-                <td className='py-8 px-4'>Collateral required</td>
-              </tr>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Time Commitment</td>
-                <td className='py-8 px-4 bg-purple-50'>
+                </TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody className='divide-y divide-gray-200'>
+              <TableRow>
+                <TableCell className='py-8 px-4 text-gray-600'>Investment Required</TableCell>
+                <TableCell className='py-8 px-4 bg-purple-50'>$50+ per startup</TableCell>
+                <TableCell className='py-8 px-4'>Collateral required</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='py-8 px-4 text-gray-600'>Time Commitment</TableCell>
+                <TableCell className='py-8 px-4 bg-purple-50'>
                   Monthly voting (~1hr)
-                </td>
-                <td className='py-8 px-4'>Daily operations</td>
-              </tr>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Risk Level</td>
-                <td className='py-8 px-4 bg-purple-50'>Medium (diversified)</td>
-                <td className='py-8 px-4'>High (business owner)</td>
-              </tr>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Potential Returns</td>
-                <td className='py-8 px-4 bg-purple-50'>15-60% annually</td>
-                <td className='py-8 px-4'>Unlimited potential</td>
-              </tr>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Active Management</td>
-                <td className='py-8 px-4 bg-purple-50'>Passive income focus</td>
-                <td className='py-8 px-4'>Full business control</td>
-              </tr>
-            </tbody>
-          </table>
+                </TableCell>
+                <TableCell className='py-8 px-4'>Daily operations</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='py-8 px-4 text-gray-600'>Risk Level</TableCell>
+                <TableCell className='py-8 px-4 bg-purple-50'>Medium (diversified)</TableCell>
+                <TableCell className='py-8 px-4'>High (business owner)</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='py-8 px-4 text-gray-600'>Potential Returns</TableCell>
+                <TableCell className='py-8 px-4 bg-purple-50'>15-60% annually</TableCell>
+                <TableCell className='py-8 px-4'>Unlimited potential</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='py-8 px-4 text-gray-600'>Active Management</TableCell>
+                <TableCell className='py-8 px-4 bg-purple-50'>Passive income focus</TableCell>
+                <TableCell className='py-8 px-4'>Full business control</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       </div>
 

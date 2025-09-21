@@ -263,6 +263,7 @@ export default function TestingDataPage() {
         monthlyExpenses: "0",
         problemStatement: startupFormData.description,
         founderBackground: "Not specified",
+        companyImages: [],
       };
 
       // Use admin function if founder is selected, otherwise use regular function

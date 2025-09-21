@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 import { Layout } from '../../components';
+import { Alert, Button, Card, LoadingSpinner, Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 import { backendService } from '../../lib/backend';
 
@@ -107,12 +108,7 @@ export default function OnboardingPage() {
     return (
       <Layout>
         <div className='flex flex-col items-center justify-center min-h-screen px-6 py-20'>
-          <div className='flex flex-col items-center gap-4 p-8'>
-            <Loader2 size={48} className='text-purple-600 animate-spin' />
-            <p className='text-gray-600 text-sm'>
-              Checking your registration status...
-            </p>
-          </div>
+          <LoadingSpinner size='xl' text='Checking your registration status...' />
         </div>
       </Layout>
     );
@@ -122,27 +118,30 @@ export default function OnboardingPage() {
     return (
       <Layout>
         <div className='flex flex-col items-center justify-center min-h-screen px-6 py-20'>
-          <div className='max-w-md w-full bg-red-50 border border-red-200 rounded-lg p-6'>
-            <div className='flex items-center gap-3 mb-4'>
-              <AlertCircle className='w-5 h-5 text-red-500 flex-shrink-0' />
-              <h3 className='text-red-800 font-medium'>Connection Error</h3>
-            </div>
-            <p className='text-red-700 text-sm mb-4'>{error}</p>
-            <div className='flex gap-3'>
-              <button
-                onClick={handleRetry}
-                className='flex-1 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors'
-              >
-                Try Again
-              </button>
-              <button
-                onClick={handleDismissError}
-                className='flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors'
-              >
-                Continue Anyway
-              </button>
-            </div>
-          </div>
+          <Card className='max-w-md w-full'>
+            <Alert
+              type='error'
+              title='Connection Error'
+              message={error}
+            >
+              <div className='flex gap-3 mt-4'>
+                <Button
+                  onClick={handleRetry}
+                  variant='secondary'
+                  className='flex-1 bg-red-600 text-white hover:bg-red-700'
+                >
+                  Try Again
+                </Button>
+                <Button
+                  onClick={handleDismissError}
+                  variant='secondary'
+                  className='flex-1'
+                >
+                  Continue Anyway
+                </Button>
+              </div>
+            </Alert>
+          </Card>
         </div>
       </Layout>
     );
@@ -196,9 +195,9 @@ export default function OnboardingPage() {
           }}
         >
           {/* Investor Card */}
-          <div className='bg-neutral-100 backdrop-blur-md rounded-2xl flex flex-col justify-between shadow-md'>
+          <Card className='bg-neutral-100 backdrop-blur-md flex flex-col justify-between shadow-md'>
             <div>
-              <div className='bg-white shadow-xl rounded-2xl p-6'>
+              <Card className='bg-white shadow-xl p-6'>
                 <h2 className='text-lg font-bold text-gray-900 mb-4'>
                   Investor
                 </h2>
@@ -219,7 +218,7 @@ export default function OnboardingPage() {
                     Diversify across multiple sectors and startups
                   </li>
                 </ul>
-              </div>
+              </Card>
 
               <div className='p-6'>
                 <h3 className='text-sm font-medium text-gray-800 font-ibm'>
@@ -230,25 +229,21 @@ export default function OnboardingPage() {
                   <li>Minimum investment capital required.</li>
                   <li>Active participation in the community.</li>
                 </ul>
-                <button
+                <Button
                   onClick={handleInvestorClick}
-                  className='mt-6 w-full flex items-center justify-center gap-[6px] 
-              rounded-xl border border-white/20 
-              bg-neutral-950 text-white font-medium 
-              py-3 px-4 
-              shadow-[0_2px_4px_rgba(0,0,0,0.16),0_3px_3px_rgba(255,255,255,0.40)_inset,0_-2px_1px_rgba(0,0,0,0.25)_inset] 
-              transition hover:bg-neutral-900 text-[16px]'
+                  variant='primary'
+                  className='mt-6 w-full bg-neutral-950 hover:bg-neutral-900'
                 >
                   <ShieldCheck size={16} /> Continue as Investor
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Startup Founder Card */}
-          <div className='bg-neutral-100 backdrop-blur-md rounded-2xl flex flex-col justify-between shadow-md'>
+          <Card className='bg-neutral-100 backdrop-blur-md flex flex-col justify-between shadow-md'>
             <div>
-              <div className='bg-white shadow-xl rounded-2xl p-6'>
+              <Card className='bg-white shadow-xl p-6'>
                 <h2 className='text-lg font-bold text-gray-900 mb-4'>
                   Startup Founder
                 </h2>
@@ -269,7 +264,7 @@ export default function OnboardingPage() {
                     Commit to a 36-month term with profit sharing.
                   </li>
                 </ul>
-              </div>
+              </Card>
 
               <div className='p-6'>
                 <h3 className='text-sm font-medium text-gray-800 font-ibm'>
@@ -280,20 +275,16 @@ export default function OnboardingPage() {
                   <li>At least 6 months of operational history.</li>
                   <li>Stable currency collateral for 12 months.</li>
                 </ul>
-                <button
+                <Button
                   onClick={handleFounderClick}
-                  className='mt-6 w-full flex items-center justify-center gap-[6px] 
-              rounded-xl border border-white/20 
-              bg-purple-500 text-white font-medium 
-              py-3 px-4 
-              shadow-[0_2px_4px_rgba(0,0,0,0.16),0_3px_3px_rgba(255,255,255,0.40)_inset,0_-2px_1px_rgba(0,0,0,0.25)_inset] 
-              transition hover:bg-purple-600 text-[16px]'
+                  variant='primary'
+                  className='mt-6 w-full bg-purple-500 hover:bg-purple-600'
                 >
                   <DraftingCompass size={16} /> Continue as Founder
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 
@@ -302,52 +293,50 @@ export default function OnboardingPage() {
           Quick Comparison
         </h2>
 
-        <div className='overflow-x-auto'>
-          <table className='w-full border-collapse text-sm'>
-            <thead>
-              <tr>
-                <th className='text-left py-8 px-4 font-medium text-gray-500'>
-                  Aspect
-                </th>
-                <th className='py-8 px-4 font-medium text-gray-900 bg-purple-50'>
-                  Investor
-                </th>
-                <th className='py-8 px-4 font-medium text-gray-900'>
-                  Startup Founder
-                </th>
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-gray-200'>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Investment Required</td>
-                <td className='py-8 px-4 bg-purple-50'>$50+ per startup</td>
-                <td className='py-8 px-4'>Collateral required</td>
-              </tr>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Time Commitment</td>
-                <td className='py-8 px-4 bg-purple-50'>
-                  Monthly voting (~1hr)
-                </td>
-                <td className='py-8 px-4'>Daily operations</td>
-              </tr>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Risk Level</td>
-                <td className='py-8 px-4 bg-purple-50'>Medium (diversified)</td>
-                <td className='py-8 px-4'>High (business owner)</td>
-              </tr>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Potential Returns</td>
-                <td className='py-8 px-4 bg-purple-50'>15-60% annually</td>
-                <td className='py-8 px-4'>Unlimited potential</td>
-              </tr>
-              <tr>
-                <td className='py-8 px-4 text-gray-600'>Active Management</td>
-                <td className='py-8 px-4 bg-purple-50'>Passive income focus</td>
-                <td className='py-8 px-4'>Full business control</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <Table striped hover>
+          <TableHead>
+            <TableRow>
+              <TableHeader className='py-8'>
+                Aspect
+              </TableHeader>
+              <TableHeader className='py-8 bg-purple-50 text-gray-900'>
+                Investor
+              </TableHeader>
+              <TableHeader className='py-8 text-gray-900'>
+                Startup Founder
+              </TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell className='py-8'>Investment Required</TableCell>
+              <TableCell className='py-8 bg-purple-50'>$50+ per startup</TableCell>
+              <TableCell className='py-8'>Collateral required</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='py-8'>Time Commitment</TableCell>
+              <TableCell className='py-8 bg-purple-50'>
+                Monthly voting (~1hr)
+              </TableCell>
+              <TableCell className='py-8'>Daily operations</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='py-8'>Risk Level</TableCell>
+              <TableCell className='py-8 bg-purple-50'>Medium (diversified)</TableCell>
+              <TableCell className='py-8'>High (business owner)</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='py-8'>Potential Returns</TableCell>
+              <TableCell className='py-8 bg-purple-50'>15-60% annually</TableCell>
+              <TableCell className='py-8'>Unlimited potential</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='py-8'>Active Management</TableCell>
+              <TableCell className='py-8 bg-purple-50'>Passive income focus</TableCell>
+              <TableCell className='py-8'>Full business control</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
     </Layout>
   );

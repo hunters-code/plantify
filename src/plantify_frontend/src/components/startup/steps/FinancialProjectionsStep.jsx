@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Input, Textarea } from '../../../components/ui';
 
 const FinancialProjectionsStep = ({ formData, setFormData, errors = {} }) => {
   const handleChange = (e) => {
@@ -9,7 +10,6 @@ const FinancialProjectionsStep = ({ formData, setFormData, errors = {} }) => {
     }));
   };
 
-  const inputStyle = `w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]`;
 
   // Auto-calculate NFT price based on funding goal
   useEffect(() => {
@@ -32,25 +32,18 @@ const FinancialProjectionsStep = ({ formData, setFormData, errors = {} }) => {
       <div className="space-y-6">
         {/* Funding Goal and NFT Price */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Funding goal (ckUSDC) <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="fundingGoal"
-              value={formData.fundingGoal || ''}
-              onChange={handleChange}
-              placeholder="0"
-              min="1000"
-              className={`${inputStyle} ${errors.fundingGoal ? 'border-red-500' : ''}`}
-              required
-            />
-            <p className="mt-1 text-xs text-gray-500">Minimum: $1,000 ckUSDC</p>
-            {errors.fundingGoal && (
-              <p className="mt-1 text-sm text-red-600">{errors.fundingGoal}</p>
-            )}
-          </div>
+          <Input
+            type="number"
+            name="fundingGoal"
+            label="Funding goal (ckUSDC)"
+            value={formData.fundingGoal || ''}
+            onChange={handleChange}
+            placeholder="0"
+            min="1000"
+            required
+            error={errors.fundingGoal}
+            helpText="Minimum: $1,000 ckUSDC"
+          />
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -72,122 +65,82 @@ const FinancialProjectionsStep = ({ formData, setFormData, errors = {} }) => {
 
         {/* Monthly Profit Sharing and Revenue */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Monthly profit sharing commitment (ckUSDC per NFT) <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="monthlyProfitSharing"
-              value={formData.monthlyProfitSharing || ''}
-              onChange={handleChange}
-              placeholder="0"
-              min="0"
-              step="0.01"
-              className={`${inputStyle} ${errors.monthlyProfitSharing ? 'border-red-500' : ''}`}
-              required
-            />
-            <p className="mt-1 text-xs text-gray-500">Amount you commit to pay per NFT monthly</p>
-            {errors.monthlyProfitSharing && (
-              <p className="mt-1 text-sm text-red-600">{errors.monthlyProfitSharing}</p>
-            )}
-          </div>
+          <Input
+            type="number"
+            name="monthlyProfitSharing"
+            label="Monthly profit sharing commitment (ckUSDC per NFT)"
+            value={formData.monthlyProfitSharing || ''}
+            onChange={handleChange}
+            placeholder="0"
+            min="0"
+            step="0.01"
+            required
+            error={errors.monthlyProfitSharing}
+            helpText="Amount you commit to pay per NFT monthly"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Expected monthly revenue (ckUSDC) <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="expectedMonthlyRevenue"
-              value={formData.expectedMonthlyRevenue || ''}
-              onChange={handleChange}
-              placeholder="0"
-              min="0"
-              className={`${inputStyle} ${errors.expectedMonthlyRevenue ? 'border-red-500' : ''}`}
-              required
-            />
-            {errors.expectedMonthlyRevenue && (
-              <p className="mt-1 text-sm text-red-600">{errors.expectedMonthlyRevenue}</p>
-            )}
-          </div>
+          <Input
+            type="number"
+            name="expectedMonthlyRevenue"
+            label="Expected monthly revenue (ckUSDC)"
+            value={formData.expectedMonthlyRevenue || ''}
+            onChange={handleChange}
+            placeholder="0"
+            min="0"
+            required
+            error={errors.expectedMonthlyRevenue}
+          />
         </div>
 
         {/* Expected Monthly Expenses and Break-even Month */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Expected monthly expenses (ckUSDC)
-            </label>
-            <input
-              type="number"
-              name="expectedMonthlyExpenses"
-              value={formData.expectedMonthlyExpenses || ''}
-              onChange={handleChange}
-              placeholder="0"
-              min="0"
-              className={inputStyle}
-            />
-          </div>
+          <Input
+            type="number"
+            name="expectedMonthlyExpenses"
+            label="Expected monthly expenses (ckUSDC)"
+            value={formData.expectedMonthlyExpenses || ''}
+            onChange={handleChange}
+            placeholder="0"
+            min="0"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Break-even month <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="breakEvenMonth"
-              value={formData.breakEvenMonth || ''}
-              onChange={handleChange}
-              placeholder="0"
-              min="1"
-              className={`${inputStyle} ${errors.breakEvenMonth ? 'border-red-500' : ''}`}
-              required
-            />
-            <p className="mt-1 text-xs text-gray-500">Month when revenue exceeds expenses</p>
-            {errors.breakEvenMonth && (
-              <p className="mt-1 text-sm text-red-600">{errors.breakEvenMonth}</p>
-            )}
-          </div>
+          <Input
+            type="number"
+            name="breakEvenMonth"
+            label="Break-even month"
+            value={formData.breakEvenMonth || ''}
+            onChange={handleChange}
+            placeholder="0"
+            min="1"
+            required
+            error={errors.breakEvenMonth}
+            helpText="Month when revenue exceeds expenses"
+          />
         </div>
 
         {/* Revenue Model */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Revenue model <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            name="revenueModel"
-            value={formData.revenueModel || ''}
-            onChange={handleChange}
-            rows={4}
-            placeholder="How will your startup generate revenue?"
-            className={`${inputStyle} resize-none ${errors.revenueModel ? 'border-red-500' : ''}`}
-            required
-          />
-          {errors.revenueModel && (
-            <p className="mt-1 text-sm text-red-600">{errors.revenueModel}</p>
-          )}
-        </div>
+        <Textarea
+          name="revenueModel"
+          label="Revenue model"
+          value={formData.revenueModel || ''}
+          onChange={handleChange}
+          rows={4}
+          placeholder="How will your startup generate revenue?"
+          required
+          error={errors.revenueModel}
+        />
 
         {/* Use of Funds */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Use of funds <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            name="useOfFunds"
-            value={formData.useOfFunds || ''}
-            onChange={handleChange}
-            rows={4}
-            placeholder="How will you use the raised funds?&#10;e.g. 40% marketing, 30% operations, 20% equipment, 10% working capital"
-            className={`${inputStyle} resize-none ${errors.useOfFunds ? 'border-red-500' : ''}`}
-            required
-          />
-          {errors.useOfFunds && (
-            <p className="mt-1 text-sm text-red-600">{errors.useOfFunds}</p>
-          )}
-        </div>
+        <Textarea
+          name="useOfFunds"
+          label="Use of funds"
+          value={formData.useOfFunds || ''}
+          onChange={handleChange}
+          rows={4}
+          placeholder="How will you use the raised funds?&#10;e.g. 40% marketing, 30% operations, 20% equipment, 10% working capital"
+          required
+          error={errors.useOfFunds}
+        />
       </div>
     </div>
   );

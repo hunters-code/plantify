@@ -1,3 +1,5 @@
+import { StatsCard } from '../../../../components/ui';
+
 const items = [
   { label: "Total Funding Raised", value: "$40,000", sub: "ckUSDC" },
   { label: "NFT Hoders", value: "80", sub: "active investors" },
@@ -11,18 +13,12 @@ export default function DashboardOverview() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       {items.map((item, i) => (
-        <div
+        <StatsCard
           key={i}
-          className="bg-neutral-100 p-4 rounded-lg"
-        >
-          <p className="text-gray-500 text-sm mb-1">{item.label}</p>
-          <p className="text-lg font-semibold">
-            {item.value}{" "}
-            {item.sub && (
-              <span className="text-gray-500 font-normal">{item.sub}</span>
-            )}
-          </p>
-        </div>
+          label={item.label}
+          value={item.value}
+          subtitle={item.sub}
+        />
       ))}
     </div>
   );
