@@ -441,6 +441,7 @@ export const idlFactory = ({ IDL }) => {
     'getPlantifyAccount' : IDL.Func([], [IDL.Text], []),
     'getPurchaseInfo' : IDL.Func([IDL.Text], [Result_8], []),
     'getPurchaseStats' : IDL.Func([], [NFTPurchaseStats], []),
+    'getStartupDetails' : IDL.Func([IDL.Text], [IDL.Opt(Startup)], []),
     'getStartupPurchaseHistory' : IDL.Func([IDL.Text], [Result_7], []),
     'getTokenCanisterId' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], []),
     'getTokenInfo' : IDL.Func([IDL.Text], [TokenInfoResponse], []),

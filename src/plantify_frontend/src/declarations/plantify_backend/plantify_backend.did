@@ -506,7 +506,6 @@ service : {
   getAllNFTs: () -> (vec NFTInfo);
   getAllPurchases: () -> (vec NFTPurchaseInfo);
   getAllStartups: () -> (vec Startup);
-  getStartupDetails: (startupId: text) -> (opt Startup);
   getBalance: (account: TransferAccount, tokenType: text) ->
    (BalanceResponse);
   getCkUSDCBalance: (account: TransferAccount) -> (BalanceResponse);
@@ -536,6 +535,7 @@ service : {
   getPlantifyAccount: () -> (text);
   getPurchaseInfo: (purchaseId: text) -> (Result_8);
   getPurchaseStats: () -> (NFTPurchaseStats);
+  getStartupDetails: (startupId: text) -> (opt Startup);
   getStartupPurchaseHistory: (startupId: text) -> (Result_7);
   getTokenCanisterId: (tokenType: text) -> (opt text);
   getTokenInfo: (tokenType: text) -> (TokenInfoResponse);

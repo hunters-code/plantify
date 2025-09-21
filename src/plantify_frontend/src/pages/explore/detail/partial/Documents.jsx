@@ -1,10 +1,23 @@
-import { AlertTriangle, FileText, Eye, Download } from 'lucide-react';
+import { AlertTriangle, FileText, Eye, Download, ExternalLink, Globe } from 'lucide-react';
 
-export default function Documents() {
+export default function Documents({ startup }) {
+  if (!startup) {
+    return (
+      <div className='max-w-2xl mt-8 bg-neutral-100 p-4 rounded-lg'>
+        <p className='text-gray-500'>Loading documents...</p>
+      </div>
+    );
+  }
+
+  const hasDocuments = startup.businessPlan?.length > 0 || 
+                      startup.legalDocuments?.length > 0 || 
+                      startup.financialProjections?.length > 0;
+  
+  const hasWebsite = startup.website && startup.website.trim() !== '';
   return (
     <div className='max-w-2xl mt-8 bg-neutral-100 p-4 rounded-lg'>
       <h2 className='text-xl font-semibold text-gray-900 font-ibm'>
-        Official Documents
+        Documents & Resources
       </h2>
 
       {/* Alert Box */}
@@ -17,73 +30,139 @@ export default function Documents() {
         </p>
       </div>
 
+      {/* Website Link */}
+      {hasWebsite && (
+        <div className='mt-6'>
+          <h3 className='text-lg font-medium text-gray-900 mb-3'>Company Website</h3>
+          <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
+            <div className='flex items-start gap-3 w-full'>
+              <Globe className='w-6 h-6 text-blue-600 mt-1' />
+              <div className='w-full'>
+                <div className='flex justify-between w-full mb-2'>
+                  <div>
+                    <h3 className='text-sm font-medium text-gray-900'>
+                      {startup.startupName} Official Website
+                    </h3>
+                    <p className='text-xs text-gray-500'>
+                      {startup.website}
+                    </p>
+                  </div>
+                  <span className='h-fit mt-3 sm:mt-0 inline-flex rounded-lg bg-blue-100 text-blue-700 text-xs px-2.5 py-1 font-medium'>
+                    Website
+                  </span>
+                </div>
+                <hr />
+                <div className='mt-2 flex gap-4 text-xs font-medium'>
+                  <a 
+                    href={startup.website} 
+                    target='_blank' 
+                    rel='noopener noreferrer'
+                    className='flex items-center gap-1 text-purple-600 hover:underline'
+                  >
+                    <ExternalLink size={14} /> Visit Website
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Documents List */}
       <div className='mt-6 space-y-4'>
-        {/* Item 1 */}
-        <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
-          <div className='flex items-start gap-3 w-full'>
-            <FileText className='w-6 h-6 text-gray-700 mt-1' />
-            <div className='w-full'>
-              <div className='flex justify-between w-full mb-2'>
-                <div>
-                  <h3 className='text-sm font-medium text-gray-900'>
-                    EcoFarm Solutions - Business Plan 2024-2027
-                  </h3>
-                  <p className='text-xs text-gray-500'>
-                    45 pages · 2.4 MB · Last update: August 2024
-                  </p>
+        {hasDocuments ? (
+          <>
+            {/* Business Plan */}
+            {startup.businessPlan && startup.businessPlan.length > 0 && (
+              <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
+                <div className='flex items-start gap-3 w-full'>
+                  <FileText className='w-6 h-6 text-gray-700 mt-1' />
+                  <div className='w-full'>
+                    <div className='flex justify-between w-full mb-2'>
+                      <div>
+                        <h3 className='text-sm font-medium text-gray-900'>
+                          Business Plan - {startup.startupName}
+                        </h3>
+                        <p className='text-xs text-gray-500'>
+                          Business plan document
+                        </p>
+                      </div>
+                      <span className='h-fit mt-3 sm:mt-0 inline-flex rounded-lg bg-green-100 text-green-700 text-xs px-2.5 py-1 font-medium'>
+                        Business Plan
+                      </span>
+                    </div>
+                    <hr />
+                    <div className='mt-2'>
+                      <p className='text-xs text-gray-600'>{startup.businessPlan[0]}</p>
+                    </div>
+                  </div>
                 </div>
-                <span className='h-fit mt-3 sm:mt-0 inline-flex rounded-lg bg-gray-100 text-gray-700 text-xs px-2.5 py-1 font-medium'>
-                  Business Plan
-                </span>
               </div>
+            )}
 
-              <hr />
-
-              <div className='mt-2 flex gap-4 text-xs font-medium'>
-                <button className='flex items-center gap-1 text-purple-600 hover:underline'>
-                  <Eye size={14} /> Preview
-                </button>
-                <button className='flex items-center gap-1 text-purple-600 hover:underline'>
-                  <Download size={14} /> Download
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Item 2 */}
-        <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
-          <div className='flex items-start gap-3 w-full'>
-            <FileText className='w-6 h-6 text-gray-700 mt-1' />
-            <div className='w-full'>
-              <div className='flex justify-between w-full mb-2'>
-                <div>
-                  <h3 className='text-sm font-medium text-gray-900'>
-                    Audited Financial Report Q2 2024
-                  </h3>
-                  <p className='text-xs text-gray-500'>
-                    24 pages · 1.8 MB · Last update: July 2024
-                  </p>
+            {/* Legal Documents */}
+            {startup.legalDocuments && startup.legalDocuments.length > 0 && (
+              <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
+                <div className='flex items-start gap-3 w-full'>
+                  <FileText className='w-6 h-6 text-gray-700 mt-1' />
+                  <div className='w-full'>
+                    <div className='flex justify-between w-full mb-2'>
+                      <div>
+                        <h3 className='text-sm font-medium text-gray-900'>
+                          Legal Documents
+                        </h3>
+                        <p className='text-xs text-gray-500'>
+                          Legal documentation and compliance
+                        </p>
+                      </div>
+                      <span className='h-fit mt-3 sm:mt-0 inline-flex rounded-lg bg-red-100 text-red-700 text-xs px-2.5 py-1 font-medium'>
+                        Legal
+                      </span>
+                    </div>
+                    <hr />
+                    <div className='mt-2'>
+                      <p className='text-xs text-gray-600'>{startup.legalDocuments[0]}</p>
+                    </div>
+                  </div>
                 </div>
-                <span className='h-fit mt-3 sm:mt-0 inline-flex rounded-lg bg-gray-100 text-gray-700 text-xs px-2.5 py-1 font-medium'>
-                  Financial Statements
-                </span>
               </div>
+            )}
 
-              <hr />
-
-              <div className='mt-2 flex gap-4 text-xs font-medium'>
-                <button className='flex items-center gap-1 text-purple-600 hover:underline'>
-                  <Eye size={14} /> Preview
-                </button>
-                <button className='flex items-center gap-1 text-purple-600 hover:underline'>
-                  <Download size={14} /> Download
-                </button>
+            {/* Financial Projections */}
+            {startup.financialProjections && startup.financialProjections.length > 0 && (
+              <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
+                <div className='flex items-start gap-3 w-full'>
+                  <FileText className='w-6 h-6 text-gray-700 mt-1' />
+                  <div className='w-full'>
+                    <div className='flex justify-between w-full mb-2'>
+                      <div>
+                        <h3 className='text-sm font-medium text-gray-900'>
+                          Financial Projections
+                        </h3>
+                        <p className='text-xs text-gray-500'>
+                          Financial forecasts and projections
+                        </p>
+                      </div>
+                      <span className='h-fit mt-3 sm:mt-0 inline-flex rounded-lg bg-blue-100 text-blue-700 text-xs px-2.5 py-1 font-medium'>
+                        Financial
+                      </span>
+                    </div>
+                    <hr />
+                    <div className='mt-2'>
+                      <p className='text-xs text-gray-600'>{startup.financialProjections[0]}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+          </>
+        ) : (
+          <div className='text-center py-8'>
+            <FileText className='w-12 h-12 text-gray-400 mx-auto mb-4' />
+            <p className='text-gray-500'>No documents available at this time.</p>
+            <p className='text-xs text-gray-400 mt-1'>Documents will be uploaded as they become available.</p>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
