@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
@@ -12,6 +12,7 @@ import ProfitSharing from './partial/ProfitSharing';
 import Investors from './partial/Investors';
 import Collateral from './partial/Collateral';
 import { Button, Select } from '../../../components/ui';
+import { useFounderStartups } from '../../../hooks/useFounderStartups';
 import {
   CirclePlus,
   FileChartLine,
@@ -23,19 +24,15 @@ import {
 export default function Dashboard() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
-  const [selectedCompany, setSelectedCompany] = useState(1);
-  const companies = [
-    {
-      id: 1,
-      name: 'EcoFarm Solutions',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Eo_circle_green_letter-e.svg',
-    },
-    {
-      id: 2,
-      name: 'AgriSmart',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Bitmap_Verde.svg',
-    },
-  ];
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  
+  const { startups, loading: startupsLoading, error: startupsError } = useFounderStartups();
+
+  useEffect(() => {
+    if (startups.length > 0 && !selectedCompany) {
+      setSelectedCompany(startups[0].id);
+    }
+  }, [startups, selectedCompany]);
   const tabs = [
     { label: 'Overview', icon: <FileChartLine size={16} /> },
     { label: 'Team', icon: <Users size={16} /> },
@@ -46,24 +43,26 @@ export default function Dashboard() {
     { label: 'Investors', content: <div>Investors content</div> },
   ];
 
+  const selectedStartup = startups.find(startup => startup.id === selectedCompany);
+
   const renderContent = () => {
     switch (activeTab) {
       case 0:
-        return <StartupOverview />;
+        return <StartupOverview startupId={selectedCompany} />;
       case 1:
-        return <Teams />;
+        return <Teams startupId={selectedCompany} />;
       case 2:
-        return <FoundingStatus />;
+        return <FoundingStatus startupId={selectedCompany} />;
       case 3:
-        return <MonthlyReports />;
+        return <MonthlyReports startupId={selectedCompany} />;
       case 4:
-        return <ProfitSharing />;
+        return <ProfitSharing startupId={selectedCompany} />;
       case 5:
-        return <Collateral />;
+        return <Collateral startupId={selectedCompany} />;
       case 6:
-        return <Investors />;
+        return <Investors startupId={selectedCompany} />;
       default:
-        return <StartupOverview />;
+        return <StartupOverview startupId={selectedCompany} />;
     }
   };
 
@@ -88,17 +87,38 @@ export default function Dashboard() {
             </Button>
           </div>
 
-          <div className='w-64 mb-4'>
-            <Select
-              value={selectedCompany}
-              onChange={e => setSelectedCompany(Number(e.target.value))}
-              options={companies.map(company => ({
-                value: company.id,
-                label: company.name
-              }))}
-              className='bg-[#FAFAFA] border-[#E5E5E5]'
-            />
-          </div>
+          {startups.length > 0 && (
+            <div className='w-64 mb-4'>
+              <Select
+                value={selectedCompany || ''}
+                onChange={e => setSelectedCompany(e.target.value)}
+                options={startups.map(startup => ({
+                  value: startup.id,
+                  label: startup.startupName || `Startup ${startup.id}`
+                }))}
+                className='bg-[#FAFAFA] border-[#E5E5E5]'
+                disabled={startupsLoading}
+              />
+            </div>
+          )}
+          
+          {startupsLoading && (
+            <div className='w-64 mb-4'>
+              <div className='h-10 bg-gray-200 rounded animate-pulse'></div>
+            </div>
+          )}
+          
+          {startupsError && (
+            <div className='mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-600'>
+              Error loading startups: {startupsError}
+            </div>
+          )}
+          
+          {!startupsLoading && !startupsError && startups.length === 0 && (
+            <div className='mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-600'>
+              No startups found. Create your first startup to get started.
+            </div>
+          )}
 
           <Tabs tabs={tabs} onChange={setActiveTab} />
 
