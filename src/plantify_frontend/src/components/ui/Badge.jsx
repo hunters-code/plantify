@@ -13,10 +13,13 @@ export default function Badge({
   const variants = {
     default: 'bg-gray-100 text-gray-700 border border-gray-200',
     primary: 'bg-purple-100 text-purple-700 border border-purple-700',
+    secondary: 'bg-gray-100 text-gray-600 border border-gray-300',
     success: 'bg-green-100 text-green-700 border border-green-700',
     warning: 'bg-yellow-100 text-yellow-700 border border-yellow-700',
     danger: 'bg-red-100 text-red-700 border border-red-700',
+    destructive: 'bg-red-100 text-red-700 border border-red-300',
     info: 'bg-blue-100 text-blue-700 border border-blue-700',
+    outline: 'bg-transparent text-gray-600 border border-gray-300',
   };
 
   const sizes = {

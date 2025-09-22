@@ -5,6 +5,7 @@ export { default as Card } from './Card';
 export { default as FileUpload } from './FileUpload';
 export { default as ImageGallery } from './ImageGallery';
 export { default as Input } from './Input';
+export { default as InvestmentModal } from './InvestmentModal';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as Modal } from './Modal';
 export { default as ProgressBar } from './ProgressBar';
