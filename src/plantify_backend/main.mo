@@ -10,6 +10,8 @@ import TransferService "./modules/services/transfer";
 import CollateralService "./modules/services/collateral";
 import NFTService "./modules/services/nft";
 import NFTPurchaseService "./modules/services/nftPurchase";
+import MonthlyReportService "./modules/services/monthlyReport";
+import VotingService "./modules/services/voting";
 import Config "./config";
 
 persistent actor PlantifyBackend {
@@ -22,9 +24,16 @@ persistent actor PlantifyBackend {
   private var investorPrincipalsEntries : [(Principal, Text)] = [];
   private var startupsEntries : [(Text, Types.Startup)] = [];
   private var founderStartupsEntries : [(Text, [Text])] = [];
+  private var monthlyReportsEntries : [(Text, Types.MonthlyReport)] = [];
+  private var startupReportsEntries : [(Text, [Text])] = [];
+  private var votesEntries : [(Text, Types.InvestorVote)] = [];
+  private var reportVotesEntries : [(Text, [Text])] = [];
+  private var investorVotesEntries : [(Text, [Text])] = [];
   private var nextFounderId : Nat = 1;
   private var nextInvestorId : Nat = 1;
   private var nextStartupId : Nat = 1;
+  private var nextReportId : Nat = 1;
+  private var nextVoteId : Nat = 1;
   
   private transient let storage = Storage.UserStorage(
     foundersEntries,
@@ -33,9 +42,16 @@ persistent actor PlantifyBackend {
     investorPrincipalsEntries,
     startupsEntries,
     founderStartupsEntries,
+    monthlyReportsEntries,
+    startupReportsEntries,
+    votesEntries,
+    reportVotesEntries,
+    investorVotesEntries,
     nextFounderId,
     nextInvestorId,
-    nextStartupId
+    nextStartupId,
+    nextReportId,
+    nextVoteId
   );
   private transient let registrationService = RegistrationService.RegistrationService(storage);
   private transient let startupCreationService = StartupCreation.StartupCreationService(storage);
@@ -43,6 +59,8 @@ persistent actor PlantifyBackend {
   private transient let collateralService = CollateralService.CollateralService(config, storage);
   private transient let nftService = NFTService.NFTService(config, storage);
   private transient let nftPurchaseService = NFTPurchaseService.NFTPurchaseService(config, storage, transferService, nftService);
+  private transient let monthlyReportService = MonthlyReportService.MonthlyReportService(storage);
+  private transient let votingService = VotingService.VotingService(storage);
 
   public shared (msg) func registerFounder(request : Types.FounderRegistrationRequest) : async Result.Result<Types.Founder, Text> {
     registrationService.registerFounder(msg.caller, request);
@@ -369,6 +387,94 @@ persistent actor PlantifyBackend {
   };
 
   // ========================================
+  // MONTHLY REPORT SERVICE METHODS
+  // ========================================
+
+  public shared (msg) func createMonthlyReport(request : Types.MonthlyReportRequest) : async Result.Result<Types.MonthlyReport, Text> {
+    monthlyReportService.createMonthlyReport(msg.caller, request);
+  };
+
+  public shared (msg) func updateMonthlyReport(reportId : Text, request : Types.MonthlyReportRequest) : async Result.Result<Types.MonthlyReport, Text> {
+    monthlyReportService.updateMonthlyReport(msg.caller, reportId, request);
+  };
+
+  public shared (msg) func submitMonthlyReport(reportId : Text) : async Result.Result<Types.MonthlyReport, Text> {
+    monthlyReportService.submitMonthlyReport(msg.caller, reportId);
+  };
+
+  public shared (_msg) func approveMonthlyReport(reportId : Text) : async Result.Result<Types.MonthlyReport, Text> {
+    monthlyReportService.approveMonthlyReport(reportId);
+  };
+
+  public shared (_msg) func rejectMonthlyReport(reportId : Text) : async Result.Result<Types.MonthlyReport, Text> {
+    monthlyReportService.rejectMonthlyReport(reportId);
+  };
+
+  public shared (_msg) func getMonthlyReport(reportId : Text) : async Result.Result<Types.MonthlyReport, Text> {
+    monthlyReportService.getMonthlyReport(reportId);
+  };
+
+  public shared (_msg) func getMonthlyReportsByStartup(startupId : Text) : async Result.Result<Types.MonthlyReportList, Text> {
+    monthlyReportService.getMonthlyReportsByStartup(startupId);
+  };
+
+  public shared (_msg) func getAllMonthlyReports() : async [Types.MonthlyReport] {
+    monthlyReportService.getAllMonthlyReports();
+  };
+
+  public shared (_msg) func getMonthlyReportStats() : async Types.MonthlyReportStats {
+    monthlyReportService.getMonthlyReportStats();
+  };
+
+  public shared (_msg) func getMonthlyReportsByStatus(status : Types.MonthlyReportStatus) : async [Types.MonthlyReport] {
+    monthlyReportService.getMonthlyReportsByStatus(status);
+  };
+
+  // ========================================
+  // VOTING SERVICE METHODS
+  // ========================================
+
+  public shared (msg) func castVote(request : Types.VoteRequest) : async Result.Result<Types.InvestorVote, Text> {
+    votingService.castVote(msg.caller, request);
+  };
+
+  public shared (msg) func updateVote(reportId : Text, request : Types.VoteRequest) : async Result.Result<Types.InvestorVote, Text> {
+    votingService.updateVote(msg.caller, reportId, request);
+  };
+
+  public shared (_msg) func getVoteSummary(reportId : Text) : async Result.Result<Types.VoteSummary, Text> {
+    votingService.getVoteSummary(reportId);
+  };
+
+  public shared (_msg) func getReportVotes(reportId : Text) : async [Types.InvestorVote] {
+    votingService.getReportVotes(reportId);
+  };
+
+  public shared (_msg) func getReportVoteDetails(reportId : Text) : async Result.Result<Types.ReportVoteDetails, Text> {
+    votingService.getReportVoteDetails(reportId);
+  };
+
+  public shared (_msg) func getInvestorVoteHistory(investorId : Text) : async Result.Result<Types.InvestorVoteHistory, Text> {
+    votingService.getInvestorVoteHistory(investorId);
+  };
+
+  public shared (msg) func getInvestorVoteForReport(reportId : Text) : async Result.Result<?Types.InvestorVote, Text> {
+    votingService.getInvestorVoteForReport(msg.caller, reportId);
+  };
+
+  public shared (_msg) func getAllVotes() : async [Types.InvestorVote] {
+    votingService.getAllVotes();
+  };
+
+  public shared (_msg) func getVotingStats() : async Types.VotingStats {
+    votingService.getVotingStats();
+  };
+
+  public shared (msg) func canInvestorVote(reportId : Text) : async Result.Result<Bool, Text> {
+    votingService.canInvestorVote(msg.caller, reportId);
+  };
+
+  // ========================================
   // PERSISTENCE METHODS
   // ========================================
 
@@ -379,9 +485,16 @@ persistent actor PlantifyBackend {
     investorPrincipalsEntries := Iter.toArray(storage.investorPrincipals.entries());
     startupsEntries := Iter.toArray(storage.startups.entries());
     founderStartupsEntries := Iter.toArray(storage.founderStartups.entries());
+    monthlyReportsEntries := Iter.toArray(storage.monthlyReports.entries());
+    startupReportsEntries := Iter.toArray(storage.startupReports.entries());
+    votesEntries := Iter.toArray(storage.votes.entries());
+    reportVotesEntries := Iter.toArray(storage.reportVotes.entries());
+    investorVotesEntries := Iter.toArray(storage.investorVotes.entries());
     nextFounderId := storage.nextFounderId;
     nextInvestorId := storage.nextInvestorId;
     nextStartupId := storage.nextStartupId;
+    nextReportId := storage.nextReportId;
+    nextVoteId := storage.nextVoteId;
   };
 
   system func postupgrade() {

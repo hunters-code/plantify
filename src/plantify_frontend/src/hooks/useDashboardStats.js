@@ -10,6 +10,11 @@ export function useDashboardStats() {
     activeStartups: 0,
     pendingStartups: 0,
     draftStartups: 0,
+    totalReports: 0,
+    approvedReports: 0,
+    pendingReports: 0,
+    totalVotes: 0,
+    averageApprovalRate: 0,
     loading: true,
     error: null
   });
@@ -32,14 +37,18 @@ export function useDashboardStats() {
           allNFTs,
           allInvestors,
           allCollateralInfo,
-          allPurchases
+          allPurchases,
+          monthlyReportStats,
+          votingStats
         ] = await Promise.all([
           backendService.getNFTStats(),
           backendService.getAllStartups(),
           backendService.getAllNFTs(),
           backendService.getInvestors(),
           backendService.getAllCollateralInfo(),
-          backendService.getAllPurchases()
+          backendService.getAllPurchases(),
+          backendService.getMonthlyReportStats(),
+          backendService.getVotingStats()
         ]);
 
         const activeStartups = allStartups.filter(startup => startup.status === 'approved').length;
@@ -65,6 +74,11 @@ export function useDashboardStats() {
           activeStartups,
           pendingStartups,
           draftStartups,
+          totalReports: monthlyReportStats?.totalReports || 0,
+          approvedReports: monthlyReportStats?.totalReports || 0, // This would need to be calculated from individual reports
+          pendingReports: 0, // This would need to be calculated from individual reports
+          totalVotes: votingStats?.totalVotes || 0,
+          averageApprovalRate: votingStats?.averageApprovalRate || 0,
           loading: false,
           error: null
         });

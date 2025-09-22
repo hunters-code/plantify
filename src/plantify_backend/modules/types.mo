@@ -427,4 +427,171 @@ module Types {
     #Error : Text;
   };
 
+  // Monthly Report Service Types
+  public type MonthlyReportStatus = {
+    #Draft;
+    #Submitted;
+    #Approved;
+    #Rejected;
+  };
+
+  public type MonthlyReport = {
+    id : Text;
+    startupId : Text;
+    month : Nat; // 1-12
+    year : Nat;
+    revenue : Nat;
+    expenses : Nat;
+    profit : Nat;
+    profitSharingAmount : Nat;
+    investorCount : Nat;
+    newInvestors : Nat;
+    status : MonthlyReportStatus;
+    submittedAt : ?Time.Time;
+    approvedAt : ?Time.Time;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+  };
+
+  public type MonthlyReportRequest = {
+    startupId : Text;
+    month : Nat;
+    year : Nat;
+    revenue : Nat;
+    expenses : Nat;
+    profit : Nat;
+    profitSharingAmount : Nat;
+    investorCount : Nat;
+    newInvestors : Nat;
+  };
+
+  public type MonthlyReportResponse = {
+    #Success : MonthlyReport;
+    #Error : Text;
+  };
+
+  public type MonthlyReportList = {
+    reports : [MonthlyReport];
+    totalReports : Nat;
+    totalRevenue : Nat;
+    totalExpenses : Nat;
+    totalProfit : Nat;
+    totalProfitSharing : Nat;
+  };
+
+  public type MonthlyReportListResponse = {
+    #Success : MonthlyReportList;
+    #Error : Text;
+  };
+
+  public type MonthlyReportStats = {
+    totalReports : Nat;
+    totalRevenue : Nat;
+    totalExpenses : Nat;
+    totalProfit : Nat;
+    totalProfitSharing : Nat;
+    averageMonthlyRevenue : Nat;
+    averageMonthlyExpenses : Nat;
+    averageMonthlyProfit : Nat;
+    bestMonth : ?Text;
+    worstMonth : ?Text;
+  };
+
+  public type MonthlyReportStatsResponse = {
+    #Success : MonthlyReportStats;
+    #Error : Text;
+  };
+
+  // Voting and Feedback Service Types
+  public type VoteType = {
+    #Approve;
+    #Reject;
+    #Abstain;
+  };
+
+  public type FeedbackType = {
+    #Positive;
+    #Neutral;
+    #Negative;
+  };
+
+  public type InvestorVote = {
+    id : Text;
+    reportId : Text;
+    investorId : Text;
+    vote : VoteType;
+    feedback : ?Text;
+    feedbackType : ?FeedbackType;
+    confidence : Nat; // 1-10 scale
+    timestamp : Time.Time;
+  };
+
+  public type VoteRequest = {
+    reportId : Text;
+    vote : VoteType;
+    feedback : ?Text;
+    feedbackType : ?FeedbackType;
+    confidence : Nat;
+  };
+
+  public type VoteResponse = {
+    #Success : InvestorVote;
+    #Error : Text;
+  };
+
+  public type VoteSummary = {
+    reportId : Text;
+    totalVotes : Nat;
+    approveVotes : Nat;
+    rejectVotes : Nat;
+    abstainVotes : Nat;
+    approvalRate : Nat; // Percentage
+    averageConfidence : Nat;
+    positiveFeedback : Nat;
+    neutralFeedback : Nat;
+    negativeFeedback : Nat;
+    lastVoteTime : ?Time.Time;
+  };
+
+  public type VoteSummaryResponse = {
+    #Success : VoteSummary;
+    #Error : Text;
+  };
+
+  public type InvestorVoteHistory = {
+    votes : [InvestorVote];
+    totalVotes : Nat;
+    approvalRate : Nat;
+    averageConfidence : Nat;
+  };
+
+  public type InvestorVoteHistoryResponse = {
+    #Success : InvestorVoteHistory;
+    #Error : Text;
+  };
+
+  public type ReportVoteDetails = {
+    reportId : Text;
+    summary : VoteSummary;
+    individualVotes : [InvestorVote];
+  };
+
+  public type ReportVoteDetailsResponse = {
+    #Success : ReportVoteDetails;
+    #Error : Text;
+  };
+
+  public type VotingStats = {
+    totalVotes : Nat;
+    totalReportsVoted : Nat;
+    averageApprovalRate : Nat;
+    mostActiveInvestor : ?Text;
+    averageConfidence : Nat;
+  };
+
+  public type VotingStatsResponse = {
+    #Success : VotingStats;
+    #Error : Text;
+  };
+
 };

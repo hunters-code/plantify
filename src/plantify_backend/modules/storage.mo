@@ -15,9 +15,16 @@ module Storage {
     investorPrincipalsEntries: [(Principal, Text)],
     startupsEntries: [(Text, Types.Startup)],
     founderStartupsEntries: [(Text, [Text])],
+    monthlyReportsEntries: [(Text, Types.MonthlyReport)],
+    startupReportsEntries: [(Text, [Text])],
+    votesEntries: [(Text, Types.InvestorVote)],
+    reportVotesEntries: [(Text, [Text])],
+    investorVotesEntries: [(Text, [Text])],
     initialNextFounderId: Nat,
     initialNextInvestorId: Nat,
-    initialNextStartupId: Nat
+    initialNextStartupId: Nat,
+    initialNextReportId: Nat,
+    initialNextVoteId: Nat
   ) {
     // ========================================
     // STORAGE VARIABLES
@@ -68,7 +75,41 @@ module Storage {
     );
     public var nextStartupId : Nat = initialNextStartupId;
 
+    // Monthly Report Storage
+    public var monthlyReports = HashMap.fromIter<Text, Types.MonthlyReport>(
+      monthlyReportsEntries.vals(),
+      monthlyReportsEntries.size(),
+      Text.equal,
+      Text.hash,
+    );
+    public var startupReports = HashMap.fromIter<Text, [Text]>(
+      startupReportsEntries.vals(),
+      startupReportsEntries.size(),
+      Text.equal,
+      Text.hash,
+    );
+    public var nextReportId : Nat = initialNextReportId;
 
+    // Voting Storage
+    public var votes = HashMap.fromIter<Text, Types.InvestorVote>(
+      votesEntries.vals(),
+      votesEntries.size(),
+      Text.equal,
+      Text.hash,
+    );
+    public var reportVotes = HashMap.fromIter<Text, [Text]>(
+      reportVotesEntries.vals(),
+      reportVotesEntries.size(),
+      Text.equal,
+      Text.hash,
+    );
+    public var investorVotes = HashMap.fromIter<Text, [Text]>(
+      investorVotesEntries.vals(),
+      investorVotesEntries.size(),
+      Text.equal,
+      Text.hash,
+    );
+    public var nextVoteId : Nat = initialNextVoteId;
 
     // ========================================
     // FOUNDER METHODS
@@ -340,6 +381,176 @@ module Storage {
       };
     };
 
+    // ========================================
+    // MONTHLY REPORT METHODS
+    // ========================================
+
+    public func addMonthlyReport(report : Types.MonthlyReport) : Text {
+      let reportKey = report.startupId # "-" # Nat.toText(report.year) # "-" # Nat.toText(report.month);
+      monthlyReports.put(reportKey, report);
+
+      // Update startup reports mapping
+      switch (startupReports.get(report.startupId)) {
+        case null {
+          startupReports.put(report.startupId, [reportKey]);
+        };
+        case (?existingReports) {
+          let updatedReports = Array.append<Text>(existingReports, [reportKey]);
+          startupReports.put(report.startupId, updatedReports);
+        };
+      };
+
+      report.id;
+    };
+
+    public func getMonthlyReport(reportKey : Text) : ?Types.MonthlyReport {
+      monthlyReports.get(reportKey);
+    };
+
+    public func getMonthlyReportById(reportId : Text) : ?Types.MonthlyReport {
+      for ((key, report) in monthlyReports.entries()) {
+        if (report.id == reportId) {
+          return ?report;
+        };
+      };
+      null;
+    };
+
+    public func updateMonthlyReport(reportKey : Text, report : Types.MonthlyReport) : Bool {
+      switch (monthlyReports.get(reportKey)) {
+        case null { false };
+        case (?_) {
+          monthlyReports.put(reportKey, report);
+          true;
+        };
+      };
+    };
+
+    public func getMonthlyReportsByStartup(startupId : Text) : [Types.MonthlyReport] {
+      switch (startupReports.get(startupId)) {
+        case null { [] };
+        case (?reportKeys) {
+          let reports = Array.mapFilter<Text, Types.MonthlyReport>(
+            reportKeys,
+            func(key : Text) : ?Types.MonthlyReport {
+              monthlyReports.get(key);
+            },
+          );
+          reports;
+        };
+      };
+    };
+
+    public func getAllMonthlyReports() : [Types.MonthlyReport] {
+      let reportArray = Array.map<(Text, Types.MonthlyReport), Types.MonthlyReport>(
+        Iter.toArray(monthlyReports.entries()),
+        func(entry : (Text, Types.MonthlyReport)) : Types.MonthlyReport {
+          let (key, report) = entry;
+          report;
+        },
+      );
+      reportArray;
+    };
+
+    public func getNextReportId() : Nat {
+      let id = nextReportId;
+      nextReportId += 1;
+      id;
+    };
+
+    // ========================================
+    // VOTING METHODS
+    // ========================================
+
+    public func addVote(vote : Types.InvestorVote) : Text {
+      let voteKey = vote.investorId # "-" # vote.reportId;
+      votes.put(voteKey, vote);
+
+      // Update report votes mapping
+      switch (reportVotes.get(vote.reportId)) {
+        case null {
+          reportVotes.put(vote.reportId, [voteKey]);
+        };
+        case (?existingVotes) {
+          let updatedVotes = Array.append<Text>(existingVotes, [voteKey]);
+          reportVotes.put(vote.reportId, updatedVotes);
+        };
+      };
+
+      // Update investor votes mapping
+      switch (investorVotes.get(vote.investorId)) {
+        case null {
+          investorVotes.put(vote.investorId, [voteKey]);
+        };
+        case (?existingVotes) {
+          let updatedVotes = Array.append<Text>(existingVotes, [voteKey]);
+          investorVotes.put(vote.investorId, updatedVotes);
+        };
+      };
+
+      vote.id;
+    };
+
+    public func getVote(voteKey : Text) : ?Types.InvestorVote {
+      votes.get(voteKey);
+    };
+
+    public func updateVote(voteKey : Text, vote : Types.InvestorVote) : Bool {
+      switch (votes.get(voteKey)) {
+        case null { false };
+        case (?_) {
+          votes.put(voteKey, vote);
+          true;
+        };
+      };
+    };
+
+    public func getVotesByReport(reportId : Text) : [Types.InvestorVote] {
+      switch (reportVotes.get(reportId)) {
+        case null { [] };
+        case (?voteKeys) {
+          let reportVotesList = Array.mapFilter<Text, Types.InvestorVote>(
+            voteKeys,
+            func(key : Text) : ?Types.InvestorVote {
+              votes.get(key);
+            },
+          );
+          reportVotesList;
+        };
+      };
+    };
+
+    public func getVotesByInvestor(investorId : Text) : [Types.InvestorVote] {
+      switch (investorVotes.get(investorId)) {
+        case null { [] };
+        case (?voteKeys) {
+          let investorVotesList = Array.mapFilter<Text, Types.InvestorVote>(
+            voteKeys,
+            func(key : Text) : ?Types.InvestorVote {
+              votes.get(key);
+            },
+          );
+          investorVotesList;
+        };
+      };
+    };
+
+    public func getAllVotes() : [Types.InvestorVote] {
+      let voteArray = Array.map<(Text, Types.InvestorVote), Types.InvestorVote>(
+        Iter.toArray(votes.entries()),
+        func(entry : (Text, Types.InvestorVote)) : Types.InvestorVote {
+          let (key, vote) = entry;
+          vote;
+        },
+      );
+      voteArray;
+    };
+
+    public func getNextVoteId() : Nat {
+      let id = nextVoteId;
+      nextVoteId += 1;
+      id;
+    };
 
   };
 };

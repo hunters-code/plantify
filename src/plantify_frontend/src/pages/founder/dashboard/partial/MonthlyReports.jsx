@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Plus, Upload, X, Calendar, CheckCircle, Clock } from 'lucide-react';
+import { FileText, Plus, Upload, X, Calendar, CheckCircle, Clock, Eye, Edit } from 'lucide-react';
 import { Alert, Button, Card, FileUpload, Input, Textarea } from '../../../../components/ui';
 import { useMonthlyReports } from '../../../../hooks/useMonthlyReports';
 import { formatCurrency, formatNumber } from '../../../../utils/formatCurrency';
@@ -8,39 +8,16 @@ export default function MonthlyReports({ startupId }) {
   const { reports, loading, error, submitReport, saveDraft } = useMonthlyReports(startupId);
   const [activeSubTab, setActiveSubTab] = useState(0);
   const [showReportForm, setShowReportForm] = useState(false);
-  
+  const [submitting, setSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
   
   const [formData, setFormData] = useState({
-    // Financial Performance
     monthlyRevenue: '',
-    netProfit: '',
     monthlyExpenses: '',
-    cashFlow: '',
-    varianceFromProjection: '',
-
-    // Operational Updates
-    keyAchievements: '',
-    milestonesReached: '',
-    challengesFaced: '',
-    solutionsImplemented: '',
-
-    // Market Conditions
-    competitiveLandscape: '',
-    marketChanges: '',
-    customerFeedback: '',
-    demandShifts: '',
-
-    // Forward Looking
-    nextMonthPlans: '',
-    expectedChallenges: '',
-    resourceNeeds: '',
-    growthProjections: '',
-
-    // Communication
-    investorMessages: '',
-    communityUpdates: '',
-    partnershipNews: '',
-    teamChanges: '',
+    netProfit: '',
+    profitSharingAmount: '',
+    investorCount: '',
+    newInvestors: '',
   });
 
   const subTabs = [
@@ -58,54 +35,101 @@ export default function MonthlyReports({ startupId }) {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    setSubmitting(true);
+    setSubmitMessage('');
+
     try {
       const result = await submitReport(formData);
       if (result.success) {
-        setShowReportForm(false);
+        setSubmitMessage('Report submitted successfully!');
         setFormData({
           monthlyRevenue: '',
-          netProfit: '',
           monthlyExpenses: '',
-          cashFlow: '',
-          varianceFromProjection: '',
-          keyAchievements: '',
-          milestonesReached: '',
-          challengesFaced: '',
-          solutionsImplemented: '',
-          competitiveLandscape: '',
-          marketChanges: '',
-          customerFeedback: '',
-          demandShifts: '',
-          nextMonthPlans: '',
-          expectedChallenges: '',
-          resourceNeeds: '',
-          growthProjections: '',
-          investorMessages: '',
-          communityUpdates: '',
-          partnershipNews: '',
-          teamChanges: '',
+          netProfit: '',
+          profitSharingAmount: '',
+          investorCount: '',
+          newInvestors: '',
         });
-        alert('Report submitted successfully!');
+        setShowReportForm(false);
       } else {
-        alert('Error submitting report: ' + result.error);
+        setSubmitMessage(`Error: ${result.error}`);
       }
     } catch (error) {
-      alert('Error submitting report: ' + error.message);
+      setSubmitMessage(`Error: ${error.message}`);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleSaveDraft = async () => {
+    setSubmitting(true);
+    setSubmitMessage('');
+
     try {
       const result = await saveDraft(formData);
       if (result.success) {
+        setSubmitMessage('Draft saved successfully!');
+        setFormData({
+          monthlyRevenue: '',
+          monthlyExpenses: '',
+          netProfit: '',
+          profitSharingAmount: '',
+          investorCount: '',
+          newInvestors: '',
+        });
         setShowReportForm(false);
-        alert('Draft saved successfully!');
       } else {
-        alert('Error saving draft: ' + result.error);
+        setSubmitMessage(`Error: ${result.error}`);
       }
     } catch (error) {
-      alert('Error saving draft: ' + error.message);
+      setSubmitMessage(`Error: ${error.message}`);
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'Approved':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'Submitted':
+        return <Clock className="w-4 h-4 text-yellow-500" />;
+      case 'Draft':
+        return <Edit className="w-4 h-4 text-gray-500" />;
+      case 'Rejected':
+        return <X className="w-4 h-4 text-red-500" />;
+      default:
+        return <Clock className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Approved':
+        return 'bg-green-100 text-green-800';
+      case 'Submitted':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Draft':
+        return 'bg-gray-100 text-gray-800';
+      case 'Rejected':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    const date = new Date(Number(timestamp) / 1000000); // Convert from nanoseconds
+    return date.toLocaleDateString();
+  };
+
+  const getMonthName = (monthNumber) => {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[monthNumber - 1] || 'Unknown';
   };
 
   const renderSubTabContent = () => {
@@ -114,10 +138,17 @@ export default function MonthlyReports({ startupId }) {
         if (showReportForm) {
           return (
             <div className='space-y-6'>
+              {submitMessage && (
+                <Alert 
+                  type={submitMessage.includes('Error') ? 'error' : 'success'}
+                  message={submitMessage}
+                />
+              )}
+              
               <div className='bg-white rounded-[16px] p-6 border border-gray-200'>
                 <div className='flex justify-between items-center mb-6'>
                   <h3 className='text-xl font-semibold text-gray-900'>
-                    January 2025 Report
+                    {getMonthName(new Date().getMonth() + 1)} {new Date().getFullYear()} Report
                   </h3>
                   <button
                     onClick={() => setShowReportForm(false)}
@@ -136,278 +167,63 @@ export default function MonthlyReports({ startupId }) {
                     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                       <Input
                         type='number'
-                        label='Monthly revenue (xUSDC)'
+                        label='Monthly revenue (ckUSDC)'
                         value={formData.monthlyRevenue}
                         onChange={e =>
                           handleInputChange('monthlyRevenue', e.target.value)
                         }
                         placeholder='0'
+                        required
                       />
                       <Input
                         type='number'
-                        label='Net profit (xUSDC)'
-                        value={formData.netProfit}
-                        onChange={e =>
-                          handleInputChange('netProfit', e.target.value)
-                        }
-                        placeholder='0'
-                      />
-                      <Input
-                        type='number'
-                        label='Monthly expenses (xUSDC)'
+                        label='Monthly expenses (ckUSDC)'
                         value={formData.monthlyExpenses}
                         onChange={e =>
                           handleInputChange('monthlyExpenses', e.target.value)
                         }
                         placeholder='0'
+                        required
                       />
                       <Input
                         type='number'
-                        label='Cash flow (xUSDC)'
-                        value={formData.cashFlow}
+                        label='Net profit (ckUSDC)'
+                        value={formData.netProfit}
                         onChange={e =>
-                          handleInputChange('cashFlow', e.target.value)
+                          handleInputChange('netProfit', e.target.value)
                         }
                         placeholder='0'
+                        required
                       />
                       <Input
                         type='number'
-                        label='Variance from projection (%)'
-                        value={formData.varianceFromProjection}
+                        label='Profit sharing amount (ckUSDC)'
+                        value={formData.profitSharingAmount}
                         onChange={e =>
-                          handleInputChange(
-                            'varianceFromProjection',
-                            e.target.value
-                          )
+                          handleInputChange('profitSharingAmount', e.target.value)
                         }
                         placeholder='0'
+                        required
                       />
-                    </div>
-                  </Card>
-
-                  {/* Operational Updates */}
-                  <Card>
-                    <h4 className='text-lg font-semibold text-gray-900 mb-4'>
-                      Operational Updates
-                    </h4>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                      <Textarea
-                        label='Key achievements'
-                        value={formData.keyAchievements}
+                      <Input
+                        type='number'
+                        label='Total investors'
+                        value={formData.investorCount}
                         onChange={e =>
-                          handleInputChange('keyAchievements', e.target.value)
+                          handleInputChange('investorCount', e.target.value)
                         }
-                        rows={6}
-                        placeholder='List key achievements this month...'
+                        placeholder='0'
+                        required
                       />
-                      <Textarea
-                        label='Milestones reached'
-                        value={formData.milestonesReached}
+                      <Input
+                        type='number'
+                        label='New investors this month'
+                        value={formData.newInvestors}
                         onChange={e =>
-                          handleInputChange(
-                            'milestonesReached',
-                            e.target.value
-                          )
+                          handleInputChange('newInvestors', e.target.value)
                         }
-                        rows={6}
-                        placeholder='List milestones reached this month...'
-                      />
-                      <Textarea
-                        label='Challenges faced'
-                        value={formData.challengesFaced}
-                        onChange={e =>
-                          handleInputChange('challengesFaced', e.target.value)
-                        }
-                        rows={6}
-                        placeholder='List challenges faced this month...'
-                      />
-                      <Textarea
-                        label='Solutions implemented'
-                        value={formData.solutionsImplemented}
-                        onChange={e =>
-                          handleInputChange(
-                            'solutionsImplemented',
-                            e.target.value
-                          )
-                        }
-                        rows={6}
-                        placeholder='List solutions implemented this month...'
-                      />
-                    </div>
-                  </Card>
-
-                  {/* Visual Evidence */}
-                  <Card>
-                    <h4 className='text-lg font-semibold text-gray-900 mb-4'>
-                      Visual Evidence
-                    </h4>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                      <FileUpload
-                        label='Upload images'
-                        accept='image/*,.pdf'
-                        fileTypes='jpg, png, or pdf'
-                        maxSize='2MB'
-                        onFileSelect={(files) => console.log('Images selected:', files)}
-                      />
-                      <FileUpload
-                        label='Upload videos'
-                        accept='video/*'
-                        fileTypes='mp4, avi, or mov'
-                        maxSize='20MB'
-                        onFileSelect={(files) => console.log('Videos selected:', files)}
-                      />
-                    </div>
-                  </Card>
-
-                  {/* Market Conditions */}
-                  <Card>
-                    <h4 className='text-lg font-semibold text-gray-900 mb-4'>
-                      Market Conditions
-                    </h4>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                      <Textarea
-                        label='Competitive landscape'
-                        value={formData.competitiveLandscape}
-                        onChange={e =>
-                          handleInputChange(
-                            'competitiveLandscape',
-                            e.target.value
-                          )
-                        }
-                        rows={6}
-                        placeholder='Describe changes in competitive landscape...'
-                      />
-                      <Textarea
-                        label='Market changes'
-                        value={formData.marketChanges}
-                        onChange={e =>
-                          handleInputChange('marketChanges', e.target.value)
-                        }
-                        rows={6}
-                        placeholder='Describe market changes observed.'
-                      />
-                      <Textarea
-                        label='Customer feedback'
-                        value={formData.customerFeedback}
-                        onChange={e =>
-                          handleInputChange(
-                            'customerFeedback',
-                            e.target.value
-                          )
-                        }
-                        rows={6}
-                        placeholder='Share key customer feedback.'
-                      />
-                      <Textarea
-                        label='Demand shifts'
-                        value={formData.demandShifts}
-                        onChange={e =>
-                          handleInputChange('demandShifts', e.target.value)
-                        }
-                        rows={6}
-                        placeholder='Describe any demand shifts.'
-                      />
-                    </div>
-                  </Card>
-
-                  {/* Forward Looking */}
-                  <Card>
-                    <h4 className='text-lg font-semibold text-gray-900 mb-4'>
-                      Forward Looking
-                    </h4>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                      <Textarea
-                        label='Next month plans'
-                        value={formData.nextMonthPlans}
-                        onChange={e =>
-                          handleInputChange('nextMonthPlans', e.target.value)
-                        }
-                        rows={6}
-                        placeholder='Outline plans for next month...'
-                      />
-                      <Textarea
-                        label='Expected challenges'
-                        value={formData.expectedChallenges}
-                        onChange={e =>
-                          handleInputChange(
-                            'expectedChallenges',
-                            e.target.value
-                          )
-                        }
-                        rows={6}
-                        placeholder='Identify expected challenges...'
-                      />
-                      <Textarea
-                        label='Resource needs'
-                        value={formData.resourceNeeds}
-                        onChange={e =>
-                          handleInputChange('resourceNeeds', e.target.value)
-                        }
-                        rows={6}
-                        placeholder='Specify resource needs...'
-                      />
-                      <Textarea
-                        label='Growth projections'
-                        value={formData.growthProjections}
-                        onChange={e =>
-                          handleInputChange(
-                            'growthProjections',
-                            e.target.value
-                          )
-                        }
-                        rows={6}
-                        placeholder='Share growth projections...'
-                      />
-                    </div>
-                  </Card>
-
-                  {/* Communication */}
-                  <Card>
-                    <h4 className='text-lg font-semibold text-gray-900 mb-4'>
-                      Communication
-                    </h4>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                      <Textarea
-                        label='Investor messages'
-                        value={formData.investorMessages}
-                        onChange={e =>
-                          handleInputChange(
-                            'investorMessages',
-                            e.target.value
-                          )
-                        }
-                        rows={6}
-                        placeholder='Message to investors...'
-                      />
-                      <Textarea
-                        label='Community updates'
-                        value={formData.communityUpdates}
-                        onChange={e =>
-                          handleInputChange(
-                            'communityUpdates',
-                            e.target.value
-                          )
-                        }
-                        rows={6}
-                        placeholder='Updates for the community.'
-                      />
-                      <Textarea
-                        label='Partnership news'
-                        value={formData.partnershipNews}
-                        onChange={e =>
-                          handleInputChange('partnershipNews', e.target.value)
-                        }
-                        rows={6}
-                        placeholder='Partnership announcements.'
-                      />
-                      <Textarea
-                        label='Team changes'
-                        value={formData.teamChanges}
-                        onChange={e =>
-                          handleInputChange('teamChanges', e.target.value)
-                        }
-                        rows={6}
-                        placeholder='Team updates.'
+                        placeholder='0'
+                        required
                       />
                     </div>
                   </Card>
@@ -419,14 +235,16 @@ export default function MonthlyReports({ startupId }) {
                         type='button'
                         variant='secondary'
                         onClick={handleSaveDraft}
+                        disabled={submitting}
                       >
-                        Save to draft
+                        {submitting ? 'Saving...' : 'Save as Draft'}
                       </Button>
                       <Button
                         type='submit'
                         variant='primary'
+                        disabled={submitting}
                       >
-                        Submit reports
+                        {submitting ? 'Submitting...' : 'Submit Report'}
                       </Button>
                     </div>
                   </Card>
@@ -442,10 +260,11 @@ export default function MonthlyReports({ startupId }) {
                   <FileText size={48} className='text-gray-400' />
                 </div>
                 <h3 className='text-xl font-semibold text-gray-900 mb-2'>
-                  January 2025 Report
+                  {getMonthName(new Date().getMonth() + 1)} {new Date().getFullYear()} Report
                 </h3>
-                <p className='text-gray-600 mb-4'>Due: January 10, 2025</p>
-                <p className='text-red-500 text-sm mb-8'>251 days remaining</p>
+                <p className='text-gray-600 mb-4'>
+                  Due: {new Date(new Date().getFullYear(), new Date().getMonth() + 1, 10).toLocaleDateString()}
+                </p>
                 <Button
                   onClick={() => setShowReportForm(true)}
                   variant='primary'
@@ -511,57 +330,54 @@ export default function MonthlyReports({ startupId }) {
                 <div className='flex justify-between items-start mb-4'>
                   <div>
                     <h3 className='text-lg font-semibold text-gray-900'>
-                      {report.month} {report.year} Report
+                      {getMonthName(report.month)} {report.year} Report
                     </h3>
                     <p className='text-sm text-gray-500'>
-                      Submitted: {report.submittedAt.toLocaleDateString()}
+                      Submitted: {formatDate(report.submittedAt)}
                     </p>
+                    {report.approvedAt && (
+                      <p className='text-sm text-gray-500'>
+                        Approved: {formatDate(report.approvedAt)}
+                      </p>
+                    )}
                   </div>
                   <div className='flex items-center gap-2'>
-                    {report.status === 'submitted' ? (
-                      <span className='flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm'>
-                        <CheckCircle size={14} />
-                        Submitted
+                    <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-sm ${getStatusColor(report.status)}`}>
+                      {getStatusIcon(report.status)}
+                      {report.status}
                       </span>
-                    ) : (
-                      <span className='flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm'>
-                        <Clock size={14} />
-                        Draft
-                      </span>
-                    )}
                   </div>
                 </div>
 
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
                   <div>
                     <p className='text-sm text-gray-500'>Monthly Revenue</p>
-                    <p className='text-lg font-semibold'>{formatCurrency(report.financialData.monthlyRevenue)}</p>
+                    <p className='text-lg font-semibold'>{formatCurrency(Number(report.revenue))}</p>
                   </div>
                   <div>
                     <p className='text-sm text-gray-500'>Net Profit</p>
-                    <p className='text-lg font-semibold'>{formatCurrency(report.financialData.netProfit)}</p>
+                    <p className='text-lg font-semibold'>{formatCurrency(Number(report.profit))}</p>
                   </div>
                   <div>
-                    <p className='text-sm text-gray-500'>Variance</p>
-                    <p className={`text-lg font-semibold ${report.financialData.varianceFromProjection >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatNumber(report.financialData.varianceFromProjection)}%
-                    </p>
+                    <p className='text-sm text-gray-500'>Profit Sharing</p>
+                    <p className='text-lg font-semibold'>{formatCurrency(Number(report.profitSharingAmount))}</p>
                   </div>
                 </div>
 
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
                   <div>
-                    <p className='text-sm text-gray-500 mb-1'>Key Achievements</p>
-                    <p className='text-sm text-gray-700 line-clamp-2'>{report.operationalData.keyAchievements}</p>
+                    <p className='text-sm text-gray-500'>Total Investors</p>
+                    <p className='text-lg font-semibold'>{formatNumber(Number(report.investorCount))}</p>
                   </div>
                   <div>
-                    <p className='text-sm text-gray-500 mb-1'>Next Month Plans</p>
-                    <p className='text-sm text-gray-700 line-clamp-2'>{report.forwardLooking.nextMonthPlans}</p>
+                    <p className='text-sm text-gray-500'>New Investors</p>
+                    <p className='text-lg font-semibold'>{formatNumber(Number(report.newInvestors))}</p>
                   </div>
                 </div>
 
                 <div className='mt-4 flex justify-end'>
                   <Button variant='secondary' size='sm'>
+                    <Eye size={16} className="mr-2" />
                     View Details
                   </Button>
                 </div>
@@ -580,8 +396,12 @@ export default function MonthlyReports({ startupId }) {
                 Report Templates
               </h3>
               <p className='text-gray-600 mb-8'>
-                Create and manage report templates
+                Create and manage report templates for faster reporting
               </p>
+              <Button variant='primary'>
+                <Plus size={16} />
+                Create Template
+              </Button>
             </div>
           </Card>
         );

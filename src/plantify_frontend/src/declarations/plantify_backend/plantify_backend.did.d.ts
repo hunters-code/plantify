@@ -53,6 +53,9 @@ export interface EnvironmentConfig {
   'useTestTokens' : boolean,
   'icpToken' : TokenConfig,
 }
+export type FeedbackType = { 'Negative' : null } |
+  { 'Positive' : null } |
+  { 'Neutral' : null };
 export interface Founder {
   'id' : string,
   'linkedIn' : string,
@@ -109,6 +112,22 @@ export interface InvestorRegistrationRequest {
   'phone' : string,
   'investmentExperience' : string,
 }
+export interface InvestorVote {
+  'id' : string,
+  'vote' : VoteType,
+  'investorId' : string,
+  'feedbackType' : [] | [FeedbackType],
+  'feedback' : [] | [string],
+  'timestamp' : Time,
+  'confidence' : bigint,
+  'reportId' : string,
+}
+export interface InvestorVoteHistory {
+  'votes' : Array<InvestorVote>,
+  'totalVotes' : bigint,
+  'averageConfidence' : bigint,
+  'approvalRate' : bigint,
+}
 export interface MintNFTRequest {
   'startupId' : string,
   'metadata' : NFTMetadata,
@@ -123,6 +142,58 @@ export type MintNFTResponse = { 'Error' : string } |
       'transactionId' : [] | [string],
     }
   };
+export interface MonthlyReport {
+  'id' : string,
+  'status' : MonthlyReportStatus,
+  'month' : bigint,
+  'revenue' : bigint,
+  'startupId' : string,
+  'newInvestors' : bigint,
+  'approvedAt' : [] | [Time],
+  'expenses' : bigint,
+  'investorCount' : bigint,
+  'createdAt' : Time,
+  'year' : bigint,
+  'submittedAt' : [] | [Time],
+  'profitSharingAmount' : bigint,
+  'updatedAt' : Time,
+  'profit' : bigint,
+}
+export interface MonthlyReportList {
+  'totalProfitSharing' : bigint,
+  'totalReports' : bigint,
+  'totalProfit' : bigint,
+  'totalExpenses' : bigint,
+  'reports' : Array<MonthlyReport>,
+  'totalRevenue' : bigint,
+}
+export interface MonthlyReportRequest {
+  'month' : bigint,
+  'revenue' : bigint,
+  'startupId' : string,
+  'newInvestors' : bigint,
+  'expenses' : bigint,
+  'investorCount' : bigint,
+  'year' : bigint,
+  'profitSharingAmount' : bigint,
+  'profit' : bigint,
+}
+export interface MonthlyReportStats {
+  'bestMonth' : [] | [string],
+  'worstMonth' : [] | [string],
+  'totalProfitSharing' : bigint,
+  'averageMonthlyRevenue' : bigint,
+  'averageMonthlyProfit' : bigint,
+  'totalReports' : bigint,
+  'totalProfit' : bigint,
+  'totalExpenses' : bigint,
+  'totalRevenue' : bigint,
+  'averageMonthlyExpenses' : bigint,
+}
+export type MonthlyReportStatus = { 'Approved' : null } |
+  { 'Draft' : null } |
+  { 'Rejected' : null } |
+  { 'Submitted' : null };
 export interface NFTAccount {
   'owner' : Principal,
   'subaccount' : [] | [Uint8Array | number[]],
@@ -204,41 +275,60 @@ export interface NFTPurchaseStats {
   'averagePurchaseAmount' : bigint,
   'totalRevenue' : bigint,
 }
-export type Result = { 'ok' : TransferNFTResponse } |
+export interface ReportVoteDetails {
+  'summary' : VoteSummary,
+  'individualVotes' : Array<InvestorVote>,
+  'reportId' : string,
+}
+export type Result = { 'ok' : InvestorVote } |
   { 'err' : string };
-export type Result_1 = { 'ok' : TopUpResponse } |
+export type Result_1 = { 'ok' : MonthlyReport } |
   { 'err' : string };
-export type Result_10 = { 'ok' : bigint } |
+export type Result_10 = { 'ok' : NFTPurchaseHistory } |
   { 'err' : string };
-export type Result_11 = { 'ok' : NFTOwnerResponse } |
+export type Result_11 = { 'ok' : ReportVoteDetails } |
   { 'err' : string };
-export type Result_12 = { 'ok' : NFTInfo } |
+export type Result_12 = { 'ok' : NFTPurchaseInfo } |
   { 'err' : string };
-export type Result_13 = { 'ok' : NFTBalanceResponse } |
+export type Result_13 = { 'ok' : Array<NFTInfo> } |
   { 'err' : string };
-export type Result_14 = { 'ok' : Array<CollateralTopUp> } |
+export type Result_14 = { 'ok' : bigint } |
   { 'err' : string };
-export type Result_15 = { 'ok' : CollateralInfo } |
+export type Result_15 = { 'ok' : NFTOwnerResponse } |
   { 'err' : string };
-export type Result_16 = { 'ok' : Startup } |
+export type Result_16 = { 'ok' : NFTInfo } |
   { 'err' : string };
-export type Result_17 = { 'ok' : boolean } |
+export type Result_17 = { 'ok' : NFTBalanceResponse } |
   { 'err' : string };
-export type Result_2 = { 'ok' : Investor } |
+export type Result_18 = { 'ok' : MonthlyReportList } |
   { 'err' : string };
-export type Result_3 = { 'ok' : Founder } |
+export type Result_19 = { 'ok' : InvestorVoteHistory } |
   { 'err' : string };
-export type Result_4 = { 'ok' : NFTPurchaseResponse } |
+export type Result_2 = { 'ok' : TransferNFTResponse } |
   { 'err' : string };
-export type Result_5 = { 'ok' : string } |
+export type Result_20 = { 'ok' : [] | [InvestorVote] } |
   { 'err' : string };
-export type Result_6 = { 'ok' : MintNFTResponse } |
+export type Result_21 = { 'ok' : Array<CollateralTopUp> } |
   { 'err' : string };
-export type Result_7 = { 'ok' : NFTPurchaseHistory } |
+export type Result_22 = { 'ok' : CollateralInfo } |
   { 'err' : string };
-export type Result_8 = { 'ok' : NFTPurchaseInfo } |
+export type Result_23 = { 'ok' : Startup } |
   { 'err' : string };
-export type Result_9 = { 'ok' : Array<NFTInfo> } |
+export type Result_24 = { 'ok' : boolean } |
+  { 'err' : string };
+export type Result_3 = { 'ok' : TopUpResponse } |
+  { 'err' : string };
+export type Result_4 = { 'ok' : Investor } |
+  { 'err' : string };
+export type Result_5 = { 'ok' : Founder } |
+  { 'err' : string };
+export type Result_6 = { 'ok' : NFTPurchaseResponse } |
+  { 'err' : string };
+export type Result_7 = { 'ok' : string } |
+  { 'err' : string };
+export type Result_8 = { 'ok' : MintNFTResponse } |
+  { 'err' : string };
+export type Result_9 = { 'ok' : VoteSummary } |
   { 'err' : string };
 export interface Startup {
   'id' : string,
@@ -382,57 +472,115 @@ export type TransferResponse = { 'Error' : string } |
       'transactionId' : string,
     }
   };
+export type UserType = { 'Founder' : null } |
+  { 'Investor' : null };
+export interface VoteRequest {
+  'vote' : VoteType,
+  'feedbackType' : [] | [FeedbackType],
+  'feedback' : [] | [string],
+  'confidence' : bigint,
+  'reportId' : string,
+}
+export interface VoteSummary {
+  'totalVotes' : bigint,
+  'averageConfidence' : bigint,
+  'rejectVotes' : bigint,
+  'approvalRate' : bigint,
+  'approveVotes' : bigint,
+  'lastVoteTime' : [] | [Time],
+  'positiveFeedback' : bigint,
+  'abstainVotes' : bigint,
+  'reportId' : string,
+  'negativeFeedback' : bigint,
+  'neutralFeedback' : bigint,
+}
+export type VoteType = { 'Approve' : null } |
+  { 'Reject' : null } |
+  { 'Abstain' : null };
+export interface VotingStats {
+  'totalVotes' : bigint,
+  'mostActiveInvestor' : [] | [string],
+  'averageApprovalRate' : bigint,
+  'averageConfidence' : bigint,
+  'totalReportsVoted' : bigint,
+}
 export interface _SERVICE {
+  'approveMonthlyReport' : ActorMethod<[string], Result_1>,
   'calculateRequiredCollateral' : ActorMethod<[bigint, string], bigint>,
-  'canMintNFT' : ActorMethod<[string], Result_17>,
-  'canPurchaseNFT' : ActorMethod<[string, string], Result_17>,
-  'createStartup' : ActorMethod<[StartupCreationRequest], Result_16>,
+  'canInvestorVote' : ActorMethod<[string], Result_24>,
+  'canMintNFT' : ActorMethod<[string], Result_24>,
+  'canPurchaseNFT' : ActorMethod<[string, string], Result_24>,
+  'castVote' : ActorMethod<[VoteRequest], Result>,
+  'createMonthlyReport' : ActorMethod<[MonthlyReportRequest], Result_1>,
+  'createStartup' : ActorMethod<[StartupCreationRequest], Result_23>,
   'createStartupForFounder' : ActorMethod<
     [string, StartupCreationRequest],
-    Result_16
+    Result_23
   >,
   'getAllCollateralInfo' : ActorMethod<[], Array<CollateralInfo>>,
+  'getAllMonthlyReports' : ActorMethod<[], Array<MonthlyReport>>,
   'getAllNFTs' : ActorMethod<[], Array<NFTInfo>>,
   'getAllPurchases' : ActorMethod<[], Array<NFTPurchaseInfo>>,
   'getAllStartups' : ActorMethod<[], Array<Startup>>,
+  'getAllVotes' : ActorMethod<[], Array<InvestorVote>>,
   'getBalance' : ActorMethod<[TransferAccount, string], BalanceResponse>,
   'getCkUSDCBalance' : ActorMethod<[TransferAccount], BalanceResponse>,
   'getCkUSDCTokenConfig' : ActorMethod<[], TokenConfig>,
   'getCollateralProgress' : ActorMethod<[string], CollateralProgressResponse>,
-  'getCollateralStatus' : ActorMethod<[string], Result_15>,
-  'getCollateralTopUpHistory' : ActorMethod<[string], Result_14>,
+  'getCollateralStatus' : ActorMethod<[string], Result_22>,
+  'getCollateralTopUpHistory' : ActorMethod<[string], Result_21>,
   'getCollectionInfo' : ActorMethod<[], NFTConfig>,
   'getEnvironment' : ActorMethod<[], string>,
   'getEnvironmentConfig' : ActorMethod<[], EnvironmentConfig>,
+  'getFounderByPrincipal' : ActorMethod<[], [] | [Founder]>,
   'getFounders' : ActorMethod<[], Array<Founder>>,
   'getICPBalance' : ActorMethod<[TransferAccount], BalanceResponse>,
   'getICPTokenConfig' : ActorMethod<[], TokenConfig>,
-  'getInvestorPurchaseHistory' : ActorMethod<[string], Result_7>,
+  'getInvestorByPrincipal' : ActorMethod<[], [] | [Investor]>,
+  'getInvestorPurchaseHistory' : ActorMethod<[string], Result_10>,
+  'getInvestorVoteForReport' : ActorMethod<[string], Result_20>,
+  'getInvestorVoteHistory' : ActorMethod<[string], Result_19>,
   'getInvestors' : ActorMethod<[], Array<Investor>>,
-  'getNFTBalance' : ActorMethod<[NFTAccount], Result_13>,
-  'getNFTInfo' : ActorMethod<[bigint], Result_12>,
-  'getNFTOwner' : ActorMethod<[bigint], Result_11>,
-  'getNFTPrice' : ActorMethod<[string], Result_10>,
+  'getMonthlyReport' : ActorMethod<[string], Result_1>,
+  'getMonthlyReportStats' : ActorMethod<[], MonthlyReportStats>,
+  'getMonthlyReportsByStartup' : ActorMethod<[string], Result_18>,
+  'getMonthlyReportsByStatus' : ActorMethod<
+    [MonthlyReportStatus],
+    Array<MonthlyReport>
+  >,
+  'getNFTBalance' : ActorMethod<[NFTAccount], Result_17>,
+  'getNFTInfo' : ActorMethod<[bigint], Result_16>,
+  'getNFTOwner' : ActorMethod<[bigint], Result_15>,
+  'getNFTPrice' : ActorMethod<[string], Result_14>,
   'getNFTStats' : ActorMethod<
     [],
     { 'totalSupply' : bigint, 'totalStartups' : bigint, 'nextTokenId' : bigint }
   >,
-  'getNFTsByStartup' : ActorMethod<[string], Result_9>,
+  'getNFTsByStartup' : ActorMethod<[string], Result_13>,
   'getPlantifyAccount' : ActorMethod<[], string>,
-  'getPurchaseInfo' : ActorMethod<[string], Result_8>,
+  'getPurchaseInfo' : ActorMethod<[string], Result_12>,
   'getPurchaseStats' : ActorMethod<[], NFTPurchaseStats>,
+  'getReportVoteDetails' : ActorMethod<[string], Result_11>,
+  'getReportVotes' : ActorMethod<[string], Array<InvestorVote>>,
   'getStartupDetails' : ActorMethod<[string], [] | [Startup]>,
-  'getStartupPurchaseHistory' : ActorMethod<[string], Result_7>,
+  'getStartupPurchaseHistory' : ActorMethod<[string], Result_10>,
   'getTokenCanisterId' : ActorMethod<[string], [] | [string]>,
   'getTokenInfo' : ActorMethod<[string], TokenInfoResponse>,
-  'initializeCollateral' : ActorMethod<[string, bigint, string], Result_5>,
+  'getUserType' : ActorMethod<[], [] | [UserType]>,
+  'getVoteSummary' : ActorMethod<[string], Result_9>,
+  'getVotingStats' : ActorMethod<[], VotingStats>,
+  'initializeCollateral' : ActorMethod<[string, bigint, string], Result_7>,
+  'isUserFounder' : ActorMethod<[], boolean>,
+  'isUserInvestor' : ActorMethod<[], boolean>,
   'isUsingTestTokens' : ActorMethod<[], boolean>,
-  'mintNFT' : ActorMethod<[MintNFTRequest], Result_6>,
-  'mintNFTForStartup' : ActorMethod<[string], Result_5>,
-  'purchaseNFT' : ActorMethod<[NFTPurchaseRequest], Result_4>,
-  'registerFounder' : ActorMethod<[FounderRegistrationRequest], Result_3>,
-  'registerInvestor' : ActorMethod<[InvestorRegistrationRequest], Result_2>,
-  'topUpCollateral' : ActorMethod<[TopUpRequest], Result_1>,
+  'mintNFT' : ActorMethod<[MintNFTRequest], Result_8>,
+  'mintNFTForStartup' : ActorMethod<[string], Result_7>,
+  'purchaseNFT' : ActorMethod<[NFTPurchaseRequest], Result_6>,
+  'registerFounder' : ActorMethod<[FounderRegistrationRequest], Result_5>,
+  'registerInvestor' : ActorMethod<[InvestorRegistrationRequest], Result_4>,
+  'rejectMonthlyReport' : ActorMethod<[string], Result_1>,
+  'submitMonthlyReport' : ActorMethod<[string], Result_1>,
+  'topUpCollateral' : ActorMethod<[TopUpRequest], Result_3>,
   'transferCkUSDC' : ActorMethod<
     [TransferAccount, bigint, [] | [string]],
     TransferResponse
@@ -441,9 +589,11 @@ export interface _SERVICE {
     [TransferAccount, bigint, [] | [string]],
     TransferResponse
   >,
-  'transferNFT' : ActorMethod<[TransferNFTRequest], Result>,
+  'transferNFT' : ActorMethod<[TransferNFTRequest], Result_2>,
   'transferTokens' : ActorMethod<[TransferArgs], TransferResponse>,
+  'updateMonthlyReport' : ActorMethod<[string, MonthlyReportRequest], Result_1>,
   'updateStartupStatus' : ActorMethod<[string, string], boolean>,
+  'updateVote' : ActorMethod<[string, VoteRequest], Result>,
   'whoami' : ActorMethod<[], Principal>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;

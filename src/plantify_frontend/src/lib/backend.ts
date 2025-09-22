@@ -22,6 +22,15 @@ import type {
   TransferResponse,
   TopUpResponse,
   MintNFTResponse,
+  MonthlyReport,
+  MonthlyReportRequest,
+  MonthlyReportList,
+  MonthlyReportStats,
+  MonthlyReportStatus,
+  InvestorVote,
+  VoteRequest,
+  VoteSummary,
+  VotingStats,
 } from '../declarations/plantify_backend/plantify_backend.did';
 
 type NFTStats = {
@@ -96,6 +105,26 @@ export interface BackendActor {
   getAllStartups: () => Promise<Startup[]>;
   updateStartupStatus: (startupId: string, status: string) => Promise<boolean>;
   getStartupDetails: (startupId: string) => Promise<[] | [Startup]>;
+  
+  // Monthly Report Methods
+  createMonthlyReport: (request: MonthlyReportRequest) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  updateMonthlyReport: (reportId: string, request: MonthlyReportRequest) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  submitMonthlyReport: (reportId: string) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  approveMonthlyReport: (reportId: string) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  rejectMonthlyReport: (reportId: string) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  getMonthlyReport: (reportId: string) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  getMonthlyReportsByStartup: (startupId: string) => Promise<{ ok: MonthlyReportList } | { err: string }>;
+  getAllMonthlyReports: () => Promise<MonthlyReport[]>;
+  getMonthlyReportStats: () => Promise<MonthlyReportStats>;
+  getMonthlyReportsByStatus: (status: MonthlyReportStatus) => Promise<MonthlyReport[]>;
+  
+  // Voting Methods
+  castVote: (request: VoteRequest) => Promise<{ ok: InvestorVote } | { err: string }>;
+  updateVote: (reportId: string, request: VoteRequest) => Promise<{ ok: InvestorVote } | { err: string }>;
+  getVoteSummary: (reportId: string) => Promise<{ ok: VoteSummary } | { err: string }>;
+  getReportVotes: (reportId: string) => Promise<InvestorVote[]>;
+  getVotingStats: () => Promise<VotingStats>;
+  canInvestorVote: (reportId: string) => Promise<{ ok: boolean } | { err: string }>;
 }
 
 export class BackendService {
@@ -437,6 +466,88 @@ export class BackendService {
     };
 
     return await this.actor.mintNFT(mintRequest);
+  }
+
+  // Monthly Report Methods
+  async createMonthlyReport(request: MonthlyReportRequest) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.createMonthlyReport(request);
+  }
+
+  async updateMonthlyReport(reportId: string, request: MonthlyReportRequest) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.updateMonthlyReport(reportId, request);
+  }
+
+  async submitMonthlyReport(reportId: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.submitMonthlyReport(reportId);
+  }
+
+  async approveMonthlyReport(reportId: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.approveMonthlyReport(reportId);
+  }
+
+  async rejectMonthlyReport(reportId: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.rejectMonthlyReport(reportId);
+  }
+
+  async getMonthlyReport(reportId: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getMonthlyReport(reportId);
+  }
+
+  async getMonthlyReportsByStartup(startupId: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getMonthlyReportsByStartup(startupId);
+  }
+
+  async getAllMonthlyReports() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getAllMonthlyReports();
+  }
+
+  async getMonthlyReportStats() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getMonthlyReportStats();
+  }
+
+  async getMonthlyReportsByStatus(status: MonthlyReportStatus) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getMonthlyReportsByStatus(status);
+  }
+
+  // Voting Methods
+  async castVote(request: VoteRequest) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.castVote(request);
+  }
+
+  async updateVote(reportId: string, request: VoteRequest) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.updateVote(reportId, request);
+  }
+
+  async getVoteSummary(reportId: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getVoteSummary(reportId);
+  }
+
+  async getReportVotes(reportId: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getReportVotes(reportId);
+  }
+
+  async getVotingStats() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getVotingStats();
+  }
+
+  async canInvestorVote(reportId: string) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.canInvestorVote(reportId);
   }
 }
 

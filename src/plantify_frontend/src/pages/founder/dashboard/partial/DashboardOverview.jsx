@@ -35,6 +35,27 @@ export default function DashboardOverview() {
       error: stats.error
     },
     { 
+      label: "Monthly Reports", 
+      value: formatNumber(stats.totalReports), 
+      subtitle: "submitted reports",
+      loading: stats.loading,
+      error: stats.error
+    },
+    { 
+      label: "Total Votes", 
+      value: formatNumber(stats.totalVotes), 
+      subtitle: "investor votes",
+      loading: stats.loading,
+      error: stats.error
+    },
+    { 
+      label: "Approval Rate", 
+      value: `${formatNumber(stats.averageApprovalRate)}%`, 
+      subtitle: "average approval",
+      loading: stats.loading,
+      error: stats.error
+    },
+    { 
       label: "Pending Startups", 
       value: formatNumber(stats.pendingStartups), 
       subtitle: "awaiting collateral",

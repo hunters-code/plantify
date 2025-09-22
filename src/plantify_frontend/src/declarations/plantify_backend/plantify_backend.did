@@ -1,3 +1,44 @@
+type VotingStats = 
+ record {
+   averageApprovalRate: nat;
+   averageConfidence: nat;
+   mostActiveInvestor: opt text;
+   totalReportsVoted: nat;
+   totalVotes: nat;
+ };
+type VoteType = 
+ variant {
+   Abstain;
+   Approve;
+   Reject;
+ };
+type VoteSummary = 
+ record {
+   abstainVotes: nat;
+   approvalRate: nat;
+   approveVotes: nat;
+   averageConfidence: nat;
+   lastVoteTime: opt Time;
+   negativeFeedback: nat;
+   neutralFeedback: nat;
+   positiveFeedback: nat;
+   rejectVotes: nat;
+   reportId: text;
+   totalVotes: nat;
+ };
+type VoteRequest = 
+ record {
+   confidence: nat;
+   feedback: opt text;
+   feedbackType: opt FeedbackType;
+   reportId: text;
+   vote: VoteType;
+ };
+type UserType = 
+ variant {
+   Founder;
+   Investor;
+ };
 type TransferResponse = 
  variant {
    Error: text;
@@ -163,92 +204,133 @@ type Startup =
 type Result_9 = 
  variant {
    err: text;
-   ok: vec NFTInfo;
+   ok: VoteSummary;
  };
 type Result_8 = 
  variant {
    err: text;
-   ok: NFTPurchaseInfo;
+   ok: MintNFTResponse;
  };
 type Result_7 = 
  variant {
    err: text;
-   ok: NFTPurchaseHistory;
+   ok: text;
  };
 type Result_6 = 
  variant {
    err: text;
-   ok: MintNFTResponse;
+   ok: NFTPurchaseResponse;
  };
 type Result_5 = 
  variant {
    err: text;
-   ok: text;
+   ok: Founder;
  };
 type Result_4 = 
  variant {
    err: text;
-   ok: NFTPurchaseResponse;
+   ok: Investor;
  };
 type Result_3 = 
  variant {
    err: text;
-   ok: Founder;
+   ok: TopUpResponse;
  };
-type Result_2 = 
- variant {
-   err: text;
-   ok: Investor;
- };
-type Result_17 = 
+type Result_24 = 
  variant {
    err: text;
    ok: bool;
  };
-type Result_16 = 
+type Result_23 = 
  variant {
    err: text;
    ok: Startup;
  };
-type Result_15 = 
+type Result_22 = 
  variant {
    err: text;
    ok: CollateralInfo;
  };
-type Result_14 = 
+type Result_21 = 
  variant {
    err: text;
    ok: vec CollateralTopUp;
  };
-type Result_13 = 
+type Result_20 = 
+ variant {
+   err: text;
+   ok: opt InvestorVote;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: TransferNFTResponse;
+ };
+type Result_19 = 
+ variant {
+   err: text;
+   ok: InvestorVoteHistory;
+ };
+type Result_18 = 
+ variant {
+   err: text;
+   ok: MonthlyReportList;
+ };
+type Result_17 = 
  variant {
    err: text;
    ok: NFTBalanceResponse;
  };
-type Result_12 = 
+type Result_16 = 
  variant {
    err: text;
    ok: NFTInfo;
  };
-type Result_11 = 
+type Result_15 = 
  variant {
    err: text;
    ok: NFTOwnerResponse;
  };
-type Result_10 = 
+type Result_14 = 
  variant {
    err: text;
    ok: nat;
  };
+type Result_13 = 
+ variant {
+   err: text;
+   ok: vec NFTInfo;
+ };
+type Result_12 = 
+ variant {
+   err: text;
+   ok: NFTPurchaseInfo;
+ };
+type Result_11 = 
+ variant {
+   err: text;
+   ok: ReportVoteDetails;
+ };
+type Result_10 = 
+ variant {
+   err: text;
+   ok: NFTPurchaseHistory;
+ };
 type Result_1 = 
  variant {
    err: text;
-   ok: TopUpResponse;
+   ok: MonthlyReport;
  };
 type Result = 
  variant {
    err: text;
-   ok: TransferNFTResponse;
+   ok: InvestorVote;
+ };
+type ReportVoteDetails = 
+ record {
+   individualVotes: vec InvestorVote;
+   reportId: text;
+   summary: VoteSummary;
  };
 type NFTPurchaseStats = 
  record {
@@ -356,6 +438,65 @@ type NFTAccount =
    owner: principal;
    subaccount: opt blob;
  };
+type MonthlyReportStatus = 
+ variant {
+   Approved;
+   Draft;
+   Rejected;
+   Submitted;
+ };
+type MonthlyReportStats = 
+ record {
+   averageMonthlyExpenses: nat;
+   averageMonthlyProfit: nat;
+   averageMonthlyRevenue: nat;
+   bestMonth: opt text;
+   totalExpenses: nat;
+   totalProfit: nat;
+   totalProfitSharing: nat;
+   totalReports: nat;
+   totalRevenue: nat;
+   worstMonth: opt text;
+ };
+type MonthlyReportRequest = 
+ record {
+   expenses: nat;
+   investorCount: nat;
+   month: nat;
+   newInvestors: nat;
+   profit: nat;
+   profitSharingAmount: nat;
+   revenue: nat;
+   startupId: text;
+   year: nat;
+ };
+type MonthlyReportList = 
+ record {
+   reports: vec MonthlyReport;
+   totalExpenses: nat;
+   totalProfit: nat;
+   totalProfitSharing: nat;
+   totalReports: nat;
+   totalRevenue: nat;
+ };
+type MonthlyReport = 
+ record {
+   approvedAt: opt Time;
+   createdAt: Time;
+   expenses: nat;
+   id: text;
+   investorCount: nat;
+   month: nat;
+   newInvestors: nat;
+   profit: nat;
+   profitSharingAmount: nat;
+   revenue: nat;
+   startupId: text;
+   status: MonthlyReportStatus;
+   submittedAt: opt Time;
+   updatedAt: Time;
+   year: nat;
+ };
 type MintNFTResponse = 
  variant {
    Error: text;
@@ -371,6 +512,24 @@ type MintNFTRequest =
    metadata: NFTMetadata;
    startupId: text;
    toAccount: NFTAccount;
+ };
+type InvestorVoteHistory = 
+ record {
+   approvalRate: nat;
+   averageConfidence: nat;
+   totalVotes: nat;
+   votes: vec InvestorVote;
+ };
+type InvestorVote = 
+ record {
+   confidence: nat;
+   feedback: opt text;
+   feedbackType: opt FeedbackType;
+   id: text;
+   investorId: text;
+   reportId: text;
+   timestamp: Time;
+   vote: VoteType;
  };
 type InvestorRegistrationRequest = 
  record {
@@ -431,6 +590,12 @@ type Founder =
    "principal": principal;
    taxNumber: text;
    updatedAt: Time;
+ };
+type FeedbackType = 
+ variant {
+   Negative;
+   Neutral;
+   Positive;
  };
 type EnvironmentConfig = 
  record {
@@ -495,65 +660,92 @@ type BalanceResponse =
             };
  };
 service : {
+  approveMonthlyReport: (reportId: text) -> (Result_1);
   calculateRequiredCollateral: (monthlyProfitSharing: nat, tokenType:
    text) -> (nat);
-  canMintNFT: (startupId: text) -> (Result_17);
-  canPurchaseNFT: (investorId: text, startupId: text) -> (Result_17);
-  createStartup: (request: StartupCreationRequest) -> (Result_16);
+  canInvestorVote: (reportId: text) -> (Result_24);
+  canMintNFT: (startupId: text) -> (Result_24);
+  canPurchaseNFT: (investorId: text, startupId: text) -> (Result_24);
+  castVote: (request: VoteRequest) -> (Result);
+  createMonthlyReport: (request: MonthlyReportRequest) -> (Result_1);
+  createStartup: (request: StartupCreationRequest) -> (Result_23);
   createStartupForFounder: (founderId: text, request:
-   StartupCreationRequest) -> (Result_16);
+   StartupCreationRequest) -> (Result_23);
   getAllCollateralInfo: () -> (vec CollateralInfo);
+  getAllMonthlyReports: () -> (vec MonthlyReport);
   getAllNFTs: () -> (vec NFTInfo);
   getAllPurchases: () -> (vec NFTPurchaseInfo);
   getAllStartups: () -> (vec Startup);
+  getAllVotes: () -> (vec InvestorVote);
   getBalance: (account: TransferAccount, tokenType: text) ->
    (BalanceResponse);
   getCkUSDCBalance: (account: TransferAccount) -> (BalanceResponse);
   getCkUSDCTokenConfig: () -> (TokenConfig);
   getCollateralProgress: (startupId: text) -> (CollateralProgressResponse);
-  getCollateralStatus: (startupId: text) -> (Result_15);
-  getCollateralTopUpHistory: (startupId: text) -> (Result_14);
+  getCollateralStatus: (startupId: text) -> (Result_22);
+  getCollateralTopUpHistory: (startupId: text) -> (Result_21);
   getCollectionInfo: () -> (NFTConfig);
   getEnvironment: () -> (text);
   getEnvironmentConfig: () -> (EnvironmentConfig);
+  getFounderByPrincipal: () -> (opt Founder);
   getFounders: () -> (vec Founder);
   getICPBalance: (account: TransferAccount) -> (BalanceResponse);
   getICPTokenConfig: () -> (TokenConfig);
-  getInvestorPurchaseHistory: (investorId: text) -> (Result_7);
+  getInvestorByPrincipal: () -> (opt Investor);
+  getInvestorPurchaseHistory: (investorId: text) -> (Result_10);
+  getInvestorVoteForReport: (reportId: text) -> (Result_20);
+  getInvestorVoteHistory: (investorId: text) -> (Result_19);
   getInvestors: () -> (vec Investor);
-  getNFTBalance: (account: NFTAccount) -> (Result_13);
-  getNFTInfo: (tokenId: nat) -> (Result_12);
-  getNFTOwner: (tokenId: nat) -> (Result_11);
-  getNFTPrice: (startupId: text) -> (Result_10);
+  getMonthlyReport: (reportId: text) -> (Result_1);
+  getMonthlyReportStats: () -> (MonthlyReportStats);
+  getMonthlyReportsByStartup: (startupId: text) -> (Result_18);
+  getMonthlyReportsByStatus: (status: MonthlyReportStatus) ->
+   (vec MonthlyReport);
+  getNFTBalance: (account: NFTAccount) -> (Result_17);
+  getNFTInfo: (tokenId: nat) -> (Result_16);
+  getNFTOwner: (tokenId: nat) -> (Result_15);
+  getNFTPrice: (startupId: text) -> (Result_14);
   getNFTStats: () ->
    (record {
       nextTokenId: nat;
       totalStartups: nat;
       totalSupply: nat;
     });
-  getNFTsByStartup: (startupId: text) -> (Result_9);
+  getNFTsByStartup: (startupId: text) -> (Result_13);
   getPlantifyAccount: () -> (text);
-  getPurchaseInfo: (purchaseId: text) -> (Result_8);
+  getPurchaseInfo: (purchaseId: text) -> (Result_12);
   getPurchaseStats: () -> (NFTPurchaseStats);
+  getReportVoteDetails: (reportId: text) -> (Result_11);
+  getReportVotes: (reportId: text) -> (vec InvestorVote);
   getStartupDetails: (startupId: text) -> (opt Startup);
-  getStartupPurchaseHistory: (startupId: text) -> (Result_7);
+  getStartupPurchaseHistory: (startupId: text) -> (Result_10);
   getTokenCanisterId: (tokenType: text) -> (opt text);
   getTokenInfo: (tokenType: text) -> (TokenInfoResponse);
+  getUserType: () -> (opt UserType);
+  getVoteSummary: (reportId: text) -> (Result_9);
+  getVotingStats: () -> (VotingStats);
   initializeCollateral: (startupId: text, requiredAmount: nat, tokenType:
-   text) -> (Result_5);
+   text) -> (Result_7);
+  isUserFounder: () -> (bool);
+  isUserInvestor: () -> (bool);
   isUsingTestTokens: () -> (bool);
-  mintNFT: (request: MintNFTRequest) -> (Result_6);
-  mintNFTForStartup: (startupId: text) -> (Result_5);
-  purchaseNFT: (request: NFTPurchaseRequest) -> (Result_4);
-  registerFounder: (request: FounderRegistrationRequest) -> (Result_3);
-  registerInvestor: (request: InvestorRegistrationRequest) -> (Result_2);
-  topUpCollateral: (request: TopUpRequest) -> (Result_1);
+  mintNFT: (request: MintNFTRequest) -> (Result_8);
+  mintNFTForStartup: (startupId: text) -> (Result_7);
+  purchaseNFT: (request: NFTPurchaseRequest) -> (Result_6);
+  registerFounder: (request: FounderRegistrationRequest) -> (Result_5);
+  registerInvestor: (request: InvestorRegistrationRequest) -> (Result_4);
+  rejectMonthlyReport: (reportId: text) -> (Result_1);
+  submitMonthlyReport: (reportId: text) -> (Result_1);
+  topUpCollateral: (request: TopUpRequest) -> (Result_3);
   transferCkUSDC: (toAccount: TransferAccount, amount: nat, memo:
    opt text) -> (TransferResponse);
   transferICP: (toAccount: TransferAccount, amount: nat, memo: opt text) ->
    (TransferResponse);
-  transferNFT: (request: TransferNFTRequest) -> (Result);
+  transferNFT: (request: TransferNFTRequest) -> (Result_2);
   transferTokens: (args: TransferArgs) -> (TransferResponse);
+  updateMonthlyReport: (reportId: text, request: MonthlyReportRequest) ->
+   (Result_1);
   updateStartupStatus: (startupId: text, newStatus: text) -> (bool);
+  updateVote: (reportId: text, request: VoteRequest) -> (Result);
   whoami: () -> (principal);
 }

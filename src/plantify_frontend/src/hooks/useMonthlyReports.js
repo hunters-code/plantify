@@ -18,98 +18,18 @@ export function useMonthlyReports(startupId) {
         setLoading(true);
         setError(null);
 
-        // For now, we'll create mock data structure
-        // In the future, this would call a backend method like:
-        // const reports = await backendService.getMonthlyReports(startupId);
+        const result = await backendService.getMonthlyReportsByStartup(startupId);
         
-        // Mock data structure for monthly reports
-        const mockReports = [
-          {
-            id: '1',
-            startupId: startupId,
-            month: 'December',
-            year: 2024,
-            status: 'submitted',
-            submittedAt: new Date('2024-12-31'),
-            dueDate: new Date('2025-01-10'),
-            financialData: {
-              monthlyRevenue: 15000,
-              netProfit: 5000,
-              monthlyExpenses: 10000,
-              cashFlow: 5000,
-              varianceFromProjection: 10
-            },
-            operationalData: {
-              keyAchievements: 'Launched new product feature, onboarded 50 new customers',
-              milestonesReached: 'Reached 1000 active users milestone',
-              challengesFaced: 'Supply chain delays affected delivery times',
-              solutionsImplemented: 'Partnered with local suppliers to reduce delivery time'
-            },
-            marketData: {
-              competitiveLandscape: 'New competitor entered market with similar offering',
-              marketChanges: 'Increased demand for sustainable products',
-              customerFeedback: 'Positive feedback on new features, requests for mobile app',
-              demandShifts: 'Shift towards eco-friendly products observed'
-            },
-            forwardLooking: {
-              nextMonthPlans: 'Launch mobile app beta, expand to 3 new cities',
-              expectedChallenges: 'Seasonal demand fluctuations',
-              resourceNeeds: 'Additional developers for mobile app development',
-              growthProjections: 'Expect 25% growth in user base'
-            },
-            communication: {
-              investorMessages: 'Strong month with positive growth metrics',
-              communityUpdates: 'New feature launch announcement',
-              partnershipNews: 'Partnership with major retailer announced',
-              teamChanges: 'Hired 2 new developers'
-            }
-          },
-          {
-            id: '2',
-            startupId: startupId,
-            month: 'November',
-            year: 2024,
-            status: 'submitted',
-            submittedAt: new Date('2024-11-30'),
-            dueDate: new Date('2024-12-10'),
-            financialData: {
-              monthlyRevenue: 12000,
-              netProfit: 3000,
-              monthlyExpenses: 9000,
-              cashFlow: 3000,
-              varianceFromProjection: -5
-            },
-            operationalData: {
-              keyAchievements: 'Improved customer satisfaction scores',
-              milestonesReached: 'Reached 500 active users',
-              challengesFaced: 'Technical issues with payment processing',
-              solutionsImplemented: 'Implemented new payment gateway'
-            },
-            marketData: {
-              competitiveLandscape: 'Stable competitive environment',
-              marketChanges: 'Steady market growth',
-              customerFeedback: 'Good feedback on user interface',
-              demandShifts: 'Consistent demand patterns'
-            },
-            forwardLooking: {
-              nextMonthPlans: 'Focus on product improvements',
-              expectedChallenges: 'Holiday season impact',
-              resourceNeeds: 'Customer support staff',
-              growthProjections: 'Moderate growth expected'
-            },
-            communication: {
-              investorMessages: 'Steady progress with room for improvement',
-              communityUpdates: 'Product update announcements',
-              partnershipNews: 'No new partnerships',
-              teamChanges: 'No team changes'
-            }
-          }
-        ];
-
-        setReports(mockReports);
+        if ('ok' in result) {
+          setReports(result.ok.reports || []);
+        } else {
+          setError(result.err || 'Failed to fetch monthly reports');
+          setReports([]);
+        }
       } catch (error) {
         console.error('Error fetching monthly reports:', error);
         setError(error.message || 'Failed to fetch monthly reports');
+        setReports([]);
       } finally {
         setLoading(false);
       }
@@ -120,20 +40,39 @@ export function useMonthlyReports(startupId) {
 
   const submitReport = async (reportData) => {
     try {
-      // Mock submission - in real implementation, this would call backend
-      const newReport = {
-        id: Date.now().toString(),
+      const currentDate = new Date();
+      const month = currentDate.getMonth() + 1; // 1-12
+      const year = currentDate.getFullYear();
+
+      const request = {
         startupId: startupId,
-        month: new Date().toLocaleString('default', { month: 'long' }),
-        year: new Date().getFullYear(),
-        status: 'submitted',
-        submittedAt: new Date(),
-        dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
-        ...reportData
+        month: month,
+        year: year,
+        revenue: Number(reportData.monthlyRevenue) || 0,
+        expenses: Number(reportData.monthlyExpenses) || 0,
+        profit: Number(reportData.netProfit) || 0,
+        profitSharingAmount: Number(reportData.profitSharingAmount) || 0,
+        investorCount: Number(reportData.investorCount) || 0,
+        newInvestors: Number(reportData.newInvestors) || 0,
       };
 
-      setReports(prev => [newReport, ...prev]);
-      return { success: true, report: newReport };
+      const result = await backendService.createMonthlyReport(request);
+      
+      if ('ok' in result) {
+        const newReport = result.ok;
+        setReports(prev => [newReport, ...prev]);
+        
+        // Submit the report for approval
+        const submitResult = await backendService.submitMonthlyReport(newReport.id);
+        if ('ok' in submitResult) {
+          setReports(prev => prev.map(r => r.id === newReport.id ? submitResult.ok : r));
+          return { success: true, report: submitResult.ok };
+        } else {
+          return { success: false, error: submitResult.err };
+        }
+      } else {
+        return { success: false, error: result.err };
+      }
     } catch (error) {
       console.error('Error submitting report:', error);
       return { success: false, error: error.message };
@@ -142,20 +81,31 @@ export function useMonthlyReports(startupId) {
 
   const saveDraft = async (reportData) => {
     try {
-      // Mock draft save - in real implementation, this would call backend
-      const draftReport = {
-        id: Date.now().toString(),
+      const currentDate = new Date();
+      const month = currentDate.getMonth() + 1; // 1-12
+      const year = currentDate.getFullYear();
+
+      const request = {
         startupId: startupId,
-        month: new Date().toLocaleString('default', { month: 'long' }),
-        year: new Date().getFullYear(),
-        status: 'draft',
-        submittedAt: new Date(),
-        dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-        ...reportData
+        month: month,
+        year: year,
+        revenue: Number(reportData.monthlyRevenue) || 0,
+        expenses: Number(reportData.monthlyExpenses) || 0,
+        profit: Number(reportData.netProfit) || 0,
+        profitSharingAmount: Number(reportData.profitSharingAmount) || 0,
+        investorCount: Number(reportData.investorCount) || 0,
+        newInvestors: Number(reportData.newInvestors) || 0,
       };
 
-      setReports(prev => [draftReport, ...prev]);
-      return { success: true, report: draftReport };
+      const result = await backendService.createMonthlyReport(request);
+      
+      if ('ok' in result) {
+        const newReport = result.ok;
+        setReports(prev => [newReport, ...prev]);
+        return { success: true, report: newReport };
+      } else {
+        return { success: false, error: result.err };
+      }
     } catch (error) {
       console.error('Error saving draft:', error);
       return { success: false, error: error.message };
