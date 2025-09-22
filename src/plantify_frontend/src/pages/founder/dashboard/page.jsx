@@ -8,6 +8,9 @@ import Teams from './partial/Teams';
 import FoundingStatus from './partial/FoundingStatus';
 import StartupOverview from './partial/StartupOverview';
 import MonthlyReports from './partial/MonthlyReports';
+import ProfitSharing from './partial/ProfitSharing';
+import Investors from './partial/Investors';
+import Collateral from './partial/Collateral';
 import { Button, Select } from '../../../components/ui';
 import {
   CirclePlus,
@@ -53,6 +56,12 @@ export default function Dashboard() {
         return <FoundingStatus />;
       case 3:
         return <MonthlyReports />;
+      case 4:
+        return <ProfitSharing />;
+      case 5:
+        return <Collateral />;
+      case 6:
+        return <Investors />;
       default:
         return <StartupOverview />;
     }
