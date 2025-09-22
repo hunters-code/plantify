@@ -37,31 +37,31 @@ export default function SupportedSectors() {
       title: 'Livestock',
       roi: '20–30% Annual Returns',
       note: 'Poultry, cattle, aquaculture',
-      image: '/assets/images/supported.png',
+      image: '/assets/images/supported-2.png',
     },
     {
       title: 'F&B',
       roi: '20–35% Annual Returns',
       note: 'Restaurants, catering, food production',
-      image: '/assets/images/supported.png',
+      image: '/assets/images/supported-3.png',
     },
     {
       title: 'Retail',
       roi: '20–30% Annual Returns',
       note: 'Physical stores, e-commerce, distribution',
-      image: '/assets/images/supported.png',
+      image: '/assets/images/supported-4.png',
     },
     {
       title: 'Services',
       roi: '20–35% Annual Returns',
       note: 'Workshops, salons, coworking, couriers',
-      image: '/assets/images/supported.png',
+      image: '/assets/images/supported-5.png',
     },
     {
       title: 'Technology',
       roi: '40–60% Annual Returns',
       note: 'Apps, SaaS, digital services',
-      image: '/assets/images/supported.png',
+      image: '/assets/images/supported-6.png',
     },
   ];
 

@@ -93,7 +93,7 @@ export default function FeaturedStartups() {
       fundedColor: '#f59e0b',
     },
     {
-      image: '/assets/images/product.png',
+      image: '/assets/images/product-2.png',
       title: 'SmartCafe Tech',
       category: 'Technology',
       nftPrice: '$100 USD',
@@ -103,7 +103,7 @@ export default function FeaturedStartups() {
       fundedColor: '#22c55e',
     },
     {
-      image: '/assets/images/product.png',
+      image: '/assets/images/product-3.png',
       title: 'Urban Chicken Farm',
       category: 'Livestock',
       nftPrice: '$50 USD',
