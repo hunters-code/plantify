@@ -15,6 +15,7 @@ import type {
   NFTInfo,
   NFTAccount,
   NFTMetadata,
+  NFTPurchaseInfo,
   FounderRegistrationRequest,
   InvestorRegistrationRequest,
   StartupCreationRequest,
@@ -83,6 +84,7 @@ export interface BackendActor {
     startupId: string
   ) => Promise<{ ok: NFTInfo[] } | { err: string }>;
   getAllNFTs: () => Promise<NFTInfo[]>;
+  getAllPurchases: () => Promise<NFTPurchaseInfo[]>;
   getNFTStats: () => Promise<NFTStats>;
   getFounders: () => Promise<Founder[]>;
   getInvestors: () => Promise<Investor[]>;
@@ -253,6 +255,11 @@ export class BackendService {
   async getAllNFTs() {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getAllNFTs();
+  }
+
+  async getAllPurchases() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getAllPurchases();
   }
 
   async getNFTStats() {
