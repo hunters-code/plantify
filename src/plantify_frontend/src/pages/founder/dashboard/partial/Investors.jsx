@@ -1,8 +1,20 @@
 import { useState } from 'react';
 import { Search, Filter, Eye, MessageCircle, Download, BarChart3, Users, TrendingUp } from 'lucide-react';
 import { Badge, Button, Card } from '../../../../components/ui';
+import { useInvestors } from '../../../../hooks/useInvestors';
+import { formatCurrency, formatNumber } from '../../../../utils/formatCurrency';
 
-export default function Investors() {
+export default function Investors({ startupId }) {
+  const { 
+    investors, 
+    totalInvestment, 
+    totalInvestors, 
+    activeInvestors, 
+    vipInvestors, 
+    averageParticipation,
+    loading, 
+    error 
+  } = useInvestors(startupId);
   const [activeInvestorTab, setActiveInvestorTab] = useState(0);
 
   const investorTabs = [
@@ -12,68 +24,46 @@ export default function Investors() {
     { label: 'Engagement' }
   ];
 
-  const investors = [
-    {
-      name: 'David Kim',
-      wallet: 'Oxdef0_1234',
-      badges: ['VIP investors', 'Whale investor', 'Top supporter', 'Community leader'],
-      investment: '$10,500',
-      nftsOwned: '20',
-      profitReceived: '$2,000',
-      participation: '100%',
-      location: 'Los Angeles, CA'
-    },
-    {
-      name: 'Alex Chen',
-      wallet: 'Ox1234_5678',
-      badges: ['VIP investors', 'Early investor', 'Top supporter', 'Community leader'],
-      investment: '$7,500',
-      nftsOwned: '15',
-      profitReceived: '$1,500',
-      participation: '98%',
-      location: 'San Francisco, CA'
-    },
-    {
-      name: 'Sarah Johnson',
-      wallet: '0x9876..efgh',
-      badges: ['Active investors', 'Active voter', 'Long-term holder'],
-      investment: '$6,000',
-      nftsOwned: '12',
-      profitReceived: '$1,200',
-      participation: '92%',
-      location: 'New York, NY'
-    },
-    {
-      name: 'Mike Rodriguez',
-      wallet: 'Oxabcd_efgh',
-      badges: ['Active investors', 'Consistent investor'],
-      investment: '$4,000',
-      nftsOwned: '8',
-      profitReceived: '$800',
-      participation: '85%',
-      location: 'Austin, TX'
-    },
-    {
-      name: 'Emily Davis',
-      wallet: '0x5678_9abc',
-      badges: ['Active investors', 'New investor'],
-      investment: '$2,500',
-      nftsOwned: '5',
-      profitReceived: '$500',
-      participation: '78%',
-      location: 'Seattle, WA'
-    },
-    {
-      name: 'Lisa Wang',
-      wallet: '0x5678_9abc',
-      badges: ['Inactive investors', 'Small investor'],
-      investment: '$1,500',
-      nftsOwned: '3',
-      profitReceived: '$300',
-      participation: '45%',
-      location: 'Chicago, IL'
-    }
-  ];
+  if (loading) {
+    return (
+      <Card className="bg-neutral-100">
+        <div className="animate-pulse p-6">
+          <div className="h-6 bg-gray-300 rounded mb-4 w-1/3"></div>
+          <div className="grid grid-cols-5 gap-4 mb-6">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-20 bg-gray-300 rounded"></div>
+            ))}
+          </div>
+          <div className="h-10 bg-gray-300 rounded mb-4"></div>
+          <div className="h-64 bg-gray-300 rounded"></div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="bg-red-50 border border-red-200">
+        <div className="p-6 text-center">
+          <div className="text-red-600">
+            <h2 className="text-xl font-semibold mb-2">Error Loading Investors</h2>
+            <p>{error}</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (!startupId) {
+    return (
+      <Card className="bg-neutral-100">
+        <div className="p-6 text-center">
+          <h2 className="text-xl font-semibold mb-2">No Startup Selected</h2>
+          <p className="text-gray-500">Please select a startup from the dropdown above.</p>
+        </div>
+      </Card>
+    );
+  }
 
   const getBadgeVariant = (badge) => {
     if (badge.includes('VIP')) return 'primary';
@@ -87,33 +77,33 @@ export default function Investors() {
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-xl font-semibold">Investors</h2>
-          <p className="text-sm text-gray-500">$1,000 (98% approval)</p>
+          <p className="text-sm text-gray-500">{formatCurrency(totalInvestment)} ({averageParticipation}% avg participation)</p>
         </div>
         <div className="text-right">
-          <span className="text-sm text-gray-500">10/21/2024</span>
-          <Badge variant="success" className="ml-2">Paid</Badge>
+          <span className="text-sm text-gray-500">{new Date().toLocaleDateString()}</span>
+          <Badge variant="success" className="ml-2">Active</Badge>
         </div>
       </div>
 
       <div className="grid grid-cols-5 gap-4 mb-6">
         <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-gray-900 mb-1">$40,000</div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">{formatCurrency(totalInvestment)}</div>
           <div className="text-sm text-gray-500">Total investment</div>
         </Card>
         <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-gray-900 mb-1">80</div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">{totalInvestors}</div>
           <div className="text-sm text-gray-500">Total investors</div>
         </Card>
         <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-gray-900 mb-1">3</div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">{activeInvestors}</div>
           <div className="text-sm text-gray-500">Active investors</div>
         </Card>
         <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-gray-900 mb-1">2</div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">{vipInvestors}</div>
           <div className="text-sm text-gray-500">VIP investors</div>
         </Card>
         <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-gray-900 mb-1">83%</div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">{averageParticipation}%</div>
           <div className="text-sm text-gray-500">Avg Participation</div>
         </Card>
       </div>
@@ -156,42 +146,62 @@ export default function Investors() {
           <div>
             <h4 className="text-sm font-semibold mb-4">Investment Distribution</h4>
             <div className="space-y-4">
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <span className="text-sm font-medium">VIP Investors</span>
-                    <Badge variant="secondary" className="ml-2">Large holders</Badge>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold">$17,500</div>
-                    <div className="text-xs text-gray-500">2 investors</div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <span className="text-sm font-medium">Active Investors</span>
-                    <Badge variant="secondary" className="ml-2">Regular participants</Badge>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold">$12,500</div>
-                    <div className="text-xs text-gray-500">3 investors</div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <span className="text-sm font-medium">Inactive Investors</span>
-                    <Badge variant="secondary" className="ml-2">Low engagement</Badge>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold">$1,500</div>
-                    <div className="text-xs text-gray-500">1 investors</div>
-                  </div>
-                </div>
-              </div>
+              {(() => {
+                const vipInvestorsData = investors.filter(inv => inv.totalInvestment >= 5000);
+                const activeInvestorsData = investors.filter(inv => inv.totalInvestment >= 1000 && inv.totalInvestment < 5000);
+                const inactiveInvestorsData = investors.filter(inv => inv.totalInvestment < 1000);
+                
+                const vipTotal = vipInvestorsData.reduce((sum, inv) => sum + inv.totalInvestment, 0);
+                const activeTotal = activeInvestorsData.reduce((sum, inv) => sum + inv.totalInvestment, 0);
+                const inactiveTotal = inactiveInvestorsData.reduce((sum, inv) => sum + inv.totalInvestment, 0);
+
+                return (
+                  <>
+                    {vipInvestorsData.length > 0 && (
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex justify-between items-center mb-2">
+                          <div>
+                            <span className="text-sm font-medium">VIP Investors</span>
+                            <Badge variant="secondary" className="ml-2">Large holders</Badge>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-semibold">{formatCurrency(vipTotal)}</div>
+                            <div className="text-xs text-gray-500">{vipInvestorsData.length} investors</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {activeInvestorsData.length > 0 && (
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex justify-between items-center mb-2">
+                          <div>
+                            <span className="text-sm font-medium">Active Investors</span>
+                            <Badge variant="secondary" className="ml-2">Regular participants</Badge>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-semibold">{formatCurrency(activeTotal)}</div>
+                            <div className="text-xs text-gray-500">{activeInvestorsData.length} investors</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {inactiveInvestorsData.length > 0 && (
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex justify-between items-center mb-2">
+                          <div>
+                            <span className="text-sm font-medium">Inactive Investors</span>
+                            <Badge variant="secondary" className="ml-2">Low engagement</Badge>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-semibold">{formatCurrency(inactiveTotal)}</div>
+                            <div className="text-xs text-gray-500">{inactiveInvestorsData.length} investors</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -201,16 +211,16 @@ export default function Investors() {
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span>Voting participation</span>
-                  <span className="font-medium">83%</span>
+                  <span className="font-medium">{averageParticipation}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{width: '83%'}}></div>
+                  <div className="bg-green-500 h-2 rounded-full" style={{width: `${averageParticipation}%`}}></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span>Profit Distribution</span>
-                  <span className="font-medium">$6,300</span>
+                  <span className="font-medium">{formatCurrency(totalInvestment * 0.1)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-green-500 h-2 rounded-full" style={{width: '100%'}}></div>
@@ -219,7 +229,7 @@ export default function Investors() {
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span>Community Growth</span>
-                  <span className="font-medium">+12% this month</span>
+                  <span className="font-medium">+{Math.round(totalInvestors * 0.1)}% this month</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-green-500 h-2 rounded-full" style={{width: '100%'}}></div>
@@ -235,7 +245,7 @@ export default function Investors() {
                 <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium">#{index + 1}. {investor.name}</span>
+                      <span className="text-sm font-medium">#{index + 1}. {investor.fullName}</span>
                       <div className="flex gap-1">
                         {investor.badges.slice(0, 2).map((badge, badgeIndex) => (
                           <Badge key={badgeIndex} variant={getBadgeVariant(badge)} size="sm">
@@ -245,8 +255,8 @@ export default function Investors() {
                       </div>
                     </div>
                     <div className="text-right text-sm">
-                      <div className="font-medium">{investor.investment}</div>
-                      <div className="text-gray-500">{investor.participation} participation</div>
+                      <div className="font-medium">{formatCurrency(investor.totalInvestment)}</div>
+                      <div className="text-gray-500">{investor.participation}% participation</div>
                     </div>
                   </div>
                 </div>
@@ -258,54 +268,62 @@ export default function Investors() {
 
       {activeInvestorTab === 1 && (
         <div className="space-y-4">
-          {investors.map((investor, index) => (
-            <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h5 className="font-medium">{investor.name}</h5>
-                  <p className="text-sm text-gray-500">{investor.wallet}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="secondary" size="sm">
-                    <Eye size={14} />
-                    View
-                  </Button>
-                  <Button variant="secondary" size="sm">
-                    <MessageCircle size={14} />
-                    Message
-                  </Button>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {investor.badges.map((badge, badgeIndex) => (
-                  <Badge key={badgeIndex} variant={getBadgeVariant(badge)} size="sm">
-                    {badge}
-                  </Badge>
-                ))}
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500">Investment:</span>
-                  <div className="font-medium">{investor.investment}</div>
-                </div>
-                <div>
-                  <span className="text-gray-500">NFTs owned:</span>
-                  <div className="font-medium">{investor.nftsOwned}</div>
-                </div>
-                <div>
-                  <span className="text-gray-500">Profit received:</span>
-                  <div className="font-medium">{investor.profitReceived}</div>
-                </div>
-                <div>
-                  <span className="text-gray-500">Participation:</span>
-                  <div className="font-medium">{investor.participation}</div>
-                </div>
-              </div>
-              <div className="mt-3 text-sm text-gray-500">
-                📍 {investor.location}
-              </div>
+          {investors.length === 0 ? (
+            <div className="text-center py-8">
+              <Users size={48} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Investors Yet</h3>
+              <p className="text-gray-500">This startup doesn't have any investors yet.</p>
             </div>
-          ))}
+          ) : (
+            investors.map((investor, index) => (
+              <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h5 className="font-medium">{investor.fullName}</h5>
+                    <p className="text-sm text-gray-500">{investor.principal.toString().slice(0, 10)}...</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="secondary" size="sm">
+                      <Eye size={14} />
+                      View
+                    </Button>
+                    <Button variant="secondary" size="sm">
+                      <MessageCircle size={14} />
+                      Message
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {investor.badges.map((badge, badgeIndex) => (
+                    <Badge key={badgeIndex} variant={getBadgeVariant(badge)} size="sm">
+                      {badge}
+                    </Badge>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Investment:</span>
+                    <div className="font-medium">{formatCurrency(investor.totalInvestment)}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">NFTs owned:</span>
+                    <div className="font-medium">{investor.nftsOwned}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Profit received:</span>
+                    <div className="font-medium">{formatCurrency(investor.profitReceived)}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Participation:</span>
+                    <div className="font-medium">{investor.participation}%</div>
+                  </div>
+                </div>
+                <div className="mt-3 text-sm text-gray-500">
+                  📍 {investor.location}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 

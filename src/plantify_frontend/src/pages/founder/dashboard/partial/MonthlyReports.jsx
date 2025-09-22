@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { FileText, Plus, Upload, X } from 'lucide-react';
+import { FileText, Plus, Upload, X, Calendar, CheckCircle, Clock } from 'lucide-react';
 import { Alert, Button, Card, FileUpload, Input, Textarea } from '../../../../components/ui';
+import { useMonthlyReports } from '../../../../hooks/useMonthlyReports';
+import { formatCurrency, formatNumber } from '../../../../utils/formatCurrency';
 
-export default function MonthlyReports() {
+export default function MonthlyReports({ startupId }) {
+  const { reports, loading, error, submitReport, saveDraft } = useMonthlyReports(startupId);
   const [activeSubTab, setActiveSubTab] = useState(0);
   const [showReportForm, setShowReportForm] = useState(false);
   
@@ -53,15 +56,56 @@ export default function MonthlyReports() {
     }));
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission logic here
+    try {
+      const result = await submitReport(formData);
+      if (result.success) {
+        setShowReportForm(false);
+        setFormData({
+          monthlyRevenue: '',
+          netProfit: '',
+          monthlyExpenses: '',
+          cashFlow: '',
+          varianceFromProjection: '',
+          keyAchievements: '',
+          milestonesReached: '',
+          challengesFaced: '',
+          solutionsImplemented: '',
+          competitiveLandscape: '',
+          marketChanges: '',
+          customerFeedback: '',
+          demandShifts: '',
+          nextMonthPlans: '',
+          expectedChallenges: '',
+          resourceNeeds: '',
+          growthProjections: '',
+          investorMessages: '',
+          communityUpdates: '',
+          partnershipNews: '',
+          teamChanges: '',
+        });
+        alert('Report submitted successfully!');
+      } else {
+        alert('Error submitting report: ' + result.error);
+      }
+    } catch (error) {
+      alert('Error submitting report: ' + error.message);
+    }
   };
 
-  const handleSaveDraft = () => {
-    console.log('Draft saved:', formData);
-    // Handle draft save logic here
+  const handleSaveDraft = async () => {
+    try {
+      const result = await saveDraft(formData);
+      if (result.success) {
+        setShowReportForm(false);
+        alert('Draft saved successfully!');
+      } else {
+        alert('Error saving draft: ' + result.error);
+      }
+    } catch (error) {
+      alert('Error saving draft: ' + error.message);
+    }
   };
 
   const renderSubTabContent = () => {
@@ -414,20 +458,116 @@ export default function MonthlyReports() {
           );
         }
       case 1:
-        return (
-          <Card>
-            <div className='flex flex-col items-center justify-center py-16 px-8'>
-              <div className='w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mb-6'>
-                <FileText size={48} className='text-gray-400' />
+        if (loading) {
+          return (
+            <Card>
+              <div className='animate-pulse p-6'>
+                <div className='h-6 bg-gray-300 rounded mb-4 w-1/3'></div>
+                <div className='space-y-4'>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className='h-20 bg-gray-300 rounded'></div>
+                  ))}
+                </div>
               </div>
-              <h3 className='text-xl font-semibold text-gray-900 mb-2'>
-                Report History
-              </h3>
-              <p className='text-gray-600 mb-8'>
-                View and manage your past monthly reports
-              </p>
-            </div>
-          </Card>
+            </Card>
+          );
+        }
+
+        if (error) {
+          return (
+            <Card>
+              <div className='p-6 text-center'>
+                <div className='text-red-600'>
+                  <h3 className='text-xl font-semibold mb-2'>Error Loading Reports</h3>
+                  <p>{error}</p>
+                </div>
+              </div>
+            </Card>
+          );
+        }
+
+        if (reports.length === 0) {
+          return (
+            <Card>
+              <div className='flex flex-col items-center justify-center py-16 px-8'>
+                <div className='w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mb-6'>
+                  <FileText size={48} className='text-gray-400' />
+                </div>
+                <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+                  No Reports Yet
+                </h3>
+                <p className='text-gray-600 mb-8'>
+                  You haven't submitted any monthly reports yet.
+                </p>
+              </div>
+            </Card>
+          );
+        }
+
+        return (
+          <div className='space-y-4'>
+            {reports.map((report) => (
+              <Card key={report.id} className='p-6'>
+                <div className='flex justify-between items-start mb-4'>
+                  <div>
+                    <h3 className='text-lg font-semibold text-gray-900'>
+                      {report.month} {report.year} Report
+                    </h3>
+                    <p className='text-sm text-gray-500'>
+                      Submitted: {report.submittedAt.toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    {report.status === 'submitted' ? (
+                      <span className='flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm'>
+                        <CheckCircle size={14} />
+                        Submitted
+                      </span>
+                    ) : (
+                      <span className='flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm'>
+                        <Clock size={14} />
+                        Draft
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
+                  <div>
+                    <p className='text-sm text-gray-500'>Monthly Revenue</p>
+                    <p className='text-lg font-semibold'>{formatCurrency(report.financialData.monthlyRevenue)}</p>
+                  </div>
+                  <div>
+                    <p className='text-sm text-gray-500'>Net Profit</p>
+                    <p className='text-lg font-semibold'>{formatCurrency(report.financialData.netProfit)}</p>
+                  </div>
+                  <div>
+                    <p className='text-sm text-gray-500'>Variance</p>
+                    <p className={`text-lg font-semibold ${report.financialData.varianceFromProjection >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatNumber(report.financialData.varianceFromProjection)}%
+                    </p>
+                  </div>
+                </div>
+
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div>
+                    <p className='text-sm text-gray-500 mb-1'>Key Achievements</p>
+                    <p className='text-sm text-gray-700 line-clamp-2'>{report.operationalData.keyAchievements}</p>
+                  </div>
+                  <div>
+                    <p className='text-sm text-gray-500 mb-1'>Next Month Plans</p>
+                    <p className='text-sm text-gray-700 line-clamp-2'>{report.forwardLooking.nextMonthPlans}</p>
+                  </div>
+                </div>
+
+                <div className='mt-4 flex justify-end'>
+                  <Button variant='secondary' size='sm'>
+                    View Details
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
         );
       case 2:
         return (
@@ -449,6 +589,17 @@ export default function MonthlyReports() {
         return null;
     }
   };
+
+  if (!startupId) {
+    return (
+      <div className='bg-neutral-100 rounded-[16px] p-6'>
+        <div className='text-center py-8'>
+          <h2 className='text-xl font-semibold mb-2'>No Startup Selected</h2>
+          <p className='text-gray-500'>Please select a startup from the dropdown above.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='bg-neutral-100 rounded-[16px] p-6'>
