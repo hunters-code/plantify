@@ -47,22 +47,8 @@ function App() {
         path='/founder'
         element={<Navigate to='/founder/dashboard' replace />}
       />
-      <Route
-        path='/explore'
-        element={
-          <ProtectedRoute>
-            <ExplorePage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/explore/detail/:id'
-        element={
-          <ProtectedRoute>
-            <ExploreDetailPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path='/explore' element={<ExplorePage />} />
+      <Route path='/explore/detail/:id' element={<ExploreDetailPage />} />
       <Route
         path='/register/founder'
         element={

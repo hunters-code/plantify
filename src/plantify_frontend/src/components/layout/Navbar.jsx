@@ -1,6 +1,7 @@
-import { Fingerprint, User, LogOut, Loader2, Copy, ChevronDown } from 'lucide-react';
+import { Fingerprint, User, LogOut, Loader2, Copy, ChevronDown, Home, Plus } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { useUserNavigation } from '../../hooks/useUserNavigation';
 import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
@@ -11,6 +12,7 @@ export default function Navbar() {
   const [ckUSDCBalance, setCkUSDCBalance] = useState('0');
   const [balanceLoading, setBalanceLoading] = useState(false);
   const { isAuthenticated, principal, signOut, getActor } = useAuth();
+  const { userType, getNavigationItems, isActivePath } = useUserNavigation();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -127,26 +129,28 @@ export default function Navbar() {
 
           {/* Tengah: Links (desktop) — benar2 center & no-wrap */}
           <ul className='hidden md:flex justify-center items-center gap-6 lg:gap-8 text-sm text-gray-600 whitespace-nowrap justify-self-center'>
-            <li>
-              <a className='hover:text-gray-900 transition' href='#explore'>
-                Explore Startups
-              </a>
-            </li>
-            <li>
-              <a className='hover:text-gray-900 transition' href='#how'>
-                How it Works
-              </a>
-            </li>
-            <li>
-              <a className='hover:text-gray-900 transition' href='#about'>
-                About
-              </a>
-            </li>
-            <li>
-              <a className='hover:text-gray-900 transition' href='#founders'>
-                For Founders
-              </a>
-            </li>
+            {getNavigationItems().map((item, index) => (
+              <li key={index}>
+                {item.path.startsWith('#') ? (
+                  <a 
+                    className={`hover:text-gray-900 transition ${isActivePath(item.path) ? 'text-gray-900 font-medium' : ''}`}
+                    href={item.path}
+                    onClick={item.onClick}
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <button
+                    className={`hover:text-gray-900 transition ${isActivePath(item.path) ? 'text-gray-900 font-medium' : ''}`}
+                    onClick={item.onClick}
+                  >
+                    {item.isDashboard && <Home size={14} className="inline mr-1" />}
+                    {item.label === 'Create Startup' && <Plus size={14} className="inline mr-1" />}
+                    {item.label}
+                  </button>
+                )}
+              </li>
+            ))}
           </ul>
 
           {/* Kanan: CTA */}
@@ -166,6 +170,23 @@ export default function Navbar() {
                   {dropdownOpen && (
                     <div className='absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50'>
                       <div className='p-4'>
+                        {userType && (
+                          <div className='mb-4'>
+                            <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Account Type</label>
+                            <div className='mt-1'>
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                userType === 'Founder' 
+                                  ? 'bg-blue-100 text-blue-800' 
+                                  : userType === 'Investor'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-800'
+                              }`}>
+                                {userType}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        
                         <div className='mb-4'>
                           <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Principal ID</label>
                           <div className='flex items-center gap-2 mt-1'>
@@ -249,38 +270,28 @@ export default function Navbar() {
         {open && (
           <div className='md:hidden pb-4'>
             <ul className='flex flex-col gap-2 text-sm text-gray-700'>
-              <li>
-                <a
-                  className='block rounded px-2 py-2 hover:bg-gray-100'
-                  href='#explore'
-                >
-                  Explore Startups
-                </a>
-              </li>
-              <li>
-                <a
-                  className='block rounded px-2 py-2 hover:bg-gray-100'
-                  href='#how'
-                >
-                  How it Works
-                </a>
-              </li>
-              <li>
-                <a
-                  className='block rounded px-2 py-2 hover:bg-gray-100'
-                  href='#about'
-                >
-                  About
-                </a>
-              </li>
-              <li>
-                <a
-                  className='block rounded px-2 py-2 hover:bg-gray-100'
-                  href='#founders'
-                >
-                  For Founders
-                </a>
-              </li>
+              {getNavigationItems().map((item, index) => (
+                <li key={index}>
+                  {item.path.startsWith('#') ? (
+                    <a
+                      className={`block rounded px-2 py-2 hover:bg-gray-100 ${isActivePath(item.path) ? 'bg-gray-100 font-medium' : ''}`}
+                      href={item.path}
+                      onClick={item.onClick}
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <button
+                      className={`w-full text-left block rounded px-2 py-2 hover:bg-gray-100 ${isActivePath(item.path) ? 'bg-gray-100 font-medium' : ''}`}
+                      onClick={item.onClick}
+                    >
+                      {item.isDashboard && <Home size={14} className="inline mr-1" />}
+                      {item.label === 'Create Startup' && <Plus size={14} className="inline mr-1" />}
+                      {item.label}
+                    </button>
+                  )}
+                </li>
+              ))}
               <li className='pt-2'>
                 {isAuthenticated ? (
                   <div className='space-y-2'>
@@ -297,6 +308,23 @@ export default function Navbar() {
                       {dropdownOpen && (
                         <div className='mt-2 w-full bg-white rounded-lg shadow-lg border border-gray-200'>
                           <div className='p-4'>
+                            {userType && (
+                              <div className='mb-4'>
+                                <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Account Type</label>
+                                <div className='mt-1'>
+                                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    userType === 'Founder' 
+                                      ? 'bg-blue-100 text-blue-800' 
+                                      : userType === 'Investor'
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-gray-100 text-gray-800'
+                                  }`}>
+                                    {userType}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                            
                             <div className='mb-4'>
                               <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Principal ID</label>
                               <div className='flex items-center gap-2 mt-1'>

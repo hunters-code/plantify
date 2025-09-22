@@ -28,6 +28,7 @@ import {
 } from '../../../components/ui';
 import { backendService } from '../../../lib/backend';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useInvestmentAuth } from '../../../hooks/useInvestmentAuth';
 
 // partials
 import Overview from './partial/Overview';
@@ -39,6 +40,7 @@ import Risks from './partial/Risks';
 export default function ExploreDetail() {
   const { id } = useParams();
   const { getIdentity, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { handleInvestClick, loading: investmentLoading } = useInvestmentAuth();
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [startup, setStartup] = useState(null);
@@ -80,13 +82,6 @@ export default function ExploreDetail() {
         return;
       }
 
-      if (!isAuthenticated) {
-        console.log('❌ Not authenticated');
-        setError('Please sign in to view startup details');
-        setLoading(false);
-        return;
-      }
-
       // Prevent concurrent fetches
       if (isFetchingRef.current) {
         return;
@@ -97,24 +92,71 @@ export default function ExploreDetail() {
         setLoading(true);
         setError(null);
 
-        const identity = getIdentity();
-        if (!identity) {
-          setError('Authentication required');
-          setLoading(false);
-          return;
-        }
+        // Try to fetch startup details
+        // If user is authenticated, use authenticated backend service
+        // If not authenticated, we'll need to implement a public endpoint or use mock data
+        if (isAuthenticated) {
+          const identity = getIdentity();
+          if (identity) {
+            // Initialize backend service if not already done
+            if (!backendService.getActor()) {
+              await backendService.initialize(identity);
+            }
 
-        // Initialize backend service if not already done
-        if (!backendService.getActor()) {
-          await backendService.initialize(identity);
-        }
-
-        const startupData = await backendService.getStartupDetails(id);
-
-        if (startupData) {
-          setStartup(startupData);
+            const startupData = await backendService.getStartupDetails(id);
+            if (startupData) {
+              setStartup(startupData);
+            } else {
+              setError('Startup not found');
+            }
+          } else {
+            setError('Authentication error');
+          }
         } else {
-          setError('Startup not found');
+          // For unauthenticated users, we'll use mock data for now
+          // In a real implementation, you'd have a public API endpoint
+          const mockStartup = {
+            id: id,
+            startupName: 'EcoFarm Solutions',
+            description: 'Revolutionary hydroponic farming system using IoT technology to help farmers boost their yields while preserving the environment.',
+            sector: 'Agriculture',
+            status: 'approved',
+            location: 'Bandung, Indonesia',
+            teamMembers: [
+              { name: 'Anya Rodriguez', role: 'CEO & Founder' },
+              { name: 'Marcus Johnson', role: 'CTO' },
+              { name: 'Lisa Chen', role: 'Head of Product' }
+            ],
+            companyImages: [
+              '/assets/images/product.png',
+              '/assets/images/product.png',
+              '/assets/images/product.png',
+              '/assets/images/product.png'
+            ],
+            companyLogo: ['/assets/images/icon-startup.png'],
+            periodicProfitSharing: '15% annually',
+            monthlyRevenue: '25,000',
+            nftPrice: '500',
+            fundingGoal: '100,000',
+            foundedYear: '2023',
+            companyType: 'Startup',
+            targetMarket: 'Small to medium scale farmers',
+            solution: 'IoT-enabled hydroponic systems with automated monitoring',
+            problemStatement: 'Traditional farming methods are inefficient and environmentally harmful',
+            revenueModel: 'Hardware sales + subscription services',
+            competitiveAdvantage: 'AI-powered crop optimization and real-time monitoring',
+            useOfFunds: 'Product development, market expansion, team hiring',
+            marketingStrategy: 'Direct sales to farmers, partnerships with agricultural cooperatives',
+            operationalProcess: 'Design, manufacture, install, and maintain hydroponic systems',
+            monthlyExpenses: '15,000',
+            founderBackground: '10+ years in agricultural technology',
+            advisors: 'Industry experts in agriculture and technology',
+            businessPlan: ['Detailed business plan available upon request'],
+            financialProjections: ['5-year financial projections available'],
+            legalDocuments: ['Legal documents available for review'],
+            website: 'https://ecofarm.example.com'
+          };
+          setStartup(mockStartup);
         }
       } catch (err) {
         setError(`Failed to load startup details: ${err.message}`);
@@ -124,9 +166,9 @@ export default function ExploreDetail() {
       }
     };
 
-    // Only fetch if we have both id and authentication, and haven't fetched this ID yet
-    if (id && isAuthenticated && !authLoading) {
-      const fetchKey = `${id}-${isAuthenticated}`;
+    // Fetch startup details if we have an ID and auth is not loading
+    if (id && !authLoading) {
+      const fetchKey = `${id}-${isAuthenticated || 'anonymous'}`;
       if (!fetchedRef.current.has(fetchKey)) {
         console.log('🎯 First time fetching this startup');
         fetchedRef.current.add(fetchKey);
@@ -136,7 +178,7 @@ export default function ExploreDetail() {
         setLoading(false); // Make sure loading is false if we're skipping
       }
     } else {
-      console.log('⏸️ Skipping fetch - missing requirements or auth loading');
+      console.log('⏸️ Skipping fetch - missing ID or auth loading');
     }
   }, [id, isAuthenticated, authLoading]);
 
@@ -332,9 +374,22 @@ export default function ExploreDetail() {
               </span>
             </div>
 
+            {/* Authentication Notice for Unauthenticated Users */}
+            {!isAuthenticated && (
+              <div className='mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700'>
+                💡 Sign in and register as an investor to make investments
+              </div>
+            )}
+
             {/* Button */}
-            <Button variant='primary' className='w-full mt-3'>
-              <Banknote size={20} /> Invest Now
+            <Button 
+              variant='primary' 
+              className='w-full mt-3'
+              onClick={handleInvestClick}
+              disabled={investmentLoading}
+            >
+              <Banknote size={20} /> 
+              {investmentLoading ? 'Checking...' : 'Invest Now'}
             </Button>
           </Card>
         </Card>
