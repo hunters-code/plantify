@@ -14,7 +14,7 @@ import { backendService } from '../../lib/backend';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function Explores() {
-  const { getIdentity } = useAuth();
+  const { getIdentity, isAuthenticated, isLoading: authLoading } = useAuth();
   const [startups, setStartups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -80,9 +80,28 @@ export default function Explores() {
       setLoading(true);
       setError(null);
 
-      // Initialize backend service
+      // Don't fetch if auth is still loading
+      if (authLoading) {
+        setLoading(false);
+        return;
+      }
+
+      // If not authenticated, show empty state
+      if (!isAuthenticated) {
+        setStartups([]);
+        setLoading(false);
+        return;
+      }
+
       const identity = getIdentity();
-      if (identity) {
+      if (!identity) {
+        setError('Authentication required to load startups');
+        setLoading(false);
+        return;
+      }
+
+      // Initialize backend service if not already initialized
+      if (!backendService.getActor()) {
         await backendService.initialize(identity);
       }
 
@@ -121,10 +140,10 @@ export default function Explores() {
     return matchesSearch && matchesFilter;
   });
 
-  // Load startups on component mount
+  // Load startups on component mount and when auth state changes
   useEffect(() => {
     fetchStartups();
-  }, []);
+  }, [isAuthenticated, authLoading]);
 
   return (
     <div className='bg-gray-50 text-gray-900 min-h-screen'>
@@ -222,35 +241,72 @@ export default function Explores() {
         {/* Startups Grid */}
         {!loading && !error && (
           <>
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-              {filteredStartups.map(startup => (
-                <ProductCard key={startup.id} {...startup} />
-              ))}
-            </div>
-
-            {/* No Results */}
-            {filteredStartups.length === 0 && startups.length > 0 && (
+            {!isAuthenticated ? (
               <div className='text-center py-12'>
                 <div className='text-gray-400 mb-4'>
                   <Search size={48} className='mx-auto' />
                 </div>
                 <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  No startups found
+                  Sign in to explore startups
                 </h3>
-                <p className='text-gray-600'>
-                  Try adjusting your search terms or filters to find what you're
-                  looking for.
+                <p className='text-gray-600 mb-4'>
+                  Please sign in to view and explore available startup investment opportunities.
                 </p>
                 <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setFilter('all');
-                  }}
-                  className='mt-4 text-purple-600 hover:text-purple-800 underline'
+                  onClick={() => window.location.href = '/auth'}
+                  className='inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-purple-700'
                 >
-                  Clear filters
+                  Sign In
                 </button>
               </div>
+            ) : (
+              <>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+                  {filteredStartups.map(startup => (
+                    <ProductCard key={startup.id} {...startup} />
+                  ))}
+                </div>
+
+                {/* No Results */}
+                {filteredStartups.length === 0 && startups.length > 0 && (
+                  <div className='text-center py-12'>
+                    <div className='text-gray-400 mb-4'>
+                      <Search size={48} className='mx-auto' />
+                    </div>
+                    <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                      No startups found
+                    </h3>
+                    <p className='text-gray-600'>
+                      Try adjusting your search terms or filters to find what you're
+                      looking for.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSearchTerm('');
+                        setFilter('all');
+                      }}
+                      className='mt-4 text-purple-600 hover:text-purple-800 underline'
+                    >
+                      Clear filters
+                    </button>
+                  </div>
+                )}
+
+                {/* No startups available */}
+                {filteredStartups.length === 0 && startups.length === 0 && (
+                  <div className='text-center py-12'>
+                    <div className='text-gray-400 mb-4'>
+                      <Search size={48} className='mx-auto' />
+                    </div>
+                    <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                      No startups available
+                    </h3>
+                    <p className='text-gray-600'>
+                      There are currently no startups available for investment. Check back later for new opportunities.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}

@@ -1,7 +1,10 @@
 import React from 'react';
-import { CircleDollarSign, Coins, Eye, Globe } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { CircleDollarSign, Coins, Eye, Globe, Loader2 } from 'lucide-react';
+import { useFeaturedStartups } from '../../hooks/useFeaturedStartups';
 
 export function StartupCard({
+  id,
   image,
   title,
   category,
@@ -11,6 +14,11 @@ export function StartupCard({
   fundedPct = 0.45,
   fundedColor = '#22c55e',
 }) {
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    navigate(`/explore/detail/${id}`);
+  };
   return (
     <div className='group rounded-2xl bg-white ring-1 ring-black/5 shadow-sm hover:shadow-lg transition-shadow overflow-hidden'>
       {/* Image with padding */}
@@ -71,7 +79,10 @@ export function StartupCard({
 
         {/* CTA */}
         <div className='mt-4'>
-          <button className='w-full inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 text-[13px] font-medium text-gray-900 px-3 py-2 shadow hover:bg-white transition'>
+          <button 
+            onClick={handleViewDetails}
+            className='w-full inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 text-[13px] font-medium text-gray-900 px-3 py-2 shadow hover:bg-white transition'
+          >
             <Eye size={20} /> View Details
           </button>
         </div>
@@ -81,38 +92,12 @@ export function StartupCard({
 }
 
 export default function FeaturedStartups() {
-  const cards = [
-    {
-      image: '/assets/images/product.png',
-      title: 'EcoFarm Solutions',
-      category: 'Agriculture',
-      nftPrice: '$75 USD',
-      periodicReturn: '$12 USD',
-      fundedText: '45% Funded',
-      fundedPct: 0.45,
-      fundedColor: '#f59e0b',
-    },
-    {
-      image: '/assets/images/product-2.png',
-      title: 'SmartCafe Tech',
-      category: 'Technology',
-      nftPrice: '$100 USD',
-      periodicReturn: '$18 USD',
-      fundedText: '80% Funded',
-      fundedPct: 0.8,
-      fundedColor: '#22c55e',
-    },
-    {
-      image: '/assets/images/product-3.png',
-      title: 'Urban Chicken Farm',
-      category: 'Livestock',
-      nftPrice: '$50 USD',
-      periodicReturn: '$8.5 USD',
-      fundedText: '32% Funded',
-      fundedPct: 0.32,
-      fundedColor: '#fb923c',
-    },
-  ];
+  const navigate = useNavigate();
+  const { featuredStartups, loading, error } = useFeaturedStartups();
+
+  const handleExploreAll = () => {
+    navigate('/explore');
+  };
 
   return (
     <section className='relative isolate py-16 sm:py-20 bg-[#1f1f1f]'>
@@ -124,15 +109,54 @@ export default function FeaturedStartups() {
           Featured Startups
         </h2>
 
-        <div className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
-          {cards.map(c => (
-            <StartupCard key={c.title} {...c} />
-          ))}
-        </div>
+        {loading && (
+          <div className='flex justify-center items-center py-12'>
+            <Loader2 size={32} className='animate-spin text-white' />
+            <span className='ml-3 text-white'>Loading featured startups...</span>
+          </div>
+        )}
+
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-6 mb-6'>
+            <div className='flex items-center'>
+              <div className='text-red-600 mr-3'>⚠️</div>
+              <div>
+                <h3 className='text-red-800 font-medium'>Error Loading Startups</h3>
+                <p className='text-red-600 text-sm mt-1'>{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            <div className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
+              {featuredStartups.map(startup => (
+                <StartupCard key={startup.id} {...startup} />
+              ))}
+            </div>
+
+            {featuredStartups.length === 0 && (
+              <div className='text-center py-12'>
+                <div className='text-gray-400 mb-4'>
+                  <Globe size={48} className='mx-auto' />
+                </div>
+                <h3 className='text-lg font-medium text-white mb-2'>
+                  No featured startups available
+                </h3>
+                <p className='text-gray-300'>
+                  Check back later for new investment opportunities.
+                </p>
+              </div>
+            )}
+          </>
+        )}
 
         <div className='mt-6 flex justify-center'>
-          <button className='inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow hover:bg-gray-50'>
-            {/* small grid icon replacement */}
+          <button 
+            onClick={handleExploreAll}
+            className='inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow hover:bg-gray-50'
+          >
             <Globe size={20} />
             Explore All Startups
           </button>

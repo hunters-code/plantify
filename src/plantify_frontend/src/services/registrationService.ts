@@ -34,8 +34,8 @@ import type {
   Investor,
   FounderRegistrationRequest,
   InvestorRegistrationRequest,
-  Result_2,
-  Result_3,
+  Result_4,
+  Result_5,
 } from '../declarations/plantify_backend/plantify_backend.did';
 import { useAuth } from '../hooks/useAuth';
 
@@ -100,7 +100,7 @@ export class RegistrationService {
         taxNumber: registrationData.taxNumber || '',
       };
 
-      const result: Result_3 = await this.actor.registerFounder(founderRequest);
+      const result: Result_5 = await this.actor.registerFounder(founderRequest);
 
       // Handle the response using the generated Result type
       if ('ok' in result && result.ok) {
@@ -170,7 +170,7 @@ export class RegistrationService {
       
       console.log('Registration service: Calling backend with investor request:', investorRequest);
 
-      const result: Result_2 =
+      const result: Result_4 =
         await this.actor.registerInvestor(investorRequest);
         
       console.log('Registration service: Backend response:', result);
