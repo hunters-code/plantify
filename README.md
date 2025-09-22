@@ -22,10 +22,6 @@ The platform provides a complete set of tools including an AI-powered startup an
 - **Frontend Demo**: https://ueifo-jqaaa-aaaah-qqewa-cai.icp0.io/
 - **Backend ICP Dashboard**: https://dashboard.internetcomputer.org/canister/a5ptu-ryaaa-aaaai-q32cq-cai
 
-### 📁 Repositories
-- **Frontend Repository**: https://github.com/hunters-code/plantify-icp-apps
-- **Backend Repository**: https://github.com/hunters-code/plantify-icp-backend
-
 ---
 
 ## 🌿 Why Plantify?
@@ -64,8 +60,6 @@ The AI system processes multiple data points including startup sustainability pr
 
 - **Live Application**: https://ueifo-jqaaa-aaaah-qqewa-cai.icp0.io/
 - **Backend Dashboard**: https://dashboard.internetcomputer.org/canister/a5ptu-ryaaa-aaaai-q32cq-cai
-- **Frontend Repository**: https://github.com/hunters-code/plantify-icp-apps
-- **Backend Repository**: https://github.com/hunters-code/plantify-icp-backend
 
 ## 🌟 Features of Plantify
 
@@ -137,8 +131,8 @@ Begin by opening a terminal window.
 - **Clone the repository**
 
   ```bash
-  git clone https://github.com/Hackathon-Hunter/plantify-icp-apps.git
-  cd plantify-icp-apps
+  git clone https://github.com/hunters-code/plantify.git
+  cd plantify
   ```
 
 - **Install dependencies**
@@ -451,14 +445,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Live Demo**: [https://ueifo-jqaaa-aaaah-qqewa-cai.icp0.io/](https://ueifo-jqaaa-aaaah-qqewa-cai.icp0.io/)
 - **Backend ICP Dashboard**: [https://dashboard.internetcomputer.org/canister/a5ptu-ryaaa-aaaai-q32cq-cai](https://dashboard.internetcomputer.org/canister/a5ptu-ryaaa-aaaai-q32cq-cai)
 
-### 💻 Technical Stack
-
-- **Frontend Repository**: [https://github.com/hunters-code/plantify-icp-apps](https://github.com/hunters-code/plantify-icp-apps)
-- **Backend Repository**: [https://github.com/hunters-code/plantify-icp-backend](https://github.com/hunters-code/plantify-icp-backend)
-
 ### 📚 Documentation & Resources
 
-- **Repository**: [https://github.com/hunters-code/plantify-icp-apps](https://github.com/hunters-code/plantify-icp-apps)
 - **Internet Computer**: [https://internetcomputer.org/](https://internetcomputer.org/)
 - **Next.js**: [https://nextjs.org/](https://nextjs.org/)
 - **Supabase**: [https://supabase.com/](https://supabase.com/)
