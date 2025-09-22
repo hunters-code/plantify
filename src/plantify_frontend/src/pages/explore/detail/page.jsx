@@ -24,11 +24,13 @@ import {
   Button,
   Card,
   ImageGallery,
+  InvestmentModal,
   ProgressBar,
 } from '../../../components/ui';
 import { backendService } from '../../../lib/backend';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useInvestmentAuth } from '../../../hooks/useInvestmentAuth';
+import { useInvestment } from '../../../hooks/useInvestment';
 
 // partials
 import Overview from './partial/Overview';
@@ -48,6 +50,11 @@ export default function ExploreDetail() {
   const [error, setError] = useState(null);
   const fetchedRef = useRef(new Set()); // Track which IDs we've already fetched
   const isFetchingRef = useRef(false); // Track if we're currently fetching
+  
+  // Investment modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { purchaseNFTs, getInvestmentDetails, isLoading: investmentLoadingData } = useInvestment();
+  const [investmentData, setInvestmentData] = useState(null);
 
   // Reset fetch tracking when ID changes
   useEffect(() => {
@@ -218,6 +225,46 @@ export default function ExploreDetail() {
     }
   };
 
+  const handleInvestNow = async () => {
+    try {
+      const details = await getInvestmentDetails(id);
+      setInvestmentData(details);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error getting investment details:', error);
+      // Fallback with current data
+      setInvestmentData({
+        id,
+        name: startup?.startupName || 'Unknown Startup',
+        nftPrice: startup?.nftPrice || 75,
+        monthlyReturns: Math.round((startup?.nftPrice || 75) * 0.16),
+        expectedROI: 192,
+        availableNFTs: 10, // Default available NFTs
+        totalNFTs: 10,
+        soldNFTs: 0
+      });
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleInvest = async (investmentDetails) => {
+    try {
+      const result = await purchaseNFTs(investmentDetails);
+      
+      if (result.success) {
+        alert(result.message);
+        setIsModalOpen(false);
+        // Optionally refresh the page or update the UI
+        window.location.reload();
+      } else {
+        alert(`Investment failed: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Investment error:', error);
+      alert(`Investment failed: ${error.message}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className='bg-gray-50 text-gray-900 min-h-screen'>
@@ -385,11 +432,11 @@ export default function ExploreDetail() {
             <Button 
               variant='primary' 
               className='w-full mt-3'
-              onClick={handleInvestClick}
-              disabled={investmentLoading}
+              onClick={handleInvestNow}
+              disabled={investmentLoadingData}
             >
               <Banknote size={20} /> 
-              {investmentLoading ? 'Checking...' : 'Invest Now'}
+              {investmentLoading ? 'Loading...' : 'Invest Now'}
             </Button>
           </Card>
         </Card>
@@ -404,6 +451,15 @@ export default function ExploreDetail() {
           <div className='rounded-2xl shadow-sm'>{renderContent()}</div>
         </div>
       </div>
+
+      {/* Investment Modal */}
+      <InvestmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        startup={investmentData}
+        onInvest={handleInvest}
+        isLoading={investmentLoading}
+      />
 
       <Footer />
     </div>

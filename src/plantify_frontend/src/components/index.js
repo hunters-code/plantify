@@ -20,3 +20,6 @@ export {
 export { default as WhyPlantify } from './features/WhyPlantify';
 export { default as ProductCard } from './features/ProductCard';
 export { default as Pagination } from './features/Pagination';
+
+// Investor Components
+// export { InvestmentCard } from './investor';

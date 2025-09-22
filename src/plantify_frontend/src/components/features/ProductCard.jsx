@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useState } from 'react';
 import {
   BadgeDollarSign,
   TrendingUp,
@@ -10,6 +11,8 @@ import {
   ThumbsUp,
   MapPin,
 } from 'lucide-react';
+import { InvestmentModal } from '../ui';
+import { useInvestment } from '../../hooks/useInvestment';
 
 export default function ProductCard({
   id,
@@ -28,6 +31,49 @@ export default function ProductCard({
   fundedAmount,
   targetAmount,
 }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { purchaseNFTs, getInvestmentDetails, isLoading } = useInvestment();
+  const [investmentData, setInvestmentData] = useState(null);
+
+  const handleInvestClick = async () => {
+    try {
+      const details = await getInvestmentDetails(id);
+      setInvestmentData(details);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error getting investment details:', error);
+      // Fallback with current data
+      setInvestmentData({
+        id,
+        name: title,
+        nftPrice: nftPrice || 75,
+        monthlyReturns: Math.round((nftPrice || 75) * 0.16),
+        expectedROI: annualROI || 192,
+        availableNFTs: available || 1,
+        totalNFTs: available || 1,
+        soldNFTs: 0
+      });
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleInvest = async (investmentDetails) => {
+    try {
+      const result = await purchaseNFTs(investmentDetails);
+      
+      if (result.success) {
+        alert(result.message);
+        setIsModalOpen(false);
+        // Optionally refresh the page or update the UI
+        window.location.reload();
+      } else {
+        alert(`Investment failed: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Investment error:', error);
+      alert(`Investment failed: ${error.message}`);
+    }
+  };
   return (
     <div className='bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden'>
       {/* Image */}
@@ -120,15 +166,27 @@ export default function ProductCard({
             <Eye size={20} /> Details
           </button>
           <button
+            onClick={handleInvestClick}
+            disabled={isLoading}
             className='flex-1 flex items-center justify-center gap-[6px] rounded-[12px] border border-white/20 
              bg-[#7A5AF8] text-white text-xs font-medium px-4 py-3 
              shadow-[0_2px_4px_0_rgba(0,0,0,0.16),inset_0_3px_3px_rgba(255,255,255,0.40),inset_0_-2px_1px_rgba(0,0,0,0.25)] 
-             hover:bg-[#6945e6] transition'
+             hover:bg-[#6945e6] transition disabled:opacity-50 disabled:cursor-not-allowed'
           >
-            <BanknoteArrowUp size={20} /> Invest
+            <BanknoteArrowUp size={20} /> 
+            {isLoading ? 'Loading...' : 'Invest'}
           </button>
         </div>
       </div>
+
+      {/* Investment Modal */}
+      <InvestmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        startup={investmentData}
+        onInvest={handleInvest}
+        isLoading={isLoading}
+      />
     </div>
   );
 }
