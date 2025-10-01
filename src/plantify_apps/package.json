@@ -1,0 +1,53 @@
+{
+  "name": "plantify-apps",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "npm i && dfx canister create plantify_backend && dfx generate plantify_backend && dfx deploy",
+    "dev": "next dev --turbopack",
+    "start": "next start",
+    "prebuild": "dfx generate",
+    "build": "next build --turbopack",
+    "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss,md}\"",
+    "format:check": "prettier --check \"src/**/*.{json,js,jsx,ts,tsx,css,scss,md}\"",
+    "lint": "eslint",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^3.0.0",
+    "@dfinity/auth-client": "^3.0.0",
+    "@dfinity/candid": "^3.0.0",
+    "@dfinity/identity": "^3.0.0",
+    "@dfinity/principal": "^3.0.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.12",
+    "lucide-react": "^0.543.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-router-dom": "^7.8.2",
+    "next": "15.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
+    "dotenv": "^16.3.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
+    "sass": "^1.63.6",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "@eslint/eslintrc": "^3"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write"
+    ]
+  }
+}
