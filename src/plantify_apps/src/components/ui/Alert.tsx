@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { AlertCircle, CheckCircle, Info, X } from "lucide-react";
 
 type AlertType = "success" | "error" | "warning" | "info";
@@ -6,7 +6,7 @@ type AlertType = "success" | "error" | "warning" | "info";
 interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   type?: AlertType;
   title?: string;
-  message?: string;
+  message?: string | ReactNode;
   onDismiss?: () => void;
   className?: string;
   showIcon?: boolean;

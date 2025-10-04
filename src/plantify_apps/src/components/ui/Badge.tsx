@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 
-type BadgeVariant =
+export type BadgeVariant =
     | 'default'
     | 'primary'
     | 'secondary'
@@ -11,9 +11,9 @@ type BadgeVariant =
     | 'info'
     | 'outline';
 
-type BadgeSize = 'sm' | 'md' | 'lg';
+export type BadgeSize = 'sm' | 'md' | 'lg';
 
-interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
     children: ReactNode;
     variant?: BadgeVariant;
     size?: BadgeSize;

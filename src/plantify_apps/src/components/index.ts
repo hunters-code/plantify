@@ -1,7 +1,7 @@
 export { default as Button } from './ui/Button';
 
 // Layout Components
-// export { default as Layout } from './layout/Layout';
+export { default as Layout } from './layout/Layout';
 export { default as Navbar } from './layout/Navbar';
 export { default as Footer } from './layout/Footer';
 
