@@ -2,9 +2,10 @@ import React from "react";
 import { Lock, Sparkle, BanknoteArrowDown } from "lucide-react";
 import { Button, Card, ProgressBar } from "@/components/ui";
 import { formatCurrency, formatNumber } from "@/utils/formatCurrency";
+import { CardSkeleton } from "@/components/ui";
 
 function useFundingStatus(startupId: string) {
-  const loading = false;
+  const loading = true; // simulasi loading
   const error = null;
   const startup = { id: startupId, name: "Demo Startup" };
 
@@ -50,25 +51,7 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
   } = useFundingStatus(startupId);
 
   if (loading) {
-    return (
-      <div className="bg-neutral-100 p-6 rounded-[16px]">
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-300 rounded mb-4 w-1/3"></div>
-          <div className="mb-6">
-            <div className="h-4 bg-gray-300 rounded mb-2 w-1/2"></div>
-            <div className="h-2 bg-gray-300 rounded mb-2"></div>
-            <div className="flex justify-between">
-              <div className="h-4 bg-gray-300 rounded w-1/4"></div>
-              <div className="h-4 bg-gray-300 rounded w-1/4"></div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="h-32 bg-gray-300 rounded"></div>
-            <div className="h-32 bg-gray-300 rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <CardSkeleton withImage={false} textRows={4} />;
   }
 
   if (error) {

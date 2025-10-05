@@ -14,7 +14,7 @@ import {
   Card,
   Input,
 } from '@/components/ui';
-import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 type MonthlyReport = {
   id: number;
@@ -39,11 +39,7 @@ type FormData = {
   newInvestors: string;
 };
 
-// =====================
-// Dummy Hook (pengganti API)
-// =====================
 function useMonthlyReports(startupId: string | number) {
-  // dummy data
   const dummyReports: MonthlyReport[] = [
     {
       id: 1,
@@ -55,7 +51,7 @@ function useMonthlyReports(startupId: string | number) {
       investorCount: 10,
       newInvestors: 2,
       status: 'Approved',
-      submittedAt: `${Date.now() * 1000000}`, // dummy ns timestamp
+      submittedAt: `${Date.now() * 1000000}`,
       approvedAt: `${Date.now() * 1000000}`,
     },
     {
@@ -72,18 +68,15 @@ function useMonthlyReports(startupId: string | number) {
     },
   ];
 
-  // hooks state dummy
   const [reports] = useState<MonthlyReport[]>(dummyReports);
-  const [loading] = useState(false);
+  const [loading] = useState(false); 
   const [error] = useState<string | null>(null);
 
-  // fake submit
   const submitReport = async (form: FormData) => {
     console.log('Submitting...', form);
     return { success: true };
   };
 
-  // fake save draft
   const saveDraft = async (form: FormData) => {
     console.log('Saving draft...', form);
     return { success: true };
@@ -92,9 +85,6 @@ function useMonthlyReports(startupId: string | number) {
   return { reports, loading, error, submitReport, saveDraft };
 }
 
-// =====================
-// Component
-// =====================
 export default function MonthlyReports({ startupId }: { startupId?: string }) {
   const { reports, loading, error, submitReport, saveDraft } =
     useMonthlyReports(startupId || '');
@@ -118,9 +108,6 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
     { label: 'Templates', id: 2 },
   ];
 
-  // =====================
-  // Handlers
-  // =====================
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -183,9 +170,6 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
     }
   };
 
-  // =====================
-  // Utils
-  // =====================
   const getStatusIcon = (status: MonthlyReport['status']) => {
     switch (status) {
       case 'Approved':
@@ -216,12 +200,6 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
     }
   };
 
-  const formatDate = (timestamp?: string) => {
-    if (!timestamp) return 'N/A';
-    const date = new Date(Number(timestamp) / 1000000); // Convert ns → ms
-    return date.toLocaleDateString();
-  };
-
   const getMonthName = (monthNumber: number) => {
     const months = [
       'January', 'February', 'March', 'April', 'May', 'June',
@@ -230,9 +208,17 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
     return months[monthNumber - 1] || 'Unknown';
   };
 
-  // =====================
-  // Render Sub Tabs
-  // =====================
+  // Skeleton loader
+  const SkeletonCard = () => (
+    <Card className="p-6 animate-pulse">
+      <div className="h-4 w-32 bg-gray-300 rounded mb-4"></div>
+      <div className="h-3 w-24 bg-gray-200 rounded mb-2"></div>
+      <div className="h-3 w-40 bg-gray-200 rounded mb-2"></div>
+      <div className="h-3 w-20 bg-gray-200 rounded mb-4"></div>
+      <div className="h-8 w-24 bg-gray-300 rounded"></div>
+    </Card>
+  );
+
   const renderSubTabContent = () => {
     switch (activeSubTab) {
       case 0:
@@ -283,7 +269,14 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
           </Card>
         );
       case 1:
-        if (loading) return <p>Loading...</p>;
+        if (loading) {
+          return (
+            <div className="space-y-4">
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          );
+        }
         if (error) return <p>Error: {error}</p>;
         if (reports.length === 0) return <p>No reports yet</p>;
 
@@ -292,10 +285,14 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
             {reports.map(r => (
               <Card key={r.id} className="p-6">
                 <h3>{getMonthName(r.month)} {r.year}</h3>
-                <p>Status: <span className={getStatusColor(r.status)}>{getStatusIcon(r.status)} {r.status}</span></p>
+                <p className="flex items-center gap-2">
+                  Status: <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(r.status)}`}>
+                    {getStatusIcon(r.status)} {r.status}
+                  </span>
+                </p>
                 <p>Revenue: {formatCurrency(r.revenue)}</p>
                 <p>Profit: {formatCurrency(r.profit)}</p>
-                <Button ><Eye size={16} /> View</Button>
+                <Button><Eye size={16} /> View</Button>
               </Card>
             ))}
           </div>
@@ -307,9 +304,6 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
     }
   };
 
-  // =====================
-  // Render Main
-  // =====================
   if (!startupId) {
     return <p>Please select startup</p>;
   }

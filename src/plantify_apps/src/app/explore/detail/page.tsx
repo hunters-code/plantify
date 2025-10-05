@@ -1,15 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-// ❌ Komentar hooks/lib/contexts
-// import { useParams } from 'react-router-dom';
 import {
   AlertTriangle,
   Banknote,
   BanknoteArrowUp,
   BarChart3,
   ChartCandlestick,
-  Eye,
   FileText,
   FolderOpen,
   GalleryHorizontalEnd,
@@ -27,13 +24,11 @@ import {
   ImageGallery,
   InvestmentModal,
   ProgressBar,
+  Skeleton,
+  SkeletonText,
+  CardSkeleton,
 } from '@/components/ui';
-// import { backendService } from '../../../lib/backend';
-// import { useAuth } from '../../../contexts/AuthContext';
-// import { useInvestmentAuth } from '../../../hooks/useInvestmentAuth';
-// import { useInvestment } from '../../../hooks/useInvestment';
 
-// partials
 import Overview from './partial/Overview';
 import Financials from './partial/Financials';
 import FounderTeam from './partial/FounderTeam';
@@ -57,23 +52,17 @@ interface Startup {
 }
 
 export default function ExploreDetail() {
-  // const { id } = useParams();
-  const id = "1"; // 🔹 dummy ID
-  // const { getIdentity, isAuthenticated, isLoading: authLoading } = useAuth();
-  const isAuthenticated = true; // 🔹 dummy auth
-  const authLoading = false; // 🔹 dummy loading
-  // const { handleInvestClick, loading: investmentLoading } = useInvestmentAuth();
+  const id = "1"; // dummy ID
+  const isAuthenticated = true;
+  const authLoading = false;
   const investmentLoading = false;
+
   const [activeTab, setActiveTab] = useState(0);
   const [startup, setStartup] = useState<Startup | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const fetchedRef = useRef(new Set());
-  const isFetchingRef = useRef(false);
 
-  // Investment modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // const { purchaseNFTs, getInvestmentDetails, isLoading: investmentLoadingData } = useInvestment();
   const investmentLoadingData = false;
   const [investmentData, setInvestmentData] = useState<any>(null);
 
@@ -91,12 +80,12 @@ export default function ExploreDetail() {
         setLoading(true);
         setError(null);
 
-        // 🔹 Dummy data
+        // dummy data
         const mockStartup: Startup = {
           id: id,
           startupName: 'EcoFarm Solutions',
           description:
-            'Revolutionary hydroponic farming system using IoT technology to help farmers boost their yields while preserving the environment.',
+            'Revolutionary hydroponic farming system using IoT technology...',
           sector: 'Agriculture',
           status: 'approved',
           location: 'Bandung, Indonesia',
@@ -117,11 +106,11 @@ export default function ExploreDetail() {
           nftPrice: '500',
           fundingGoal: '100,000',
         };
-        setStartup(mockStartup);
+        setTimeout(() => setStartup(mockStartup), 1200); // delay 1.2s
       } catch (err: any) {
         setError(`Failed to load startup details: ${err.message}`);
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 1200);
       }
     };
 
@@ -159,47 +148,40 @@ export default function ExploreDetail() {
   };
 
   const handleInvestNow = async () => {
-    try {
-      // const details = await getInvestmentDetails(id);
-      const details = {
-        id,
-        name: startup?.startupName || 'Unknown Startup',
-        nftPrice: startup?.nftPrice || 75,
-        monthlyReturns: 50,
-        expectedROI: 192,
-        availableNFTs: 10,
-        totalNFTs: 10,
-        soldNFTs: 0,
-      };
-      setInvestmentData(details);
-      setIsModalOpen(true);
-    } catch (error: any) {
-      console.error('Error getting investment details:', error);
-    }
-  };
-
-  const handleInvest = async (investmentDetails: any) => {
-    try {
-      // const result = await purchaseNFTs(investmentDetails);
-      const result = { success: true, message: "Investment successful!" }; // 🔹 dummy
-      if (result.success) {
-        alert(result.message);
-        setIsModalOpen(false);
-        window.location.reload();
-      } else {
-        alert(`Investment failed: ${result}`);
-      }
-    } catch (error: any) {
-      alert(`Investment failed: ${error.message}`);
-    }
+    const details = {
+      id,
+      name: startup?.startupName || 'Unknown Startup',
+      nftPrice: startup?.nftPrice || 75,
+      monthlyReturns: 50,
+      expectedROI: 192,
+      availableNFTs: 10,
+      totalNFTs: 10,
+      soldNFTs: 0,
+    };
+    setInvestmentData(details);
+    setIsModalOpen(true);
   };
 
   if (loading) {
     return (
       <div className="bg-gray-50 text-gray-900 min-h-screen">
         <Navbar />
-        <div className="flex justify-center items-center min-h-[60vh]">
-          <p>Loading startup details...</p>
+        <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Skeleton Left (image gallery) */}
+          <Skeleton height={400} className="w-full rounded-lg" />
+
+          {/* Skeleton Right (card) */}
+          <CardSkeleton textRows={4} />
+        </div>
+
+        <div className="max-w-6xl mx-auto mt-8">
+          <Tabs
+            tabs={tabs}
+            onChange={setActiveTab}
+          />
+          <div className="p-6">
+            <SkeletonText lines={6} />
+          </div>
         </div>
         <Footer />
       </div>
@@ -289,7 +271,7 @@ export default function ExploreDetail() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         startup={investmentData}
-        onInvest={handleInvest}
+        onInvest={() => { }}
         isLoading={investmentLoading}
       />
 

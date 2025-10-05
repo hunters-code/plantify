@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Funnel, ListFilter, Search, Loader2 } from 'lucide-react';
+import { Funnel, ListFilter, Search } from 'lucide-react';
 import {
   Navbar,
   ProductCard,
@@ -9,9 +9,7 @@ import {
   WhyPlantify,
   Footer,
 } from '@/components';
-import { Button, Input } from '@/components/ui';
-// import { backendService } from '../../lib/backend';
-// import { useAuth } from '../../hooks/useAuth';
+import { Button, Input, CardSkeleton } from '@/components/ui';
 
 interface Startup {
   id: string | number;
@@ -35,8 +33,6 @@ interface Startup {
 type FilterType = 'all' | 'available' | 'featured';
 
 export default function Explores() {
-  // const { getIdentity, isAuthenticated, isLoading: authLoading } = useAuth();
-
   // Dummy auth state
   const isAuthenticated = true;
   const authLoading = false;
@@ -103,154 +99,18 @@ export default function Explores() {
       targetAmount: 100000,
       status: 'active',
     },
-    {
-      id: '4',
-      image: '/assets/images/product.png',
-      title: 'EduTech Platform',
-      location: 'Singapore',
-      employees: 20,
-      category: 'EdTech',
-      risk: 'Moderate Risk',
-      description: 'Online learning platform with personalized curriculum',
-      nftPrice: 80,
-      periodicReturns: '$6',
-      annualROI: 90,
-      available: 500,
-      fundingProgress: 70,
-      fundedAmount: 28000,
-      targetAmount: 40000,
-      status: 'active',
-    },
-    {
-      id: '5',
-      image: '/assets/images/product.png',
-      title: 'Retail Innovation Co.',
-      location: 'Toronto, Canada',
-      employees: 30,
-      category: 'Retail',
-      risk: 'Moderate Risk',
-      description: 'Smart retail management system with inventory automation',
-      nftPrice: 120,
-      periodicReturns: '$9',
-      annualROI: 90,
-      available: 300,
-      fundingProgress: 55,
-      fundedAmount: 33000,
-      targetAmount: 60000,
-      status: 'active',
-    },
-    {
-      id: '6',
-      image: '/assets/images/product.png',
-      title: 'Manufacturing Plus',
-      location: 'Berlin, Germany',
-      employees: 50,
-      category: 'Manufacturing',
-      risk: 'Low Risk',
-      description: 'Eco-friendly manufacturing processes and materials',
-      nftPrice: 180,
-      periodicReturns: '$14',
-      annualROI: 93,
-      available: 250,
-      fundingProgress: 85,
-      fundedAmount: 76500,
-      targetAmount: 90000,
-      status: 'active',
-    },
   ];
 
-  // Function to map backend startup data to ProductCard props
-  const mapStartupData = (startup: any): Startup => {
-    // Calculate some derived values
-    const fundingGoal = parseFloat(startup.fundingGoal) || 50000;
-    const nftPrice = parseFloat(startup.nftPrice) || 100;
-    const totalNFTs = Math.floor(fundingGoal / nftPrice);
-    const fundedAmount = Math.floor(fundingGoal * 0.6); // Mock funded amount (60%)
-    const fundingProgress = Math.floor((fundedAmount / fundingGoal) * 100);
-    const available = Math.floor(totalNFTs * 0.4); // Mock available NFTs (40%)
-
-    // Calculate periodic returns and ROI
-    const monthlyProfitSharing = parseFloat(startup.periodicProfitSharing) || 5;
-    const annualReturns = monthlyProfitSharing * 12;
-    const annualROI = ((annualReturns / nftPrice) * 100).toFixed(1);
-
-    return {
-      id: startup.id,
-      image:
-        startup.companyLogo && startup.companyLogo.length > 0
-          ? startup.companyLogo[0]
-          : '/assets/images/product.png',
-      title: startup.startupName,
-      location: startup.location,
-      employees: startup.teamMembers?.length || 5,
-      category: startup.sector,
-      risk: getRiskLevel(startup.sector),
-      description: startup.description,
-      nftPrice: nftPrice,
-      periodicReturns: `$${monthlyProfitSharing}`,
-      annualROI: parseFloat(annualROI),
-      available: available,
-      fundingProgress: fundingProgress,
-      fundedAmount: fundedAmount,
-      targetAmount: fundingGoal,
-      status: startup.status,
-    };
-  };
-
-  // Helper function to determine risk level based on sector
-  const getRiskLevel = (sector: string): string => {
-    const riskMapping: Record<string, string> = {
-      technology: 'High Risk',
-      healthtech: 'Moderate Risk',
-      fintech: 'High Risk',
-      edtech: 'Moderate Risk',
-      agriculture: 'Low Risk',
-      retail: 'Moderate Risk',
-      manufacturing: 'Low Risk',
-      services: 'Low Risk',
-    };
-    return riskMapping[sector?.toLowerCase()] || 'Moderate Risk';
-  };
-
-  // Fetch startups from backend
+  // Fetch startups (dummy delay)
   const fetchStartups = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Simulate API call with dummy data
       setTimeout(() => {
         setStartups(dummyStartups);
         setLoading(false);
-      }, 1000);
-
-      /* Original backend call - commented for dummy data
-      if (authLoading) {
-        setLoading(false);
-        return;
-      }
-
-      if (!isAuthenticated) {
-        setStartups([]);
-        setLoading(false);
-        return;
-      }
-
-      const identity = getIdentity();
-      if (!identity) {
-        setError('Authentication required to load startups');
-        setLoading(false);
-        return;
-      }
-
-      if (!backendService.getActor()) {
-        await backendService.initialize(identity);
-      }
-
-      const result = await backendService.getAllStartups();
-      const mappedStartups = result.map(mapStartupData);
-      setStartups(mappedStartups);
-      */
+      }, 1500);
     } catch (err) {
       console.error('Error fetching startups:', err);
       setError('Failed to load startups. Please try again.');
@@ -258,16 +118,14 @@ export default function Explores() {
     }
   };
 
-  // Filter startups based on current filter and search term
+  // Filter startups
   const filteredStartups = startups.filter((startup) => {
-    // Apply search filter
     const matchesSearch =
       searchTerm === '' ||
       startup.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Apply status filter
     let matchesFilter = true;
     if (filter === 'available') {
       matchesFilter = startup.status === 'active' && startup.available > 0;
@@ -278,7 +136,6 @@ export default function Explores() {
     return matchesSearch && matchesFilter;
   });
 
-  // Load startups on component mount and when auth state changes
   useEffect(() => {
     fetchStartups();
   }, [isAuthenticated, authLoading]);
@@ -353,13 +210,12 @@ export default function Explores() {
           </Button>
         </div>
 
-        {/* Loading State */}
+        {/* ✅ Loading Skeleton Grid */}
         {loading && (
-          <div className='flex items-center justify-center py-12'>
-            <div className='text-center'>
-              <Loader2 className='w-8 h-8 animate-spin mx-auto mb-4 text-purple-600' />
-              <p className='text-gray-600'>Loading startups...</p>
-            </div>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <CardSkeleton key={idx} textRows={3} withImage />
+            ))}
           </div>
         )}
 
@@ -424,8 +280,7 @@ export default function Explores() {
                       No startups found
                     </h3>
                     <p className='text-gray-600'>
-                      Try adjusting your search terms or filters to find what
-                      you're looking for.
+                      Try adjusting your search terms or filters.
                     </p>
                     <button
                       onClick={() => {

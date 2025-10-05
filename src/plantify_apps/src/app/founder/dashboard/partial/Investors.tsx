@@ -1,20 +1,19 @@
+"use client";
+
 import { useState } from "react";
 import {
   Search,
   Filter,
   Eye,
   MessageCircle,
-  Download,
-  BarChart3,
-  Users,
-  TrendingUp,
+  MapPin,
 } from "lucide-react";
-import { Badge, Button, Card } from "@/components/ui";
+import { Badge, Button, Card, CardSkeleton } from "@/components/ui";
 import { formatCurrency, formatNumber } from "@/utils/formatCurrency";
 
 function useInvestors(startupId?: number) {
   const [loading] = useState(false);
-  const [error] = useState < string | null > (null);
+  const [error] = useState<string | null>(null);
 
   const investors = [
     {
@@ -62,7 +61,6 @@ function useInvestors(startupId?: number) {
   };
 }
 
-// 🧩 Komponen utama
 interface InvestorsProps {
   startupId?: number;
 }
@@ -95,19 +93,7 @@ export default function Investors({ startupId }: InvestorsProps) {
     return "secondary";
   };
 
-  if (loading)
-    return (
-      <Card className="p-6 bg-neutral-100 animate-pulse">
-        <div className="h-6 bg-gray-300 rounded mb-4 w-1/3"></div>
-        <div className="grid grid-cols-5 gap-4 mb-6">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-20 bg-gray-300 rounded"></div>
-          ))}
-        </div>
-        <div className="h-10 bg-gray-300 rounded mb-4"></div>
-        <div className="h-64 bg-gray-300 rounded"></div>
-      </Card>
-    );
+  if (loading) return <CardSkeleton textRows={4} withImage />;
 
   if (error)
     return (
@@ -138,8 +124,8 @@ export default function Investors({ startupId }: InvestorsProps) {
         <div>
           <h2 className="text-xl font-semibold">Investors</h2>
           <p className="text-sm text-gray-500">
-            {formatCurrency(totalInvestment)} ({formatNumber(averageParticipation, 1)}%
-            avg participation)
+            {formatCurrency(totalInvestment)} (
+            {formatNumber(averageParticipation, 1)}% avg participation)
           </p>
         </div>
         <div className="text-right">
@@ -212,8 +198,8 @@ export default function Investors({ startupId }: InvestorsProps) {
             key={index}
             onClick={() => setActiveInvestorTab(index)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeInvestorTab === index
-                ? "border-purple-600 text-purple-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+              ? "border-purple-600 text-purple-600"
+              : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
           >
             {tab.label}
@@ -232,7 +218,9 @@ export default function Investors({ startupId }: InvestorsProps) {
                 className="bg-white rounded-lg p-4 border border-gray-200 flex justify-between"
               >
                 <div>
-                  <span className="font-medium">#{index + 1} {investor.fullName}</span>
+                  <span className="font-medium">
+                    #{index + 1} {investor.fullName}
+                  </span>
                   <div className="flex gap-1 mt-1">
                     {investor.badges.map((badge, badgeIndex) => (
                       <Badge
@@ -310,7 +298,7 @@ export default function Investors({ startupId }: InvestorsProps) {
                 </div>
               </div>
               <div className="mt-3 text-sm text-gray-500">
-                📍 {investor.location}
+                <MapPin size={18} /> {investor.location}
               </div>
             </div>
           ))}
