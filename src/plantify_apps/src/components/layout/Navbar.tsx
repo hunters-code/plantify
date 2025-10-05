@@ -7,6 +7,7 @@ import {
     Plus,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { Logo } from "../icons";
 
 interface NavItem {
     label: string;
@@ -32,7 +33,7 @@ export default function Navbar(): JSX.Element {
     ];
 
     const isActivePath = (path: string): boolean => {
-        if (path.startsWith("#")) return false; 
+        if (path.startsWith("#")) return false;
         return pathname === path;
     };
 
@@ -66,11 +67,8 @@ export default function Navbar(): JSX.Element {
                 <div className="grid grid-cols-[auto_1fr_auto] items-center h-16">
                     {/* Kiri: Brand */}
                     <a href="/" className="flex items-center gap-2 justify-start">
-                        <img
-                            src="/assets/images/company-logo.png"
-                            alt="Coworking founders and investors"
-                            className="w-32 object-cover"
-                        />
+                        <Logo className="w-6 h-6" />
+                        <span className="text-2xl font-medium">Plantify</span>
                     </a>
 
                     {/* Tengah: Links (desktop) */}

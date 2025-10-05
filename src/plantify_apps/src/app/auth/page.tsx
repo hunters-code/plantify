@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import { Logo } from "@/components/icons";
 
 export default function LoginRequired() {
     const { signIn, isLoading, userType, isRegistered, isAuthenticated } = useAuth();
@@ -53,11 +54,8 @@ export default function LoginRequired() {
         <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50 px-4">
             <div>
                 <div className="flex justify-center mb-4">
-                    <img
-                        src="/assets/images/company-logo.png"
-                        alt="Plantify"
-                        className="h-12"
-                    />
+                    <Logo className="w-12 h-8" />
+                    <span className="text-3xl font-medium">Plantify</span>
                 </div>
             </div>
 
