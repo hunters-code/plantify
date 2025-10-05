@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Funnel, ListFilter, Search, Loader2 } from 'lucide-react';
 import {
   Navbar,
@@ -10,8 +10,9 @@ import {
   Footer,
 } from '@/components';
 import { Button, Input } from '@/components/ui';
-// import { backendService } from '../../lib/backend';
-// import { useAuth } from '../../hooks/useAuth';
+import { StartupService } from '@/services/marketplace';
+import { useAuth } from '@/contexts/AuthContext';
+import type { Startup as BackendStartup } from '@/declarations/plantify_backend/plantify_backend.did';
 
 interface Startup {
   id: string | number;
@@ -35,11 +36,7 @@ interface Startup {
 type FilterType = 'all' | 'available' | 'featured';
 
 export default function Explores() {
-  // const { getIdentity, isAuthenticated, isLoading: authLoading } = useAuth();
-
-  // Dummy auth state
-  const isAuthenticated = true;
-  const authLoading = false;
+  const { isAuthenticated } = useAuth();
 
   const [startups, setStartups] = useState<Startup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,120 +44,23 @@ export default function Explores() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
 
-  // Dummy startups data
-  const dummyStartups: Startup[] = [
-    {
-      id: '1',
-      image: '/assets/images/product.png',
-      title: 'GreenTech Agriculture',
-      location: 'California, USA',
-      employees: 25,
-      category: 'Agriculture',
-      risk: 'Low Risk',
-      description: 'Sustainable farming solutions using AI and IoT technology',
-      nftPrice: 100,
-      periodicReturns: '$8',
-      annualROI: 96,
-      available: 400,
-      fundingProgress: 65,
-      fundedAmount: 32500,
-      targetAmount: 50000,
-      status: 'active',
-    },
-    {
-      id: '2',
-      image: '/assets/images/product.png',
-      title: 'HealthTech Solutions',
-      location: 'New York, USA',
-      employees: 40,
-      category: 'HealthTech',
-      risk: 'Moderate Risk',
-      description: 'AI-powered health monitoring and diagnostic platform',
-      nftPrice: 150,
-      periodicReturns: '$12',
-      annualROI: 96,
-      available: 200,
-      fundingProgress: 80,
-      fundedAmount: 60000,
-      targetAmount: 75000,
-      status: 'active',
-    },
-    {
-      id: '3',
-      image: '/assets/images/product.png',
-      title: 'FinTech Innovations',
-      location: 'London, UK',
-      employees: 35,
-      category: 'FinTech',
-      risk: 'High Risk',
-      description: 'Blockchain-based payment solutions for businesses',
-      nftPrice: 200,
-      periodicReturns: '$15',
-      annualROI: 90,
-      available: 150,
-      fundingProgress: 45,
-      fundedAmount: 45000,
-      targetAmount: 100000,
-      status: 'active',
-    },
-    {
-      id: '4',
-      image: '/assets/images/product.png',
-      title: 'EduTech Platform',
-      location: 'Singapore',
-      employees: 20,
-      category: 'EdTech',
-      risk: 'Moderate Risk',
-      description: 'Online learning platform with personalized curriculum',
-      nftPrice: 80,
-      periodicReturns: '$6',
-      annualROI: 90,
-      available: 500,
-      fundingProgress: 70,
-      fundedAmount: 28000,
-      targetAmount: 40000,
-      status: 'active',
-    },
-    {
-      id: '5',
-      image: '/assets/images/product.png',
-      title: 'Retail Innovation Co.',
-      location: 'Toronto, Canada',
-      employees: 30,
-      category: 'Retail',
-      risk: 'Moderate Risk',
-      description: 'Smart retail management system with inventory automation',
-      nftPrice: 120,
-      periodicReturns: '$9',
-      annualROI: 90,
-      available: 300,
-      fundingProgress: 55,
-      fundedAmount: 33000,
-      targetAmount: 60000,
-      status: 'active',
-    },
-    {
-      id: '6',
-      image: '/assets/images/product.png',
-      title: 'Manufacturing Plus',
-      location: 'Berlin, Germany',
-      employees: 50,
-      category: 'Manufacturing',
-      risk: 'Low Risk',
-      description: 'Eco-friendly manufacturing processes and materials',
-      nftPrice: 180,
-      periodicReturns: '$14',
-      annualROI: 93,
-      available: 250,
-      fundingProgress: 85,
-      fundedAmount: 76500,
-      targetAmount: 90000,
-      status: 'active',
-    },
-  ];
+  // Helper function to determine risk level based on sector
+  const getRiskLevel = useCallback((sector: string): string => {
+    const riskMapping: Record<string, string> = {
+      technology: 'High Risk',
+      healthtech: 'Moderate Risk',
+      fintech: 'High Risk',
+      edtech: 'Moderate Risk',
+      agriculture: 'Low Risk',
+      retail: 'Moderate Risk',
+      manufacturing: 'Low Risk',
+      services: 'Low Risk',
+    };
+    return riskMapping[sector?.toLowerCase()] || 'Moderate Risk';
+  }, []);
 
   // Function to map backend startup data to ProductCard props
-  const mapStartupData = (startup: any): Startup => {
+  const mapStartupData = useCallback((startup: BackendStartup): Startup => {
     // Calculate some derived values
     const fundingGoal = parseFloat(startup.fundingGoal) || 50000;
     const nftPrice = parseFloat(startup.nftPrice) || 100;
@@ -175,10 +75,10 @@ export default function Explores() {
     const annualROI = ((annualReturns / nftPrice) * 100).toFixed(1);
 
     return {
-      id: startup.id,
+      id: startup.id || `startup-${Date.now()}`,
       image:
-        startup.companyLogo && startup.companyLogo.length > 0
-          ? startup.companyLogo[0]
+        (startup.companyLogo && startup.companyLogo.length > 0)
+          ? (startup.companyLogo[0] || '/assets/images/product.png')
           : '/assets/images/product.png',
       title: startup.startupName,
       location: startup.location,
@@ -195,68 +95,27 @@ export default function Explores() {
       targetAmount: fundingGoal,
       status: startup.status,
     };
-  };
-
-  // Helper function to determine risk level based on sector
-  const getRiskLevel = (sector: string): string => {
-    const riskMapping: Record<string, string> = {
-      technology: 'High Risk',
-      healthtech: 'Moderate Risk',
-      fintech: 'High Risk',
-      edtech: 'Moderate Risk',
-      agriculture: 'Low Risk',
-      retail: 'Moderate Risk',
-      manufacturing: 'Low Risk',
-      services: 'Low Risk',
-    };
-    return riskMapping[sector?.toLowerCase()] || 'Moderate Risk';
-  };
+  }, [getRiskLevel]);
 
   // Fetch startups from backend
-  const fetchStartups = async () => {
+  const fetchStartups = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Simulate API call with dummy data
-      setTimeout(() => {
-        setStartups(dummyStartups);
-        setLoading(false);
-      }, 1000);
+      // Use the StartupService to fetch all startups - no authentication required
+      const result = await StartupService.getAllStartups();
 
-      /* Original backend call - commented for dummy data
-      if (authLoading) {
-        setLoading(false);
-        return;
-      }
-
-      if (!isAuthenticated) {
-        setStartups([]);
-        setLoading(false);
-        return;
-      }
-
-      const identity = getIdentity();
-      if (!identity) {
-        setError('Authentication required to load startups');
-        setLoading(false);
-        return;
-      }
-
-      if (!backendService.getActor()) {
-        await backendService.initialize(identity);
-      }
-
-      const result = await backendService.getAllStartups();
+      // Map the backend data to the UI format
       const mappedStartups = result.map(mapStartupData);
       setStartups(mappedStartups);
-      */
+      setLoading(false);
     } catch (err) {
       console.error('Error fetching startups:', err);
       setError('Failed to load startups. Please try again.');
       setLoading(false);
     }
-  };
+  }, [mapStartupData]);
 
   // Filter startups based on current filter and search term
   const filteredStartups = startups.filter((startup) => {
@@ -278,10 +137,10 @@ export default function Explores() {
     return matchesSearch && matchesFilter;
   });
 
-  // Load startups on component mount and when auth state changes
+  // Load startups on component mount
   useEffect(() => {
     fetchStartups();
-  }, [isAuthenticated, authLoading]);
+  }, [fetchStartups]);
 
   return (
     <div className='bg-gray-50 text-gray-900 min-h-screen'>
@@ -425,7 +284,7 @@ export default function Explores() {
                     </h3>
                     <p className='text-gray-600'>
                       Try adjusting your search terms or filters to find what
-                      you're looking for.
+                      you&apos;re looking for.
                     </p>
                     <button
                       onClick={() => {
