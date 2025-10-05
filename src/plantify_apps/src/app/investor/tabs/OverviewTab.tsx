@@ -2,7 +2,7 @@ import React from "react";
 import { TrendingUp, DollarSign, Activity, Calendar, Vote } from "lucide-react";
 import { Button, Card } from "@/components/ui";
 import { ProductCard } from "@/components/features";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 // Types
 interface DashboardData {
@@ -49,7 +49,7 @@ export default function OverviewTab({
   matchingStartups,
   recentActivity,
 }: OverviewTabProps) {
-  const navigate = useNavigate();
+  const navigate = useRouter();
 
   return (
     <>
@@ -142,7 +142,7 @@ export default function OverviewTab({
           <Button
             variant="secondary"
             className="text-sm"
-            onClick={() => navigate("/explore")}
+            onClick={() => navigate.push("/explore")}
           >
             View all startups
           </Button>
@@ -159,7 +159,7 @@ export default function OverviewTab({
                 There are currently no active startups available for
                 investment.
               </p>
-              <Button variant="primary" onClick={() => navigate("/explore")}>
+              <Button variant="primary" onClick={() => navigate.push("/explore")}>
                 Explore All Startups
               </Button>
             </div>

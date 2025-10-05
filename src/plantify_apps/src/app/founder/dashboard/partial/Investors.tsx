@@ -13,7 +13,7 @@ import { formatCurrency, formatNumber } from "@/utils/formatCurrency";
 
 function useInvestors(startupId?: number) {
   const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+  const [error] = useState<string|null>(null);
 
   const investors = [
     {

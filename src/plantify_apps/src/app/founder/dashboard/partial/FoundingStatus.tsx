@@ -1,8 +1,9 @@
 import React from "react";
-import { Lock, Sparkle, BanknoteArrowDown } from "lucide-react";
-import { Button, Card, ProgressBar } from "@/components/ui";
-import { formatCurrency, formatNumber } from "@/utils/formatCurrency";
+import { Lock, BanknoteArrowDown } from "lucide-react";
+import { Button, Card } from "@/components/ui";
+import { formatCurrency } from "@/utils/formatCurrency";
 import { CardSkeleton } from "@/components/ui";
+import FundingProgress from "@/components/ui/FundingProgress";
 
 function useFundingStatus(startupId: string) {
   const loading = true; // simulasi loading
@@ -80,32 +81,22 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
     <div className="bg-neutral-100 p-6 rounded-[16px]">
       <h2 className="text-xl font-semibold mb-4">Funding Status</h2>
 
-      {/* Progress Bar */}
-      <div className="mb-6 flex gap-2">
-        <Sparkle size={16} />
-        <div className="w-full">
-          <div className="flex gap-2 text-sm mb-2">
-            <span className="text-gray-600">
-              Overall Progress:{" "}
-              <span className="text-orange-500 font-medium">
-                {formatNumber(fundingProgress, 1)}% Funded
-              </span>
-            </span>
-          </div>
-          <ProgressBar value={fundingProgress} max={100} className="mb-2" color="orange" />
-          <div className="flex justify-between text-sm mt-2">
-            <span className="text-orange-600 font-medium">{formatCurrency(totalRaised)}</span>
-            <span className="text-gray-500">{formatCurrency(fundingGoal)}</span>
-          </div>
-        </div>
-      </div>
+      {/* Reusable Progress Bar */}
+      <FundingProgress
+        progress={fundingProgress}
+        totalRaised={totalRaised}
+        fundingGoal={fundingGoal}
+        color="orange"
+      />
 
       {/* Funds Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Available Funds */}
         <Card className="flex flex-col justify-between">
           <div>
-            <p className="text-2xl font-semibold text-gray-900">{formatCurrency(availableFunds)}</p>
+            <p className="text-2xl font-semibold text-gray-900">
+              {formatCurrency(availableFunds)}
+            </p>
             <p className="text-gray-500 text-sm">80% of raised funds (ckUSDC)</p>
           </div>
           <div className="flex justify-end">
@@ -123,7 +114,9 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
         {/* Platform Reserve */}
         <Card className="flex flex-col justify-between">
           <div>
-            <p className="text-2xl font-semibold text-gray-900">{formatCurrency(platformReserve)}</p>
+            <p className="text-2xl font-semibold text-gray-900">
+              {formatCurrency(platformReserve)}
+            </p>
             <p className="text-gray-500 text-sm">20% platform reserve (ckUSDC)</p>
           </div>
           <div
@@ -156,7 +149,9 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Status</p>
-                <p className="text-lg font-semibold capitalize">{collateralInfo.status}</p>
+                <p className="text-lg font-semibold capitalize">
+                  {collateralInfo.status}
+                </p>
               </div>
             </div>
           </Card>

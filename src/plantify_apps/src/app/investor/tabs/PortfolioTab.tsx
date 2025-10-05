@@ -2,7 +2,7 @@ import React from "react";
 import { TrendingUp, AlertCircle, Eye, Vote, Plus } from "lucide-react";
 import { Button, Card, LoadingSpinner } from "@/components/ui";
 import Badge, { type BadgeVariant } from "@/components/ui/Badge";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 // Types
 interface Investment {
@@ -39,7 +39,7 @@ export default function PortfolioTab({
   onAddInvestment,
   onRefresh,
 }: PortfolioTabProps) {
-  const navigate = useNavigate();
+  const navigate = useRouter();
 
   if (portfolioData.loading) {
     return (
@@ -68,7 +68,7 @@ export default function PortfolioTab({
             </Button>
             <Button
               variant="secondary"
-              onClick={() => navigate("/register/investor")}
+              onClick={() => navigate.push("/register/investor")}
             >
               Register as Investor
             </Button>
@@ -91,7 +91,7 @@ export default function PortfolioTab({
             Start building your portfolio by investing in startups
           </p>
           <div className="flex gap-2 justify-center">
-            <Button variant="primary" onClick={() => navigate("/explore")}>
+            <Button variant="primary" onClick={() => navigate.push("/explore")}>
               Explore Startups
             </Button>
             <Button variant="secondary" onClick={onRefresh}>

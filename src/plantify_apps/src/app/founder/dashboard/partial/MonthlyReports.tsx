@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   FileText,
   Plus,
@@ -7,14 +7,9 @@ import {
   Clock,
   Eye,
   Edit,
-} from 'lucide-react';
-import {
-  Alert,
-  Button,
-  Card,
-  Input,
-} from '@/components/ui';
-import { formatCurrency } from '@/utils/formatCurrency';
+} from "lucide-react";
+import { Alert, Button, Card, Input } from "@/components/ui";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 type MonthlyReport = {
   id: number;
@@ -25,7 +20,7 @@ type MonthlyReport = {
   profitSharingAmount: number;
   investorCount: number;
   newInvestors: number;
-  status: 'Approved' | 'Submitted' | 'Draft' | 'Rejected';
+  status: "Approved" | "Submitted" | "Draft" | "Rejected";
   submittedAt?: string;
   approvedAt?: string;
 };
@@ -39,6 +34,14 @@ type FormData = {
   newInvestors: string;
 };
 
+// Hasil API success/error
+type ApiResult = { success: true } | { success: false; error: string };
+
+// Type guard error
+function isErrorWithMessage(err: unknown): err is { message: string } {
+  return typeof err === "object" && err !== null && "message" in err;
+}
+
 function useMonthlyReports(startupId: string | number) {
   const dummyReports: MonthlyReport[] = [
     {
@@ -50,7 +53,7 @@ function useMonthlyReports(startupId: string | number) {
       profitSharingAmount: 500,
       investorCount: 10,
       newInvestors: 2,
-      status: 'Approved',
+      status: "Approved",
       submittedAt: `${Date.now() * 1000000}`,
       approvedAt: `${Date.now() * 1000000}`,
     },
@@ -63,22 +66,22 @@ function useMonthlyReports(startupId: string | number) {
       profitSharingAmount: 400,
       investorCount: 9,
       newInvestors: 1,
-      status: 'Submitted',
+      status: "Submitted",
       submittedAt: `${Date.now() * 1000000}`,
     },
   ];
 
   const [reports] = useState<MonthlyReport[]>(dummyReports);
-  const [loading] = useState(false); 
+  const [loading] = useState(false);
   const [error] = useState<string | null>(null);
 
-  const submitReport = async (form: FormData) => {
-    console.log('Submitting...', form);
+  const submitReport = async (form: FormData): Promise<ApiResult> => {
+    console.log("Submitting...", form);
     return { success: true };
   };
 
-  const saveDraft = async (form: FormData) => {
-    console.log('Saving draft...', form);
+  const saveDraft = async (form: FormData): Promise<ApiResult> => {
+    console.log("Saving draft...", form);
     return { success: true };
   };
 
@@ -87,29 +90,29 @@ function useMonthlyReports(startupId: string | number) {
 
 export default function MonthlyReports({ startupId }: { startupId?: string }) {
   const { reports, loading, error, submitReport, saveDraft } =
-    useMonthlyReports(startupId || '');
+    useMonthlyReports(startupId || "");
   const [activeSubTab, setActiveSubTab] = useState<number>(0);
   const [showReportForm, setShowReportForm] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [submitMessage, setSubmitMessage] = useState<string>('');
+  const [submitMessage, setSubmitMessage] = useState<string>("");
 
   const [formData, setFormData] = useState<FormData>({
-    monthlyRevenue: '',
-    monthlyExpenses: '',
-    netProfit: '',
-    profitSharingAmount: '',
-    investorCount: '',
-    newInvestors: '',
+    monthlyRevenue: "",
+    monthlyExpenses: "",
+    netProfit: "",
+    profitSharingAmount: "",
+    investorCount: "",
+    newInvestors: "",
   });
 
   const subTabs = [
-    { label: 'Current month', id: 0 },
-    { label: 'History', id: 1 },
-    { label: 'Templates', id: 2 },
+    { label: "Current month", id: 0 },
+    { label: "History", id: 1 },
+    { label: "Templates", id: 2 },
   ];
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -118,26 +121,30 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    setSubmitMessage('');
+    setSubmitMessage("");
 
     try {
       const result = await submitReport(formData);
       if (result.success) {
-        setSubmitMessage('Report submitted successfully!');
+        setSubmitMessage("Report submitted successfully!");
         setFormData({
-          monthlyRevenue: '',
-          monthlyExpenses: '',
-          netProfit: '',
-          profitSharingAmount: '',
-          investorCount: '',
-          newInvestors: '',
+          monthlyRevenue: "",
+          monthlyExpenses: "",
+          netProfit: "",
+          profitSharingAmount: "",
+          investorCount: "",
+          newInvestors: "",
         });
         setShowReportForm(false);
       } else {
-        setSubmitMessage(`Error: ${(result as any).error}`);
+        setSubmitMessage(`Error: ${result.error}`);
       }
-    } catch (err: any) {
-      setSubmitMessage(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      if (isErrorWithMessage(err)) {
+        setSubmitMessage(`Error: ${err.message}`);
+      } else {
+        setSubmitMessage("An unexpected error occurred");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -145,67 +152,81 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
 
   const handleSaveDraft = async () => {
     setSubmitting(true);
-    setSubmitMessage('');
+    setSubmitMessage("");
 
     try {
       const result = await saveDraft(formData);
       if (result.success) {
-        setSubmitMessage('Draft saved successfully!');
+        setSubmitMessage("Draft saved successfully!");
         setFormData({
-          monthlyRevenue: '',
-          monthlyExpenses: '',
-          netProfit: '',
-          profitSharingAmount: '',
-          investorCount: '',
-          newInvestors: '',
+          monthlyRevenue: "",
+          monthlyExpenses: "",
+          netProfit: "",
+          profitSharingAmount: "",
+          investorCount: "",
+          newInvestors: "",
         });
         setShowReportForm(false);
       } else {
-        setSubmitMessage(`Error: ${(result as any).error}`);
+        setSubmitMessage(`Error: ${result.error}`);
       }
-    } catch (err: any) {
-      setSubmitMessage(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      if (isErrorWithMessage(err)) {
+        setSubmitMessage(`Error: ${err.message}`);
+      } else {
+        setSubmitMessage("An unexpected error occurred");
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
-  const getStatusIcon = (status: MonthlyReport['status']) => {
+  const getStatusIcon = (status: MonthlyReport["status"]) => {
     switch (status) {
-      case 'Approved':
+      case "Approved":
         return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'Submitted':
+      case "Submitted":
         return <Clock className="w-4 h-4 text-yellow-500" />;
-      case 'Draft':
+      case "Draft":
         return <Edit className="w-4 h-4 text-gray-500" />;
-      case 'Rejected':
+      case "Rejected":
         return <X className="w-4 h-4 text-red-500" />;
       default:
         return <Clock className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  const getStatusColor = (status: MonthlyReport['status']) => {
+  const getStatusColor = (status: MonthlyReport["status"]) => {
     switch (status) {
-      case 'Approved':
-        return 'bg-green-100 text-green-800';
-      case 'Submitted':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Draft':
-        return 'bg-gray-100 text-gray-800';
-      case 'Rejected':
-        return 'bg-red-100 text-red-800';
+      case "Approved":
+        return "bg-green-100 text-green-800";
+      case "Submitted":
+        return "bg-yellow-100 text-yellow-800";
+      case "Draft":
+        return "bg-gray-100 text-gray-800";
+      case "Rejected":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getMonthName = (monthNumber: number) => {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
-    return months[monthNumber - 1] || 'Unknown';
+    return months[monthNumber - 1] || "Unknown";
   };
 
   // Skeleton loader
@@ -230,10 +251,16 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
                   <FileText size={48} className="text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {getMonthName(new Date().getMonth() + 1)} {new Date().getFullYear()} Report
+                  {getMonthName(new Date().getMonth() + 1)}{" "}
+                  {new Date().getFullYear()} Report
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Due: {new Date(new Date().getFullYear(), new Date().getMonth() + 1, 10).toLocaleDateString()}
+                  Due:{" "}
+                  {new Date(
+                    new Date().getFullYear(),
+                    new Date().getMonth() + 1,
+                    10
+                  ).toLocaleDateString()}
                 </p>
                 <Button onClick={() => setShowReportForm(true)} variant="primary">
                   <Plus size={16} />
@@ -244,7 +271,7 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
               <form onSubmit={handleSubmit} className="space-y-6 p-6">
                 {submitMessage && (
                   <Alert
-                    type={submitMessage.includes('Error') ? 'error' : 'success'}
+                    type={submitMessage.includes("Error") ? "error" : "success"}
                     message={submitMessage}
                   />
                 )}
@@ -253,15 +280,22 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
                   type="number"
                   label="Monthly Revenue"
                   value={formData.monthlyRevenue}
-                  onChange={e => handleInputChange('monthlyRevenue', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("monthlyRevenue", e.target.value)
+                  }
                 />
 
                 <div className="flex justify-end gap-4">
-                  <Button type="button" variant="secondary" onClick={handleSaveDraft} disabled={submitting}>
-                    {submitting ? 'Saving...' : 'Save as Draft'}
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleSaveDraft}
+                    disabled={submitting}
+                  >
+                    {submitting ? "Saving..." : "Save as Draft"}
                   </Button>
                   <Button type="submit" variant="primary" disabled={submitting}>
-                    {submitting ? 'Submitting...' : 'Submit Report'}
+                    {submitting ? "Submitting..." : "Submit Report"}
                   </Button>
                 </div>
               </form>
@@ -282,17 +316,26 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
 
         return (
           <div className="space-y-4">
-            {reports.map(r => (
+            {reports.map((r) => (
               <Card key={r.id} className="p-6">
-                <h3>{getMonthName(r.month)} {r.year}</h3>
+                <h3>
+                  {getMonthName(r.month)} {r.year}
+                </h3>
                 <p className="flex items-center gap-2">
-                  Status: <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(r.status)}`}>
+                  Status:{" "}
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                      r.status
+                    )}`}
+                  >
                     {getStatusIcon(r.status)} {r.status}
                   </span>
                 </p>
                 <p>Revenue: {formatCurrency(r.revenue)}</p>
                 <p>Profit: {formatCurrency(r.profit)}</p>
-                <Button><Eye size={16} /> View</Button>
+                <Button>
+                  <Eye size={16} /> View
+                </Button>
               </Card>
             ))}
           </div>
@@ -313,14 +356,15 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
       <h2 className="text-xl font-semibold mb-4">Monthly Reports</h2>
 
       <div className="flex gap-2 mb-6 border border-neutral-200 rounded-full w-fit">
-        {subTabs.map(tab => (
+        {subTabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveSubTab(tab.id)}
-            className={`px-4 py-2 text-sm font-medium transition rounded-[12px] ${activeSubTab === tab.id
-                ? 'bg-[#7A5AF8] text-white'
-                : 'text-gray-600 hover:bg-gray-50'
-              }`}
+            className={`px-4 py-2 text-sm font-medium transition rounded-[12px] ${
+              activeSubTab === tab.id
+                ? "bg-[#7A5AF8] text-white"
+                : "text-gray-600 hover:bg-gray-50"
+            }`}
           >
             {tab.label}
           </button>
