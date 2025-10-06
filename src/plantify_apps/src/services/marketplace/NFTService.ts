@@ -1,0 +1,177 @@
+import { BaseService } from '../BaseService';
+import type {
+  NFTInfo,
+  NFTAccount,
+  NFTBalanceResponse,
+  NFTOwnerResponse,
+  MintNFTRequest,
+  MintNFTResponse,
+  TransferNFTRequest,
+  TransferNFTResponse,
+  NFTConfig,
+  Result_2,
+  Result_8,
+  Result_15,
+  Result_16,
+  Result_17,
+  Result_24
+} from '@/declarations/plantify_backend/plantify_backend.did';
+
+/**
+ * Service for NFT operations
+ */
+export class NFTService extends BaseService {
+  /**
+   * Get all NFTs
+   * @returns Array of NFTs
+   */
+  public static async getAllNFTs(): Promise<NFTInfo[]> {
+    try {
+      return await this.getActor().getAllNFTs();
+    } catch (error) {
+      console.error('Error getting all NFTs:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get information about a specific NFT
+   * @param tokenId - The ID of the NFT
+   * @returns The NFT info or error message
+   */
+  public static async getNFTInfo(tokenId: bigint): Promise<{ success: boolean; nft?: NFTInfo; error?: string }> {
+    try {
+      const result: Result_16 = await this.getActor().getNFTInfo(tokenId);
+      
+      if ('ok' in result) {
+        return { success: true, nft: result.ok };
+      } else {
+        return { success: false, error: result.err };
+      }
+    } catch (error) {
+      console.error('Error getting NFT info:', error);
+      return { success: false, error: 'Failed to get NFT info' };
+    }
+  }
+
+  /**
+   * Get the owner of an NFT
+   * @param tokenId - The ID of the NFT
+   * @returns The owner response or error message
+   */
+  public static async getNFTOwner(tokenId: bigint): Promise<{ success: boolean; owner?: NFTOwnerResponse; error?: string }> {
+    try {
+      const result: Result_15 = await this.getActor().getNFTOwner(tokenId);
+      
+      if ('ok' in result) {
+        return { success: true, owner: result.ok };
+      } else {
+        return { success: false, error: result.err };
+      }
+    } catch (error) {
+      console.error('Error getting NFT owner:', error);
+      return { success: false, error: 'Failed to get NFT owner' };
+    }
+  }
+
+  /**
+   * Get the NFT balance for an account
+   * @param account - The NFT account
+   * @returns The balance response or error message
+   */
+  public static async getNFTBalance(account: NFTAccount): Promise<{ success: boolean; balance?: NFTBalanceResponse; error?: string }> {
+    try {
+      const result: Result_17 = await this.getActor().getNFTBalance(account);
+      
+      if ('ok' in result) {
+        return { success: true, balance: result.ok };
+      } else {
+        return { success: false, error: result.err };
+      }
+    } catch (error) {
+      console.error('Error getting NFT balance:', error);
+      return { success: false, error: 'Failed to get NFT balance' };
+    }
+  }
+
+  /**
+   * Mint a new NFT
+   * @param request - The mint NFT request
+   * @returns The mint response or error message
+   */
+  public static async mintNFT(request: MintNFTRequest): Promise<{ success: boolean; response?: MintNFTResponse; error?: string }> {
+    try {
+      const result: Result_8 = await this.getActor().mintNFT(request);
+      
+      if ('ok' in result) {
+        return { success: true, response: result.ok };
+      } else {
+        return { success: false, error: result.err };
+      }
+    } catch (error) {
+      console.error('Error minting NFT:', error);
+      return { success: false, error: 'Failed to mint NFT' };
+    }
+  }
+
+  /**
+   * Check if an NFT can be minted for a startup
+   * @param startupId - The ID of the startup
+   * @returns True if NFT can be minted, false otherwise
+   */
+  public static async canMintNFT(startupId: string): Promise<boolean> {
+    try {
+      const result: Result_24 = await this.getActor().canMintNFT(startupId);
+      return 'ok' in result ? result.ok : false;
+    } catch (error) {
+      console.error('Error checking if NFT can be minted:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Transfer an NFT to another account
+   * @param request - The transfer NFT request
+   * @returns The transfer response or error message
+   */
+  public static async transferNFT(request: TransferNFTRequest): Promise<{ success: boolean; response?: TransferNFTResponse; error?: string }> {
+    try {
+      const result: Result_2 = await this.getActor().transferNFT(request);
+      
+      if ('ok' in result) {
+        return { success: true, response: result.ok };
+      } else {
+        return { success: false, error: result.err };
+      }
+    } catch (error) {
+      console.error('Error transferring NFT:', error);
+      return { success: false, error: 'Failed to transfer NFT' };
+    }
+  }
+
+  /**
+   * Get NFT collection information
+   * @returns NFT collection configuration
+   */
+  public static async getCollectionInfo(): Promise<NFTConfig | null> {
+    try {
+      return await this.getActor().getCollectionInfo();
+    } catch (error) {
+      console.error('Error getting collection info:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get NFT statistics
+   * @returns NFT statistics
+   */
+  public static async getNFTStats(): Promise<{ totalSupply: bigint; totalStartups: bigint; nextTokenId: bigint } | null> {
+    try {
+      return await this.getActor().getNFTStats();
+    } catch (error) {
+      console.error('Error getting NFT stats:', error);
+      return null;
+    }
+  }
+}

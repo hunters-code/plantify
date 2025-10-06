@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Funnel, ListFilter, Search } from 'lucide-react';
 import {
   Navbar,
@@ -9,7 +9,11 @@ import {
   WhyPlantify,
   Footer,
 } from '@/components';
-import { Button, Input, CardSkeleton } from '@/components/ui';
+import { Button, CardSkeleton, Input } from '@/components/ui';
+import { StartupService } from '@/services/marketplace';
+import { useAuth } from '@/contexts/AuthContext';
+import { getRiskLevel } from '@/utils/riskLevels';
+import type { Startup as BackendStartup } from '@/declarations/plantify_backend/plantify_backend.did';
 
 interface Startup {
   id: string | number;
@@ -33,9 +37,7 @@ interface Startup {
 type FilterType = 'all' | 'available' | 'featured';
 
 export default function Explores() {
-  // Dummy auth state
-  const isAuthenticated = true;
-  const authLoading = false;
+  const { isAuthenticated } = useAuth();
 
   const [startups, setStartups] = useState<Startup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,80 +45,61 @@ export default function Explores() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
 
-  // Dummy startups data
-  const dummyStartups: Startup[] = [
-    {
-      id: '1',
-      image: '/assets/images/product.png',
-      title: 'GreenTech Agriculture',
-      location: 'California, USA',
-      employees: 25,
-      category: 'Agriculture',
-      risk: 'Low Risk',
-      description: 'Sustainable farming solutions using AI and IoT technology',
-      nftPrice: 100,
-      periodicReturns: '$8',
-      annualROI: 96,
-      available: 400,
-      fundingProgress: 65,
-      fundedAmount: 32500,
-      targetAmount: 50000,
-      status: 'active',
-    },
-    {
-      id: '2',
-      image: '/assets/images/product.png',
-      title: 'HealthTech Solutions',
-      location: 'New York, USA',
-      employees: 40,
-      category: 'HealthTech',
-      risk: 'Moderate Risk',
-      description: 'AI-powered health monitoring and diagnostic platform',
-      nftPrice: 150,
-      periodicReturns: '$12',
-      annualROI: 96,
-      available: 200,
-      fundingProgress: 80,
-      fundedAmount: 60000,
-      targetAmount: 75000,
-      status: 'active',
-    },
-    {
-      id: '3',
-      image: '/assets/images/product.png',
-      title: 'FinTech Innovations',
-      location: 'London, UK',
-      employees: 35,
-      category: 'FinTech',
-      risk: 'High Risk',
-      description: 'Blockchain-based payment solutions for businesses',
-      nftPrice: 200,
-      periodicReturns: '$15',
-      annualROI: 90,
-      available: 150,
-      fundingProgress: 45,
-      fundedAmount: 45000,
-      targetAmount: 100000,
-      status: 'active',
-    },
-  ];
 
-  // Fetch startups (dummy delay)
-  const fetchStartups = async () => {
+  // Function to map backend startup data to ProductCard props
+  const mapStartupData = useCallback((startup: BackendStartup): Startup => {
+    // Calculate some derived values
+    const fundingGoal = parseFloat(startup.fundingGoal) || 50000;
+    const nftPrice = parseFloat(startup.nftPrice) || 100;
+    const totalNFTs = Math.floor(fundingGoal / nftPrice);
+    const fundedAmount = Math.floor(fundingGoal * 0.6); // Mock funded amount (60%)
+    const fundingProgress = Math.floor((fundedAmount / fundingGoal) * 100);
+    const available = Math.floor(totalNFTs * 0.4); // Mock available NFTs (40%)
+
+    // Calculate periodic returns and ROI
+    const monthlyProfitSharing = parseFloat(startup.periodicProfitSharing) || 5;
+    const annualReturns = monthlyProfitSharing * 12;
+    const annualROI = ((annualReturns / nftPrice) * 100).toFixed(1);
+
+    return {
+      id: startup.id,
+      image: startup.companyLogo?.[0] || '/assets/images/product.png',
+      title: startup.startupName,
+      location: startup.location,
+      employees: startup.teamMembers?.length || 5,
+      category: startup.sector,
+      risk: getRiskLevel(startup.sector),
+      description: startup.description,
+      nftPrice: nftPrice,
+      periodicReturns: `$${monthlyProfitSharing}`,
+      annualROI: parseFloat(annualROI),
+      available: available,
+      fundingProgress: fundingProgress,
+      fundedAmount: fundedAmount,
+      targetAmount: fundingGoal,
+      status: startup.status,
+    };
+  }, []);
+
+  // Fetch startups from backend
+  const fetchStartups = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      setTimeout(() => {
-        setStartups(dummyStartups);
-        setLoading(false);
-      }, 1500);
+      // Use the StartupService to fetch all startups - no authentication required
+      const result = await StartupService.getAllStartups();
+
+      // Map the backend data to the UI format
+      const mappedStartups = result.map(mapStartupData);
+      setStartups(mappedStartups);
+      setLoading(false);
     } catch (err) {
       console.error('Error fetching startups:', err);
       setError('Failed to load startups. Please try again.');
       setLoading(false);
     }
-  };
+  }, [mapStartupData]);
 
   // Filter startups
   const filteredStartups = startups.filter((startup) => {
@@ -136,9 +119,10 @@ export default function Explores() {
     return matchesSearch && matchesFilter;
   });
 
+  // Load startups on component mount
   useEffect(() => {
     fetchStartups();
-  }, [isAuthenticated, authLoading]);
+  }, [fetchStartups]);
 
   return (
     <div className='bg-gray-50 text-gray-900 min-h-screen'>
@@ -280,7 +264,8 @@ export default function Explores() {
                       No startups found
                     </h3>
                     <p className='text-gray-600'>
-                      Try adjusting your search terms or filters.
+                      Try adjusting your search terms or filters to find what
+                      you&apos;re looking for.
                     </p>
                     <button
                       onClick={() => {
