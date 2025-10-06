@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [actor, setActor] = useState<_SERVICE | null>(null);
   
   // Canister ID for the backend
-  const canisterId = 'a5ptu-ryaaa-aaaai-q32cq-cai';
+  const canisterId = process.env.CANISTER_ID || '';
 
   // Initialize auth client on component mount
   useEffect(() => {

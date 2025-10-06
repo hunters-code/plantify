@@ -12,6 +12,7 @@ import {
 import { Button, Input } from '@/components/ui';
 import { StartupService } from '@/services/marketplace';
 import { useAuth } from '@/contexts/AuthContext';
+import { getRiskLevel } from '@/utils/riskLevels';
 import type { Startup as BackendStartup } from '@/declarations/plantify_backend/plantify_backend.did';
 
 interface Startup {
@@ -44,20 +45,6 @@ export default function Explores() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
 
-  // Helper function to determine risk level based on sector
-  const getRiskLevel = useCallback((sector: string): string => {
-    const riskMapping: Record<string, string> = {
-      technology: 'High Risk',
-      healthtech: 'Moderate Risk',
-      fintech: 'High Risk',
-      edtech: 'Moderate Risk',
-      agriculture: 'Low Risk',
-      retail: 'Moderate Risk',
-      manufacturing: 'Low Risk',
-      services: 'Low Risk',
-    };
-    return riskMapping[sector?.toLowerCase()] || 'Moderate Risk';
-  }, []);
 
   // Function to map backend startup data to ProductCard props
   const mapStartupData = useCallback((startup: BackendStartup): Startup => {
@@ -75,11 +62,8 @@ export default function Explores() {
     const annualROI = ((annualReturns / nftPrice) * 100).toFixed(1);
 
     return {
-      id: startup.id || `startup-${Date.now()}`,
-      image:
-        (startup.companyLogo && startup.companyLogo.length > 0)
-          ? (startup.companyLogo[0] || '/assets/images/product.png')
-          : '/assets/images/product.png',
+      id: startup.id,
+      image: startup.companyLogo?.[0] || '/assets/images/product.png',
       title: startup.startupName,
       location: startup.location,
       employees: startup.teamMembers?.length || 5,
@@ -95,7 +79,7 @@ export default function Explores() {
       targetAmount: fundingGoal,
       status: startup.status,
     };
-  }, [getRiskLevel]);
+  }, []);
 
   // Fetch startups from backend
   const fetchStartups = useCallback(async () => {

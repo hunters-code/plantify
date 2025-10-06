@@ -9,7 +9,7 @@ import type { _SERVICE } from '@/declarations/plantify_backend/plantify_backend.
 export class BaseService {
   private static actor: _SERVICE | null = null;
   private static agent: HttpAgent | null = null;
-  protected static canisterId: string = 'a5ptu-ryaaa-aaaai-q32cq-cai';
+  protected static canisterId: string = process.env.CANISTER_ID || '';
 
   /**
    * Initialize the service with an identity
