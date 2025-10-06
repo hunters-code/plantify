@@ -1,7 +1,5 @@
 import { Plus, MoreHorizontal, User } from "lucide-react";
 import { Button, Card } from "@/components/ui";
-// import { useTeamMembers } from "../../../../hooks/useTeamMembers";
-// import { useStartupDetails } from "../../../../hooks/useStartupDetails";
 
 interface TeamMember {
   id: number;
@@ -12,9 +10,6 @@ interface TeamMember {
 }
 
 export default function TeamSection({ startupId }: { startupId: number }) {
-  // const { teamMembers, loading, error } = useTeamMembers(startupId);
-  // const { startup } = useStartupDetails(startupId);
-
   // === Dummy Data ===
   const startup = {
     startupName: "Dummy Startup",

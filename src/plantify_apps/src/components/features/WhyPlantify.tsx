@@ -7,6 +7,8 @@ import {
     Globe,
     HandCoins,
 } from 'lucide-react';
+
+import { Logo } from "@/components/icons";
 import Button from '@/components/ui/Button';
 
 const features = [
@@ -55,7 +57,7 @@ export default function WhyPlantify({ withoutCta = false }) {
                 <div
                     className='relative rounded-3xl shadow-xl ring-1 ring-black/5 overflow-hidden p-24'
                     style={{
-                        backgroundImage: 'url(/assets/images/house.jpg)',
+                        backgroundImage: 'url(/assets/images/house.webp)',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                     }}
@@ -94,7 +96,7 @@ export default function WhyPlantify({ withoutCta = false }) {
                     <div
                         className='relative overflow-hidden rounded-3xl shadow-xl ring-1 ring-black/5'
                         style={{
-                            backgroundImage: 'url(/assets/images/bg-cta.jpg)',
+                            backgroundImage: 'url(/assets/images/bg-cta.webp)',
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}
@@ -102,11 +104,9 @@ export default function WhyPlantify({ withoutCta = false }) {
                         <div className='absolute inset-0 bg-gradient-to-b from-white/80 via-white/50 to-white/5' />
 
                         <div className='relative px-6 sm:px-10 py-10 sm:py-14 text-center'>
-                            <img
-                                src='/assets/images/logo.png'
-                                alt='Coworking founders and investors'
-                                className='w-12'
-                            />
+                            <div className='flex justify-center'>
+                                <Logo className="w-12 h-8" />
+                            </div>
 
                             <h3 className='font-ibm text-[28px] sm:text-[32px] text-gray-900'>
                                 Ready to Start?

@@ -14,7 +14,7 @@ import ProfitSharing from "./partial/ProfitSharing";
 import Investors from "./partial/Investors";
 import Collateral from "./partial/Collateral";
 import { Button, Select } from "@/components/ui";
-// import { useFounderStartups } from "../../../hooks/useFounderStartups";
+
 import {
     CirclePlus,
     FileChartLine,
@@ -70,13 +70,13 @@ export default function Dashboard() {
             case 2:
                 return <FoundingStatus startupId={selectedCompany} />;
             case 3:
-                return <MonthlyReports startupId={selectedCompany} />;
+                return <MonthlyReports />;
             case 4:
-                return <ProfitSharing startupId={selectedCompany} />;
+                return <ProfitSharing />;
             case 5:
-                return <Collateral startupId={selectedCompany} />;
+                return <Collateral />;
             case 6:
-                return <Investors startupId={selectedCompany} />;
+                return <Investors />;
             default:
                 return <StartupOverview startupId={selectedCompany} />;
         }

@@ -11,6 +11,9 @@ export { default as Modal } from './Modal';
 export { default as ProgressBar } from './ProgressBar';
 export { default as Select } from './Select';
 export { default as StatsCard } from './StatsCard';
+export { default as Skeleton} from './Skeleton';
+export { default as SkeletonText } from './SkeletonText';
+export { default as CardSkeleton } from './CardSkeleton';
 export {
   default as Table,
   TableHead,

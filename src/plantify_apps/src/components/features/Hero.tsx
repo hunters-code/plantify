@@ -40,7 +40,7 @@ export default function Hero() {
                 {/* Hero image */}
                 <div className='mt-10'>
                     <img
-                        src='/assets/images/hero.png'
+                        src='/assets/images/hero.webp'
                         alt='Coworking founders and investors'
                         className='w-full rounded-3xl shadow-xl ring-1 object-cover'
                     />

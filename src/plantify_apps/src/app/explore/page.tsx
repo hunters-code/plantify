@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Funnel, ListFilter, Search, Loader2 } from 'lucide-react';
+import { Funnel, ListFilter, Search } from 'lucide-react';
 import {
   Navbar,
   ProductCard,
@@ -9,7 +9,7 @@ import {
   WhyPlantify,
   Footer,
 } from '@/components';
-import { Button, Input } from '@/components/ui';
+import { Button, CardSkeleton, Input } from '@/components/ui';
 import { StartupService } from '@/services/marketplace';
 import { useAuth } from '@/contexts/AuthContext';
 import { getRiskLevel } from '@/utils/riskLevels';
@@ -101,16 +101,14 @@ export default function Explores() {
     }
   }, [mapStartupData]);
 
-  // Filter startups based on current filter and search term
+  // Filter startups
   const filteredStartups = startups.filter((startup) => {
-    // Apply search filter
     const matchesSearch =
       searchTerm === '' ||
       startup.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Apply status filter
     let matchesFilter = true;
     if (filter === 'available') {
       matchesFilter = startup.status === 'active' && startup.available > 0;
@@ -196,13 +194,12 @@ export default function Explores() {
           </Button>
         </div>
 
-        {/* Loading State */}
+        {/* ✅ Loading Skeleton Grid */}
         {loading && (
-          <div className='flex items-center justify-center py-12'>
-            <div className='text-center'>
-              <Loader2 className='w-8 h-8 animate-spin mx-auto mb-4 text-purple-600' />
-              <p className='text-gray-600'>Loading startups...</p>
-            </div>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <CardSkeleton key={idx} textRows={3} withImage />
+            ))}
           </div>
         )}
 

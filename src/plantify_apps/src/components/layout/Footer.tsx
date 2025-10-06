@@ -1,5 +1,7 @@
 import React from "react";
 
+import { ICPIcon } from "@/components/icons";
+
 interface LinkItem {
     label: string;
     href: string;
@@ -93,11 +95,7 @@ export default function Footer() {
                         <p className="text-sm text-gray-600">©2025 Plantify</p>
 
                         <div className="inline-flex items-center gap-2 text-sm text-gray-600">
-                            <img
-                                src="/assets/images/icp.png"
-                                alt="ICP"
-                                className="w-6 object-cover"
-                            />
+                            <ICPIcon className="w-6 h-8" />
                             <span>Built on Internet Computer Protocol.</span>
                         </div>
                     </div>

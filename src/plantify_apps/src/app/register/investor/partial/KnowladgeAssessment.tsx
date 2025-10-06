@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui";
 
-interface KnowledgeAssessmentProps {
+interface KnowladgeAssessmentProps {
   formData: Record<string, boolean>;
   handleInputChange?: (field: string, value: boolean) => void;
 }
@@ -12,10 +12,10 @@ interface CheckboxItem {
   description: string;
 }
 
-export default function KnowledgeAssessment({
+export default function KnowladgeAssessment({
   formData,
   handleInputChange,
-}: KnowledgeAssessmentProps) {
+}: KnowladgeAssessmentProps) {
   const handleChange = (field: string, value: boolean) => {
     if (handleInputChange) {
       handleInputChange(field, value);
@@ -52,7 +52,7 @@ export default function KnowledgeAssessment({
   return (
     <div>
       <h2 className="text-2xl font-semibold text-gray-900 mb-8 font-ibm">
-        Knowledge Assessment
+        Knowladge Assessment
       </h2>
 
       <div className="space-y-4">

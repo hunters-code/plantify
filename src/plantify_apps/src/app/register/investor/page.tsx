@@ -11,9 +11,6 @@ import {
     Banknote,
     Brain,
 } from "lucide-react";
-// import { useNavigate } from 'react-router-dom';
-// import { useRegistration } from '../../../hooks/useRegistration';
-// import { useAuth } from '../../../contexts/AuthContext';
 import { Navbar, Footer, Layout } from "@/components";
 import { Alert, Button, LoadingSpinner } from "@/components/ui";
 import FormMultiStep, { Step } from "@/components/layout/FormMultiStep";
@@ -23,11 +20,8 @@ import InvestmentProfile from "./partial/InvestmentProfile";
 import KnowladgeAssessment from "./partial/KnowladgeAssessment";
 import TermsAgreementForm from "./partial/TermsAgreementForm";
 
-// ---------------- Dummy Hook & Navigate ----------------
-// const navigate = useNavigate();
 const navigate = (url: string) => console.log("Navigate to:", url);
 
-// const { registerInvestor, loading, error: hookError, success, ... } = useRegistration();
 const registerInvestor = async (data: any) => {
     console.log("Dummy register investor", data);
     return { success: true };

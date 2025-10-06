@@ -1,7 +1,5 @@
 import { Eye, MapPin, Sparkles, ThumbsUp, WalletCards } from "lucide-react";
 import { Badge, Button, Card, ProgressBar } from "@/components/ui";
-// import { useStartupDetails } from "../../../../hooks/useStartupDetails";
-// import { formatCurrency, formatNumber } from "../../../../utils/formatCurrency";
 
 // Dummy helper functions
 const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
@@ -13,8 +11,6 @@ interface StartupOverviewProps {
 }
 
 export default function StartupOverview({ startupId }: StartupOverviewProps) {
-  // const { startup, fundingProgress, nftSales, totalNFTs, loading, error } = useStartupDetails(startupId);
-
   // Dummy data
   const startup = {
     startupName: "CryptoKita",
