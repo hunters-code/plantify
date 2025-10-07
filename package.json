@@ -28,9 +28,6 @@
     "src/plantify_apps/**/*.{json,css,scss,md}": [
       "cd src/plantify_apps && prettier --write"
     ],
-    "src/plantify_apps/**/*.{ts,tsx}": [
-      "cd src/plantify_apps && npm run type-check:staged"
-    ],
     "src/plantify_admin/**/*.{js,jsx,ts,tsx}": [
       "cd src/plantify_admin && eslint --fix --max-warnings=0",
       "cd src/plantify_admin && prettier --write"

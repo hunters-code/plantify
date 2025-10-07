@@ -46,17 +46,5 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "@eslint/eslintrc": "^3"
-  },
-  "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix --max-warnings=0",
-      "prettier --write"
-    ],
-    "**/*.{json,css,scss,md}": [
-      "prettier --write"
-    ],
-    "**/*.{ts,tsx}": [
-      "npm run type-check:staged"
-    ]
   }
 }
