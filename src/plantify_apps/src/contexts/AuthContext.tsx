@@ -2,7 +2,13 @@
 
 import { HttpAgent } from '@dfinity/agent';
 import { AuthClient } from '@dfinity/auth-client';
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 
 import { createActor } from '@/declarations/plantify_backend';
 import type { _SERVICE } from '@/declarations/plantify_backend/plantify_backend.did';
@@ -101,7 +107,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       // Fetch root key in development
-      if (process.env.NODE_ENV !== 'production' || window.location.hostname === 'localhost') {
+      if (
+        process.env.NODE_ENV !== 'production' ||
+        window.location.hostname === 'localhost'
+      ) {
         await newAgent.fetchRootKey();
       }
 
@@ -143,7 +152,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setIsLoading(false);
           }
         },
-        onError: (error) => {
+        onError: error => {
           console.error('Login error:', error);
           setIsLoading(false);
           reject(error);

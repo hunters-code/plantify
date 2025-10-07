@@ -7,15 +7,15 @@ import React from 'react';
 // import { useFeaturedStartups } from '../../hooks/useFeaturedStartups';
 
 interface StartupCardProps {
-    id: string | number;
-    image: string;
-    title: string;
-    category?: string;
-    nftPrice: string;
-    periodicReturn: string;
-    fundedText: string;
-    fundedPct?: number;
-    fundedColor?: string;
+  id: string | number;
+  image: string;
+  title: string;
+  category?: string;
+  nftPrice: string;
+  periodicReturn: string;
+  fundedText: string;
+  fundedPct?: number;
+  fundedColor?: string;
 }
 
 export function StartupCard({
@@ -40,12 +40,7 @@ export function StartupCard({
       {/* Image with padding */}
       <div className='p-3'>
         <div className='relative overflow-hidden rounded-xl h-[250px]'>
-          <Image
-            src={image}
-            alt={title}
-            fill
-            className='object-cover'
-          />
+          <Image src={image} alt={title} fill className='object-cover' />
           {category && (
             <span className='absolute right-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-medium ring-1 ring-black/10 shadow-sm'>
               {category}
@@ -64,20 +59,20 @@ export function StartupCard({
           <li className='flex items-center gap-2'>
             <Coins size={14} className='text-gray-500' />
             <span className='text-gray-800'>
-                            NFT Price: <span className='font-semibold'>{nftPrice}</span>
+              NFT Price: <span className='font-semibold'>{nftPrice}</span>
             </span>
           </li>
           <li className='flex items-center gap-2'>
             <CircleDollarSign size={14} className='text-gray-500' />
             <span className='text-gray-800'>
-                            Periodic Returns:{' '}
+              Periodic Returns:{' '}
               <span className='font-semibold'>{periodicReturn}</span>
             </span>
           </li>
           <li className='flex items-center gap-2'>
             <span className='inline-block h-2 w-2 rounded-full bg-amber-500' />
             <span className='text-gray-800'>
-                            Funding Progress:{' '}
+              Funding Progress:{' '}
               <span className='font-semibold text-amber-600'>{fundedText}</span>
             </span>
           </li>
@@ -162,13 +157,15 @@ export default function FeaturedStartups() {
 
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <h2 className='text-center font-ibm text-2xl sm:text-3xl font-semibold text-white mb-6'>
-                    Featured Startups
+          Featured Startups
         </h2>
 
         {loading && (
           <div className='flex justify-center items-center py-12'>
             <Loader2 size={32} className='animate-spin text-white' />
-            <span className='ml-3 text-white'>Loading featured startups...</span>
+            <span className='ml-3 text-white'>
+              Loading featured startups...
+            </span>
           </div>
         )}
 
@@ -177,7 +174,9 @@ export default function FeaturedStartups() {
             <div className='flex items-center'>
               <div className='text-red-600 mr-3'>⚠️</div>
               <div>
-                <h3 className='text-red-800 font-medium'>Error Loading Startups</h3>
+                <h3 className='text-red-800 font-medium'>
+                  Error Loading Startups
+                </h3>
                 <p className='text-red-600 text-sm mt-1'>{error}</p>
               </div>
             </div>
@@ -198,10 +197,10 @@ export default function FeaturedStartups() {
                   <Globe size={48} className='mx-auto' />
                 </div>
                 <h3 className='text-lg font-medium text-white mb-2'>
-                                    No featured startups available
+                  No featured startups available
                 </h3>
                 <p className='text-gray-300'>
-                                    Check back later for new investment opportunities.
+                  Check back later for new investment opportunities.
                 </p>
               </div>
             )}
@@ -214,7 +213,7 @@ export default function FeaturedStartups() {
             className='inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow hover:bg-gray-50'
           >
             <Globe size={20} />
-                        Explore All Startups
+            Explore All Startups
           </button>
         </div>
       </div>

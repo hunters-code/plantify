@@ -52,33 +52,34 @@ export default function KnowladgeAssessment({
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-8 font-ibm">
+      <h2 className='text-2xl font-semibold text-gray-900 mb-8 font-ibm'>
         Knowladge Assessment
       </h2>
 
-      <div className="space-y-4">
-        {checkboxItems.map((item) => (
+      <div className='space-y-4'>
+        {checkboxItems.map(item => (
           <Card
             key={item.field}
-            className={`flex items-start gap-3 p-4 cursor-pointer transition-all duration-200 ${formData[item.field]
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-neutral-200 bg-white hover:border-gray-300'
+            className={`flex items-start gap-3 p-4 cursor-pointer transition-all duration-200 ${
+              formData[item.field]
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-neutral-200 bg-white hover:border-gray-300'
             }`}
             onClick={() => handleChange(item.field, !formData[item.field])}
           >
             <input
-              type="checkbox"
+              type='checkbox'
               checked={formData[item.field] || false}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleChange(item.field, e.target.checked)
               }
-              className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className='mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
             />
             <div>
-              <div className="font-medium text-gray-900 text-[16px]">
+              <div className='font-medium text-gray-900 text-[16px]'>
                 {item.title}
               </div>
-              <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+              <p className='text-sm text-gray-600 mt-1'>{item.description}</p>
             </div>
           </Card>
         ))}

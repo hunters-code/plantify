@@ -24,7 +24,9 @@ export class VotingService extends BaseService {
    * @param request - The vote request
    * @returns The vote or error message
    */
-  public static async castVote(request: VoteRequest): Promise<{ success: boolean; vote?: InvestorVote; error?: string }> {
+  public static async castVote(
+    request: VoteRequest
+  ): Promise<{ success: boolean; vote?: InvestorVote; error?: string }> {
     try {
       const result: Result = await this.getActor().castVote(request);
 
@@ -45,9 +47,15 @@ export class VotingService extends BaseService {
    * @param request - The updated vote request
    * @returns The updated vote or error message
    */
-  public static async updateVote(reportId: string, request: VoteRequest): Promise<{ success: boolean; vote?: InvestorVote; error?: string }> {
+  public static async updateVote(
+    reportId: string,
+    request: VoteRequest
+  ): Promise<{ success: boolean; vote?: InvestorVote; error?: string }> {
     try {
-      const result: Result = await this.getActor().updateVote(reportId, request);
+      const result: Result = await this.getActor().updateVote(
+        reportId,
+        request
+      );
 
       if ('ok' in result) {
         return { success: true, vote: result.ok };
@@ -80,9 +88,12 @@ export class VotingService extends BaseService {
    * @param reportId - The ID of the report
    * @returns The vote or null if not found
    */
-  public static async getInvestorVoteForReport(reportId: string): Promise<InvestorVote | null> {
+  public static async getInvestorVoteForReport(
+    reportId: string
+  ): Promise<InvestorVote | null> {
     try {
-      const result: Result_20 = await this.getActor().getInvestorVoteForReport(reportId);
+      const result: Result_20 =
+        await this.getActor().getInvestorVoteForReport(reportId);
 
       if ('ok' in result) {
         return result.ok.length ? result.ok[0] : null;
@@ -101,9 +112,16 @@ export class VotingService extends BaseService {
    * @param investorId - The ID of the investor
    * @returns The voting history or error message
    */
-  public static async getInvestorVoteHistory(investorId: string): Promise<{ success: boolean; history?: InvestorVoteHistory; error?: string }> {
+  public static async getInvestorVoteHistory(
+    investorId: string
+  ): Promise<{
+    success: boolean;
+    history?: InvestorVoteHistory;
+    error?: string;
+  }> {
     try {
-      const result: Result_19 = await this.getActor().getInvestorVoteHistory(investorId);
+      const result: Result_19 =
+        await this.getActor().getInvestorVoteHistory(investorId);
 
       if ('ok' in result) {
         return { success: true, history: result.ok };
@@ -121,7 +139,9 @@ export class VotingService extends BaseService {
    * @param reportId - The ID of the report
    * @returns The vote summary or error message
    */
-  public static async getVoteSummary(reportId: string): Promise<{ success: boolean; summary?: VoteSummary; error?: string }> {
+  public static async getVoteSummary(
+    reportId: string
+  ): Promise<{ success: boolean; summary?: VoteSummary; error?: string }> {
     try {
       const result: Result_9 = await this.getActor().getVoteSummary(reportId);
 
@@ -141,9 +161,16 @@ export class VotingService extends BaseService {
    * @param reportId - The ID of the report
    * @returns The vote details or error message
    */
-  public static async getReportVoteDetails(reportId: string): Promise<{ success: boolean; details?: ReportVoteDetails; error?: string }> {
+  public static async getReportVoteDetails(
+    reportId: string
+  ): Promise<{
+    success: boolean;
+    details?: ReportVoteDetails;
+    error?: string;
+  }> {
     try {
-      const result: Result_11 = await this.getActor().getReportVoteDetails(reportId);
+      const result: Result_11 =
+        await this.getActor().getReportVoteDetails(reportId);
 
       if ('ok' in result) {
         return { success: true, details: result.ok };

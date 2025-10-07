@@ -1,7 +1,7 @@
 export function formatCurrency(
   amount: number,
   currency: string = 'USD',
-  decimals: number = 2,
+  decimals: number = 2
 ): string {
   if (typeof amount !== 'number' || isNaN(amount)) {
     return '$0.00';

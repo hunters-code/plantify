@@ -30,7 +30,10 @@ export class StartupService extends BaseService {
         const anonymousAgent = new HttpAgent({ host: 'https://ic0.app' });
 
         // Fetch root key in development
-        if (process.env.NODE_ENV !== 'production' || window.location.hostname === 'localhost') {
+        if (
+          process.env.NODE_ENV !== 'production' ||
+          window.location.hostname === 'localhost'
+        ) {
           await anonymousAgent.fetchRootKey();
         }
 
@@ -54,7 +57,9 @@ export class StartupService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The startup details or null if not found
    */
-  public static async getStartupDetails(startupId: string): Promise<Startup | null> {
+  public static async getStartupDetails(
+    startupId: string
+  ): Promise<Startup | null> {
     try {
       const startupOpt = await this.getActor().getStartupDetails(startupId);
       return startupOpt.length ? startupOpt[0] : null;
@@ -69,7 +74,9 @@ export class StartupService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The NFT price or error message
    */
-  public static async getNFTPrice(startupId: string): Promise<{ success: boolean; price?: bigint; error?: string }> {
+  public static async getNFTPrice(
+    startupId: string
+  ): Promise<{ success: boolean; price?: bigint; error?: string }> {
     try {
       const result: Result_14 = await this.getActor().getNFTPrice(startupId);
 
@@ -89,9 +96,12 @@ export class StartupService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns Array of NFTs or error message
    */
-  public static async getNFTsByStartup(startupId: string): Promise<{ success: boolean; nfts?: NFTInfo[]; error?: string }> {
+  public static async getNFTsByStartup(
+    startupId: string
+  ): Promise<{ success: boolean; nfts?: NFTInfo[]; error?: string }> {
     try {
-      const result: Result_13 = await this.getActor().getNFTsByStartup(startupId);
+      const result: Result_13 =
+        await this.getActor().getNFTsByStartup(startupId);
 
       if ('ok' in result) {
         return { success: true, nfts: result.ok };
@@ -109,9 +119,16 @@ export class StartupService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The purchase history or error message
    */
-  public static async getStartupPurchaseHistory(startupId: string): Promise<{ success: boolean; history?: NFTPurchaseHistory; error?: string }> {
+  public static async getStartupPurchaseHistory(
+    startupId: string
+  ): Promise<{
+    success: boolean;
+    history?: NFTPurchaseHistory;
+    error?: string;
+  }> {
     try {
-      const result: Result_10 = await this.getActor().getStartupPurchaseHistory(startupId);
+      const result: Result_10 =
+        await this.getActor().getStartupPurchaseHistory(startupId);
 
       if ('ok' in result) {
         return { success: true, history: result.ok };

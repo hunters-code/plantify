@@ -3,13 +3,13 @@ import React from 'react';
 import { ICPIcon } from '@/components/icons';
 
 interface LinkItem {
-    label: string;
-    href: string;
+  label: string;
+  href: string;
 }
 
 interface Column {
-    heading: string;
-    links: LinkItem[];
+  heading: string;
+  links: LinkItem[];
 }
 
 export default function Footer() {
@@ -44,38 +44,38 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative isolate bg-neutral-100">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-12">
+    <footer className='relative isolate bg-neutral-100'>
+      <div className='mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+        <div className='max-w-7xl mx-auto'>
+          <div className='grid grid-cols-1 gap-8 sm:grid-cols-12'>
             {/* Brand / blurb */}
-            <div className="sm:col-span-4">
-              <a href="/" className="inline-flex items-center gap-2">
+            <div className='sm:col-span-4'>
+              <a href='/' className='inline-flex items-center gap-2'>
                 <img
-                  src="/assets/images/company-logo.png"
-                  alt="Coworking founders and investors"
-                  className="w-32 object-cover"
+                  src='/assets/images/company-logo.png'
+                  alt='Coworking founders and investors'
+                  className='w-32 object-cover'
                 />
               </a>
-              <p className="mt-3 max-w-xs text-sm text-gray-600">
-                                A decentralized startup investment platform offering stable
-                                returns.
+              <p className='mt-3 max-w-xs text-sm text-gray-600'>
+                A decentralized startup investment platform offering stable
+                returns.
               </p>
             </div>
 
             {/* Link columns */}
-            <div className="sm:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
-              {columns.map((col) => (
+            <div className='sm:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8'>
+              {columns.map(col => (
                 <nav key={col.heading} aria-label={col.heading}>
-                  <div className="text-[12px] uppercase tracking-wide text-gray-500/90 mb-3">
+                  <div className='text-[12px] uppercase tracking-wide text-gray-500/90 mb-3'>
                     {col.heading}
                   </div>
-                  <ul className="space-y-2 text-sm">
-                    {col.links.map((link) => (
+                  <ul className='space-y-2 text-sm'>
+                    {col.links.map(link => (
                       <li key={link.label}>
                         <a
                           href={link.href}
-                          className="text-gray-700 hover:text-gray-900 transition"
+                          className='text-gray-700 hover:text-gray-900 transition'
                         >
                           {link.label}
                         </a>
@@ -88,14 +88,14 @@ export default function Footer() {
           </div>
 
           {/* Divider */}
-          <div className="mt-10 h-px w-full bg-gray-200" />
+          <div className='mt-10 h-px w-full bg-gray-200' />
 
           {/* Bottom bar */}
-          <div className="mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row">
-            <p className="text-sm text-gray-600">©2025 Plantify</p>
+          <div className='mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row'>
+            <p className='text-sm text-gray-600'>©2025 Plantify</p>
 
-            <div className="inline-flex items-center gap-2 text-sm text-gray-600">
-              <ICPIcon className="w-6 h-8" />
+            <div className='inline-flex items-center gap-2 text-sm text-gray-600'>
+              <ICPIcon className='w-6 h-8' />
               <span>Built on Internet Computer Protocol.</span>
             </div>
           </div>

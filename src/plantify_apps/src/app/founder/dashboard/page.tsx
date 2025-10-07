@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  CirclePlus,
-  FileChartLine,
-  HandCoins,
-  Users,
-} from 'lucide-react';
+import { CirclePlus, FileChartLine, HandCoins, Users } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import Footer from '@/components/layout/Footer';
@@ -22,11 +17,10 @@ import ProfitSharing from './partial/ProfitSharing';
 import StartupOverview from './partial/StartupOverview';
 import Teams from './partial/Teams';
 
-
 interface Startup {
-    id: number;
-    startupName: string;
-    location?: string;
+  id: number;
+  startupName: string;
+  location?: string;
 }
 
 export default function Dashboard() {
@@ -59,7 +53,7 @@ export default function Dashboard() {
   ];
 
   const selectedStartup = startups.find(
-    (startup) => startup.id === selectedCompany,
+    startup => startup.id === selectedCompany
   );
 
   const renderContent = () => {
@@ -84,62 +78,62 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen text-gray-900">
+    <div className='bg-gray-50 min-h-screen text-gray-900'>
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
-        <h1 className="text-2xl font-semibold mb-6 font-ibm">
-                    Dashboard Overview
+      <main className='max-w-6xl mx-auto px-6 py-10'>
+        <h1 className='text-2xl font-semibold mb-6 font-ibm'>
+          Dashboard Overview
         </h1>
         <DashboardOverview />
 
-        <div className="mt-10">
-          <div className="flex justify-between mb-3">
-            <h2 className="text-2xl font-semibold mb-4 font-ibm">
-                            Your Startups
+        <div className='mt-10'>
+          <div className='flex justify-between mb-3'>
+            <h2 className='text-2xl font-semibold mb-4 font-ibm'>
+              Your Startups
             </h2>
-            <Button variant="primary">
+            <Button variant='primary'>
               <CirclePlus size={16} />
-                            Create new startup
+              Create new startup
             </Button>
           </div>
 
           {startups.length > 0 && (
-            <div className="w-64 mb-4">
+            <div className='w-64 mb-4'>
               <Select
                 value={selectedCompany ?? ''}
-                onChange={(e) => setSelectedCompany(Number(e.target.value))}
-                options={startups.map((startup) => ({
+                onChange={e => setSelectedCompany(Number(e.target.value))}
+                options={startups.map(startup => ({
                   value: startup.id,
                   label: startup.startupName || `Startup ${startup.id}`,
                 }))}
-                className="bg-[#FAFAFA] border-[#E5E5E5]"
+                className='bg-[#FAFAFA] border-[#E5E5E5]'
                 disabled={startupsLoading}
               />
             </div>
           )}
 
           {startupsLoading && (
-            <div className="w-64 mb-4">
-              <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+            <div className='w-64 mb-4'>
+              <div className='h-10 bg-gray-200 rounded animate-pulse'></div>
             </div>
           )}
 
           {startupsError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-600">
-                            Error loading startups: {startupsError}
+            <div className='mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-600'>
+              Error loading startups: {startupsError}
             </div>
           )}
 
           {!startupsLoading && !startupsError && startups.length === 0 && (
-            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-600">
-                            No startups found. Create your first startup to get started.
+            <div className='mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-600'>
+              No startups found. Create your first startup to get started.
             </div>
           )}
 
           <Tabs tabs={tabs} onChange={setActiveTab} />
 
-          <div className="rounded-2xl shadow-sm">{renderContent()}</div>
+          <div className='rounded-2xl shadow-sm'>{renderContent()}</div>
         </div>
       </main>
 

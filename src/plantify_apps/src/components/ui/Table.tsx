@@ -19,7 +19,7 @@ export default function Table({
   const hoverStyle = hover ? '[&_tbody_tr:hover]:bg-gray-50' : '';
 
   return (
-    <div className="overflow-x-auto">
+    <div className='overflow-x-auto'>
       <table
         className={`${baseStyle} ${stripedStyle} ${hoverStyle} ${className}`}
         {...props}

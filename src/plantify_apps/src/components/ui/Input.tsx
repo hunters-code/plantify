@@ -1,16 +1,17 @@
 import React, { InputHTMLAttributes } from 'react';
 
-interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
-    type?: string;
-    placeholder?: string;
-    value?: string;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    label?: string;
-    required?: boolean;
-    error?: string;
-    className?: string;
-    disabled?: boolean;
-    icon?: React.ReactNode;
+interface InputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  type?: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  label?: string;
+  required?: boolean;
+  error?: string;
+  className?: string;
+  disabled?: boolean;
+  icon?: React.ReactNode;
 }
 
 export default function Input({
@@ -45,9 +46,7 @@ export default function Input({
       )}
       <div className='relative'>
         {icon && (
-          <div className='absolute left-4 top-1/2 -translate-y-1/2'>
-            {icon}
-          </div>
+          <div className='absolute left-4 top-1/2 -translate-y-1/2'>{icon}</div>
         )}
         <input
           type={type}
@@ -55,7 +54,8 @@ export default function Input({
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className={`${baseStyle} ${icon ? 'pl-12' : ''} ${error ? 'border-red-500 focus:ring-red-500' : ''
+          className={`${baseStyle} ${icon ? 'pl-12' : ''} ${
+            error ? 'border-red-500 focus:ring-red-500' : ''
           }`}
           {...props}
         />

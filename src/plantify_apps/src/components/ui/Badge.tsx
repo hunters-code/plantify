@@ -1,24 +1,24 @@
 import React, { ReactNode } from 'react';
 
 export type BadgeVariant =
-    | 'default'
-    | 'primary'
-    | 'secondary'
-    | 'success'
-    | 'warning'
-    | 'danger'
-    | 'destructive'
-    | 'info'
-    | 'outline';
+  | 'default'
+  | 'primary'
+  | 'secondary'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'destructive'
+  | 'info'
+  | 'outline';
 
 export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-    children: ReactNode;
-    variant?: BadgeVariant;
-    size?: BadgeSize;
-    className?: string;
-    icon?: ReactNode;
+  children: ReactNode;
+  variant?: BadgeVariant;
+  size?: BadgeSize;
+  className?: string;
+  icon?: ReactNode;
 }
 
 export default function Badge({
@@ -54,7 +54,7 @@ export default function Badge({
       className={`${baseStyle} ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
-      {icon && <span className="flex-shrink-0">{icon}</span>}
+      {icon && <span className='flex-shrink-0'>{icon}</span>}
       {children}
     </span>
   );

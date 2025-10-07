@@ -55,59 +55,59 @@ export default function InvestmentProfile({
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-8 font-ibm">
+      <h2 className='text-2xl font-semibold text-gray-900 mb-8 font-ibm'>
         Investment Profile
       </h2>
 
-      <div className="space-y-6">
+      <div className='space-y-6'>
         <Select
-          label="Investment Experience Level"
+          label='Investment Experience Level'
           value={formData.investmentExperience || ''}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
             handleChange('investmentExperience', e.target.value)
           }
           options={experienceOptions}
-          placeholder="Select your experience level"
+          placeholder='Select your experience level'
           required
         />
 
         <Select
-          label="Risk Tolerance"
+          label='Risk Tolerance'
           value={formData.riskTolerance || ''}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
             handleChange('riskTolerance', e.target.value)
           }
           options={riskOptions}
-          placeholder="Select your risk tolerance"
+          placeholder='Select your risk tolerance'
           required
         />
 
         <Select
-          label="Primary Investment Goals"
+          label='Primary Investment Goals'
           value={formData.investmentGoals || ''}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
             handleChange('investmentGoals', e.target.value)
           }
           options={goalOptions}
-          placeholder="Select your primary goal"
+          placeholder='Select your primary goal'
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <Select
-            label="Available Investment Capital"
+            label='Available Investment Capital'
             value={formData.availableCapital || ''}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               handleChange('availableCapital', e.target.value)
             }
             options={capitalOptions}
-            placeholder="Select capital range"
+            placeholder='Select capital range'
             required
           />
 
           <Input
-            type="text"
-            label="Monthly Investment Budget"
-            placeholder="e.g. $100"
+            type='text'
+            label='Monthly Investment Budget'
+            placeholder='e.g. $100'
             value={formData.monthlyBudget || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               handleChange('monthlyBudget', e.target.value)

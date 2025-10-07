@@ -1,4 +1,20 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx lint-staged
+echo "🔍 Running pre-commit checks..."
+
+# Run lint-staged with better error handling
+if ! npx lint-staged; then
+  echo ""
+  echo "❌ Pre-commit checks failed!"
+  echo "💡 The following issues need to be fixed manually:"
+  echo "   - TypeScript type errors"
+  echo "   - ESLint errors that couldn't be auto-fixed"
+  echo "   - Critical code quality issues"
+  echo ""
+  echo "🔧 Most formatting issues have been auto-fixed."
+  echo "📝 Please review and fix the remaining issues, then commit again."
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed! All code has been formatted and linted."

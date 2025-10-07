@@ -24,10 +24,8 @@ export default function LoadingSpinner({
 
   return (
     <div className={`flex flex-col items-center gap-4 ${className}`} {...props}>
-      <Loader2
-        className={`text-purple-600 animate-spin ${sizes[size]}`}
-      />
-      {text && <p className="text-gray-600 text-sm">{text}</p>}
+      <Loader2 className={`text-purple-600 animate-spin ${sizes[size]}`} />
+      {text && <p className='text-gray-600 text-sm'>{text}</p>}
     </div>
   );
 }

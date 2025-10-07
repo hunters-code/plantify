@@ -60,10 +60,26 @@ export default function RegisterInvestor() {
   });
 
   const tabs = [
-    { id: 1, label: 'Personal Information', icon: <User className="w-4 h-4" /> },
-    { id: 2, label: 'Investment Profile', icon: <Banknote className="w-4 h-4" /> },
-    { id: 3, label: 'Knowladge Assessment', icon: <Brain className="w-4 h-4" /> },
-    { id: 4, label: 'Terms & Agreement', icon: <FileText className="w-4 h-4" /> },
+    {
+      id: 1,
+      label: 'Personal Information',
+      icon: <User className='w-4 h-4' />,
+    },
+    {
+      id: 2,
+      label: 'Investment Profile',
+      icon: <Banknote className='w-4 h-4' />,
+    },
+    {
+      id: 3,
+      label: 'Knowladge Assessment',
+      icon: <Brain className='w-4 h-4' />,
+    },
+    {
+      id: 4,
+      label: 'Terms & Agreement',
+      icon: <FileText className='w-4 h-4' />,
+    },
   ];
 
   useEffect(() => {
@@ -73,7 +89,7 @@ export default function RegisterInvestor() {
   }, [success]);
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
@@ -94,10 +110,10 @@ export default function RegisterInvestor() {
 
   if (authLoading) {
     return (
-      <div className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+      <div className='bg-gray-50 text-gray-900 min-h-screen flex flex-col'>
         <Navbar />
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <LoadingSpinner size="xl" />
+        <div className='flex-1 flex flex-col items-center justify-center'>
+          <LoadingSpinner size='xl' />
         </div>
       </div>
     );
@@ -105,24 +121,28 @@ export default function RegisterInvestor() {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto mt-8 mb-8">
+      <div className='max-w-7xl mx-auto mt-8 mb-8'>
         {(error || hookError) && (
-          <Alert type="error" message={error || hookError || ''} className="mb-6" />
+          <Alert
+            type='error'
+            message={error || hookError || ''}
+            className='mb-6'
+          />
         )}
 
         {!isAuthenticated && (
           <Alert
-            type="warning"
+            type='warning'
             message={
               <>
-                                Please authenticate first before registering.{' '}
-                <a href="/auth" className="underline">
-                                    Click here to sign in
+                Please authenticate first before registering.{' '}
+                <a href='/auth' className='underline'>
+                  Click here to sign in
                 </a>
-                                .
+                .
               </>
             }
-            className="mb-6"
+            className='mb-6'
           />
         )}
 
@@ -131,7 +151,7 @@ export default function RegisterInvestor() {
             {
               id: 1,
               label: 'Personal Information',
-              icon: <User className="w-4 h-4" />,
+              icon: <User className='w-4 h-4' />,
               content: (
                 <PersonalInformationForm
                   formData={formData}
@@ -142,7 +162,7 @@ export default function RegisterInvestor() {
             {
               id: 2,
               label: 'Investment Profile',
-              icon: <Banknote className="w-4 h-4" />,
+              icon: <Banknote className='w-4 h-4' />,
               content: (
                 <InvestmentProfile
                   formData={formData}
@@ -153,7 +173,7 @@ export default function RegisterInvestor() {
             {
               id: 3,
               label: 'Knowladge Assessment',
-              icon: <Brain className="w-4 h-4" />,
+              icon: <Brain className='w-4 h-4' />,
               content: (
                 <KnowladgeAssessment
                   formData={formData}
@@ -164,7 +184,7 @@ export default function RegisterInvestor() {
             {
               id: 4,
               label: 'Terms & Agreement',
-              icon: <FileText className="w-4 h-4" />,
+              icon: <FileText className='w-4 h-4' />,
               content: (
                 <TermsAgreementForm
                   formData={formData}
@@ -177,7 +197,9 @@ export default function RegisterInvestor() {
           onStepChange={setStep}
           onSubmit={handleSubmit}
           loading={loading}
-          disableSubmit={!formData.terms || !formData.risks || !formData.transparency}
+          disableSubmit={
+            !formData.terms || !formData.risks || !formData.transparency
+          }
         />
       </div>
     </Layout>

@@ -5,10 +5,10 @@ import { ProgressBar } from '@/components/ui';
 import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
 
 interface FundingProgressProps {
-    progress: number; // persen
-    totalRaised: number;
-    fundingGoal: number;
-    color?: 'orange' | 'blue' | 'green';
+  progress: number; // persen
+  totalRaised: number;
+  fundingGoal: number;
+  color?: 'orange' | 'blue' | 'green';
 }
 
 export default function FundingProgress({
@@ -18,13 +18,13 @@ export default function FundingProgress({
   color = 'orange',
 }: FundingProgressProps) {
   return (
-    <div className="mb-6 flex gap-2">
+    <div className='mb-6 flex gap-2'>
       <Sparkle size={16} />
-      <div className="w-full">
+      <div className='w-full'>
         {/* Progress Info */}
-        <div className="flex gap-2 text-sm mb-2">
-          <span className="text-gray-600">
-                        Overall Progress:{' '}
+        <div className='flex gap-2 text-sm mb-2'>
+          <span className='text-gray-600'>
+            Overall Progress:{' '}
             <span
               className={
                 color === 'orange'
@@ -40,10 +40,15 @@ export default function FundingProgress({
         </div>
 
         {/* Progress Bar */}
-        <ProgressBar value={progress} max={100} className="mb-2" color={color} />
+        <ProgressBar
+          value={progress}
+          max={100}
+          className='mb-2'
+          color={color}
+        />
 
         {/* Amounts */}
-        <div className="flex justify-between text-sm mt-2">
+        <div className='flex justify-between text-sm mt-2'>
           <span
             className={
               color === 'orange'
@@ -55,7 +60,7 @@ export default function FundingProgress({
           >
             {formatCurrency(totalRaised)}
           </span>
-          <span className="text-gray-500">{formatCurrency(fundingGoal)}</span>
+          <span className='text-gray-500'>{formatCurrency(fundingGoal)}</span>
         </div>
       </div>
     </div>

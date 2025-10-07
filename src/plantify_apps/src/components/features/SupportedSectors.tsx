@@ -5,17 +5,17 @@ import Image from 'next/image';
 import React from 'react';
 
 interface SectorCardProps {
-    image: string;
-    title: string;
-    roi: string;
-    note: string;
+  image: string;
+  title: string;
+  roi: string;
+  note: string;
 }
 
 interface SectorItem {
-    title: string;
-    roi: string;
-    note: string;
-    image: string;
+  title: string;
+  roi: string;
+  note: string;
+  image: string;
 }
 
 export function SectorCard({ image, title, roi, note }: SectorCardProps) {
@@ -92,11 +92,11 @@ export default function SupportedSectors() {
     <section className='relative isolate py-16 sm:py-20'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <h2 className='text-center font-ibm text-2xl sm:text-3xl font-semibold text-gray-900'>
-                    Supported Sectors
+          Supported Sectors
         </h2>
 
         <div className='mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
-          {items.map((it) => (
+          {items.map(it => (
             <SectorCard key={it.title} {...it} />
           ))}
         </div>

@@ -36,9 +36,9 @@ export default function Textarea({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className='block text-sm font-medium text-gray-700'>
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className='text-red-500 ml-1'>*</span>}
         </label>
       )}
       <textarea
@@ -47,11 +47,12 @@ export default function Textarea({
         onChange={onChange}
         disabled={disabled}
         rows={rows}
-        className={`${baseStyle} ${error ? 'border-red-500 focus:ring-red-500' : ''
+        className={`${baseStyle} ${
+          error ? 'border-red-500 focus:ring-red-500' : ''
         }`}
         {...props}
       />
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className='text-red-500 text-sm'>{error}</p>}
     </div>
   );
 }

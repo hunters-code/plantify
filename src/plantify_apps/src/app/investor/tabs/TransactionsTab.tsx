@@ -28,7 +28,9 @@ interface TransactionsTabProps {
   onBackToOverview?: () => void;
 }
 
-export default function TransactionsTab({ onBackToOverview }: TransactionsTabProps) {
+export default function TransactionsTab({
+  onBackToOverview,
+}: TransactionsTabProps) {
   // Mock transaction data based on the design
   const transactionData: TransactionData = {
     totalInvested: 2450,
@@ -81,36 +83,36 @@ export default function TransactionsTab({ onBackToOverview }: TransactionsTabPro
   ];
 
   return (
-    <div className="space-y-8">
+    <div className='space-y-8'>
       {/* Header */}
-      <h2 className="text-2xl font-bold text-gray-900">Transaction History</h2>
+      <h2 className='text-2xl font-bold text-gray-900'>Transaction History</h2>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 gap-6">
-        <Card className="p-4">
-          <p className="text-sm text-gray-600 mb-2">Total invested</p>
-          <p className="text-2xl font-bold text-gray-900">
+      <div className='grid grid-cols-2 gap-6'>
+        <Card className='p-4'>
+          <p className='text-sm text-gray-600 mb-2'>Total invested</p>
+          <p className='text-2xl font-bold text-gray-900'>
             ${transactionData.totalInvested.toLocaleString()}
           </p>
         </Card>
 
-        <Card className="p-4">
-          <p className="text-sm text-gray-600 mb-2">Total returns</p>
-          <p className="text-2xl font-bold text-gray-900">
+        <Card className='p-4'>
+          <p className='text-sm text-gray-600 mb-2'>Total returns</p>
+          <p className='text-2xl font-bold text-gray-900'>
             ${transactionData.totalReturns}
           </p>
         </Card>
 
-        <Card className="p-4">
-          <p className="text-sm text-gray-600 mb-2">Active investments</p>
-          <p className="text-2xl font-bold text-gray-900">
+        <Card className='p-4'>
+          <p className='text-sm text-gray-600 mb-2'>Active investments</p>
+          <p className='text-2xl font-bold text-gray-900'>
             {transactionData.activeInvestments}
           </p>
         </Card>
 
-        <Card className="p-4">
-          <p className="text-sm text-gray-600 mb-2">Pending withdrawals</p>
-          <p className="text-2xl font-bold text-gray-900">
+        <Card className='p-4'>
+          <p className='text-sm text-gray-600 mb-2'>Pending withdrawals</p>
+          <p className='text-2xl font-bold text-gray-900'>
             ${transactionData.pendingWithdrawals}
           </p>
         </Card>
@@ -118,31 +120,33 @@ export default function TransactionsTab({ onBackToOverview }: TransactionsTabPro
 
       {/* Recent Transactions */}
       <div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Transactions</h3>
+        <h3 className='text-xl font-semibold text-gray-900 mb-6'>
+          Recent Transactions
+        </h3>
 
-        <div className="space-y-4">
-          {recentTransactions.map((transaction) => (
+        <div className='space-y-4'>
+          {recentTransactions.map(transaction => (
             <div
               key={transaction.id}
-              className="bg-white rounded-lg border border-gray-200 p-6"
+              className='bg-white rounded-lg border border-gray-200 p-6'
             >
               {/* Transaction Header */}
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-lg font-semibold text-gray-900">
+              <div className='flex items-center justify-between mb-4'>
+                <h4 className='text-lg font-semibold text-gray-900'>
                   {transaction.title}
                 </h4>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className='flex items-center gap-4 text-sm text-gray-600'>
                   <span>{transaction.date}</span>
-                  <Badge variant="success" className="text-xs">
+                  <Badge variant='success' className='text-xs'>
                     {transaction.status}
                   </Badge>
                 </div>
               </div>
 
               {/* Transaction Details Grid */}
-              <div className="grid grid-cols-3 gap-8">
+              <div className='grid grid-cols-3 gap-8'>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <p className='text-sm text-gray-600 mb-1'>
                     {transaction.type === 'investment'
                       ? 'NFT purchase'
                       : transaction.type === 'profit'
@@ -153,7 +157,7 @@ export default function TransactionsTab({ onBackToOverview }: TransactionsTabPro
                             ? 'Transaction fee'
                             : transaction.description}
                   </p>
-                  <p className="font-medium text-gray-900">
+                  <p className='font-medium text-gray-900'>
                     {transaction.nftCount && `${transaction.nftCount} NFTs`}
                     {transaction.currency && transaction.currency}
                     {transaction.percentage && transaction.percentage}
@@ -161,14 +165,17 @@ export default function TransactionsTab({ onBackToOverview }: TransactionsTabPro
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Transaction ID</p>
-                  <p className="font-medium text-gray-900">{transaction.id}</p>
+                  <p className='text-sm text-gray-600 mb-1'>Transaction ID</p>
+                  <p className='font-medium text-gray-900'>{transaction.id}</p>
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Total</p>
+                  <p className='text-sm text-gray-600 mb-1'>Total</p>
                   <p
-                    className={`font-bold text-lg ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
+                    className={`font-bold text-lg ${
+                      transaction.amount >= 0
+                        ? 'text-green-600'
+                        : 'text-red-600'
                     }`}
                   >
                     {transaction.amount >= 0 ? '+' : ''}$

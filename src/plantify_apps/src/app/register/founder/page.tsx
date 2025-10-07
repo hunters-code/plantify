@@ -30,26 +30,24 @@ const useAuth = () => ({
 
 // Dummy backend service
 const backendService = {
-  initialize: async (_identity: any) =>
-    Promise.resolve({ ok: true }), // dummy
-  registerFounder: async (_data: any) =>
-    Promise.resolve({ ok: true }), // dummy always success
+  initialize: async (_identity: any) => Promise.resolve({ ok: true }), // dummy
+  registerFounder: async (_data: any) => Promise.resolve({ ok: true }), // dummy always success
 };
 
 interface FormData {
-    fullName: string;
-    email: string;
-    phone: string;
-    address: string;
-    experience: string;
-    previousBusinesses: string;
-    expertise: string;
-    linkedIn: string;
-    idNumber: string;
-    taxNumber: string;
-    terms: boolean;
-    risks: boolean;
-    transparency: boolean;
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  experience: string;
+  previousBusinesses: string;
+  expertise: string;
+  linkedIn: string;
+  idNumber: string;
+  taxNumber: string;
+  terms: boolean;
+  risks: boolean;
+  transparency: boolean;
 }
 
 export default function RegisterFounder() {
@@ -78,10 +76,22 @@ export default function RegisterFounder() {
   });
 
   const tabs = [
-    { id: 1, label: 'Personal Information', icon: <User className="w-4 h-4" /> },
-    { id: 2, label: 'Professional Background', icon: <Briefcase className="w-4 h-4" /> },
-    { id: 3, label: 'Verification', icon: <CheckCircle className="w-4 h-4" /> },
-    { id: 4, label: 'Terms & Agreement', icon: <FileText className="w-4 h-4" /> },
+    {
+      id: 1,
+      label: 'Personal Information',
+      icon: <User className='w-4 h-4' />,
+    },
+    {
+      id: 2,
+      label: 'Professional Background',
+      icon: <Briefcase className='w-4 h-4' />,
+    },
+    { id: 3, label: 'Verification', icon: <CheckCircle className='w-4 h-4' /> },
+    {
+      id: 4,
+      label: 'Terms & Agreement',
+      icon: <FileText className='w-4 h-4' />,
+    },
   ];
 
   useEffect(() => {
@@ -99,12 +109,12 @@ export default function RegisterFounder() {
   }, [isAuthenticated, authLoading, navigate]);
 
   const handleInputChange = (field: keyof FormData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
     if (error) setError(null);
   };
 
   const handleRetry = () => {
-    setRetryCount((prev) => prev + 1);
+    setRetryCount(prev => prev + 1);
     setError(null);
   };
 
@@ -118,10 +128,7 @@ export default function RegisterFounder() {
     if (!formData.address?.trim()) errors.push('Address is required');
     if (!formData.idNumber?.trim()) errors.push('ID number is required');
     if (!formData.taxNumber?.trim()) errors.push('Tax number is required');
-    if (
-      formData.email &&
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-    ) {
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.push('Please enter a valid email address');
     }
     return errors;
@@ -184,32 +191,32 @@ export default function RegisterFounder() {
 
   if (authLoading) {
     return (
-      <div className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+      <div className='bg-gray-50 text-gray-900 min-h-screen flex flex-col'>
         <Navbar />
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <Loader2 size={48} className="text-purple-600 animate-spin" />
+        <div className='flex-1 flex flex-col items-center justify-center'>
+          <Loader2 size={48} className='text-purple-600 animate-spin' />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50 text-gray-900 min-h-screen">
+    <div className='bg-gray-50 text-gray-900 min-h-screen'>
       <Navbar />
 
-      <div className="max-w-7xl mx-auto mt-8 mb-8">
+      <div className='max-w-7xl mx-auto mt-8 mb-8'>
         {error && (
-          <Alert type="error" message={error} className="mb-6">
-            <div className="flex gap-3 mt-3">
+          <Alert type='error' message={error} className='mb-6'>
+            <div className='flex gap-3 mt-3'>
               <Button
                 onClick={handleRetry}
-                variant="secondary"
-                className="bg-red-600 text-white hover:bg-red-700"
+                variant='secondary'
+                className='bg-red-600 text-white hover:bg-red-700'
               >
-                                Try Again
+                Try Again
               </Button>
-              <Button onClick={handleDismissError} variant="secondary">
-                                Dismiss
+              <Button onClick={handleDismissError} variant='secondary'>
+                Dismiss
               </Button>
             </div>
           </Alert>
@@ -217,17 +224,17 @@ export default function RegisterFounder() {
 
         {!isAuthenticated && (
           <Alert
-            type="warning"
+            type='warning'
             message={
               <>
-                                Please authenticate first before registering.{' '}
-                <a href="/auth" className="underline">
-                                    Click here to sign in
+                Please authenticate first before registering.{' '}
+                <a href='/auth' className='underline'>
+                  Click here to sign in
                 </a>
-                                .
+                .
               </>
             }
-            className="mb-6"
+            className='mb-6'
           />
         )}
 
@@ -237,7 +244,7 @@ export default function RegisterFounder() {
             {
               id: 1,
               label: 'Personal Information',
-              icon: <User className="w-4 h-4" />,
+              icon: <User className='w-4 h-4' />,
               content: (
                 <PersonalInformationForm
                   formData={formData}
@@ -248,7 +255,7 @@ export default function RegisterFounder() {
             {
               id: 2,
               label: 'Professional Background',
-              icon: <Briefcase className="w-4 h-4" />,
+              icon: <Briefcase className='w-4 h-4' />,
               content: (
                 <ProfessionalBackgroundForm
                   formData={formData}
@@ -259,7 +266,7 @@ export default function RegisterFounder() {
             {
               id: 3,
               label: 'Verification',
-              icon: <CheckCircle className="w-4 h-4" />,
+              icon: <CheckCircle className='w-4 h-4' />,
               content: (
                 <VerificationDocumentsForm
                   formData={formData}
@@ -270,7 +277,7 @@ export default function RegisterFounder() {
             {
               id: 4,
               label: 'Terms & Agreement',
-              icon: <FileText className="w-4 h-4" />,
+              icon: <FileText className='w-4 h-4' />,
               content: (
                 <TermsAgreementForm
                   formData={formData}
@@ -287,7 +294,6 @@ export default function RegisterFounder() {
             !formData.terms || !formData.risks || !formData.transparency
           }
         />
-
       </div>
       <Footer />
     </div>

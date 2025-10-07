@@ -49,7 +49,7 @@ export default function WhyPlantify({ withoutCta = false }) {
     <section className='relative isolate'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-10'>
         <h2 className='text-center font-ibm text-2xl sm:text-3xl font-semibold text-gray-900'>
-                    Why Plantify?
+          Why Plantify?
         </h2>
       </div>
 
@@ -105,14 +105,14 @@ export default function WhyPlantify({ withoutCta = false }) {
 
             <div className='relative px-6 sm:px-10 py-10 sm:py-14 text-center'>
               <div className='flex justify-center'>
-                <Logo className="w-12 h-8" />
+                <Logo className='w-12 h-8' />
               </div>
 
               <h3 className='font-ibm text-[28px] sm:text-[32px] text-gray-900'>
-                                Ready to Start?
+                Ready to Start?
               </h3>
               <p className='mt-1 text-[13px] sm:text-sm text-gray-700'>
-                                Join thousands of investors earning stable returns from startup
+                Join thousands of investors earning stable returns from startup
               </p>
 
               <div className='mt-5 flex flex-col sm:flex-row items-center justify-center gap-3'>
@@ -122,7 +122,7 @@ export default function WhyPlantify({ withoutCta = false }) {
                   variant='primary'
                   className='px-4'
                 >
-                                    Start Investing
+                  Start Investing
                 </Button>
                 <Button
                   as='a'
@@ -130,7 +130,7 @@ export default function WhyPlantify({ withoutCta = false }) {
                   variant='secondary'
                   className='px-4'
                 >
-                                    Register Startup
+                  Register Startup
                 </Button>
               </div>
             </div>

@@ -69,26 +69,28 @@ export default function Alert({
       className={`p-4 border rounded-lg ${variant.container} ${className}`}
       {...props}
     >
-      <div className="flex items-start gap-3">
+      <div className='flex items-start gap-3'>
         {showIcon && (
           <IconComponent
             className={`w-5 h-5 flex-shrink-0 mt-0.5 ${variant.icon}`}
           />
         )}
-        <div className="flex-1">
+        <div className='flex-1'>
           {title && (
             <div className={`text-sm font-medium mb-1 ${variant.title}`}>
               {title}
             </div>
           )}
-          {message && <div className={`text-sm ${variant.message}`}>{message}</div>}
+          {message && (
+            <div className={`text-sm ${variant.message}`}>{message}</div>
+          )}
         </div>
         {onDismiss && (
           <button
             onClick={onDismiss}
-            className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
+            className='flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors'
           >
-            <X size={16} className="text-gray-500" />
+            <X size={16} className='text-gray-500' />
           </button>
         )}
       </div>

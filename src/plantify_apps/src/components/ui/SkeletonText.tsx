@@ -3,9 +3,9 @@ import React from 'react';
 import { Skeleton } from '@/components/ui';
 
 interface SkeletonTextProps {
-    lines?: number;
-    height?: number;
-    className?: string;
+  lines?: number;
+  height?: number;
+  className?: string;
 }
 
 const SkeletonText: React.FC<SkeletonTextProps> = ({

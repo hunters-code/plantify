@@ -30,7 +30,10 @@ export class BaseService {
       });
 
       // Fetch root key in development
-      if (process.env.NODE_ENV !== 'production' || window.location.hostname === 'localhost') {
+      if (
+        process.env.NODE_ENV !== 'production' ||
+        window.location.hostname === 'localhost'
+      ) {
         await this.agent.fetchRootKey();
       }
 
@@ -54,7 +57,9 @@ export class BaseService {
    */
   protected static getActor(): _SERVICE {
     if (!this.actor) {
-      throw new Error('Actor not initialized. Call BaseService.initialize() first.');
+      throw new Error(
+        'Actor not initialized. Call BaseService.initialize() first.'
+      );
     }
     return this.actor;
   }

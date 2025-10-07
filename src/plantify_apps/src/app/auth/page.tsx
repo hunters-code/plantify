@@ -16,7 +16,8 @@ import Card from '@/components/ui/Card';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginRequired() {
-  const { signIn, isLoading, userType, isRegistered, isAuthenticated } = useAuth();
+  const { signIn, isLoading, userType, isRegistered, isAuthenticated } =
+    useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const router = useRouter();
 
@@ -52,51 +53,51 @@ export default function LoginRequired() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50 px-4">
+    <div className='min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50 px-4'>
       <div>
-        <div className="flex justify-center mb-4">
-          <Logo className="w-12 h-8" />
-          <span className="text-3xl font-medium">Plantify</span>
+        <div className='flex justify-center mb-4'>
+          <Logo className='w-12 h-8' />
+          <span className='text-3xl font-medium'>Plantify</span>
         </div>
       </div>
 
-      <Card className="w-full max-w-md shadow-2xl p-4">
-        <div className="flex flex-col gap-3 mb-8 mt-4">
-          <h2 className="text-center text-4xl font-ibm text-gray-900">
-                        Login Required
+      <Card className='w-full max-w-md shadow-2xl p-4'>
+        <div className='flex flex-col gap-3 mb-8 mt-4'>
+          <h2 className='text-center text-4xl font-ibm text-gray-900'>
+            Login Required
           </h2>
-          <p className="mt-1 text-center text-sm text-gray-600 font-geist">
-                        To invest in startups, you need to authenticate with ID.ai and set
-                        up an investor account.
+          <p className='mt-1 text-center text-sm text-gray-600 font-geist'>
+            To invest in startups, you need to authenticate with ID.ai and set
+            up an investor account.
           </p>
         </div>
 
-        <Card className="bg-neutral-100 p-4 sm:p-4">
-          <div className="space-y-3 text-sm text-gray-700">
-            <div className="flex items-center gap-2">
-              <Fingerprint size={16} className="text-gray-500" />
+        <Card className='bg-neutral-100 p-4 sm:p-4'>
+          <div className='space-y-3 text-sm text-gray-700'>
+            <div className='flex items-center gap-2'>
+              <Fingerprint size={16} className='text-gray-500' />
               <span>WebAuthn-based security</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Smartphone size={16} className="text-gray-500" />
+            <div className='flex items-center gap-2'>
+              <Smartphone size={16} className='text-gray-500' />
               <span>Register multiple devices</span>
             </div>
-            <div className="flex items-center gap-2">
-              <KeyRound size={16} className="text-gray-500" />
+            <div className='flex items-center gap-2'>
+              <KeyRound size={16} className='text-gray-500' />
               <span>Unique identity for each app</span>
             </div>
-            <div className="flex items-center gap-2">
-              <UserX size={16} className="text-gray-500" />
+            <div className='flex items-center gap-2'>
+              <UserX size={16} className='text-gray-500' />
               <span>No usernames or passwords</span>
             </div>
           </div>
 
-          <div className="mt-6 space-y-3">
+          <div className='mt-6 space-y-3'>
             <Button
               onClick={handleSignIn}
               disabled={isSigningIn || isLoading}
-              variant="primary"
-              className="w-full bg-purple-500 hover:bg-purple-600"
+              variant='primary'
+              className='w-full bg-purple-500 hover:bg-purple-600'
             >
               <Fingerprint size={16} />
               {isSigningIn ? 'Authenticating...' : 'Sign In with ID.ai'}
@@ -104,34 +105,34 @@ export default function LoginRequired() {
             <Button
               onClick={handleCancel}
               disabled={isSigningIn || isLoading}
-              variant="secondary"
-              className="w-full"
+              variant='secondary'
+              className='w-full'
             >
               <CircleOff size={16} />
-                            Cancel
+              Cancel
             </Button>
           </div>
 
-          <p className="mt-4 text-center text-xs text-gray-500">
-                        By authenticating with ID.ai, you agree to our{' '}
-            <a href="#" className="underline hover:text-gray-700">
-                            Terms of Service
+          <p className='mt-4 text-center text-xs text-gray-500'>
+            By authenticating with ID.ai, you agree to our{' '}
+            <a href='#' className='underline hover:text-gray-700'>
+              Terms of Service
             </a>{' '}
-                        and{' '}
-            <a href="#" className="underline hover:text-gray-700">
-                            Privacy Policy
+            and{' '}
+            <a href='#' className='underline hover:text-gray-700'>
+              Privacy Policy
             </a>
-                        .
+            .
           </p>
-          <p className="mt-2 text-center text-xs text-gray-500">
-                        New to ID.ai?{' '}
+          <p className='mt-2 text-center text-xs text-gray-500'>
+            New to ID.ai?{' '}
             <a
-              href="https://id.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-gray-700"
+              href='https://id.ai'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='underline hover:text-gray-700'
             >
-                            Learn more
+              Learn more
             </a>
           </p>
         </Card>

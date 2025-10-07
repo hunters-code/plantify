@@ -18,7 +18,9 @@ export class FounderService extends BaseService {
    * @param request - The founder registration request
    * @returns The registered founder or error message
    */
-  public static async registerFounder(request: FounderRegistrationRequest): Promise<{ success: boolean; founder?: Founder; error?: string }> {
+  public static async registerFounder(
+    request: FounderRegistrationRequest
+  ): Promise<{ success: boolean; founder?: Founder; error?: string }> {
     try {
       const result: Result_5 = await this.getActor().registerFounder(request);
 
@@ -52,7 +54,9 @@ export class FounderService extends BaseService {
    * @param request - The startup creation request
    * @returns The created startup or error message
    */
-  public static async createStartup(request: StartupCreationRequest): Promise<{ success: boolean; startup?: Startup; error?: string }> {
+  public static async createStartup(
+    request: StartupCreationRequest
+  ): Promise<{ success: boolean; startup?: Startup; error?: string }> {
     try {
       const result: Result_23 = await this.getActor().createStartup(request);
 
@@ -92,7 +96,10 @@ export class FounderService extends BaseService {
    * @param newStatus - The new status
    * @returns True if update was successful
    */
-  public static async updateStartupStatus(startupId: string, newStatus: string): Promise<boolean> {
+  public static async updateStartupStatus(
+    startupId: string,
+    newStatus: string
+  ): Promise<boolean> {
     try {
       return await this.getActor().updateStartupStatus(startupId, newStatus);
     } catch (error) {

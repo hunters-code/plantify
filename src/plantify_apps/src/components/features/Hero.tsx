@@ -20,20 +20,20 @@ export default function Hero() {
             <span className='block'>Earn Stable Returns</span>
           </h1>
           <p className='mt-4 text-sm text-gray-600 font-geist'>
-                        A startup investment platform based on NFTs with profit sharing.
-                        Transparent, decentralized, and community-driven.
+            A startup investment platform based on NFTs with profit sharing.
+            Transparent, decentralized, and community-driven.
           </p>
 
           {/* CTAs */}
           <div className='mt-6 flex flex-col sm:flex-row gap-3 justify-center'>
             <Button as='a' href='#register' variant='primary'>
               <ShieldUser size={20} />
-                            Register as Founder
+              Register as Founder
             </Button>
 
             <Button as='a' href='#browse' variant='secondary'>
               <Globe size={20} />
-                            Browse Startups
+              Browse Startups
             </Button>
           </div>
         </div>
@@ -63,7 +63,7 @@ export default function Hero() {
             </span>
             <div>
               <div className='text-sm font-semibold'>
-                                $2.3M ckUSDC Distributed
+                $2.3M ckUSDC Distributed
               </div>
             </div>
           </div>
@@ -73,7 +73,7 @@ export default function Hero() {
             </span>
             <div>
               <div className='text-sm font-semibold'>
-                                15,432 Total Investors
+                15,432 Total Investors
               </div>
             </div>
           </div>

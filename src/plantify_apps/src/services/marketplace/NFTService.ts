@@ -40,7 +40,9 @@ export class NFTService extends BaseService {
    * @param tokenId - The ID of the NFT
    * @returns The NFT info or error message
    */
-  public static async getNFTInfo(tokenId: bigint): Promise<{ success: boolean; nft?: NFTInfo; error?: string }> {
+  public static async getNFTInfo(
+    tokenId: bigint
+  ): Promise<{ success: boolean; nft?: NFTInfo; error?: string }> {
     try {
       const result: Result_16 = await this.getActor().getNFTInfo(tokenId);
 
@@ -60,7 +62,9 @@ export class NFTService extends BaseService {
    * @param tokenId - The ID of the NFT
    * @returns The owner response or error message
    */
-  public static async getNFTOwner(tokenId: bigint): Promise<{ success: boolean; owner?: NFTOwnerResponse; error?: string }> {
+  public static async getNFTOwner(
+    tokenId: bigint
+  ): Promise<{ success: boolean; owner?: NFTOwnerResponse; error?: string }> {
     try {
       const result: Result_15 = await this.getActor().getNFTOwner(tokenId);
 
@@ -80,7 +84,13 @@ export class NFTService extends BaseService {
    * @param account - The NFT account
    * @returns The balance response or error message
    */
-  public static async getNFTBalance(account: NFTAccount): Promise<{ success: boolean; balance?: NFTBalanceResponse; error?: string }> {
+  public static async getNFTBalance(
+    account: NFTAccount
+  ): Promise<{
+    success: boolean;
+    balance?: NFTBalanceResponse;
+    error?: string;
+  }> {
     try {
       const result: Result_17 = await this.getActor().getNFTBalance(account);
 
@@ -100,7 +110,9 @@ export class NFTService extends BaseService {
    * @param request - The mint NFT request
    * @returns The mint response or error message
    */
-  public static async mintNFT(request: MintNFTRequest): Promise<{ success: boolean; response?: MintNFTResponse; error?: string }> {
+  public static async mintNFT(
+    request: MintNFTRequest
+  ): Promise<{ success: boolean; response?: MintNFTResponse; error?: string }> {
     try {
       const result: Result_8 = await this.getActor().mintNFT(request);
 
@@ -135,7 +147,13 @@ export class NFTService extends BaseService {
    * @param request - The transfer NFT request
    * @returns The transfer response or error message
    */
-  public static async transferNFT(request: TransferNFTRequest): Promise<{ success: boolean; response?: TransferNFTResponse; error?: string }> {
+  public static async transferNFT(
+    request: TransferNFTRequest
+  ): Promise<{
+    success: boolean;
+    response?: TransferNFTResponse;
+    error?: string;
+  }> {
     try {
       const result: Result_2 = await this.getActor().transferNFT(request);
 
@@ -167,7 +185,11 @@ export class NFTService extends BaseService {
    * Get NFT statistics
    * @returns NFT statistics
    */
-  public static async getNFTStats(): Promise<{ totalSupply: bigint; totalStartups: bigint; nextTokenId: bigint } | null> {
+  public static async getNFTStats(): Promise<{
+    totalSupply: bigint;
+    totalStartups: bigint;
+    nextTokenId: bigint;
+  } | null> {
     try {
       return await this.getActor().getNFTStats();
     } catch (error) {

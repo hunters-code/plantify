@@ -14,6 +14,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "type-check": "tsc --noEmit",
+    "type-check:staged": "tsc --noEmit --skipLibCheck --jsx preserve",
     "prepare": "husky"
   },
   "dependencies": {
@@ -49,14 +50,14 @@
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
+      "eslint --fix --max-warnings=0",
       "prettier --write"
     ],
     "**/*.{json,css,scss,md}": [
       "prettier --write"
     ],
     "**/*.{ts,tsx}": [
-      "tsc --noEmit"
+      "npm run type-check:staged"
     ]
   }
 }

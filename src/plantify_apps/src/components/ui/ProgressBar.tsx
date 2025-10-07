@@ -25,10 +25,10 @@ export default function ProgressBar({
   return (
     <div className={`w-full ${className}`} {...props}>
       {label && (
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-sm text-gray-500">{label}</span>
+        <div className='flex justify-between items-center mb-1'>
+          <span className='text-sm text-gray-500'>{label}</span>
           {showValue && (
-            <span className="text-sm text-gray-600">
+            <span className='text-sm text-gray-600'>
               {value} / {max}
             </span>
           )}

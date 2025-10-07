@@ -52,10 +52,10 @@ export default function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        className='fixed inset-0 bg-black bg-opacity-50 transition-opacity'
         onClick={onClose}
       />
       {/* Modal Content */}
@@ -64,21 +64,21 @@ export default function Modal({
         {...props}
       >
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className='flex items-center justify-between p-6 border-b border-gray-200'>
             {title && (
-              <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+              <h3 className='text-lg font-semibold text-gray-900'>{title}</h3>
             )}
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
               >
-                <X size={20} className="text-gray-500" />
+                <X size={20} className='text-gray-500' />
               </button>
             )}
           </div>
         )}
-        <div className="p-6">{children}</div>
+        <div className='p-6'>{children}</div>
       </div>
     </div>
   );

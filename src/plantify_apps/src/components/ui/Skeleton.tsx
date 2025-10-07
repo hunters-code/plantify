@@ -2,10 +2,10 @@ import clsx from 'clsx';
 import React from 'react';
 
 interface SkeletonProps {
-    width?: string | number;
-    height?: string | number;
-    circle?: boolean;
-    className?: string;
+  width?: string | number;
+  height?: string | number;
+  circle?: boolean;
+  className?: string;
 }
 
 const Skeleton: React.FC<SkeletonProps> = ({

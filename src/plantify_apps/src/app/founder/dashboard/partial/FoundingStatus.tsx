@@ -1,7 +1,7 @@
 import { Lock, BanknoteArrowDown } from 'lucide-react';
 import React from 'react';
 
-import { Button, Card , CardSkeleton } from '@/components/ui';
+import { Button, Card, CardSkeleton } from '@/components/ui';
 import FundingProgress from '@/components/ui/FundingProgress';
 import { formatCurrency } from '@/utils/formatCurrency';
 
@@ -57,9 +57,11 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 p-6 rounded-[16px]">
-        <div className="text-red-600">
-          <h2 className="text-xl font-semibold mb-2">Error Loading Funding Status</h2>
+      <div className='bg-red-50 border border-red-200 p-6 rounded-[16px]'>
+        <div className='text-red-600'>
+          <h2 className='text-xl font-semibold mb-2'>
+            Error Loading Funding Status
+          </h2>
           <p>{error}</p>
         </div>
       </div>
@@ -68,41 +70,45 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
 
   if (!startupId) {
     return (
-      <div className="bg-neutral-100 p-6 rounded-[16px]">
-        <div className="text-center py-8">
-          <h2 className="text-xl font-semibold mb-2">No Startup Selected</h2>
-          <p className="text-gray-500">Please select a startup from the dropdown above.</p>
+      <div className='bg-neutral-100 p-6 rounded-[16px]'>
+        <div className='text-center py-8'>
+          <h2 className='text-xl font-semibold mb-2'>No Startup Selected</h2>
+          <p className='text-gray-500'>
+            Please select a startup from the dropdown above.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-neutral-100 p-6 rounded-[16px]">
-      <h2 className="text-xl font-semibold mb-4">Funding Status</h2>
+    <div className='bg-neutral-100 p-6 rounded-[16px]'>
+      <h2 className='text-xl font-semibold mb-4'>Funding Status</h2>
 
       {/* Reusable Progress Bar */}
       <FundingProgress
         progress={fundingProgress}
         totalRaised={totalRaised}
         fundingGoal={fundingGoal}
-        color="orange"
+        color='orange'
       />
 
       {/* Funds Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {/* Available Funds */}
-        <Card className="flex flex-col justify-between">
+        <Card className='flex flex-col justify-between'>
           <div>
-            <p className="text-2xl font-semibold text-gray-900">
+            <p className='text-2xl font-semibold text-gray-900'>
               {formatCurrency(availableFunds)}
             </p>
-            <p className="text-gray-500 text-sm">80% of raised funds (ckUSDC)</p>
+            <p className='text-gray-500 text-sm'>
+              80% of raised funds (ckUSDC)
+            </p>
           </div>
-          <div className="flex justify-end">
+          <div className='flex justify-end'>
             <Button
-              variant="secondary"
-              className="mt-4 flex items-center gap-2 w-fit"
+              variant='secondary'
+              className='mt-4 flex items-center gap-2 w-fit'
               disabled={availableFunds === 0}
             >
               <BanknoteArrowDown size={16} />
@@ -112,16 +118,18 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
         </Card>
 
         {/* Platform Reserve */}
-        <Card className="flex flex-col justify-between">
+        <Card className='flex flex-col justify-between'>
           <div>
-            <p className="text-2xl font-semibold text-gray-900">
+            <p className='text-2xl font-semibold text-gray-900'>
               {formatCurrency(platformReserve)}
             </p>
-            <p className="text-gray-500 text-sm">20% platform reserve (ckUSDC)</p>
+            <p className='text-gray-500 text-sm'>
+              20% platform reserve (ckUSDC)
+            </p>
           </div>
           <div
-            className="mt-4 flex justify-center items-center gap-2 px-4 py-3
-            rounded-xl border border-orange-200 bg-orange-50 text-sm font-medium text-orange-700"
+            className='mt-4 flex justify-center items-center gap-2 px-4 py-3
+            rounded-xl border border-orange-200 bg-orange-50 text-sm font-medium text-orange-700'
           >
             <Lock size={16} />
             Locked for investor protection
@@ -131,25 +139,25 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
 
       {/* Collateral Information */}
       {collateralInfo && (
-        <div className="mt-6">
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-3">Collateral Status</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className='mt-6'>
+          <Card className='p-4'>
+            <h3 className='text-lg font-semibold mb-3'>Collateral Status</h3>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <div>
-                <p className="text-sm text-gray-500">Current Amount</p>
-                <p className="text-lg font-semibold">
+                <p className='text-sm text-gray-500'>Current Amount</p>
+                <p className='text-lg font-semibold'>
                   {formatCurrency(Number(collateralInfo.currentAmount))}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Required Amount</p>
-                <p className="text-lg font-semibold">
+                <p className='text-sm text-gray-500'>Required Amount</p>
+                <p className='text-lg font-semibold'>
                   {formatCurrency(Number(collateralInfo.requiredAmount))}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Status</p>
-                <p className="text-lg font-semibold capitalize">
+                <p className='text-sm text-gray-500'>Status</p>
+                <p className='text-lg font-semibold capitalize'>
                   {collateralInfo.status}
                 </p>
               </div>

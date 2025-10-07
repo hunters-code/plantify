@@ -18,25 +18,25 @@ import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
 
 // Types
 interface Investment {
-    startupId: string;
-    name: string;
+  startupId: string;
+  name: string;
 }
 
 interface DashboardData {
-    loading: boolean;
-    error?: string | null;
-    totalInvested: number;
-    totalReturns: number;
-    returnPercentage: number;
-    monthlyCommitments: number;
-    activeInvestments: number;
-    upcomingVotes: number;
+  loading: boolean;
+  error?: string | null;
+  totalInvested: number;
+  totalReturns: number;
+  returnPercentage: number;
+  monthlyCommitments: number;
+  activeInvestments: number;
+  upcomingVotes: number;
 }
 
 export default function InvestorDashboard() {
   const [activeTab, setActiveTab] = useState<
-        'overview' | 'portfolio' | 'voting' | 'transactions'
-    >('overview');
+    'overview' | 'portfolio' | 'voting' | 'transactions'
+  >('overview');
 
   // ========== Dummy Data ==========
   const dashboardData: DashboardData = {
@@ -102,17 +102,17 @@ export default function InvestorDashboard() {
   // ========== Loading State ==========
   if (
     authLoading ||
-        (activeTab === 'overview' && dashboardData.loading) ||
-        (activeTab === 'portfolio' && portfolioData.loading)
+    (activeTab === 'overview' && dashboardData.loading) ||
+    (activeTab === 'portfolio' && portfolioData.loading)
   ) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className='min-h-screen bg-gray-50'>
         <Navbar />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <LoadingSpinner className="mx-auto mb-4" />
-              <p className="text-gray-600">Loading dashboard...</p>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+          <div className='flex items-center justify-center min-h-[400px]'>
+            <div className='text-center'>
+              <LoadingSpinner className='mx-auto mb-4' />
+              <p className='text-gray-600'>Loading dashboard...</p>
             </div>
           </div>
         </div>
@@ -124,25 +124,25 @@ export default function InvestorDashboard() {
   // ========== Error State ==========
   if (activeTab === 'overview' && dashboardData.error) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className='min-h-screen bg-gray-50'>
         <Navbar />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Card className="p-8">
-            <div className="text-center">
-              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                Error Loading Dashboard
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+          <Card className='p-8'>
+            <div className='text-center'>
+              <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
+              <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                Error Loading Dashboard
               </h3>
-              <p className="text-gray-600 mb-4">{dashboardData.error}</p>
-              <div className="flex gap-2 justify-center">
-                <Button variant="primary" onClick={refetch}>
-                                    Try Again
+              <p className='text-gray-600 mb-4'>{dashboardData.error}</p>
+              <div className='flex gap-2 justify-center'>
+                <Button variant='primary' onClick={refetch}>
+                  Try Again
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant='secondary'
                   onClick={() => console.log('Navigate to register')}
                 >
-                                    Register as Investor
+                  Register as Investor
                 </Button>
               </div>
             </div>
@@ -155,44 +155,45 @@ export default function InvestorDashboard() {
 
   // ========== Main Render ==========
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className='min-h-screen bg-gray-50'>
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className='mb-8'>
+          <div className='flex items-center justify-between'>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                                Investor Dashboard
+              <h1 className='text-3xl font-bold text-gray-900 mb-2'>
+                Investor Dashboard
               </h1>
               {investor && (
-                <p className="text-gray-600">
-                                    Welcome back, {investor.fullName}
+                <p className='text-gray-600'>
+                  Welcome back, {investor.fullName}
                 </p>
               )}
             </div>
             <Button
-              variant="secondary"
+              variant='secondary'
               onClick={refetch}
-              className="flex items-center gap-2"
+              className='flex items-center gap-2'
             >
               <ArrowUpRight size={16} />
-                            Refresh
+              Refresh
             </Button>
           </div>
 
           {/* Tabs */}
-          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit mt-4">
-            {tabs.map((tab) => {
+          <div className='flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit mt-4'>
+            {tabs.map(tab => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.id
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   <Icon size={16} />

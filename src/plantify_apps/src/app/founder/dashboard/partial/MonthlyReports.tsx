@@ -1,12 +1,4 @@
-import {
-  FileText,
-  Plus,
-  X,
-  CheckCircle,
-  Clock,
-  Eye,
-  Edit,
-} from 'lucide-react';
+import { FileText, Plus, X, CheckCircle, Clock, Eye, Edit } from 'lucide-react';
 import { useState } from 'react';
 
 import { Alert, Button, Card, Input } from '@/components/ui';
@@ -113,7 +105,7 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
   ];
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
@@ -185,15 +177,15 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
   const getStatusIcon = (status: MonthlyReport['status']) => {
     switch (status) {
       case 'Approved':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className='w-4 h-4 text-green-500' />;
       case 'Submitted':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
+        return <Clock className='w-4 h-4 text-yellow-500' />;
       case 'Draft':
-        return <Edit className="w-4 h-4 text-gray-500" />;
+        return <Edit className='w-4 h-4 text-gray-500' />;
       case 'Rejected':
-        return <X className="w-4 h-4 text-red-500" />;
+        return <X className='w-4 h-4 text-red-500' />;
       default:
-        return <Clock className="w-4 h-4 text-gray-500" />;
+        return <Clock className='w-4 h-4 text-gray-500' />;
     }
   };
 
@@ -232,12 +224,12 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
 
   // Skeleton loader
   const SkeletonCard = () => (
-    <Card className="p-6 animate-pulse">
-      <div className="h-4 w-32 bg-gray-300 rounded mb-4"></div>
-      <div className="h-3 w-24 bg-gray-200 rounded mb-2"></div>
-      <div className="h-3 w-40 bg-gray-200 rounded mb-2"></div>
-      <div className="h-3 w-20 bg-gray-200 rounded mb-4"></div>
-      <div className="h-8 w-24 bg-gray-300 rounded"></div>
+    <Card className='p-6 animate-pulse'>
+      <div className='h-4 w-32 bg-gray-300 rounded mb-4'></div>
+      <div className='h-3 w-24 bg-gray-200 rounded mb-2'></div>
+      <div className='h-3 w-40 bg-gray-200 rounded mb-2'></div>
+      <div className='h-3 w-20 bg-gray-200 rounded mb-4'></div>
+      <div className='h-8 w-24 bg-gray-300 rounded'></div>
     </Card>
   );
 
@@ -247,29 +239,32 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
         return (
           <Card>
             {!showReportForm ? (
-              <div className="flex flex-col items-center justify-center py-16 px-8">
-                <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mb-6">
-                  <FileText size={48} className="text-gray-400" />
+              <div className='flex flex-col items-center justify-center py-16 px-8'>
+                <div className='w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mb-6'>
+                  <FileText size={48} className='text-gray-400' />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className='text-xl font-semibold text-gray-900 mb-2'>
                   {getMonthName(new Date().getMonth() + 1)}{' '}
                   {new Date().getFullYear()} Report
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className='text-gray-600 mb-4'>
                   Due:{' '}
                   {new Date(
                     new Date().getFullYear(),
                     new Date().getMonth() + 1,
-                    10,
+                    10
                   ).toLocaleDateString()}
                 </p>
-                <Button onClick={() => setShowReportForm(true)} variant="primary">
+                <Button
+                  onClick={() => setShowReportForm(true)}
+                  variant='primary'
+                >
                   <Plus size={16} />
                   Start new report
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6 p-6">
+              <form onSubmit={handleSubmit} className='space-y-6 p-6'>
                 {submitMessage && (
                   <Alert
                     type={submitMessage.includes('Error') ? 'error' : 'success'}
@@ -278,24 +273,24 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
                 )}
 
                 <Input
-                  type="number"
-                  label="Monthly Revenue"
+                  type='number'
+                  label='Monthly Revenue'
                   value={formData.monthlyRevenue}
-                  onChange={(e) =>
+                  onChange={e =>
                     handleInputChange('monthlyRevenue', e.target.value)
                   }
                 />
 
-                <div className="flex justify-end gap-4">
+                <div className='flex justify-end gap-4'>
                   <Button
-                    type="button"
-                    variant="secondary"
+                    type='button'
+                    variant='secondary'
                     onClick={handleSaveDraft}
                     disabled={submitting}
                   >
                     {submitting ? 'Saving...' : 'Save as Draft'}
                   </Button>
-                  <Button type="submit" variant="primary" disabled={submitting}>
+                  <Button type='submit' variant='primary' disabled={submitting}>
                     {submitting ? 'Submitting...' : 'Submit Report'}
                   </Button>
                 </div>
@@ -306,7 +301,7 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
       case 1:
         if (loading) {
           return (
-            <div className="space-y-4">
+            <div className='space-y-4'>
               <SkeletonCard />
               <SkeletonCard />
             </div>
@@ -316,17 +311,17 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
         if (reports.length === 0) return <p>No reports yet</p>;
 
         return (
-          <div className="space-y-4">
-            {reports.map((r) => (
-              <Card key={r.id} className="p-6">
+          <div className='space-y-4'>
+            {reports.map(r => (
+              <Card key={r.id} className='p-6'>
                 <h3>
                   {getMonthName(r.month)} {r.year}
                 </h3>
-                <p className="flex items-center gap-2">
+                <p className='flex items-center gap-2'>
                   Status:{' '}
                   <span
                     className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
-                      r.status,
+                      r.status
                     )}`}
                   >
                     {getStatusIcon(r.status)} {r.status}
@@ -353,11 +348,11 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
   }
 
   return (
-    <div className="bg-neutral-100 rounded-[16px] p-6">
-      <h2 className="text-xl font-semibold mb-4">Monthly Reports</h2>
+    <div className='bg-neutral-100 rounded-[16px] p-6'>
+      <h2 className='text-xl font-semibold mb-4'>Monthly Reports</h2>
 
-      <div className="flex gap-2 mb-6 border border-neutral-200 rounded-full w-fit">
-        {subTabs.map((tab) => (
+      <div className='flex gap-2 mb-6 border border-neutral-200 rounded-full w-fit'>
+        {subTabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveSubTab(tab.id)}
@@ -372,7 +367,7 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
         ))}
       </div>
 
-      <div className="min-h-[400px]">{renderSubTabContent()}</div>
+      <div className='min-h-[400px]'>{renderSubTabContent()}</div>
     </div>
   );
 }
