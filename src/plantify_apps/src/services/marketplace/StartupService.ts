@@ -119,9 +119,7 @@ export class StartupService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The purchase history or error message
    */
-  public static async getStartupPurchaseHistory(
-    startupId: string
-  ): Promise<{
+  public static async getStartupPurchaseHistory(startupId: string): Promise<{
     success: boolean;
     history?: NFTPurchaseHistory;
     error?: string;
