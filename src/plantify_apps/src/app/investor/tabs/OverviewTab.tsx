@@ -1,8 +1,10 @@
-import React from "react";
-import { TrendingUp, DollarSign, Activity, Calendar, Vote } from "lucide-react";
-import { Button, Card } from "@/components/ui";
-import { ProductCard } from "@/components/features";
-import { useRouter } from "next/navigation";
+import { TrendingUp, DollarSign, Activity, Calendar, Vote } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
+
+import { ProductCard } from '@/components/features';
+import { Button, Card } from '@/components/ui';
+
 
 // Types
 interface DashboardData {
@@ -32,7 +34,7 @@ interface Startup {
 }
 
 interface ActivityItem {
-  type: "profit" | "investment";
+  type: 'profit' | 'investment';
   company: string;
   amount: number;
   date: string;
@@ -142,7 +144,7 @@ export default function OverviewTab({
           <Button
             variant="secondary"
             className="text-sm"
-            onClick={() => navigate.push("/explore")}
+            onClick={() => navigate.push('/explore')}
           >
             View all startups
           </Button>
@@ -159,7 +161,7 @@ export default function OverviewTab({
                 There are currently no active startups available for
                 investment.
               </p>
-              <Button variant="primary" onClick={() => navigate.push("/explore")}>
+              <Button variant="primary" onClick={() => navigate.push('/explore')}>
                 Explore All Startups
               </Button>
             </div>
@@ -212,12 +214,12 @@ export default function OverviewTab({
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.type === "profit"
-                      ? "bg-green-100"
-                      : "bg-blue-100"
-                      }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.type === 'profit'
+                      ? 'bg-green-100'
+                      : 'bg-blue-100'
+                    }`}
                   >
-                    {activity.type === "profit" ? (
+                    {activity.type === 'profit' ? (
                       <TrendingUp className="w-4 h-4 text-green-600" />
                     ) : (
                       <DollarSign className="w-4 h-4 text-blue-600" />
@@ -225,9 +227,9 @@ export default function OverviewTab({
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">
-                      {activity.type === "profit"
-                        ? "Profit sharing"
-                        : "Investment"}
+                      {activity.type === 'profit'
+                        ? 'Profit sharing'
+                        : 'Investment'}
                     </p>
                     <p className="text-sm text-gray-600">
                       {activity.company}
@@ -236,12 +238,12 @@ export default function OverviewTab({
                 </div>
                 <div className="text-right">
                   <p
-                    className={`font-medium ${activity.type === "profit"
-                      ? "text-green-600"
-                      : "text-blue-600"
-                      }`}
+                    className={`font-medium ${activity.type === 'profit'
+                      ? 'text-green-600'
+                      : 'text-blue-600'
+                    }`}
                   >
-                    {activity.type === "profit" ? "+" : ""}${activity.amount}
+                    {activity.type === 'profit' ? '+' : ''}${activity.amount}
                   </p>
                   <p className="text-sm text-gray-500">{activity.date}</p>
                 </div>

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import {
   AlertTriangle,
   Banknote,
@@ -14,8 +13,10 @@ import {
   ThumbsUp,
   Users,
 } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
+import { useState, useEffect, useRef } from 'react';
+
 import Footer from '@/components/layout/Footer';
+import Navbar from '@/components/layout/Navbar';
 import Tabs from '@/components/layout/Tabs';
 import {
   Badge,
@@ -29,10 +30,10 @@ import {
   CardSkeleton,
 } from '@/components/ui';
 
-import Overview from './partial/Overview';
+import Documents from './partial/Documents';
 import Financials from './partial/Financials';
 import FounderTeam from './partial/FounderTeam';
-import Documents from './partial/Documents';
+import Overview from './partial/Overview';
 import Risks from './partial/Risks';
 
 interface Startup {
@@ -52,7 +53,7 @@ interface Startup {
 }
 
 export default function ExploreDetail() {
-  const id = "1"; // dummy ID
+  const id = '1'; // dummy ID
   const isAuthenticated = true;
   const authLoading = false;
   const investmentLoading = false;
@@ -82,7 +83,7 @@ export default function ExploreDetail() {
 
         // dummy data
         const mockStartup: Startup = {
-          id: id,
+          id,
           startupName: 'EcoFarm Solutions',
           description:
             'Revolutionary hydroponic farming system using IoT technology...',
@@ -235,19 +236,19 @@ export default function ExploreDetail() {
 
           <div className="space-y-2 text-sm">
             <p className="flex gap-2 items-center">
-              <ChartCandlestick size={20} /> Periodic Returns:{" "}
+              <ChartCandlestick size={20} /> Periodic Returns:{' '}
               <span className="font-semibold">{startup.periodicProfitSharing}</span>
             </p>
             <p className="flex gap-2 items-center">
-              <BanknoteArrowUp size={20} /> Monthly Revenue:{" "}
+              <BanknoteArrowUp size={20} /> Monthly Revenue:{' '}
               <span className="font-semibold">${startup.monthlyRevenue}</span>
             </p>
             <p className="flex gap-2 items-center">
-              <GalleryHorizontalEnd size={20} /> NFT Price:{" "}
+              <GalleryHorizontalEnd size={20} /> NFT Price:{' '}
               <span className="font-semibold">${startup.nftPrice}</span>
             </p>
             <p className="flex gap-2 items-center">
-              <Sparkle size={20} /> Funding Goal:{" "}
+              <Sparkle size={20} /> Funding Goal:{' '}
               <span className="text-orange-500 font-semibold">
                 ${startup.fundingGoal}
               </span>
@@ -257,7 +258,7 @@ export default function ExploreDetail() {
 
           <Button onClick={handleInvestNow} disabled={investmentLoadingData}>
             <Banknote size={20} />
-            {investmentLoading ? "Loading..." : "Invest Now"}
+            {investmentLoading ? 'Loading...' : 'Invest Now'}
           </Button>
         </Card>
       </div>

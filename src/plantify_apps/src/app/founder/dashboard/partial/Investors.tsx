@@ -1,15 +1,16 @@
-"use client";
+'use client';
 
-import { useState } from "react";
 import {
   Search,
   Filter,
   Eye,
   MessageCircle,
   MapPin,
-} from "lucide-react";
-import { Badge, Button, Card, CardSkeleton } from "@/components/ui";
-import { formatCurrency, formatNumber } from "@/utils/formatCurrency";
+} from 'lucide-react';
+import { useState } from 'react';
+
+import { Badge, Button, Card, CardSkeleton } from '@/components/ui';
+import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
 
 function useInvestors(startupId?: number) {
   const [loading] = useState(false);
@@ -17,34 +18,34 @@ function useInvestors(startupId?: number) {
 
   const investors = [
     {
-      fullName: "Alice Johnson",
-      principal: "0xA1B2C3D4E5",
+      fullName: 'Alice Johnson',
+      principal: '0xA1B2C3D4E5',
       totalInvestment: 5200,
       participation: 85,
       nftsOwned: 5,
       profitReceived: 340,
-      location: "New York, USA",
-      badges: ["VIP", "Active"],
+      location: 'New York, USA',
+      badges: ['VIP', 'Active'],
     },
     {
-      fullName: "Bob Lee",
-      principal: "0x12345ABCDEF",
+      fullName: 'Bob Lee',
+      principal: '0x12345ABCDEF',
       totalInvestment: 2500,
       participation: 60,
       nftsOwned: 3,
       profitReceived: 200,
-      location: "London, UK",
-      badges: ["Active"],
+      location: 'London, UK',
+      badges: ['Active'],
     },
     {
-      fullName: "Catherine Nguyen",
-      principal: "0x9F8E7D6C5B",
+      fullName: 'Catherine Nguyen',
+      principal: '0x9F8E7D6C5B',
       totalInvestment: 700,
       participation: 40,
       nftsOwned: 1,
       profitReceived: 50,
-      location: "Singapore",
-      badges: ["Inactive"],
+      location: 'Singapore',
+      badges: ['Inactive'],
     },
   ];
 
@@ -80,17 +81,17 @@ export default function Investors({ startupId }: InvestorsProps) {
   const [activeInvestorTab, setActiveInvestorTab] = useState(0);
 
   const investorTabs = [
-    { label: "Overview" },
-    { label: "Investor list" },
-    { label: "Analytics" },
-    { label: "Engagement" },
+    { label: 'Overview' },
+    { label: 'Investor list' },
+    { label: 'Analytics' },
+    { label: 'Engagement' },
   ];
 
   const getBadgeVariant = (badge: string) => {
-    if (badge.includes("VIP")) return "primary";
-    if (badge.includes("Active")) return "success";
-    if (badge.includes("Inactive")) return "warning";
-    return "secondary";
+    if (badge.includes('VIP')) return 'primary';
+    if (badge.includes('Active')) return 'success';
+    if (badge.includes('Inactive')) return 'warning';
+    return 'secondary';
   };
 
   if (loading) return <CardSkeleton textRows={4} withImage />;
@@ -198,9 +199,9 @@ export default function Investors({ startupId }: InvestorsProps) {
             key={index}
             onClick={() => setActiveInvestorTab(index)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeInvestorTab === index
-              ? "border-purple-600 text-purple-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
+              ? 'border-purple-600 text-purple-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
           >
             {tab.label}
           </button>

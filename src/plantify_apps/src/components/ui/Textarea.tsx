@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   placeholder?: string;
@@ -13,13 +13,13 @@ type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
 };
 
 export default function Textarea({
-  placeholder = "",
-  value = "",
+  placeholder = '',
+  value = '',
   onChange,
-  label = "",
+  label = '',
   required = false,
-  error = "",
-  className = "",
+  error = '',
+  className = '',
   disabled = false,
   rows = 4,
   ...props
@@ -47,8 +47,8 @@ export default function Textarea({
         onChange={onChange}
         disabled={disabled}
         rows={rows}
-        className={`${baseStyle} ${error ? "border-red-500 focus:ring-red-500" : ""
-          }`}
+        className={`${baseStyle} ${error ? 'border-red-500 focus:ring-red-500' : ''
+        }`}
         {...props}
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}

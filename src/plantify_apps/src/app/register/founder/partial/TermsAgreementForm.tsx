@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check } from 'lucide-react';
 
 interface TermsAgreementFormProps {
   formData: {
@@ -42,15 +42,15 @@ function TermsAgreementForm({ formData, handleInputChange }: TermsAgreementFormP
         {/* Terms & Conditions */}
         <div
           className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${formData.terms
-              ? "border-blue-500 bg-blue-50"
-              : "border-neutral-200 bg-white hover:border-gray-300"
-            }`}
-          onClick={() => handleCheckboxChange("terms")}
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-neutral-200 bg-white hover:border-gray-300'
+          }`}
+          onClick={() => handleCheckboxChange('terms')}
         >
           <div className="flex items-start gap-3">
             <div
-              className={`w-5 h-5 flex items-center justify-center rounded-md border ${formData.terms ? "bg-blue-600 border-blue-600" : "border-gray-300"
-                }`}
+              className={`w-5 h-5 flex items-center justify-center rounded-md border ${formData.terms ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
+              }`}
             >
               {formData.terms && <Check className="w-4 h-4 text-white" />}
             </div>
@@ -69,15 +69,15 @@ function TermsAgreementForm({ formData, handleInputChange }: TermsAgreementFormP
         {/* Risks and Commitments */}
         <div
           className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${formData.risks
-              ? "border-blue-500 bg-blue-50"
-              : "border-neutral-200 bg-white hover:border-gray-300"
-            }`}
-          onClick={() => handleCheckboxChange("risks")}
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-neutral-200 bg-white hover:border-gray-300'
+          }`}
+          onClick={() => handleCheckboxChange('risks')}
         >
           <div className="flex items-start gap-3">
             <div
-              className={`w-5 h-5 flex items-center justify-center rounded-md border ${formData.risks ? "bg-blue-600 border-blue-600" : "border-gray-300"
-                }`}
+              className={`w-5 h-5 flex items-center justify-center rounded-md border ${formData.risks ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
+              }`}
             >
               {formData.risks && <Check className="w-4 h-4 text-white" />}
             </div>
@@ -96,17 +96,17 @@ function TermsAgreementForm({ formData, handleInputChange }: TermsAgreementFormP
         {/* Transparency and Community Values */}
         <div
           className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${formData.transparency
-              ? "border-blue-500 bg-blue-50"
-              : "border-neutral-200 bg-white hover:border-gray-300"
-            }`}
-          onClick={() => handleCheckboxChange("transparency")}
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-neutral-200 bg-white hover:border-gray-300'
+          }`}
+          onClick={() => handleCheckboxChange('transparency')}
         >
           <div className="flex items-start gap-3">
             <div
               className={`w-5 h-5 flex items-center justify-center rounded-md border ${formData.transparency
-                  ? "bg-blue-600 border-blue-600"
-                  : "border-gray-300"
-                }`}
+                ? 'bg-blue-600 border-blue-600'
+                : 'border-gray-300'
+              }`}
             >
               {formData.transparency && <Check className="w-4 h-4 text-white" />}
             </div>

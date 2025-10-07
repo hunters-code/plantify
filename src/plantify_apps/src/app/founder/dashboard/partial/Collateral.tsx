@@ -1,5 +1,6 @@
-import React from "react";
-import { Card } from "@/components/ui";
+import React from 'react';
+
+import { Card } from '@/components/ui';
 
 const Collateral: React.FC = () => {
   return (
@@ -38,7 +39,7 @@ const Collateral: React.FC = () => {
         <div className="w-full bg-gray-200 rounded-full h-3">
           <div
             className="bg-green-500 h-3 rounded-full"
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
           ></div>
         </div>
         <div className="text-sm text-gray-500 mt-1">100% complete</div>

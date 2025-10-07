@@ -1,4 +1,3 @@
-import { Alert, Button, Card } from '../../../../components/ui';
 import {
   AlertTriangle,
   FileText,
@@ -7,6 +6,8 @@ import {
   ExternalLink,
   Globe,
 } from 'lucide-react';
+
+import { Alert, Button, Card } from '../../../../components/ui';
 
 export default function Documents({ startup }) {
   if (!startup) {
@@ -150,33 +151,33 @@ export default function Documents({ startup }) {
             {/* Financial Projections */}
             {startup.financialProjections &&
               startup.financialProjections.length > 0 && (
-                <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
-                  <div className='flex items-start gap-3 w-full'>
-                    <FileText className='w-6 h-6 text-gray-700 mt-1' />
-                    <div className='w-full'>
-                      <div className='flex justify-between w-full mb-2'>
-                        <div>
-                          <h3 className='text-sm font-medium text-gray-900'>
+              <div className='flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm'>
+                <div className='flex items-start gap-3 w-full'>
+                  <FileText className='w-6 h-6 text-gray-700 mt-1' />
+                  <div className='w-full'>
+                    <div className='flex justify-between w-full mb-2'>
+                      <div>
+                        <h3 className='text-sm font-medium text-gray-900'>
                             Financial Projections
-                          </h3>
-                          <p className='text-xs text-gray-500'>
+                        </h3>
+                        <p className='text-xs text-gray-500'>
                             Financial forecasts and projections
-                          </p>
-                        </div>
-                        <span className='h-fit mt-3 sm:mt-0 inline-flex rounded-lg bg-blue-100 text-blue-700 text-xs px-2.5 py-1 font-medium'>
-                          Financial
-                        </span>
-                      </div>
-                      <hr />
-                      <div className='mt-2'>
-                        <p className='text-xs text-gray-600'>
-                          {startup.financialProjections[0]}
                         </p>
                       </div>
+                      <span className='h-fit mt-3 sm:mt-0 inline-flex rounded-lg bg-blue-100 text-blue-700 text-xs px-2.5 py-1 font-medium'>
+                          Financial
+                      </span>
+                    </div>
+                    <hr />
+                    <div className='mt-2'>
+                      <p className='text-xs text-gray-600'>
+                        {startup.financialProjections[0]}
+                      </p>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
           </>
         ) : (
           <div className='text-center py-8'>

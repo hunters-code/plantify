@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Card, Badge } from '@/components/ui';
 
 interface TransactionData {
@@ -168,7 +169,7 @@ export default function TransactionsTab({ onBackToOverview }: TransactionsTabPro
                   <p className="text-sm text-gray-600 mb-1">Total</p>
                   <p
                     className={`font-bold text-lg ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
+                    }`}
                   >
                     {transaction.amount >= 0 ? '+' : ''}$
                     {Math.abs(transaction.amount).toFixed(2)}

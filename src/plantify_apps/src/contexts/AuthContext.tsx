@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { AuthClient } from '@dfinity/auth-client';
 import { HttpAgent } from '@dfinity/agent';
+import { AuthClient } from '@dfinity/auth-client';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+
 import { createActor } from '@/declarations/plantify_backend';
 import type { _SERVICE } from '@/declarations/plantify_backend/plantify_backend.did';
 
-type UserType = "investor" | "founder" | null;
+type UserType = 'investor' | 'founder' | null;
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -23,11 +24,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRegistered, setIsRegistered] = useState(false);
   const [userType, setUserType] = useState<UserType>(null);
-  
+
   // Auth client state
   const [authClient, setAuthClient] = useState<AuthClient | null>(null);
   const [actor, setActor] = useState<_SERVICE | null>(null);
-  
+
   // Canister ID for the backend
   const canisterId = process.env.CANISTER_ID || '';
 
@@ -41,26 +42,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             disableDefaultIdleCallback: true,
           },
         });
-        
+
         setAuthClient(client);
-        
+
         const isAuth = await client.isAuthenticated();
         if (isAuth) {
           setIsAuthenticated(true);
-          
+
           // Create backend actor
           await createBackendActor(client);
         }
       } catch (error) {
-        console.error("Auth initialization error:", error);
+        console.error('Auth initialization error:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     init();
   }, []);
-  
+
   // Check user type and registration status when authenticated
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -70,27 +71,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // Check if user is registered as founder or investor
           const isFounder = await actor.isUserFounder();
           const isInvestor = await actor.isUserInvestor();
-          
+
           setIsRegistered(isFounder || isInvestor);
-          
+
           if (isFounder) {
-            setUserType("founder");
+            setUserType('founder');
           } else if (isInvestor) {
-            setUserType("investor");
+            setUserType('investor');
           } else {
             setUserType(null);
           }
         } catch (error) {
-          console.error("Error checking user status:", error);
+          console.error('Error checking user status:', error);
         } finally {
           setIsLoading(false);
         }
       }
     };
-    
+
     checkUserStatus();
   }, [isAuthenticated, actor]);
-  
+
   // Create backend actor function
   const createBackendActor = async (client: AuthClient) => {
     try {
@@ -98,20 +99,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         host: 'https://ic0.app',
         identity: client.getIdentity(),
       });
-      
+
       // Fetch root key in development
       if (process.env.NODE_ENV !== 'production' || window.location.hostname === 'localhost') {
         await newAgent.fetchRootKey();
       }
-      
+
       const newActor = createActor(canisterId, {
         agent: newAgent,
       }) as _SERVICE;
-      
+
       setActor(newActor);
       return true;
     } catch (error) {
-      console.error("Error creating backend actor:", error);
+      console.error('Error creating backend actor:', error);
       return false;
     }
   };
@@ -119,31 +120,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Sign in function
   const signIn = async (): Promise<void> => {
     if (!authClient) {
-      throw new Error("Auth client not initialized");
+      throw new Error('Auth client not initialized');
     }
-    
+
     setIsLoading(true);
-    
+
     return new Promise((resolve, reject) => {
       const identityProvider = 'https://id.ai/#authorize';
-      
+
       authClient.login({
         identityProvider,
         onSuccess: async () => {
           try {
             setIsAuthenticated(true);
-            
+
             await createBackendActor(authClient);
             resolve();
           } catch (error) {
-            console.error("Sign in error:", error);
+            console.error('Sign in error:', error);
             reject(error);
           } finally {
             setIsLoading(false);
           }
         },
         onError: (error) => {
-          console.error("Login error:", error);
+          console.error('Login error:', error);
           setIsLoading(false);
           reject(error);
         },
@@ -164,6 +165,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = (): AuthContextType => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
   return ctx;
 };

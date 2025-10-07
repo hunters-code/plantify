@@ -1,4 +1,4 @@
-import { Input, Textarea } from "@/components/ui";
+import { Input, Textarea } from '@/components/ui';
 
 interface PersonalInformationFormProps {
   formData: {
@@ -25,7 +25,7 @@ export default function PersonalInformationForm({
           label="Full name"
           placeholder="Enter your full name here"
           value={formData.fullName}
-          onChange={(e) => handleInputChange("fullName", e.target.value)}
+          onChange={(e) => handleInputChange('fullName', e.target.value)}
           required
         />
 
@@ -35,7 +35,7 @@ export default function PersonalInformationForm({
             label="Email"
             placeholder="Enter your email here"
             value={formData.email}
-            onChange={(e) => handleInputChange("email", e.target.value)}
+            onChange={(e) => handleInputChange('email', e.target.value)}
             required
           />
           <Input
@@ -43,7 +43,7 @@ export default function PersonalInformationForm({
             label="Phone number"
             placeholder="Enter your phone number here"
             value={formData.phone}
-            onChange={(e) => handleInputChange("phone", e.target.value)}
+            onChange={(e) => handleInputChange('phone', e.target.value)}
             required
           />
         </div>
@@ -52,7 +52,7 @@ export default function PersonalInformationForm({
           label="Complete address"
           placeholder="Enter your address here"
           value={formData.address}
-          onChange={(e) => handleInputChange("address", e.target.value)}
+          onChange={(e) => handleInputChange('address', e.target.value)}
           rows={4}
           required
         />

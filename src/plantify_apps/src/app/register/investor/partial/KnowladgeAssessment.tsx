@@ -1,5 +1,6 @@
-import React from "react";
-import { Card } from "@/components/ui";
+import React from 'react';
+
+import { Card } from '@/components/ui';
 
 interface KnowladgeAssessmentProps {
   formData: Record<string, boolean>;
@@ -24,28 +25,28 @@ export default function KnowladgeAssessment({
 
   const checkboxItems: CheckboxItem[] = [
     {
-      field: "investmentRisks",
-      title: "I understand investment risks",
+      field: 'investmentRisks',
+      title: 'I understand investment risks',
       description:
-        "Startup investments are high-risk and I may lose some or all of my investment. Returns are not guaranteed and depend on startup performance.",
+        'Startup investments are high-risk and I may lose some or all of my investment. Returns are not guaranteed and depend on startup performance.',
     },
     {
-      field: "nftModel",
-      title: "I understand NFT investment model",
+      field: 'nftModel',
+      title: 'I understand NFT investment model',
       description:
-        "Each NFT represents profit sharing rights in a specific startup. Profit sharing is distributed monthly based on startup performance and community voting.",
+        'Each NFT represents profit sharing rights in a specific startup. Profit sharing is distributed monthly based on startup performance and community voting.',
     },
     {
-      field: "governance",
-      title: "I understand community governance",
+      field: 'governance',
+      title: 'I understand community governance',
       description:
-        "I must participate in monthly voting to approve/reject startup progress reports. My vote affects whether profit sharing is distributed that month.",
+        'I must participate in monthly voting to approve/reject startup progress reports. My vote affects whether profit sharing is distributed that month.',
     },
     {
-      field: "liquidity",
-      title: "I understand liquidity restrictions",
+      field: 'liquidity',
+      title: 'I understand liquidity restrictions',
       description:
-        "NFTs are locked for 36 months and cannot be sold or transferred. I will not have access to my initial investment capital during this period.",
+        'NFTs are locked for 36 months and cannot be sold or transferred. I will not have access to my initial investment capital during this period.',
     },
   ];
 
@@ -60,9 +61,9 @@ export default function KnowladgeAssessment({
           <Card
             key={item.field}
             className={`flex items-start gap-3 p-4 cursor-pointer transition-all duration-200 ${formData[item.field]
-                ? "border-blue-500 bg-blue-50"
-                : "border-neutral-200 bg-white hover:border-gray-300"
-              }`}
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-neutral-200 bg-white hover:border-gray-300'
+            }`}
             onClick={() => handleChange(item.field, !formData[item.field])}
           >
             <input

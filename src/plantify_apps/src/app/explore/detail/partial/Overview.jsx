@@ -63,7 +63,7 @@ export default function Overview({ startup }) {
         ) : (
           <p className='text-gray-500 text-sm mt-2'>No competitive advantage information available.</p>
         )}
-        
+
         {startup.marketingStrategy && (
           <div className='mt-4'>
             <h4 className='text-md font-medium'>Marketing Strategy</h4>

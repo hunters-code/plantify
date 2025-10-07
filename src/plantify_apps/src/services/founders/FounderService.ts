@@ -1,12 +1,13 @@
-import { BaseService } from '../BaseService';
-import type { 
-  Founder, 
-  FounderRegistrationRequest, 
+import type {
+  Founder,
+  FounderRegistrationRequest,
   Result_5,
   Startup,
   StartupCreationRequest,
-  Result_23
+  Result_23,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+
+import { BaseService } from '../BaseService';
 
 /**
  * Service for founder-related operations
@@ -20,7 +21,7 @@ export class FounderService extends BaseService {
   public static async registerFounder(request: FounderRegistrationRequest): Promise<{ success: boolean; founder?: Founder; error?: string }> {
     try {
       const result: Result_5 = await this.getActor().registerFounder(request);
-      
+
       if ('ok' in result) {
         return { success: true, founder: result.ok };
       } else {
@@ -54,7 +55,7 @@ export class FounderService extends BaseService {
   public static async createStartup(request: StartupCreationRequest): Promise<{ success: boolean; startup?: Startup; error?: string }> {
     try {
       const result: Result_23 = await this.getActor().createStartup(request);
-      
+
       if ('ok' in result) {
         return { success: true, startup: result.ok };
       } else {

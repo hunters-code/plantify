@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, HTMLAttributes } from 'react';
 import { Eye } from 'lucide-react';
+import React, { useState, HTMLAttributes } from 'react';
 
 interface ImageGalleryProps extends HTMLAttributes<HTMLDivElement> {
   images?: string[];
@@ -43,7 +43,7 @@ export default function ImageGallery({
             key={i}
             onClick={() => setActiveIndex(i)}
             className={`w-20 h-20 rounded-lg overflow-hidden shadow cursor-pointer border-2 transition-all duration-200 ${activeIndex === i ? 'border-purple-500' : 'border-transparent'
-              }`}
+            }`}
           >
             <img
               src={img}

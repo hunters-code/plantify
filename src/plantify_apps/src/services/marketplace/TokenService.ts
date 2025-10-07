@@ -1,4 +1,3 @@
-import { BaseService } from '../BaseService';
 import type {
   TransferAccount,
   TransferArgs,
@@ -13,8 +12,10 @@ import type {
   CollateralProgressResponse,
   CollateralTopUp,
   Result_21,
-  Result_22
+  Result_22,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+
+import { BaseService } from '../BaseService';
 
 /**
  * Service for token operations
@@ -157,7 +158,7 @@ export class TokenService extends BaseService {
   public static async topUpCollateral(request: TopUpRequest): Promise<{ success: boolean; response?: TopUpResponse; error?: string }> {
     try {
       const result: Result_3 = await this.getActor().topUpCollateral(request);
-      
+
       if ('ok' in result) {
         return { success: true, response: result.ok };
       } else {
@@ -177,7 +178,7 @@ export class TokenService extends BaseService {
   public static async getCollateralStatus(startupId: string): Promise<{ success: boolean; info?: CollateralInfo; error?: string }> {
     try {
       const result: Result_22 = await this.getActor().getCollateralStatus(startupId);
-      
+
       if ('ok' in result) {
         return { success: true, info: result.ok };
       } else {
@@ -211,7 +212,7 @@ export class TokenService extends BaseService {
   public static async getCollateralTopUpHistory(startupId: string): Promise<{ success: boolean; history?: CollateralTopUp[]; error?: string }> {
     try {
       const result: Result_21 = await this.getActor().getCollateralTopUpHistory(startupId);
-      
+
       if ('ok' in result) {
         return { success: true, history: result.ok };
       } else {

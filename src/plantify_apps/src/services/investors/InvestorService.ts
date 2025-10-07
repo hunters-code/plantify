@@ -1,4 +1,3 @@
-import { BaseService } from '../BaseService';
 import type {
   Investor,
   InvestorRegistrationRequest,
@@ -7,8 +6,10 @@ import type {
   NFTPurchaseResponse,
   NFTPurchaseHistory,
   Result_6,
-  Result_10
+  Result_10,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+
+import { BaseService } from '../BaseService';
 
 /**
  * Service for investor-related operations
@@ -22,7 +23,7 @@ export class InvestorService extends BaseService {
   public static async registerInvestor(request: InvestorRegistrationRequest): Promise<{ success: boolean; investor?: Investor; error?: string }> {
     try {
       const result: Result_4 = await this.getActor().registerInvestor(request);
-      
+
       if ('ok' in result) {
         return { success: true, investor: result.ok };
       } else {
@@ -56,7 +57,7 @@ export class InvestorService extends BaseService {
   public static async purchaseNFT(request: NFTPurchaseRequest): Promise<{ success: boolean; response?: NFTPurchaseResponse; error?: string }> {
     try {
       const result: Result_6 = await this.getActor().purchaseNFT(request);
-      
+
       if ('ok' in result) {
         return { success: true, response: result.ok };
       } else {
@@ -92,7 +93,7 @@ export class InvestorService extends BaseService {
   public static async getInvestorPurchaseHistory(investorId: string): Promise<{ success: boolean; history?: NFTPurchaseHistory; error?: string }> {
     try {
       const result: Result_10 = await this.getActor().getInvestorPurchaseHistory(investorId);
-      
+
       if ('ok' in result) {
         return { success: true, history: result.ok };
       } else {

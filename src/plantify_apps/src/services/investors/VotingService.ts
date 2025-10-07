@@ -1,4 +1,3 @@
-import { BaseService } from '../BaseService';
 import type {
   VoteRequest,
   InvestorVote,
@@ -11,8 +10,10 @@ import type {
   Result_11,
   Result_19,
   Result_20,
-  Result_24
+  Result_24,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+
+import { BaseService } from '../BaseService';
 
 /**
  * Service for voting-related operations
@@ -26,7 +27,7 @@ export class VotingService extends BaseService {
   public static async castVote(request: VoteRequest): Promise<{ success: boolean; vote?: InvestorVote; error?: string }> {
     try {
       const result: Result = await this.getActor().castVote(request);
-      
+
       if ('ok' in result) {
         return { success: true, vote: result.ok };
       } else {
@@ -47,7 +48,7 @@ export class VotingService extends BaseService {
   public static async updateVote(reportId: string, request: VoteRequest): Promise<{ success: boolean; vote?: InvestorVote; error?: string }> {
     try {
       const result: Result = await this.getActor().updateVote(reportId, request);
-      
+
       if ('ok' in result) {
         return { success: true, vote: result.ok };
       } else {
@@ -82,7 +83,7 @@ export class VotingService extends BaseService {
   public static async getInvestorVoteForReport(reportId: string): Promise<InvestorVote | null> {
     try {
       const result: Result_20 = await this.getActor().getInvestorVoteForReport(reportId);
-      
+
       if ('ok' in result) {
         return result.ok.length ? result.ok[0] : null;
       } else {
@@ -103,7 +104,7 @@ export class VotingService extends BaseService {
   public static async getInvestorVoteHistory(investorId: string): Promise<{ success: boolean; history?: InvestorVoteHistory; error?: string }> {
     try {
       const result: Result_19 = await this.getActor().getInvestorVoteHistory(investorId);
-      
+
       if ('ok' in result) {
         return { success: true, history: result.ok };
       } else {
@@ -123,7 +124,7 @@ export class VotingService extends BaseService {
   public static async getVoteSummary(reportId: string): Promise<{ success: boolean; summary?: VoteSummary; error?: string }> {
     try {
       const result: Result_9 = await this.getActor().getVoteSummary(reportId);
-      
+
       if ('ok' in result) {
         return { success: true, summary: result.ok };
       } else {
@@ -143,7 +144,7 @@ export class VotingService extends BaseService {
   public static async getReportVoteDetails(reportId: string): Promise<{ success: boolean; details?: ReportVoteDetails; error?: string }> {
     try {
       const result: Result_11 = await this.getActor().getReportVoteDetails(reportId);
-      
+
       if ('ok' in result) {
         return { success: true, details: result.ok };
       } else {

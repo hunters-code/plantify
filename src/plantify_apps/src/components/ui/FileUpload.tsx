@@ -1,5 +1,5 @@
-import React, { ChangeEvent, HTMLAttributes } from 'react';
 import { Upload } from 'lucide-react';
+import React, { ChangeEvent, HTMLAttributes } from 'react';
 
 interface FileUploadProps extends Omit<HTMLAttributes<HTMLInputElement>, 'onChange'> {
   onFileSelect?: (files: File[]) => void;

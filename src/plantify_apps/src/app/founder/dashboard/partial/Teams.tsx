@@ -1,5 +1,6 @@
-import { Plus, MoreHorizontal, User } from "lucide-react";
-import { Button, Card } from "@/components/ui";
+import { Plus, MoreHorizontal, User } from 'lucide-react';
+
+import { Button, Card } from '@/components/ui';
 
 interface TeamMember {
   id: number;
@@ -12,27 +13,27 @@ interface TeamMember {
 export default function TeamSection({ startupId }: { startupId: number }) {
   // === Dummy Data ===
   const startup = {
-    startupName: "Dummy Startup",
+    startupName: 'Dummy Startup',
   };
 
   const teamMembers: TeamMember[] = [
     {
       id: 1,
-      name: "John Doe",
-      role: "CEO",
+      name: 'John Doe',
+      role: 'CEO',
       isFounder: true,
-      photo: ["https://via.placeholder.com/300x400"],
+      photo: ['https://via.placeholder.com/300x400'],
     },
     {
       id: 2,
-      name: "Jane Smith",
-      role: "CTO",
-      photo: ["https://via.placeholder.com/300x400"],
+      name: 'Jane Smith',
+      role: 'CTO',
+      photo: ['https://via.placeholder.com/300x400'],
     },
     {
       id: 3,
-      name: "Robert Brown",
-      role: "Lead Designer",
+      name: 'Robert Brown',
+      role: 'Lead Designer',
       photo: [],
     },
   ];
@@ -88,7 +89,7 @@ export default function TeamSection({ startupId }: { startupId: number }) {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-900 font-ibm">
-          {startup?.startupName || "Startup"} Team
+          {startup?.startupName || 'Startup'} Team
         </h2>
         <Button variant="secondary" className="flex items-center gap-2">
           <Plus size={16} />

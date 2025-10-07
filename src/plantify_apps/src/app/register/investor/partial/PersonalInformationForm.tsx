@@ -1,5 +1,6 @@
-import React from "react";
-import { Input } from "@/components/ui";
+import React from 'react';
+
+import { Input } from '@/components/ui';
 
 interface PersonalInformationFormData {
   fullName: string;
@@ -30,7 +31,7 @@ export default function PersonalInformationForm({
           placeholder="Enter your full name here"
           value={formData.fullName}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            handleInputChange("fullName", e.target.value)
+            handleInputChange('fullName', e.target.value)
           }
           required
         />
@@ -42,7 +43,7 @@ export default function PersonalInformationForm({
             placeholder="Enter your email here"
             value={formData.email}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleInputChange("email", e.target.value)
+              handleInputChange('email', e.target.value)
             }
             required
           />
@@ -52,7 +53,7 @@ export default function PersonalInformationForm({
             placeholder="Enter your phone number here"
             value={formData.phone}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleInputChange("phone", e.target.value)
+              handleInputChange('phone', e.target.value)
             }
             required
           />
@@ -65,7 +66,7 @@ export default function PersonalInformationForm({
             placeholder="Enter your country here"
             value={formData.country}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleInputChange("country", e.target.value)
+              handleInputChange('country', e.target.value)
             }
             required
           />
@@ -75,7 +76,7 @@ export default function PersonalInformationForm({
             placeholder="Enter your city here"
             value={formData.city}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleInputChange("city", e.target.value)
+              handleInputChange('city', e.target.value)
             }
             required
           />

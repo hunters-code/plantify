@@ -1,5 +1,6 @@
-import { Eye, MapPin, Sparkles, ThumbsUp, WalletCards } from "lucide-react";
-import { Badge, Button, Card, ProgressBar } from "@/components/ui";
+import { Eye, MapPin, Sparkles, ThumbsUp, WalletCards } from 'lucide-react';
+
+import { Badge, Button, Card, ProgressBar } from '@/components/ui';
 
 // Dummy helper functions
 const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
@@ -13,14 +14,14 @@ interface StartupOverviewProps {
 export default function StartupOverview({ startupId }: StartupOverviewProps) {
   // Dummy data
   const startup = {
-    startupName: "CryptoKita",
-    location: "Jakarta, Indonesia",
-    teamMembers: ["Ali", "Budi", "Citra"],
-    status: "approved",
-    sector: "Fintech",
-    companyType: "Startup",
-    description: "A blockchain-based fintech platform to democratize investments.",
-    fundingGoal: "50000",
+    startupName: 'CryptoKita',
+    location: 'Jakarta, Indonesia',
+    teamMembers: ['Ali', 'Budi', 'Citra'],
+    status: 'approved',
+    sector: 'Fintech',
+    companyType: 'Startup',
+    description: 'A blockchain-based fintech platform to democratize investments.',
+    fundingGoal: '50000',
   };
 
   const fundingProgress = 65; // %
@@ -41,19 +42,19 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
         <div className="flex flex-col gap-2">
           <div className="flex gap-3 items-center">
             <h2 className="text-xl font-semibold">
-              {startup.startupName || "Unnamed Startup"}
+              {startup.startupName || 'Unnamed Startup'}
             </h2>
             <p className="text-sm text-gray-500 border border-neutral-200 px-2 py-1 rounded-lg flex gap-2">
               <MapPin size={16} />
-              {startup.location || "Location not specified"} · {teamSize} employees
+              {startup.location || 'Location not specified'} · {teamSize} employees
             </p>
           </div>
           <div className="flex gap-2">
             <Badge variant="primary" icon={<ThumbsUp size={16} />}>
-              {startup.status === "approved" ? "Active" : startup.status}
+              {startup.status === 'approved' ? 'Active' : startup.status}
             </Badge>
-            <Badge variant="success">{startup.sector || "Unknown Sector"}</Badge>
-            <Badge variant="warning">{startup.companyType || "Startup"}</Badge>
+            <Badge variant="success">{startup.sector || 'Unknown Sector'}</Badge>
+            <Badge variant="warning">{startup.companyType || 'Startup'}</Badge>
           </div>
         </div>
         <Button variant="secondary">
@@ -66,7 +67,7 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
         <div className="flex flex-col gap-2 text-[16px]">
           <span className="text-black font-ibm">Description</span>
           <span className="text-neutral-500">
-            {startup.description || "No description available for this startup."}
+            {startup.description || 'No description available for this startup.'}
           </span>
         </div>
       </Card>

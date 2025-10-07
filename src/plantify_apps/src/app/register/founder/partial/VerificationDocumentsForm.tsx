@@ -1,4 +1,4 @@
-import { Input, FileUpload } from "@/components/ui";
+import { Input, FileUpload } from '@/components/ui';
 
 interface VerificationDocumentsFormProps {
   formData: {
@@ -38,8 +38,8 @@ function VerificationDocumentsForm({
           type="text"
           label="Government ID number"
           placeholder="Enter your government-issued ID number (SSN, Passport, etc.)"
-          value={formData.idNumber || ""}
-          onChange={(e) => handleChange("idNumber", e.target.value)}
+          value={formData.idNumber || ''}
+          onChange={(e) => handleChange('idNumber', e.target.value)}
           required
         />
 
@@ -47,8 +47,8 @@ function VerificationDocumentsForm({
           type="text"
           label="Tax ID number"
           placeholder="Enter your tax identification number"
-          value={formData.taxNumber || ""}
-          onChange={(e) => handleChange("taxNumber", e.target.value)}
+          value={formData.taxNumber || ''}
+          onChange={(e) => handleChange('taxNumber', e.target.value)}
           required
         />
 
@@ -61,7 +61,7 @@ function VerificationDocumentsForm({
               accept="image/*,.pdf"
               fileTypes="jpg, png, or pdf"
               maxSize="2MB"
-              onFileSelect={(files) => handleFileChange("governmentIdFile", files)}
+              onFileSelect={(files) => handleFileChange('governmentIdFile', files)}
             />
 
             <FileUpload
@@ -69,7 +69,7 @@ function VerificationDocumentsForm({
               accept="image/*,.pdf"
               fileTypes="jpg, png, or pdf"
               maxSize="2MB"
-              onFileSelect={(files) => handleFileChange("taxIdFile", files)}
+              onFileSelect={(files) => handleFileChange('taxIdFile', files)}
             />
           </div>
         </div>

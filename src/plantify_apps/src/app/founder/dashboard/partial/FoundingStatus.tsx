@@ -1,14 +1,14 @@
-import React from "react";
-import { Lock, BanknoteArrowDown } from "lucide-react";
-import { Button, Card } from "@/components/ui";
-import { formatCurrency } from "@/utils/formatCurrency";
-import { CardSkeleton } from "@/components/ui";
-import FundingProgress from "@/components/ui/FundingProgress";
+import { Lock, BanknoteArrowDown } from 'lucide-react';
+import React from 'react';
+
+import { Button, Card , CardSkeleton } from '@/components/ui';
+import FundingProgress from '@/components/ui/FundingProgress';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 function useFundingStatus(startupId: string) {
   const loading = true; // simulasi loading
   const error = null;
-  const startup = { id: startupId, name: "Demo Startup" };
+  const startup = { id: startupId, name: 'Demo Startup' };
 
   const totalRaised = 80000;
   const fundingGoal = 100000;
@@ -18,7 +18,7 @@ function useFundingStatus(startupId: string) {
   const collateralInfo = {
     currentAmount: 40000,
     requiredAmount: 50000,
-    status: "active",
+    status: 'active',
   };
 
   return {
@@ -120,7 +120,7 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
             <p className="text-gray-500 text-sm">20% platform reserve (ckUSDC)</p>
           </div>
           <div
-            className="mt-4 flex justify-center items-center gap-2 px-4 py-3 
+            className="mt-4 flex justify-center items-center gap-2 px-4 py-3
             rounded-xl border border-orange-200 bg-orange-50 text-sm font-medium text-orange-700"
           >
             <Lock size={16} />

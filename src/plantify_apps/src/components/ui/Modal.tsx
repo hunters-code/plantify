@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import { X } from "lucide-react";
+import { X } from 'lucide-react';
+import React, { useEffect } from 'react';
 
-type ModalSize = "sm" | "md" | "lg" | "xl" | "full";
+type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen?: boolean;
@@ -16,36 +16,36 @@ interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
 export default function Modal({
   isOpen = false,
   onClose,
-  title = "",
+  title = '',
   children,
-  className = "",
-  size = "md",
+  className = '',
+  size = 'md',
   showCloseButton = true,
   ...props
 }: ModalProps) {
   const sizes: Record<ModalSize, string> = {
-    sm: "max-w-md",
-    md: "max-w-lg",
-    lg: "max-w-2xl",
-    xl: "max-w-4xl",
-    full: "max-w-7xl",
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl',
+    full: 'max-w-7xl',
   };
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === 'Escape' && isOpen) {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 

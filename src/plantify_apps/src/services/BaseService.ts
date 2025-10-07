@@ -1,5 +1,6 @@
-import { AuthClient } from '@dfinity/auth-client';
 import { HttpAgent } from '@dfinity/agent';
+import { AuthClient } from '@dfinity/auth-client';
+
 import { createActor } from '@/declarations/plantify_backend';
 import type { _SERVICE } from '@/declarations/plantify_backend/plantify_backend.did';
 

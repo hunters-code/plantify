@@ -1,4 +1,3 @@
-import { BaseService } from '../BaseService';
 import type {
   NFTInfo,
   NFTAccount,
@@ -14,8 +13,10 @@ import type {
   Result_15,
   Result_16,
   Result_17,
-  Result_24
+  Result_24,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+
+import { BaseService } from '../BaseService';
 
 /**
  * Service for NFT operations
@@ -42,7 +43,7 @@ export class NFTService extends BaseService {
   public static async getNFTInfo(tokenId: bigint): Promise<{ success: boolean; nft?: NFTInfo; error?: string }> {
     try {
       const result: Result_16 = await this.getActor().getNFTInfo(tokenId);
-      
+
       if ('ok' in result) {
         return { success: true, nft: result.ok };
       } else {
@@ -62,7 +63,7 @@ export class NFTService extends BaseService {
   public static async getNFTOwner(tokenId: bigint): Promise<{ success: boolean; owner?: NFTOwnerResponse; error?: string }> {
     try {
       const result: Result_15 = await this.getActor().getNFTOwner(tokenId);
-      
+
       if ('ok' in result) {
         return { success: true, owner: result.ok };
       } else {
@@ -82,7 +83,7 @@ export class NFTService extends BaseService {
   public static async getNFTBalance(account: NFTAccount): Promise<{ success: boolean; balance?: NFTBalanceResponse; error?: string }> {
     try {
       const result: Result_17 = await this.getActor().getNFTBalance(account);
-      
+
       if ('ok' in result) {
         return { success: true, balance: result.ok };
       } else {
@@ -102,7 +103,7 @@ export class NFTService extends BaseService {
   public static async mintNFT(request: MintNFTRequest): Promise<{ success: boolean; response?: MintNFTResponse; error?: string }> {
     try {
       const result: Result_8 = await this.getActor().mintNFT(request);
-      
+
       if ('ok' in result) {
         return { success: true, response: result.ok };
       } else {
@@ -137,7 +138,7 @@ export class NFTService extends BaseService {
   public static async transferNFT(request: TransferNFTRequest): Promise<{ success: boolean; response?: TransferNFTResponse; error?: string }> {
     try {
       const result: Result_2 = await this.getActor().transferNFT(request);
-      
+
       if ('ok' in result) {
         return { success: true, response: result.ok };
       } else {

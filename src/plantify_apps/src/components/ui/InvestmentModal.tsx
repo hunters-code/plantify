@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
 import { X, Minus, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+
 import Button from './Button';
 
 interface Startup {

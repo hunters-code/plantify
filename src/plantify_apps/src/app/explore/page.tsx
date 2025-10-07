@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import { Funnel, ListFilter, Search } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+
 import {
   Navbar,
   ProductCard,
@@ -10,10 +11,10 @@ import {
   Footer,
 } from '@/components';
 import { Button, CardSkeleton, Input } from '@/components/ui';
-import { StartupService } from '@/services/marketplace';
 import { useAuth } from '@/contexts/AuthContext';
-import { getRiskLevel } from '@/utils/riskLevels';
 import type { Startup as BackendStartup } from '@/declarations/plantify_backend/plantify_backend.did';
+import { StartupService } from '@/services/marketplace';
+import { getRiskLevel } from '@/utils/riskLevels';
 
 interface Startup {
   id: string | number;
@@ -70,12 +71,12 @@ export default function Explores() {
       category: startup.sector,
       risk: getRiskLevel(startup.sector),
       description: startup.description,
-      nftPrice: nftPrice,
+      nftPrice,
       periodicReturns: `$${monthlyProfitSharing}`,
       annualROI: parseFloat(annualROI),
-      available: available,
-      fundingProgress: fundingProgress,
-      fundedAmount: fundedAmount,
+      available,
+      fundingProgress,
+      fundedAmount,
       targetAmount: fundingGoal,
       status: startup.status,
     };

@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { Eye, Plus, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+
 import { Badge, Button, Card } from '@/components/ui';
 
 type PaymentTab = {
@@ -13,7 +14,7 @@ export default function ProfitSharing() {
     { label: 'Current payment' },
     { label: 'Payment history' },
     { label: 'Analytics' },
-    { label: 'Investor feedback' }
+    { label: 'Investor feedback' },
   ];
 
   return (
@@ -78,9 +79,9 @@ export default function ProfitSharing() {
                 key={index}
                 onClick={() => setActivePaymentTab(index)}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activePaymentTab === index
-                    ? 'border-purple-600 text-purple-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
               >
                 {tab.label}
               </button>

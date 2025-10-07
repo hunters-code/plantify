@@ -1,5 +1,6 @@
+import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { useParams } from "next/navigation";
+
 import Layout from '@/components/layout/Layout';
 import { Button, Card, Skeleton, SkeletonText, CardSkeleton } from '@/components/ui';
 

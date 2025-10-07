@@ -1,15 +1,17 @@
-import React from "react";
-import { TrendingUp, AlertCircle, Eye, Vote, Plus } from "lucide-react";
-import { Button, Card, LoadingSpinner } from "@/components/ui";
-import Badge, { type BadgeVariant } from "@/components/ui/Badge";
-import { useRouter } from "next/navigation";
+import { TrendingUp, AlertCircle, Eye, Vote, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
+
+import { Button, Card, LoadingSpinner } from '@/components/ui';
+import Badge, { type BadgeVariant } from '@/components/ui/Badge';
+
 
 // Types
 interface Investment {
   id: string | number;
   startupName: string;
   sector: string;
-  riskLevel: "High Risk" | "Moderate Risk" | "Low Risk" | string;
+  riskLevel: 'High Risk' | 'Moderate Risk' | 'Low Risk' | string;
   investedAmount: number;
   nftCount: number;
   monthlyReturn: number;
@@ -68,7 +70,7 @@ export default function PortfolioTab({
             </Button>
             <Button
               variant="secondary"
-              onClick={() => navigate.push("/register/investor")}
+              onClick={() => navigate.push('/register/investor')}
             >
               Register as Investor
             </Button>
@@ -91,7 +93,7 @@ export default function PortfolioTab({
             Start building your portfolio by investing in startups
           </p>
           <div className="flex gap-2 justify-center">
-            <Button variant="primary" onClick={() => navigate.push("/explore")}>
+            <Button variant="primary" onClick={() => navigate.push('/explore')}>
               Explore Startups
             </Button>
             <Button variant="secondary" onClick={onRefresh}>
@@ -105,22 +107,22 @@ export default function PortfolioTab({
 
   // Helper function to get progress bar color
   const getProgressColor = (progress: number): string => {
-    if (progress >= 90) return "bg-green-500";
-    if (progress >= 75) return "bg-green-400";
-    if (progress >= 50) return "bg-yellow-500";
-    return "bg-orange-500";
+    if (progress >= 90) return 'bg-green-500';
+    if (progress >= 75) return 'bg-green-400';
+    if (progress >= 50) return 'bg-yellow-500';
+    return 'bg-orange-500';
   };
 
   const getRiskVariant = (risk: string): BadgeVariant => {
     switch (risk) {
-      case "High Risk":
-        return "destructive";
-      case "Moderate Risk":
-        return "warning";
-      case "Low Risk":
-        return "success";
+      case 'High Risk':
+        return 'destructive';
+      case 'Moderate Risk':
+        return 'warning';
+      case 'Low Risk':
+        return 'success';
       default:
-        return "secondary";
+        return 'secondary';
     }
   };
 
@@ -203,7 +205,7 @@ export default function PortfolioTab({
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full ${getProgressColor(
-                          investment.progress
+                          investment.progress,
                         )}`}
                         style={{ width: `${investment.progress}%` }}
                       ></div>

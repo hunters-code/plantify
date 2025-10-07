@@ -1,4 +1,3 @@
-import { BaseService } from '../BaseService';
 import type {
   MonthlyReport,
   MonthlyReportRequest,
@@ -6,8 +5,10 @@ import type {
   MonthlyReportStats,
   MonthlyReportStatus,
   Result_1,
-  Result_18
+  Result_18,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+
+import { BaseService } from '../BaseService';
 
 /**
  * Service for monthly report operations
@@ -21,7 +22,7 @@ export class MonthlyReportService extends BaseService {
   public static async createMonthlyReport(request: MonthlyReportRequest): Promise<{ success: boolean; report?: MonthlyReport; error?: string }> {
     try {
       const result: Result_1 = await this.getActor().createMonthlyReport(request);
-      
+
       if ('ok' in result) {
         return { success: true, report: result.ok };
       } else {
@@ -42,7 +43,7 @@ export class MonthlyReportService extends BaseService {
   public static async updateMonthlyReport(reportId: string, request: MonthlyReportRequest): Promise<{ success: boolean; report?: MonthlyReport; error?: string }> {
     try {
       const result: Result_1 = await this.getActor().updateMonthlyReport(reportId, request);
-      
+
       if ('ok' in result) {
         return { success: true, report: result.ok };
       } else {
@@ -62,7 +63,7 @@ export class MonthlyReportService extends BaseService {
   public static async submitMonthlyReport(reportId: string): Promise<{ success: boolean; report?: MonthlyReport; error?: string }> {
     try {
       const result: Result_1 = await this.getActor().submitMonthlyReport(reportId);
-      
+
       if ('ok' in result) {
         return { success: true, report: result.ok };
       } else {
@@ -82,7 +83,7 @@ export class MonthlyReportService extends BaseService {
   public static async getMonthlyReport(reportId: string): Promise<{ success: boolean; report?: MonthlyReport; error?: string }> {
     try {
       const result: Result_1 = await this.getActor().getMonthlyReport(reportId);
-      
+
       if ('ok' in result) {
         return { success: true, report: result.ok };
       } else {
@@ -102,7 +103,7 @@ export class MonthlyReportService extends BaseService {
   public static async getMonthlyReportsByStartup(startupId: string): Promise<{ success: boolean; reportList?: MonthlyReportList; error?: string }> {
     try {
       const result: Result_18 = await this.getActor().getMonthlyReportsByStartup(startupId);
-      
+
       if ('ok' in result) {
         return { success: true, reportList: result.ok };
       } else {

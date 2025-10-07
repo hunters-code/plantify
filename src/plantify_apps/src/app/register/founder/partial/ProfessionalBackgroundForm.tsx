@@ -1,5 +1,6 @@
-import { CircleArrowRight, CircleArrowLeft } from "lucide-react";
-import { Input, Textarea } from "@/components/ui";
+import { CircleArrowRight, CircleArrowLeft } from 'lucide-react';
+
+import { Input, Textarea } from '@/components/ui';
 
 interface ProfessionalBackgroundFormProps {
   formData: {
@@ -35,8 +36,8 @@ export default function ProfessionalBackgroundForm({
         <Textarea
           label="Business Experience"
           placeholder="Describe your business and entrepreneurial experience (minimum 6 months)"
-          value={formData.experience || ""}
-          onChange={(e) => handleChange("experience", e.target.value)}
+          value={formData.experience || ''}
+          onChange={(e) => handleChange('experience', e.target.value)}
           rows={4}
           required
         />
@@ -44,16 +45,16 @@ export default function ProfessionalBackgroundForm({
         <Textarea
           label="Previous Business"
           placeholder="List any previous businesses you've started or managed"
-          value={formData.previousBusinesses || ""}
-          onChange={(e) => handleChange("previousBusinesses", e.target.value)}
+          value={formData.previousBusinesses || ''}
+          onChange={(e) => handleChange('previousBusinesses', e.target.value)}
           rows={3}
         />
 
         <Textarea
           label="Area of Expertise"
           placeholder="Describe your main skills and areas of expertise"
-          value={formData.expertise || ""}
-          onChange={(e) => handleChange("expertise", e.target.value)}
+          value={formData.expertise || ''}
+          onChange={(e) => handleChange('expertise', e.target.value)}
           rows={3}
           required
         />
@@ -62,8 +63,8 @@ export default function ProfessionalBackgroundForm({
           type="url"
           label="LinkedIn Profile"
           placeholder="Enter your LinkedIn profile URL here"
-          value={formData.linkedIn || ""}
-          onChange={(e) => handleChange("linkedIn", e.target.value)}
+          value={formData.linkedIn || ''}
+          onChange={(e) => handleChange('linkedIn', e.target.value)}
         />
       </div>
     </div>

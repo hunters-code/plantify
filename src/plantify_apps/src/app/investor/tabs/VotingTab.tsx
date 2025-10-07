@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import { Eye, FileText, ThumbsDown, ThumbsUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
 import { Button, Badge } from '@/components/ui';
 
 interface Report {
@@ -137,7 +138,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                     </div>
                     <span
                       className={`text-sm font-medium px-3 py-1 rounded-full ${daysLeft > 0 ? 'text-red-600 bg-red-50' : 'text-gray-600 bg-gray-50'
-                        }`}
+                      }`}
                     >
                       {daysLeft > 0 ? `Due in ${daysLeft} days` : 'Voting closed'}
                     </span>

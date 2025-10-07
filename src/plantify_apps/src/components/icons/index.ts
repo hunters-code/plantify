@@ -1,2 +1,2 @@
-export * from "./ICPIcon";
-export * from "./Logo";
+export * from './ICPIcon';
+export * from './Logo';

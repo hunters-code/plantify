@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type StatsCardProps = React.HTMLAttributes<HTMLDivElement> & {
   label: string;
@@ -15,7 +15,7 @@ export default function StatsCard({
   value,
   subtitle,
   icon,
-  className = "",
+  className = '',
   loading = false,
   error = null,
   ...props
@@ -60,7 +60,7 @@ export default function StatsCard({
         <div className="flex-1">
           <p className="text-gray-500 text-sm mb-1">{label}</p>
           <p className="text-lg font-semibold">
-            {value}{" "}
+            {value}{' '}
             {subtitle && (
               <span className="text-gray-500 font-normal">{subtitle}</span>
             )}

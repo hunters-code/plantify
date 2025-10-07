@@ -1,4 +1,5 @@
 import { AlertTriangle } from 'lucide-react';
+
 import { Alert, Card } from '../../../../components/ui';
 
 export default function Risks({ startup }) {

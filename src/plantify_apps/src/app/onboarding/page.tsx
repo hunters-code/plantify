@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   Copy,
   DraftingCompass,
   ShieldCheck,
   CheckCircle,
-} from "lucide-react";
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 import {
   Alert,
@@ -20,14 +20,14 @@ import {
   TableRow,
   TableHeader,
   TableCell,
-} from "@/components/ui";
+} from '@/components/ui';
 
 // Dummy useAuth
 const useAuth = () => {
   return {
-    principal: "abcd-1234-principal",
+    principal: 'abcd-1234-principal',
     isAuthenticated: true,
-    identity: "dummy-identity",
+    identity: 'dummy-identity',
   };
 };
 
@@ -37,7 +37,7 @@ const backendService = {
     return Promise.resolve(true);
   },
   getUserType: async () => {
-    return Promise.resolve("Investor");
+    return Promise.resolve('Investor');
   },
 };
 
@@ -64,14 +64,14 @@ export default function OnboardingPage() {
 
         if (userTypeResult) {
           setUserType(userTypeResult);
-          if (userTypeResult === "Founder") {
-            router.push("/founder");
-          } else if (userTypeResult === "Investor") {
-            router.push("/investor");
+          if (userTypeResult === 'Founder') {
+            router.push('/founder');
+          } else if (userTypeResult === 'Investor') {
+            router.push('/investor');
           }
         }
       } catch (err: any) {
-        setError("Failed to check registration status. " + err.message);
+        setError(`Failed to check registration status. ${  err.message}`);
       } finally {
         setIsCheckingRegistration(false);
       }
@@ -80,7 +80,7 @@ export default function OnboardingPage() {
     checkUserRegistration();
   }, [isAuthenticated, identity, router]);
 
-  const formatPrincipal = (principal: string) => principal || "";
+  const formatPrincipal = (principal: string) => principal || '';
 
   const copyToClipboard = async () => {
     try {
@@ -88,12 +88,12 @@ export default function OnboardingPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy: ", err);
+      console.error('Failed to copy: ', err);
     }
   };
 
-  const handleInvestorClick = () => router.push("/register/investor");
-  const handleFounderClick = () => router.push("/register/founder");
+  const handleInvestorClick = () => router.push('/register/investor');
+  const handleFounderClick = () => router.push('/register/founder');
 
   if (isCheckingRegistration) {
     return (
@@ -144,7 +144,7 @@ export default function OnboardingPage() {
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-700 mb-2">Your Internet Identity:</p>
         <div
-          className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+          className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl
             border border-white/20 bg-yellow-500 text-white font-mono text-sm font-medium
             shadow cursor-pointer hover:bg-yellow-600 transition-colors"
           onClick={copyToClipboard}

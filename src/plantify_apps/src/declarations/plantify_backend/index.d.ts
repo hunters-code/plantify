@@ -3,9 +3,9 @@ import type {
   HttpAgentOptions,
   ActorConfig,
   Agent,
-} from "@dfinity/agent";
-import type { Principal } from "@dfinity/principal";
-import type { IDL } from "@dfinity/candid";
+} from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
+import type { Principal } from '@dfinity/principal';
 
 import { _SERVICE } from './plantify_backend.did';
 
