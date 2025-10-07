@@ -14,8 +14,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "type-check": "tsc --noEmit",
-    "type-check:staged": "tsc --noEmit --skipLibCheck --jsx preserve",
-    "prepare": "husky"
+    "type-check:staged": "tsc --noEmit --skipLibCheck --jsx preserve"
   },
   "dependencies": {
     "@dfinity/agent": "^3.0.0",
