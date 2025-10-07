@@ -17,7 +17,8 @@ import Config "./config";
 persistent actor PlantifyBackend {
   private transient let config : Types.EnvironmentConfig = Config.getCurrentConfig();
   
-  // Stable storage variables - these will persist across canister upgrades
+  // Transient storage variables - these do NOT persist across canister upgrades.
+  // They are temporary and rebuilt from stable data after each upgrade.
   private transient var foundersEntries : [(Text, Types.Founder)] = [];
   private transient var founderPrincipalsEntries : [(Principal, Text)] = [];
   private transient var investorsEntries : [(Text, Types.Investor)] = [];
