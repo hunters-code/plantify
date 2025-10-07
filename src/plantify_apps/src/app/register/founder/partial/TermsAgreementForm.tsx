@@ -1,23 +1,37 @@
 import { Check } from 'lucide-react';
 
+interface FormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  experience: string;
+  previousBusinesses: string;
+  expertise: string;
+  linkedIn: string;
+  idNumber: string;
+  taxNumber: string;
+  terms: boolean;
+  risks: boolean;
+  transparency: boolean;
+}
+
 interface TermsAgreementFormProps {
   formData: {
     terms: boolean;
     risks: boolean;
     transparency: boolean;
-    [key: string]: boolean;
+    [key: string]: any;
   };
-  handleInputChange?: (field: string, value: boolean) => void;
+  handleInputChange: (field: keyof FormData, value: any) => void;
 }
 
 function TermsAgreementForm({
   formData,
   handleInputChange,
 }: TermsAgreementFormProps) {
-  const handleCheckboxChange = (field: string) => {
-    if (handleInputChange) {
-      handleInputChange(field, !formData[field]);
-    }
+  const handleCheckboxChange = (field: 'terms' | 'risks' | 'transparency') => {
+    handleInputChange(field as keyof FormData, !formData[field]);
   };
 
   return (

@@ -1,5 +1,21 @@
 import { Input, FileUpload } from '@/components/ui';
 
+interface FormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  experience: string;
+  previousBusinesses: string;
+  expertise: string;
+  linkedIn: string;
+  idNumber: string;
+  taxNumber: string;
+  terms: boolean;
+  risks: boolean;
+  transparency: boolean;
+}
+
 interface VerificationDocumentsFormProps {
   formData: {
     idNumber?: string;
@@ -8,22 +24,20 @@ interface VerificationDocumentsFormProps {
     taxIdFile?: File;
     [key: string]: any;
   };
-  handleInputChange?: (field: string, value: any) => void;
+  handleInputChange: (field: keyof FormData, value: any) => void;
 }
 
 function VerificationDocumentsForm({
   formData,
   handleInputChange,
 }: VerificationDocumentsFormProps) {
-  const handleChange = (field: string, value: string) => {
-    if (handleInputChange) {
-      handleInputChange(field, value);
-    }
+  const handleChange = (field: 'idNumber' | 'taxNumber', value: string) => {
+    handleInputChange(field as keyof FormData, value);
   };
 
   const handleFileChange = (field: string, files: FileList | File[]) => {
-    if (handleInputChange && files && files.length > 0) {
-      handleInputChange(field, files[0]);
+    if (files && files.length > 0) {
+      handleInputChange(field as keyof FormData, files[0]);
     }
   };
 
