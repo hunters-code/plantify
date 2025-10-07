@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import { Funnel, ListFilter, Search } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+
 import {
   Navbar,
   ProductCard,
@@ -10,10 +11,10 @@ import {
   Footer,
 } from '@/components';
 import { Button, CardSkeleton, Input } from '@/components/ui';
-import { StartupService } from '@/services/marketplace';
 import { useAuth } from '@/contexts/AuthContext';
-import { getRiskLevel } from '@/utils/riskLevels';
 import type { Startup as BackendStartup } from '@/declarations/plantify_backend/plantify_backend.did';
+import { StartupService } from '@/services/marketplace';
+import { getRiskLevel } from '@/utils/riskLevels';
 
 interface Startup {
   id: string | number;
@@ -45,7 +46,6 @@ export default function Explores() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
 
-
   // Function to map backend startup data to ProductCard props
   const mapStartupData = useCallback((startup: BackendStartup): Startup => {
     // Calculate some derived values
@@ -70,12 +70,12 @@ export default function Explores() {
       category: startup.sector,
       risk: getRiskLevel(startup.sector),
       description: startup.description,
-      nftPrice: nftPrice,
+      nftPrice,
       periodicReturns: `$${monthlyProfitSharing}`,
       annualROI: parseFloat(annualROI),
-      available: available,
-      fundingProgress: fundingProgress,
-      fundedAmount: fundedAmount,
+      available,
+      fundingProgress,
+      fundedAmount,
       targetAmount: fundingGoal,
       status: startup.status,
     };
@@ -102,7 +102,7 @@ export default function Explores() {
   }, [mapStartupData]);
 
   // Filter startups
-  const filteredStartups = startups.filter((startup) => {
+  const filteredStartups = startups.filter(startup => {
     const matchesSearch =
       searchTerm === '' ||
       startup.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -142,7 +142,7 @@ export default function Explores() {
               placeholder='Search by name, sector, location, or tags...'
               className='w-full'
               icon={<Search size={20} className='text-gray-500' />}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
 
@@ -177,7 +177,7 @@ export default function Explores() {
             Available
             <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
               {
-                startups.filter((s) => s.status === 'active' && s.available > 0)
+                startups.filter(s => s.status === 'active' && s.available > 0)
                   .length
               }
             </span>
@@ -189,7 +189,7 @@ export default function Explores() {
           >
             Featured
             <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
-              {startups.filter((s) => s.fundingProgress > 50).length}
+              {startups.filter(s => s.fundingProgress > 50).length}
             </span>
           </Button>
         </div>
@@ -249,7 +249,7 @@ export default function Explores() {
             ) : (
               <>
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-                  {filteredStartups.map((startup) => (
+                  {filteredStartups.map(startup => (
                     <ProductCard key={startup.id} {...startup} />
                   ))}
                 </div>

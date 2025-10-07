@@ -20,4 +20,5 @@ export const STARTUP_SECTOR_OPTIONS = Object.values(STARTUP_SECTORS);
 /**
  * Type for startup sectors
  */
-export type StartupSector = (typeof STARTUP_SECTORS)[keyof typeof STARTUP_SECTORS];
+export type StartupSector =
+  (typeof STARTUP_SECTORS)[keyof typeof STARTUP_SECTORS];

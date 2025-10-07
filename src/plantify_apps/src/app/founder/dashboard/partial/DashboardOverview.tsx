@@ -1,6 +1,7 @@
-import React from "react";
-import { StatsCard } from "@/components/ui";
-import { formatCurrency, formatNumber } from "@/utils/formatCurrency";
+import React from 'react';
+
+import { StatsCard } from '@/components/ui';
+import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
 
 const useDashboardStats = () => {
   return {
@@ -31,73 +32,74 @@ const DashboardOverview: React.FC = () => {
 
   const items: StatItem[] = [
     {
-      label: "Total Funding Raised",
+      label: 'Total Funding Raised',
       value: formatCurrency(stats.totalFundingRaised),
-      subtitle: "ckUSDC",
+      subtitle: 'ckUSDC',
       loading: stats.loading,
       error: stats.error,
     },
     {
-      label: "NFT Holders",
+      label: 'NFT Holders',
       value: formatNumber(stats.nftHolders),
-      subtitle: "active investors",
+      subtitle: 'active investors',
       loading: stats.loading,
       error: stats.error,
     },
     {
-      label: "Monthly Commitments",
+      label: 'Monthly Commitments',
       value: formatCurrency(stats.monthlyCommitments),
-      subtitle: "ckUSDC/month",
+      subtitle: 'ckUSDC/month',
       loading: stats.loading,
       error: stats.error,
     },
     {
-      label: "Active Startups",
+      label: 'Active Startups',
       value: formatNumber(stats.activeStartups),
-      subtitle: `of ${stats.activeStartups + stats.pendingStartups + stats.draftStartups
-        } total`,
+      subtitle: `of ${
+        stats.activeStartups + stats.pendingStartups + stats.draftStartups
+      } total`,
       loading: stats.loading,
       error: stats.error,
     },
     {
-      label: "Monthly Reports",
+      label: 'Monthly Reports',
       value: formatNumber(stats.totalReports),
-      subtitle: "submitted reports",
+      subtitle: 'submitted reports',
       loading: stats.loading,
       error: stats.error,
     },
     {
-      label: "Total Votes",
+      label: 'Total Votes',
       value: formatNumber(stats.totalVotes),
-      subtitle: "investor votes",
+      subtitle: 'investor votes',
       loading: stats.loading,
       error: stats.error,
     },
     {
-      label: "Approval Rate",
+      label: 'Approval Rate',
       value: `${formatNumber(stats.averageApprovalRate)}%`,
-      subtitle: "average approval",
+      subtitle: 'average approval',
       loading: stats.loading,
       error: stats.error,
     },
     {
-      label: "Pending Startups",
+      label: 'Pending Startups',
       value: formatNumber(stats.pendingStartups),
-      subtitle: "awaiting collateral",
+      subtitle: 'awaiting collateral',
       loading: stats.loading,
       error: stats.error,
     },
     {
-      label: "Draft Startups",
+      label: 'Draft Startups',
       value: formatNumber(stats.draftStartups),
-      subtitle: "in development",
+      subtitle: 'in development',
       loading: stats.loading,
       error: stats.error,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6'>
       {items.map((item, i) => (
         <StatsCard
           key={i}

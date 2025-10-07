@@ -27,7 +27,11 @@ export default function FounderTeam({ startup }) {
               >
                 <div className='px-2 pt-2'>
                   <img
-                    src={founder.photo && founder.photo.length > 0 ? founder.photo[0] : '/assets/images/user.png'}
+                    src={
+                      founder.photo && founder.photo.length > 0
+                        ? founder.photo[0]
+                        : '/assets/images/user.png'
+                    }
                     alt={founder.name}
                     className='w-full h-[350px] object-cover rounded-xl'
                   />
@@ -36,16 +40,26 @@ export default function FounderTeam({ startup }) {
                   <p className='text-xl font-medium'>{founder.name}</p>
                   <p className='text-sm text-gray-500'>{founder.role}</p>
                   {founder.background && (
-                    <p className='text-xs text-gray-600 mt-2'>{founder.background}</p>
+                    <p className='text-xs text-gray-600 mt-2'>
+                      {founder.background}
+                    </p>
                   )}
                   <div className='flex gap-2 mt-3'>
                     {founder.email && (
-                      <a href={`mailto:${founder.email}`} className='text-blue-500 hover:text-blue-700'>
+                      <a
+                        href={`mailto:${founder.email}`}
+                        className='text-blue-500 hover:text-blue-700'
+                      >
                         <Mail size={16} />
                       </a>
                     )}
                     {founder.linkedin && (
-                      <a href={founder.linkedin} target='_blank' rel='noopener noreferrer' className='text-blue-500 hover:text-blue-700'>
+                      <a
+                        href={founder.linkedin}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='text-blue-500 hover:text-blue-700'
+                      >
                         <Linkedin size={16} />
                       </a>
                     )}
@@ -55,7 +69,9 @@ export default function FounderTeam({ startup }) {
             ))}
           </div>
         ) : (
-          <p className='text-gray-500 mt-4'>No founder information available.</p>
+          <p className='text-gray-500 mt-4'>
+            No founder information available.
+          </p>
         )}
       </div>
 
@@ -71,7 +87,11 @@ export default function FounderTeam({ startup }) {
               >
                 <div className='px-2 pt-2'>
                   <img
-                    src={member.photo && member.photo.length > 0 ? member.photo[0] : '/assets/images/user.png'}
+                    src={
+                      member.photo && member.photo.length > 0
+                        ? member.photo[0]
+                        : '/assets/images/user.png'
+                    }
                     alt={member.name}
                     className='w-full h-[250px] object-cover rounded-xl'
                   />
@@ -80,16 +100,26 @@ export default function FounderTeam({ startup }) {
                   <p className='text-lg font-medium'>{member.name}</p>
                   <p className='text-sm text-gray-500'>{member.role}</p>
                   {member.background && (
-                    <p className='text-xs text-gray-600 mt-2'>{member.background}</p>
+                    <p className='text-xs text-gray-600 mt-2'>
+                      {member.background}
+                    </p>
                   )}
                   <div className='flex gap-2 mt-3'>
                     {member.email && (
-                      <a href={`mailto:${member.email}`} className='text-blue-500 hover:text-blue-700'>
+                      <a
+                        href={`mailto:${member.email}`}
+                        className='text-blue-500 hover:text-blue-700'
+                      >
                         <Mail size={16} />
                       </a>
                     )}
                     {member.linkedin && (
-                      <a href={member.linkedin} target='_blank' rel='noopener noreferrer' className='text-blue-500 hover:text-blue-700'>
+                      <a
+                        href={member.linkedin}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='text-blue-500 hover:text-blue-700'
+                      >
                         <Linkedin size={16} />
                       </a>
                     )}
@@ -104,7 +134,9 @@ export default function FounderTeam({ startup }) {
       {/* Founder Background & Additional Info */}
       {(startup.founderBackground || startup.advisors) && (
         <div className='bg-neutral-100 p-4 rounded-[16px]'>
-          <h2 className='text-lg font-semibold font-ibm'>Additional Information</h2>
+          <h2 className='text-lg font-semibold font-ibm'>
+            Additional Information
+          </h2>
           <div className='mt-3 space-y-4 bg-neutral-50 p-4 rounded-2xl'>
             {startup.founderBackground && (
               <div className='bg-white rounded-xl p-3'>
@@ -112,7 +144,9 @@ export default function FounderTeam({ startup }) {
                   <Award size={16} className='text-blue-500' />
                   Founder Background
                 </h3>
-                <p className='text-sm text-gray-600'>{startup.founderBackground}</p>
+                <p className='text-sm text-gray-600'>
+                  {startup.founderBackground}
+                </p>
               </div>
             )}
             {startup.advisors && (

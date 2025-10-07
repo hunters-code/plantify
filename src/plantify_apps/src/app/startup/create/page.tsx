@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { AuthClient } from '@dfinity/auth-client';
 import {
   Building2,
   Briefcase,
@@ -14,27 +13,32 @@ import {
   CircleCheckBig,
   Loader2,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import Footer from '@/components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
-import { Button, LoadingSpinner } from '@/components/ui';
-import { useAuth } from '@/contexts/AuthContext';
-import { AuthClient } from '@dfinity/auth-client';
-import { FounderService } from '@/services/founders/FounderService';
-import type { StartupCreationRequest, TeamMember } from '@/declarations/plantify_backend/plantify_backend.did';
-import { uploadFile } from '@/lib/fileUpload';
-
-// Import step components
 import {
   BasicInformationStep,
   BusinessDetailsStep,
   TeamBackgroundStep,
   FinancialProjectionsStep,
   CollateralSetupStep,
-  ReviewSubmitStep
+  ReviewSubmitStep,
 } from '@/components/startup/steps';
+import { StartupFormData } from '@/components/startup/types';
+import { Button, LoadingSpinner } from '@/components/ui';
+import { useAuth } from '@/contexts/AuthContext';
+import type {
+  StartupCreationRequest,
+  TeamMember,
+} from '@/declarations/plantify_backend/plantify_backend.did';
+import { uploadFile } from '@/lib/fileUpload';
+import { FounderService } from '@/services/founders/FounderService';
+
+// Import step components
 
 // Import shared types
-import { StartupFormData } from '@/components/startup/types';
 
 export default function CreateStartupPage() {
   const router = useRouter();
@@ -88,13 +92,13 @@ export default function CreateStartupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check if user is authenticated and is a founder
-//   useEffect(() => {
-//     if (!authLoading && !isAuthenticated) {
-//       router.push('/auth');
-//     } else if (!authLoading && isAuthenticated && userType !== 'founder') {
-//       router.push('/register/founder');
-//     }
-//   }, [isAuthenticated, authLoading, userType, router]);
+  //   useEffect(() => {
+  //     if (!authLoading && !isAuthenticated) {
+  //       router.push('/auth');
+  //     } else if (!authLoading && isAuthenticated && userType !== 'founder') {
+  //       router.push('/register/founder');
+  //     }
+  //   }, [isAuthenticated, authLoading, userType, router]);
 
   const tabs = [
     {
@@ -211,18 +215,22 @@ export default function CreateStartupPage() {
   };
 
   // Function to handle file uploads to Supabase and return the URL
-  const fileToString = async (file: File | null | string): Promise<string | null> => {
+  const fileToString = async (
+    file: File | null | string
+  ): Promise<string | null> => {
     if (!file) return null;
     if (typeof file === 'string') return file;
-    
+
     try {
       console.log(`Processing file upload for: ${file.name}`);
-      
+
       // Upload file to Supabase storage and get the URL
       const fileUrl = await uploadFile(file, 'startup-files');
-      
+
       if (fileUrl) {
-        console.log(`Successfully uploaded file: ${file.name}, URL: ${fileUrl}`);
+        console.log(
+          `Successfully uploaded file: ${file.name}, URL: ${fileUrl}`
+        );
         return fileUrl;
       } else {
         console.error(`Failed to upload file: ${file.name}`);
@@ -237,11 +245,13 @@ export default function CreateStartupPage() {
   };
 
   // Function to convert form data to backend format
-  const mapFormDataToBackend = async (formData: StartupFormData): Promise<StartupCreationRequest> => {
+  const mapFormDataToBackend = async (
+    formData: StartupFormData
+  ): Promise<StartupCreationRequest> => {
     console.log('Preparing data for backend submission...');
-    
+
     // Use already uploaded files URLs if available, otherwise upload them now
-    
+
     // Logo
     let logoUrl: string | null = null;
     if (formData.logoUrl) {
@@ -253,7 +263,7 @@ export default function CreateStartupPage() {
       console.log('Uploading logo now...');
       logoUrl = await fileToString(formData.logo);
     }
-    
+
     // Founder photo
     let founderPhotoUrl: string | null = null;
     if (formData.founderPhotoUrl) {
@@ -265,16 +275,19 @@ export default function CreateStartupPage() {
       console.log('Uploading founder photo now...');
       founderPhotoUrl = await fileToString(formData.founderPhoto);
     }
-    
+
     // Team member photos
     const teamMemberPhotoUrls: (string | null)[] = [];
     for (let i = 0; i < formData.teamMembers.length; i++) {
       const member = formData.teamMembers[i];
-      
+
       if (member.photoUrl) {
         // Use already uploaded URL
         teamMemberPhotoUrls[i] = member.photoUrl;
-        console.log(`Using pre-uploaded team member ${i} photo URL:`, member.photoUrl);
+        console.log(
+          `Using pre-uploaded team member ${i} photo URL:`,
+          member.photoUrl
+        );
       } else if (member.photo) {
         // Upload now
         console.log(`Uploading team member ${i} photo now...`);
@@ -283,7 +296,7 @@ export default function CreateStartupPage() {
         teamMemberPhotoUrls[i] = null;
       }
     }
-    
+
     // Business plan
     let businessPlanUrl: string | null = null;
     if (formData.businessPlanUrl) {
@@ -295,19 +308,24 @@ export default function CreateStartupPage() {
       console.log('Uploading business plan now...');
       businessPlanUrl = await fileToString(formData.businessPlan);
     }
-    
+
     // Financial projections
     let financialProjectionsUrl: string | null = null;
     if (formData.financialProjectionsUrl) {
       // Use already uploaded URL
       financialProjectionsUrl = formData.financialProjectionsUrl;
-      console.log('Using pre-uploaded financial projections URL:', financialProjectionsUrl);
+      console.log(
+        'Using pre-uploaded financial projections URL:',
+        financialProjectionsUrl
+      );
     } else if (formData.financialProjectionsFile) {
       // Upload now
       console.log('Uploading financial projections now...');
-      financialProjectionsUrl = await fileToString(formData.financialProjectionsFile);
+      financialProjectionsUrl = await fileToString(
+        formData.financialProjectionsFile
+      );
     }
-    
+
     // Legal documents
     let legalDocumentsUrl: string | null = null;
     if (formData.legalDocumentsUrl) {
@@ -319,27 +337,31 @@ export default function CreateStartupPage() {
       console.log('Uploading legal documents now...');
       legalDocumentsUrl = await fileToString(formData.legalDocuments);
     }
-    
+
     // Map team members to backend format
-    const teamMembers: TeamMember[] = formData.teamMembers.map((member, index) => {
-      const photoArray: [] | [string] = teamMemberPhotoUrls[index] 
-        ? [teamMemberPhotoUrls[index] as string] 
-        : [];
-        
-      return {
-        id: BigInt(index + 1),
-        name: member.name || '',
-        role: member.role || '',
-        background: member.background || '',
-        photo: photoArray,
-        linkedin: member.linkedin || '',
-        email: member.email || '',
-        isFounder: member.isFounder || false,
-      };
-    });
+    const teamMembers: TeamMember[] = formData.teamMembers.map(
+      (member, index) => {
+        const photoArray: [] | [string] = teamMemberPhotoUrls[index]
+          ? [teamMemberPhotoUrls[index] as string]
+          : [];
+
+        return {
+          id: BigInt(index + 1),
+          name: member.name || '',
+          role: member.role || '',
+          background: member.background || '',
+          photo: photoArray,
+          linkedin: member.linkedin || '',
+          email: member.email || '',
+          isFounder: member.isFounder || false,
+        };
+      }
+    );
 
     // Add founder as first team member if not already included
-    const founderPhotoArray: [] | [string] = founderPhotoUrl ? [founderPhotoUrl] : [];
+    const founderPhotoArray: [] | [string] = founderPhotoUrl
+      ? [founderPhotoUrl]
+      : [];
     const founderAsMember: TeamMember = {
       id: BigInt(0),
       name: formData.founderName || '',
@@ -355,9 +377,15 @@ export default function CreateStartupPage() {
 
     // Process file data to match the expected types
     const logoFile: [] | [string] = logoUrl ? [logoUrl] : [];
-    const businessPlanFile: [] | [string] = businessPlanUrl ? [businessPlanUrl] : [];
-    const financialProjectionsFile: [] | [string] = financialProjectionsUrl ? [financialProjectionsUrl] : [];
-    const legalDocumentsFile: [] | [string] = legalDocumentsUrl ? [legalDocumentsUrl] : [];
+    const businessPlanFile: [] | [string] = businessPlanUrl
+      ? [businessPlanUrl]
+      : [];
+    const financialProjectionsFile: [] | [string] = financialProjectionsUrl
+      ? [financialProjectionsUrl]
+      : [];
+    const legalDocumentsFile: [] | [string] = legalDocumentsUrl
+      ? [legalDocumentsUrl]
+      : [];
 
     return {
       startupName: formData.startupName || '',
@@ -409,34 +437,40 @@ export default function CreateStartupPage() {
       // Check if we have files to upload
       console.log('Files to upload:');
       if (formData.logo) console.log(`Logo: ${formData.logo.name}`);
-      if (formData.founderPhoto) console.log(`Founder photo: ${formData.founderPhoto.name}`);
-      if (formData.businessPlan) console.log(`Business plan: ${formData.businessPlan.name}`);
-      if (formData.financialProjectionsFile) console.log(`Financial projections: ${formData.financialProjectionsFile.name}`);
-      if (formData.legalDocuments) console.log(`Legal documents: ${formData.legalDocuments.name}`);
-      
+      if (formData.founderPhoto)
+        console.log(`Founder photo: ${formData.founderPhoto.name}`);
+      if (formData.businessPlan)
+        console.log(`Business plan: ${formData.businessPlan.name}`);
+      if (formData.financialProjectionsFile)
+        console.log(
+          `Financial projections: ${formData.financialProjectionsFile.name}`
+        );
+      if (formData.legalDocuments)
+        console.log(`Legal documents: ${formData.legalDocuments.name}`);
+
       // Team members photos
       formData.teamMembers.forEach((member, index) => {
         if (member.photo) {
           console.log(`Team member ${index} photo: ${member.photo.name}`);
         }
       });
-      
+
       // Initialize auth client
       const authClient = await AuthClient.create();
       console.log('Auth client created');
-      
+
       // Initialize backend service with auth client
       await FounderService.initialize(authClient);
       console.log('Founder service initialized');
 
       // Show file upload status
       console.log('Starting file uploads to Supabase...');
-      
+
       try {
         // Map form data to backend format (this now includes file uploads to Supabase)
         const startupRequest = await mapFormDataToBackend(formData);
         console.log('Files uploaded successfully, submitting startup data...');
-        
+
         // Submit to backend
         const result = await FounderService.createStartup(startupRequest);
 

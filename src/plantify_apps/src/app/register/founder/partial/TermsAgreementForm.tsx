@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check } from 'lucide-react';
 
 interface TermsAgreementFormProps {
   formData: {
@@ -10,7 +10,10 @@ interface TermsAgreementFormProps {
   handleInputChange?: (field: string, value: boolean) => void;
 }
 
-function TermsAgreementForm({ formData, handleInputChange }: TermsAgreementFormProps) {
+function TermsAgreementForm({
+  formData,
+  handleInputChange,
+}: TermsAgreementFormProps) {
   const handleCheckboxChange = (field: string) => {
     if (handleInputChange) {
       handleInputChange(field, !formData[field]);
@@ -19,17 +22,19 @@ function TermsAgreementForm({ formData, handleInputChange }: TermsAgreementFormP
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold font-ibm text-gray-900 mb-6">
+      <h2 className='text-2xl font-semibold font-ibm text-gray-900 mb-6'>
         Terms & Agreement
       </h2>
 
       {/* Founder Responsibilities */}
-      <div className="mb-8">
-        <h3 className="text-lg font-ibm text-gray-800 mb-3">
+      <div className='mb-8'>
+        <h3 className='text-lg font-ibm text-gray-800 mb-3'>
           Founder Responsibilities
         </h3>
-        <ul className="list-disc list-inside text-gray-600 space-y-1 text-sm">
-          <li>Provide accurate and truthful information about your businesses</li>
+        <ul className='list-disc list-inside text-gray-600 space-y-1 text-sm'>
+          <li>
+            Provide accurate and truthful information about your businesses
+          </li>
           <li>Maintain transparent communication with investors</li>
           <li>Submit monthly progress reports on time</li>
           <li>Honor profit sharing commitments</li>
@@ -38,29 +43,33 @@ function TermsAgreementForm({ formData, handleInputChange }: TermsAgreementFormP
       </div>
 
       {/* Agreements List */}
-      <div className="space-y-4">
+      <div className='space-y-4'>
         {/* Terms & Conditions */}
         <div
-          className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${formData.terms
-              ? "border-blue-500 bg-blue-50"
-              : "border-neutral-200 bg-white hover:border-gray-300"
-            }`}
-          onClick={() => handleCheckboxChange("terms")}
+          className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${
+            formData.terms
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-neutral-200 bg-white hover:border-gray-300'
+          }`}
+          onClick={() => handleCheckboxChange('terms')}
         >
-          <div className="flex items-start gap-3">
+          <div className='flex items-start gap-3'>
             <div
-              className={`w-5 h-5 flex items-center justify-center rounded-md border ${formData.terms ? "bg-blue-600 border-blue-600" : "border-gray-300"
-                }`}
+              className={`w-5 h-5 flex items-center justify-center rounded-md border ${
+                formData.terms
+                  ? 'bg-blue-600 border-blue-600'
+                  : 'border-gray-300'
+              }`}
             >
-              {formData.terms && <Check className="w-4 h-4 text-white" />}
+              {formData.terms && <Check className='w-4 h-4 text-white' />}
             </div>
             <div>
-              <div className="font-medium text-gray-900 text-[16px]">
+              <div className='font-medium text-gray-900 text-[16px]'>
                 I agree to Plantify Terms & Conditions
               </div>
-              <p className="text-sm text-gray-600">
-                I have read and understand the platform terms, founder obligations,
-                and community guidelines.
+              <p className='text-sm text-gray-600'>
+                I have read and understand the platform terms, founder
+                obligations, and community guidelines.
               </p>
             </div>
           </div>
@@ -68,24 +77,28 @@ function TermsAgreementForm({ formData, handleInputChange }: TermsAgreementFormP
 
         {/* Risks and Commitments */}
         <div
-          className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${formData.risks
-              ? "border-blue-500 bg-blue-50"
-              : "border-neutral-200 bg-white hover:border-gray-300"
-            }`}
-          onClick={() => handleCheckboxChange("risks")}
+          className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${
+            formData.risks
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-neutral-200 bg-white hover:border-gray-300'
+          }`}
+          onClick={() => handleCheckboxChange('risks')}
         >
-          <div className="flex items-start gap-3">
+          <div className='flex items-start gap-3'>
             <div
-              className={`w-5 h-5 flex items-center justify-center rounded-md border ${formData.risks ? "bg-blue-600 border-blue-600" : "border-gray-300"
-                }`}
+              className={`w-5 h-5 flex items-center justify-center rounded-md border ${
+                formData.risks
+                  ? 'bg-blue-600 border-blue-600'
+                  : 'border-gray-300'
+              }`}
             >
-              {formData.risks && <Check className="w-4 h-4 text-white" />}
+              {formData.risks && <Check className='w-4 h-4 text-white' />}
             </div>
             <div>
-              <div className="font-medium text-gray-900 text-[16px]">
+              <div className='font-medium text-gray-900 text-[16px]'>
                 I understand the risks and commitments
               </div>
-              <p className="text-sm text-gray-600">
+              <p className='text-sm text-gray-600'>
                 I understand that fundraising involves 36-month commitments,
                 collateral requirements, and monthly reporting obligations.
               </p>
@@ -95,26 +108,30 @@ function TermsAgreementForm({ formData, handleInputChange }: TermsAgreementFormP
 
         {/* Transparency and Community Values */}
         <div
-          className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${formData.transparency
-              ? "border-blue-500 bg-blue-50"
-              : "border-neutral-200 bg-white hover:border-gray-300"
-            }`}
-          onClick={() => handleCheckboxChange("transparency")}
+          className={`flex flex-col gap-1 p-4 rounded-xl border transition cursor-pointer ${
+            formData.transparency
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-neutral-200 bg-white hover:border-gray-300'
+          }`}
+          onClick={() => handleCheckboxChange('transparency')}
         >
-          <div className="flex items-start gap-3">
+          <div className='flex items-start gap-3'>
             <div
-              className={`w-5 h-5 flex items-center justify-center rounded-md border ${formData.transparency
-                  ? "bg-blue-600 border-blue-600"
-                  : "border-gray-300"
-                }`}
+              className={`w-5 h-5 flex items-center justify-center rounded-md border ${
+                formData.transparency
+                  ? 'bg-blue-600 border-blue-600'
+                  : 'border-gray-300'
+              }`}
             >
-              {formData.transparency && <Check className="w-4 h-4 text-white" />}
+              {formData.transparency && (
+                <Check className='w-4 h-4 text-white' />
+              )}
             </div>
             <div>
-              <div className="font-medium text-gray-900 text-[16px]">
+              <div className='font-medium text-gray-900 text-[16px]'>
                 I commit to transparency and community values
               </div>
-              <p className="text-sm text-gray-600">
+              <p className='text-sm text-gray-600'>
                 I will maintain open communication with investors and uphold the
                 values of the Plantify community.
               </p>

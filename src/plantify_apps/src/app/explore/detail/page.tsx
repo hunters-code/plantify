@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import {
   AlertTriangle,
   Banknote,
@@ -14,8 +13,10 @@ import {
   ThumbsUp,
   Users,
 } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
+import { useState, useEffect, useRef } from 'react';
+
 import Footer from '@/components/layout/Footer';
+import Navbar from '@/components/layout/Navbar';
 import Tabs from '@/components/layout/Tabs';
 import {
   Badge,
@@ -29,10 +30,10 @@ import {
   CardSkeleton,
 } from '@/components/ui';
 
-import Overview from './partial/Overview';
+import Documents from './partial/Documents';
 import Financials from './partial/Financials';
 import FounderTeam from './partial/FounderTeam';
-import Documents from './partial/Documents';
+import Overview from './partial/Overview';
 import Risks from './partial/Risks';
 
 interface Startup {
@@ -52,7 +53,7 @@ interface Startup {
 }
 
 export default function ExploreDetail() {
-  const id = "1"; // dummy ID
+  const id = '1'; // dummy ID
   const isAuthenticated = true;
   const authLoading = false;
   const investmentLoading = false;
@@ -82,7 +83,7 @@ export default function ExploreDetail() {
 
         // dummy data
         const mockStartup: Startup = {
-          id: id,
+          id,
           startupName: 'EcoFarm Solutions',
           description:
             'Revolutionary hydroponic farming system using IoT technology...',
@@ -125,10 +126,9 @@ export default function ExploreDetail() {
     { label: 'Risks', icon: <AlertTriangle size={16} /> },
   ];
 
-  const images =
-    startup?.companyImages?.length
-      ? startup.companyImages
-      : ['/assets/images/product.png'];
+  const images = startup?.companyImages?.length
+    ? startup.companyImages
+    : ['/assets/images/product.png'];
 
   const renderContent = () => {
     switch (activeTab) {
@@ -164,22 +164,19 @@ export default function ExploreDetail() {
 
   if (loading) {
     return (
-      <div className="bg-gray-50 text-gray-900 min-h-screen">
+      <div className='bg-gray-50 text-gray-900 min-h-screen'>
         <Navbar />
-        <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
           {/* Skeleton Left (image gallery) */}
-          <Skeleton height={400} className="w-full rounded-lg" />
+          <Skeleton height={400} className='w-full rounded-lg' />
 
           {/* Skeleton Right (card) */}
           <CardSkeleton textRows={4} />
         </div>
 
-        <div className="max-w-6xl mx-auto mt-8">
-          <Tabs
-            tabs={tabs}
-            onChange={setActiveTab}
-          />
-          <div className="p-6">
+        <div className='max-w-6xl mx-auto mt-8'>
+          <Tabs tabs={tabs} onChange={setActiveTab} />
+          <div className='p-6'>
             <SkeletonText lines={6} />
           </div>
         </div>
@@ -190,9 +187,9 @@ export default function ExploreDetail() {
 
   if (error || !startup) {
     return (
-      <div className="bg-gray-50 text-gray-900 min-h-screen">
+      <div className='bg-gray-50 text-gray-900 min-h-screen'>
         <Navbar />
-        <div className="flex justify-center items-center min-h-[60vh]">
+        <div className='flex justify-center items-center min-h-[60vh]'>
           <p>{error || 'Startup not found.'}</p>
         </div>
         <Footer />
@@ -201,10 +198,10 @@ export default function ExploreDetail() {
   }
 
   return (
-    <div className="bg-gray-50 text-gray-900 min-h-screen">
+    <div className='bg-gray-50 text-gray-900 min-h-screen'>
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
         {/* Left Side */}
         <ImageGallery
           images={images}
@@ -213,56 +210,60 @@ export default function ExploreDetail() {
         />
 
         {/* Right Side */}
-        <Card className="bg-neutral-100 flex flex-col gap-4">
-          <div className="flex gap-2">
-            <Badge variant="primary" icon={<ThumbsUp size={16} />}>
+        <Card className='bg-neutral-100 flex flex-col gap-4'>
+          <div className='flex gap-2'>
+            <Badge variant='primary' icon={<ThumbsUp size={16} />}>
               Featured
             </Badge>
-            <Badge variant="success">Agriculture</Badge>
-            <Badge variant="warning">Moderate Risk</Badge>
+            <Badge variant='success'>Agriculture</Badge>
+            <Badge variant='warning'>Moderate Risk</Badge>
           </div>
 
-          <div className="flex gap-3">
+          <div className='flex gap-3'>
             <img
-              src={startup.companyLogo?.[0] || '/assets/images/icon-startup.png'}
-              className="w-8 h-8 rounded"
-              alt="Logo"
+              src={
+                startup.companyLogo?.[0] || '/assets/images/icon-startup.png'
+              }
+              className='w-8 h-8 rounded'
+              alt='Logo'
             />
-            <h2 className="text-2xl font-semibold">{startup.startupName}</h2>
+            <h2 className='text-2xl font-semibold'>{startup.startupName}</h2>
           </div>
-          <p className="text-gray-600 text-sm">{startup.description}</p>
-          <p className="text-sm text-gray-500">📍 {startup.location}</p>
+          <p className='text-gray-600 text-sm'>{startup.description}</p>
+          <p className='text-sm text-gray-500'>📍 {startup.location}</p>
 
-          <div className="space-y-2 text-sm">
-            <p className="flex gap-2 items-center">
-              <ChartCandlestick size={20} /> Periodic Returns:{" "}
-              <span className="font-semibold">{startup.periodicProfitSharing}</span>
+          <div className='space-y-2 text-sm'>
+            <p className='flex gap-2 items-center'>
+              <ChartCandlestick size={20} /> Periodic Returns:{' '}
+              <span className='font-semibold'>
+                {startup.periodicProfitSharing}
+              </span>
             </p>
-            <p className="flex gap-2 items-center">
-              <BanknoteArrowUp size={20} /> Monthly Revenue:{" "}
-              <span className="font-semibold">${startup.monthlyRevenue}</span>
+            <p className='flex gap-2 items-center'>
+              <BanknoteArrowUp size={20} /> Monthly Revenue:{' '}
+              <span className='font-semibold'>${startup.monthlyRevenue}</span>
             </p>
-            <p className="flex gap-2 items-center">
-              <GalleryHorizontalEnd size={20} /> NFT Price:{" "}
-              <span className="font-semibold">${startup.nftPrice}</span>
+            <p className='flex gap-2 items-center'>
+              <GalleryHorizontalEnd size={20} /> NFT Price:{' '}
+              <span className='font-semibold'>${startup.nftPrice}</span>
             </p>
-            <p className="flex gap-2 items-center">
-              <Sparkle size={20} /> Funding Goal:{" "}
-              <span className="text-orange-500 font-semibold">
+            <p className='flex gap-2 items-center'>
+              <Sparkle size={20} /> Funding Goal:{' '}
+              <span className='text-orange-500 font-semibold'>
                 ${startup.fundingGoal}
               </span>
             </p>
-            <ProgressBar value={45} max={100} color="bg-orange-500" />
+            <ProgressBar value={45} max={100} color='bg-orange-500' />
           </div>
 
           <Button onClick={handleInvestNow} disabled={investmentLoadingData}>
             <Banknote size={20} />
-            {investmentLoading ? "Loading..." : "Invest Now"}
+            {investmentLoading ? 'Loading...' : 'Invest Now'}
           </Button>
         </Card>
       </div>
 
-      <div className="max-w-6xl mx-auto">
+      <div className='max-w-6xl mx-auto'>
         <Tabs tabs={tabs} onChange={setActiveTab} />
         <div>{renderContent()}</div>
       </div>
@@ -271,7 +272,7 @@ export default function ExploreDetail() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         startup={investmentData}
-        onInvest={() => { }}
+        onInvest={() => {}}
         isLoading={investmentLoading}
       />
 

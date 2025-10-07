@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type Option = {
   value: string | number;
@@ -19,14 +19,14 @@ type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
 
 export default function Select({
   options = [],
-  value = "",
+  value = '',
   onChange,
-  label = "",
+  label = '',
   required = false,
-  error = "",
-  className = "",
+  error = '',
+  className = '',
   disabled = false,
-  placeholder = "Select an option",
+  placeholder = 'Select an option',
   ...props
 }: SelectProps) {
   const baseStyle = `
@@ -41,26 +41,27 @@ export default function Select({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className='block text-sm font-medium text-gray-700'>
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className='text-red-500 ml-1'>*</span>}
         </label>
       )}
       <select
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className={`${baseStyle} ${error ? "border-red-500 focus:ring-red-500" : ""
-          }`}
+        className={`${baseStyle} ${
+          error ? 'border-red-500 focus:ring-red-500' : ''
+        }`}
         {...props}
       >
         {placeholder && (
-          <option value="" disabled>
+          <option value='' disabled>
             {placeholder}
           </option>
         )}
         {options.map((option, index) =>
-          typeof option === "string" ? (
+          typeof option === 'string' ? (
             <option key={index} value={option}>
               {option}
             </option>
@@ -71,7 +72,7 @@ export default function Select({
           )
         )}
       </select>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className='text-red-500 text-sm'>{error}</p>}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type TableProps = React.TableHTMLAttributes<HTMLTableElement> & {
   className?: string;
@@ -9,17 +9,17 @@ type TableProps = React.TableHTMLAttributes<HTMLTableElement> & {
 
 export default function Table({
   children,
-  className = "",
+  className = '',
   striped = false,
   hover = false,
   ...props
 }: TableProps) {
-  const baseStyle = "w-full border-collapse text-sm";
-  const stripedStyle = striped ? "divide-y divide-gray-200" : "";
-  const hoverStyle = hover ? "[&_tbody_tr:hover]:bg-gray-50" : "";
+  const baseStyle = 'w-full border-collapse text-sm';
+  const stripedStyle = striped ? 'divide-y divide-gray-200' : '';
+  const hoverStyle = hover ? '[&_tbody_tr:hover]:bg-gray-50' : '';
 
   return (
-    <div className="overflow-x-auto">
+    <div className='overflow-x-auto'>
       <table
         className={`${baseStyle} ${stripedStyle} ${hoverStyle} ${className}`}
         {...props}
@@ -37,7 +37,7 @@ type TableSectionProps<T extends HTMLElement> = React.HTMLAttributes<T> & {
 
 export function TableHead({
   children,
-  className = "",
+  className = '',
   ...props
 }: TableSectionProps<HTMLTableSectionElement>) {
   return (
@@ -49,7 +49,7 @@ export function TableHead({
 
 export function TableBody({
   children,
-  className = "",
+  className = '',
   ...props
 }: TableSectionProps<HTMLTableSectionElement>) {
   return (
@@ -61,7 +61,7 @@ export function TableBody({
 
 export function TableRow({
   children,
-  className = "",
+  className = '',
   ...props
 }: TableSectionProps<HTMLTableRowElement>) {
   return (
@@ -73,7 +73,7 @@ export function TableRow({
 
 export function TableHeader({
   children,
-  className = "",
+  className = '',
   ...props
 }: TableSectionProps<HTMLTableCellElement>) {
   return (
@@ -88,7 +88,7 @@ export function TableHeader({
 
 export function TableCell({
   children,
-  className = "",
+  className = '',
   ...props
 }: TableSectionProps<HTMLTableCellElement>) {
   return (

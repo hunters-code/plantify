@@ -1,4 +1,3 @@
-import { BaseService } from '../BaseService';
 import type {
   Investor,
   InvestorRegistrationRequest,
@@ -7,8 +6,10 @@ import type {
   NFTPurchaseResponse,
   NFTPurchaseHistory,
   Result_6,
-  Result_10
+  Result_10,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+
+import { BaseService } from '../BaseService';
 
 /**
  * Service for investor-related operations
@@ -19,10 +20,12 @@ export class InvestorService extends BaseService {
    * @param request - The investor registration request
    * @returns The registered investor or error message
    */
-  public static async registerInvestor(request: InvestorRegistrationRequest): Promise<{ success: boolean; investor?: Investor; error?: string }> {
+  public static async registerInvestor(
+    request: InvestorRegistrationRequest
+  ): Promise<{ success: boolean; investor?: Investor; error?: string }> {
     try {
       const result: Result_4 = await this.getActor().registerInvestor(request);
-      
+
       if ('ok' in result) {
         return { success: true, investor: result.ok };
       } else {
@@ -53,10 +56,14 @@ export class InvestorService extends BaseService {
    * @param request - The NFT purchase request
    * @returns The purchase response or error message
    */
-  public static async purchaseNFT(request: NFTPurchaseRequest): Promise<{ success: boolean; response?: NFTPurchaseResponse; error?: string }> {
+  public static async purchaseNFT(request: NFTPurchaseRequest): Promise<{
+    success: boolean;
+    response?: NFTPurchaseResponse;
+    error?: string;
+  }> {
     try {
       const result: Result_6 = await this.getActor().purchaseNFT(request);
-      
+
       if ('ok' in result) {
         return { success: true, response: result.ok };
       } else {
@@ -74,9 +81,15 @@ export class InvestorService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns True if the investor can purchase, false otherwise
    */
-  public static async canPurchaseNFT(investorId: string, startupId: string): Promise<boolean> {
+  public static async canPurchaseNFT(
+    investorId: string,
+    startupId: string
+  ): Promise<boolean> {
     try {
-      const result = await this.getActor().canPurchaseNFT(investorId, startupId);
+      const result = await this.getActor().canPurchaseNFT(
+        investorId,
+        startupId
+      );
       return 'ok' in result ? result.ok : false;
     } catch (error) {
       console.error('Error checking if investor can purchase NFT:', error);
@@ -89,10 +102,15 @@ export class InvestorService extends BaseService {
    * @param investorId - The ID of the investor
    * @returns The purchase history or error message
    */
-  public static async getInvestorPurchaseHistory(investorId: string): Promise<{ success: boolean; history?: NFTPurchaseHistory; error?: string }> {
+  public static async getInvestorPurchaseHistory(investorId: string): Promise<{
+    success: boolean;
+    history?: NFTPurchaseHistory;
+    error?: string;
+  }> {
     try {
-      const result: Result_10 = await this.getActor().getInvestorPurchaseHistory(investorId);
-      
+      const result: Result_10 =
+        await this.getActor().getInvestorPurchaseHistory(investorId);
+
       if ('ok' in result) {
         return { success: true, history: result.ok };
       } else {

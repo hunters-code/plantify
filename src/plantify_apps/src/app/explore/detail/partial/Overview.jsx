@@ -27,9 +27,7 @@ export default function Overview({ startup }) {
         {startup.solution && (
           <div className='mt-4'>
             <h3 className='text-lg font-medium font-ibm'>Solution</h3>
-            <p className='text-gray-600 text-sm mt-1'>
-              {startup.solution}
-            </p>
+            <p className='text-gray-600 text-sm mt-1'>{startup.solution}</p>
           </div>
         )}
       </div>
@@ -43,9 +41,7 @@ export default function Overview({ startup }) {
         {startup.targetMarket && (
           <div className='mt-3'>
             <h4 className='text-md font-medium'>Target Market</h4>
-            <p className='text-gray-600 text-sm mt-1'>
-              {startup.targetMarket}
-            </p>
+            <p className='text-gray-600 text-sm mt-1'>{startup.targetMarket}</p>
           </div>
         )}
       </div>
@@ -61,9 +57,11 @@ export default function Overview({ startup }) {
             </div>
           </div>
         ) : (
-          <p className='text-gray-500 text-sm mt-2'>No competitive advantage information available.</p>
+          <p className='text-gray-500 text-sm mt-2'>
+            No competitive advantage information available.
+          </p>
         )}
-        
+
         {startup.marketingStrategy && (
           <div className='mt-4'>
             <h4 className='text-md font-medium'>Marketing Strategy</h4>
@@ -80,19 +78,27 @@ export default function Overview({ startup }) {
         <div className='grid grid-cols-2 gap-4 mt-3'>
           <div className='bg-white rounded-lg p-4 shadow-sm'>
             <p className='text-sm text-gray-500'>Monthly Revenue</p>
-            <p className='text-xl font-semibold font-ibm'>${startup.monthlyRevenue || '0'}</p>
+            <p className='text-xl font-semibold font-ibm'>
+              ${startup.monthlyRevenue || '0'}
+            </p>
           </div>
           <div className='bg-white rounded-lg p-4 shadow-sm'>
             <p className='text-sm text-gray-500'>Monthly Expenses</p>
-            <p className='text-xl font-semibold font-ibm'>${startup.monthlyExpenses || '0'}</p>
+            <p className='text-xl font-semibold font-ibm'>
+              ${startup.monthlyExpenses || '0'}
+            </p>
           </div>
           <div className='bg-white rounded-lg p-4 shadow-sm'>
             <p className='text-sm text-gray-500'>Funding Goal</p>
-            <p className='text-xl font-semibold font-ibm'>${startup.fundingGoal || '0'}</p>
+            <p className='text-xl font-semibold font-ibm'>
+              ${startup.fundingGoal || '0'}
+            </p>
           </div>
           <div className='bg-white rounded-lg p-4 shadow-sm'>
             <p className='text-sm text-gray-500'>Founded Year</p>
-            <p className='text-xl font-semibold font-ibm'>{startup.foundedYear || 'N/A'}</p>
+            <p className='text-xl font-semibold font-ibm'>
+              {startup.foundedYear || 'N/A'}
+            </p>
           </div>
         </div>
       </div>
@@ -100,7 +106,9 @@ export default function Overview({ startup }) {
       {/* Additional Information */}
       {(startup.useOfFunds || startup.operationalProcess) && (
         <div>
-          <h3 className='text-lg font-medium font-ibm'>Additional Information</h3>
+          <h3 className='text-lg font-medium font-ibm'>
+            Additional Information
+          </h3>
           <div className='space-y-4 mt-3'>
             {startup.useOfFunds && (
               <div className='bg-white rounded-lg p-4 shadow-sm'>

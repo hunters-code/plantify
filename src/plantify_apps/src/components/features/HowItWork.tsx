@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, ShieldUser } from 'lucide-react';
 import Image from 'next/image';
+import React, { useMemo, useState } from 'react';
 
 interface Step {
   title: string;
@@ -115,10 +115,11 @@ export default function HowItWork() {
           <div className='mt-4 inline-flex items-center gap-2 rounded-full bg-white p-1 shadow-inner'>
             <button
               onClick={() => setTab('founders')}
-              className={`${pillBase} ${tab === 'founders'
+              className={`${pillBase} ${
+                tab === 'founders'
                   ? 'border border-[#E5E5E5] bg-[#F5F5F5] text-gray-900 shadow-[inset_0_3px_3px_rgba(255,255,255,0.4),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)]'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
+              }`}
             >
               <ShieldUser size={20} />
               For Founders
@@ -126,10 +127,11 @@ export default function HowItWork() {
 
             <button
               onClick={() => setTab('investors')}
-              className={`${pillBase} ${tab === 'investors'
+              className={`${pillBase} ${
+                tab === 'investors'
                   ? 'border border-[#E5E5E5] bg-[#F5F5F5] text-gray-900 shadow-[inset_0_3px_3px_rgba(255,255,255,0.4),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)]'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
+              }`}
             >
               <Camera size={20} />
               For Investors

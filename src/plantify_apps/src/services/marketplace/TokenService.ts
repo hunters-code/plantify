@@ -1,4 +1,3 @@
-import { BaseService } from '../BaseService';
 import type {
   TransferAccount,
   TransferArgs,
@@ -13,8 +12,10 @@ import type {
   CollateralProgressResponse,
   CollateralTopUp,
   Result_21,
-  Result_22
+  Result_22,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+
+import { BaseService } from '../BaseService';
 
 /**
  * Service for token operations
@@ -26,7 +27,10 @@ export class TokenService extends BaseService {
    * @param tokenType - The type of token (e.g., 'ckUSDC', 'ICP')
    * @returns The balance response
    */
-  public static async getBalance(account: TransferAccount, tokenType: string): Promise<BalanceResponse> {
+  public static async getBalance(
+    account: TransferAccount,
+    tokenType: string
+  ): Promise<BalanceResponse> {
     try {
       return await this.getActor().getBalance(account, tokenType);
     } catch (error) {
@@ -40,7 +44,9 @@ export class TokenService extends BaseService {
    * @param account - The account to check
    * @returns The balance response
    */
-  public static async getCkUSDCBalance(account: TransferAccount): Promise<BalanceResponse> {
+  public static async getCkUSDCBalance(
+    account: TransferAccount
+  ): Promise<BalanceResponse> {
     try {
       return await this.getActor().getCkUSDCBalance(account);
     } catch (error) {
@@ -54,7 +60,9 @@ export class TokenService extends BaseService {
    * @param account - The account to check
    * @returns The balance response
    */
-  public static async getICPBalance(account: TransferAccount): Promise<BalanceResponse> {
+  public static async getICPBalance(
+    account: TransferAccount
+  ): Promise<BalanceResponse> {
     try {
       return await this.getActor().getICPBalance(account);
     } catch (error) {
@@ -68,7 +76,9 @@ export class TokenService extends BaseService {
    * @param args - The transfer arguments
    * @returns The transfer response
    */
-  public static async transferTokens(args: TransferArgs): Promise<TransferResponse> {
+  public static async transferTokens(
+    args: TransferArgs
+  ): Promise<TransferResponse> {
     try {
       return await this.getActor().transferTokens(args);
     } catch (error) {
@@ -84,9 +94,17 @@ export class TokenService extends BaseService {
    * @param memo - Optional memo
    * @returns The transfer response
    */
-  public static async transferCkUSDC(toAccount: TransferAccount, amount: bigint, memo?: string): Promise<TransferResponse> {
+  public static async transferCkUSDC(
+    toAccount: TransferAccount,
+    amount: bigint,
+    memo?: string
+  ): Promise<TransferResponse> {
     try {
-      return await this.getActor().transferCkUSDC(toAccount, amount, memo ? [memo] : []);
+      return await this.getActor().transferCkUSDC(
+        toAccount,
+        amount,
+        memo ? [memo] : []
+      );
     } catch (error) {
       console.error('Error transferring ckUSDC:', error);
       return { Error: 'Failed to transfer ckUSDC' };
@@ -100,9 +118,17 @@ export class TokenService extends BaseService {
    * @param memo - Optional memo
    * @returns The transfer response
    */
-  public static async transferICP(toAccount: TransferAccount, amount: bigint, memo?: string): Promise<TransferResponse> {
+  public static async transferICP(
+    toAccount: TransferAccount,
+    amount: bigint,
+    memo?: string
+  ): Promise<TransferResponse> {
     try {
-      return await this.getActor().transferICP(toAccount, amount, memo ? [memo] : []);
+      return await this.getActor().transferICP(
+        toAccount,
+        amount,
+        memo ? [memo] : []
+      );
     } catch (error) {
       console.error('Error transferring ICP:', error);
       return { Error: 'Failed to transfer ICP' };
@@ -114,7 +140,9 @@ export class TokenService extends BaseService {
    * @param tokenType - The type of token
    * @returns The token information
    */
-  public static async getTokenInfo(tokenType: string): Promise<TokenInfoResponse> {
+  public static async getTokenInfo(
+    tokenType: string
+  ): Promise<TokenInfoResponse> {
     try {
       return await this.getActor().getTokenInfo(tokenType);
     } catch (error) {
@@ -154,10 +182,12 @@ export class TokenService extends BaseService {
    * @param request - The top-up request
    * @returns The top-up response or error message
    */
-  public static async topUpCollateral(request: TopUpRequest): Promise<{ success: boolean; response?: TopUpResponse; error?: string }> {
+  public static async topUpCollateral(
+    request: TopUpRequest
+  ): Promise<{ success: boolean; response?: TopUpResponse; error?: string }> {
     try {
       const result: Result_3 = await this.getActor().topUpCollateral(request);
-      
+
       if ('ok' in result) {
         return { success: true, response: result.ok };
       } else {
@@ -174,10 +204,13 @@ export class TokenService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The collateral info or error message
    */
-  public static async getCollateralStatus(startupId: string): Promise<{ success: boolean; info?: CollateralInfo; error?: string }> {
+  public static async getCollateralStatus(
+    startupId: string
+  ): Promise<{ success: boolean; info?: CollateralInfo; error?: string }> {
     try {
-      const result: Result_22 = await this.getActor().getCollateralStatus(startupId);
-      
+      const result: Result_22 =
+        await this.getActor().getCollateralStatus(startupId);
+
       if ('ok' in result) {
         return { success: true, info: result.ok };
       } else {
@@ -194,7 +227,9 @@ export class TokenService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The collateral progress
    */
-  public static async getCollateralProgress(startupId: string): Promise<CollateralProgressResponse> {
+  public static async getCollateralProgress(
+    startupId: string
+  ): Promise<CollateralProgressResponse> {
     try {
       return await this.getActor().getCollateralProgress(startupId);
     } catch (error) {
@@ -208,10 +243,15 @@ export class TokenService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The top-up history or error message
    */
-  public static async getCollateralTopUpHistory(startupId: string): Promise<{ success: boolean; history?: CollateralTopUp[]; error?: string }> {
+  public static async getCollateralTopUpHistory(startupId: string): Promise<{
+    success: boolean;
+    history?: CollateralTopUp[];
+    error?: string;
+  }> {
     try {
-      const result: Result_21 = await this.getActor().getCollateralTopUpHistory(startupId);
-      
+      const result: Result_21 =
+        await this.getActor().getCollateralTopUpHistory(startupId);
+
       if ('ok' in result) {
         return { success: true, history: result.ok };
       } else {

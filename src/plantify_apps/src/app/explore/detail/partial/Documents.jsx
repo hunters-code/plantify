@@ -1,4 +1,3 @@
-import { Alert, Button, Card } from '../../../../components/ui';
 import {
   AlertTriangle,
   FileText,
@@ -7,6 +6,8 @@ import {
   ExternalLink,
   Globe,
 } from 'lucide-react';
+
+import { Alert, Button, Card } from '../../../../components/ui';
 
 export default function Documents({ startup }) {
   if (!startup) {

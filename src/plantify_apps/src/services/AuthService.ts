@@ -1,5 +1,6 @@
-import { BaseService } from './BaseService';
 import type { UserType } from '@/declarations/plantify_backend/plantify_backend.did';
+
+import { BaseService } from './BaseService';
 
 /**
  * Service for handling authentication and user type operations
@@ -38,18 +39,18 @@ export class AuthService extends BaseService {
   public static async getUserType(): Promise<'founder' | 'investor' | null> {
     try {
       const userTypeOpt = await this.getActor().getUserType();
-      
+
       if (!userTypeOpt.length) {
         return null;
       }
-      
+
       const userType = userTypeOpt[0];
       if ('Founder' in userType) {
         return 'founder';
       } else if ('Investor' in userType) {
         return 'investor';
       }
-      
+
       return null;
     } catch (error) {
       console.error('Error getting user type:', error);

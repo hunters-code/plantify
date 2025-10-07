@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type ProgressBarProps = React.HTMLAttributes<HTMLDivElement> & {
   value?: number;
@@ -13,11 +13,11 @@ type ProgressBarProps = React.HTMLAttributes<HTMLDivElement> & {
 export default function ProgressBar({
   value = 0,
   max = 100,
-  label = "",
+  label = '',
   showValue = true,
-  color = "bg-purple-600",
-  className = "",
-  size = "h-2",
+  color = 'bg-purple-600',
+  className = '',
+  size = 'h-2',
   ...props
 }: ProgressBarProps) {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
@@ -25,10 +25,10 @@ export default function ProgressBar({
   return (
     <div className={`w-full ${className}`} {...props}>
       {label && (
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-sm text-gray-500">{label}</span>
+        <div className='flex justify-between items-center mb-1'>
+          <span className='text-sm text-gray-500'>{label}</span>
           {showValue && (
-            <span className="text-sm text-gray-600">
+            <span className='text-sm text-gray-600'>
               {value} / {max}
             </span>
           )}
