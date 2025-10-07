@@ -258,25 +258,6 @@ persistent actor PlantifyBackend {
     };
   };
 
-  public shared (msg) func getMyICPBalance() : async Types.BalanceResponse {
-    let account : Types.TransferAccount = {
-      owner = msg.caller;
-      subaccount = null;
-    };
-    switch (await transferService.getICPBalance(account)) {
-      case (#ok(balance)) {
-        #Success({
-          balance = balance;
-          tokenType = "ICP";
-          account = account;
-        });
-      };
-      case (#err(error)) {
-        #Error(error);
-      };
-    };
-  };
-
   // ========================================
   // AUTHENTICATION METHODS
   // ========================================
@@ -534,7 +515,7 @@ persistent actor PlantifyBackend {
   };
 
   system func postupgrade() {
-    if (canisterVersion < 2) {
+    if (canisterVersion < Config.CURRENT_CANISTER_VERSION) {
       let migratedStartups = Array.map<(Text, Types.Startup), (Text, Types.Startup)>(
         startupsEntries,
         func((id, startup) : (Text, Types.Startup)) : (Text, Types.Startup) {
@@ -578,7 +559,7 @@ persistent actor PlantifyBackend {
         }
       );
       startupsEntries := migratedStartups;
-      canisterVersion := 2;
+      canisterVersion := Config.CURRENT_CANISTER_VERSION;
     };
   };
 };
