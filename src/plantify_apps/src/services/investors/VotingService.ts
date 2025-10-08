@@ -112,9 +112,7 @@ export class VotingService extends BaseService {
    * @param investorId - The ID of the investor
    * @returns The voting history or error message
    */
-  public static async getInvestorVoteHistory(
-    investorId: string
-  ): Promise<{
+  public static async getInvestorVoteHistory(investorId: string): Promise<{
     success: boolean;
     history?: InvestorVoteHistory;
     error?: string;
@@ -161,9 +159,7 @@ export class VotingService extends BaseService {
    * @param reportId - The ID of the report
    * @returns The vote details or error message
    */
-  public static async getReportVoteDetails(
-    reportId: string
-  ): Promise<{
+  public static async getReportVoteDetails(reportId: string): Promise<{
     success: boolean;
     details?: ReportVoteDetails;
     error?: string;

@@ -84,9 +84,7 @@ export class NFTService extends BaseService {
    * @param account - The NFT account
    * @returns The balance response or error message
    */
-  public static async getNFTBalance(
-    account: NFTAccount
-  ): Promise<{
+  public static async getNFTBalance(account: NFTAccount): Promise<{
     success: boolean;
     balance?: NFTBalanceResponse;
     error?: string;
@@ -147,9 +145,7 @@ export class NFTService extends BaseService {
    * @param request - The transfer NFT request
    * @returns The transfer response or error message
    */
-  public static async transferNFT(
-    request: TransferNFTRequest
-  ): Promise<{
+  public static async transferNFT(request: TransferNFTRequest): Promise<{
     success: boolean;
     response?: TransferNFTResponse;
     error?: string;

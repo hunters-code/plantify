@@ -243,9 +243,7 @@ export class TokenService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The top-up history or error message
    */
-  public static async getCollateralTopUpHistory(
-    startupId: string
-  ): Promise<{
+  public static async getCollateralTopUpHistory(startupId: string): Promise<{
     success: boolean;
     history?: CollateralTopUp[];
     error?: string;

@@ -56,9 +56,7 @@ export class InvestorService extends BaseService {
    * @param request - The NFT purchase request
    * @returns The purchase response or error message
    */
-  public static async purchaseNFT(
-    request: NFTPurchaseRequest
-  ): Promise<{
+  public static async purchaseNFT(request: NFTPurchaseRequest): Promise<{
     success: boolean;
     response?: NFTPurchaseResponse;
     error?: string;
@@ -104,9 +102,7 @@ export class InvestorService extends BaseService {
    * @param investorId - The ID of the investor
    * @returns The purchase history or error message
    */
-  public static async getInvestorPurchaseHistory(
-    investorId: string
-  ): Promise<{
+  public static async getInvestorPurchaseHistory(investorId: string): Promise<{
     success: boolean;
     history?: NFTPurchaseHistory;
     error?: string;
