@@ -17,14 +17,8 @@ import {
   TableCell,
 } from '@/components/ui';
 
-// Dummy useAuth
-const useAuth = () => {
-  return {
-    principal: 'abcd-1234-principal',
-    isAuthenticated: true,
-    identity: 'dummy-identity',
-  };
-};
+import { useAuth } from '@/contexts/AuthContext';
+
 
 // Dummy backendService
 const backendService = {
@@ -38,7 +32,10 @@ const backendService = {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { principal, isAuthenticated, identity } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const principal = 'jlkjk'
+  const identity = 'kjhjkhjk'
+  // const {isAuthenticated, } = useAuth();
 
   const [copied, setCopied] = useState(false);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);

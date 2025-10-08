@@ -10,11 +10,10 @@ import {
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
-import Footer from '@/components/layout/Footer';
-import Navbar from '@/components/layout/Navbar';
 import { Button, Card, LoadingSpinner } from '@/components/ui';
 
 import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
+import { Layout } from '@/components';
 
 // Types
 interface Investment {
@@ -106,8 +105,7 @@ export default function InvestorDashboard() {
     (activeTab === 'portfolio' && portfolioData.loading)
   ) {
     return (
-      <div className='min-h-screen bg-gray-50'>
-        <Navbar />
+      <Layout>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
           <div className='flex items-center justify-center min-h-[400px]'>
             <div className='text-center'>
@@ -116,16 +114,14 @@ export default function InvestorDashboard() {
             </div>
           </div>
         </div>
-        <Footer />
-      </div>
+      </Layout>
     );
   }
 
   // ========== Error State ==========
   if (activeTab === 'overview' && dashboardData.error) {
     return (
-      <div className='min-h-screen bg-gray-50'>
-        <Navbar />
+      <Layout>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
           <Card className='p-8'>
             <div className='text-center'>
@@ -148,16 +144,13 @@ export default function InvestorDashboard() {
             </div>
           </Card>
         </div>
-        <Footer />
-      </div>
+      </Layout>
     );
   }
 
   // ========== Main Render ==========
   return (
-    <div className='min-h-screen bg-gray-50'>
-      <Navbar />
-
+    <Layout>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {/* Header */}
         <div className='mb-8'>
@@ -190,11 +183,10 @@ export default function InvestorDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.id
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   <Icon size={16} />
                   {tab.label}
@@ -203,26 +195,6 @@ export default function InvestorDashboard() {
             })}
           </div>
         </div>
-
-        {/* Tab Content */}
-        {/* {activeTab === "overview" && (
-                    <OverviewTab
-                        dashboardData={dashboardData}
-                        matchingStartups={matchingStartups}
-                        recentActivity={recentActivity}
-                    />
-                )}
-
-                {activeTab === "portfolio" && (
-                    <PortfolioTab
-                        portfolioData={portfolioData}
-                        onViewDetails={handleViewDetails}
-                        onVoteReport={handleVoteReport}
-                        onAddInvestment={handleAddInvestment}
-                        onRefresh={refetchPortfolio}
-                    />
-                )} */}
-
         {activeTab === 'voting' && (
           <VotingTab onBackToOverview={() => setActiveTab('overview')} />
         )}
@@ -231,8 +203,6 @@ export default function InvestorDashboard() {
           <TransactionsTab onBackToOverview={() => setActiveTab('overview')} />
         )}
       </div>
-
-      <Footer />
-    </div>
-  );
+    </Layout>
+  )
 }
