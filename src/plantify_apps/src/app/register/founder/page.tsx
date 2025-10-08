@@ -81,15 +81,13 @@ export default function RegisterFounder() {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  // Check if founder is already registered
   useEffect(() => {
     const checkExistingFounder = async () => {
       if (isAuthenticated) {
         try {
           const existingFounder = await FounderService.getFounderByPrincipal();
           if (existingFounder) {
-            // Founder already registered, redirect to founder page
-            navigate.push('/founder');
+            navigate.push('/founder/dashboard');
           }
         } catch (err) {
           console.error('Error checking existing founder:', err);
