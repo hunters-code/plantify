@@ -1,6 +1,8 @@
 import Types "./modules/types";
 
 module Config {
+  // Version constants for canister upgrades
+  public let CURRENT_CANISTER_VERSION : Nat = 2;
   // Development/Testing Configuration
   public func getDevelopmentConfig() : Types.EnvironmentConfig {
     {
