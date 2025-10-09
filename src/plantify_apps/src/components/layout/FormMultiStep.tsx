@@ -47,12 +47,12 @@ export default function FormMultiStep({
                 className={`flex justify-center items-center gap-[6px] flex-1
                   px-4 py-2 rounded-[12px] text-sm font-medium transition-all duration-200
                   ${
-            currentStep === tab.id
-              ? 'bg-[#F5F5F5] shadow text-gray-900'
-              : currentStep > tab.id
-                ? 'bg-gray-100 text-gray-600'
-                : 'text-gray-400'
-            }`}
+                    currentStep === tab.id
+                      ? 'bg-[#F5F5F5] shadow text-gray-900'
+                      : currentStep > tab.id
+                        ? 'bg-gray-100 text-gray-600'
+                        : 'text-gray-400'
+                  }`}
                 onClick={() => onStepChange(tab.id)}
               >
                 {tab.icon}

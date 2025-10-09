@@ -1,17 +1,17 @@
 'use client';
 
-import { HttpAgent } from '@dfinity/agent';
 import { AuthClient } from '@dfinity/auth-client';
-import React, {
+import {
   createContext,
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from 'react';
 
-import { createActor } from '@/declarations/plantify_backend';
 import type { _SERVICE } from '@/declarations/plantify_backend/plantify_backend.did';
+import { BaseService } from '@/services/BaseService';
 
 type UserType = 'investor' | 'founder' | null;
 
@@ -20,7 +20,9 @@ interface AuthContextType {
   isLoading: boolean;
   isRegistered: boolean;
   userType: UserType;
+  principal: string | null;
   signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,15 +32,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRegistered, setIsRegistered] = useState(false);
   const [userType, setUserType] = useState<UserType>(null);
+  const [principal, setPrincipal] = useState<string | null>(null);
 
-  // Auth client state
   const [authClient, setAuthClient] = useState<AuthClient | null>(null);
   const [actor, setActor] = useState<_SERVICE | null>(null);
 
-  // Canister ID for the backend
-  const canisterId = process.env.CANISTER_ID || '';
+  const createBackendActor = useCallback(async (client: AuthClient) => {
+    try {
+      const success = await BaseService.initialize(client);
+      if (success) {
+        const serviceActor = BaseService.getActorInstance();
+        setActor(serviceActor);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error creating backend actor:', error);
+      return false;
+    }
+  }, []);
 
-  // Initialize auth client on component mount
   useEffect(() => {
     const init = async () => {
       try {
@@ -55,7 +68,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (isAuth) {
           setIsAuthenticated(true);
 
-          // Create backend actor
+          const identity = client.getIdentity();
+          const principalId = identity.getPrincipal().toString();
+          setPrincipal(principalId);
+
           await createBackendActor(client);
         }
       } catch (error) {
@@ -66,15 +82,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     init();
-  }, []);
+  }, [createBackendActor]);
 
-  // Check user type and registration status when authenticated
   useEffect(() => {
     const checkUserStatus = async () => {
       if (isAuthenticated && actor) {
         setIsLoading(true);
         try {
-          // Check if user is registered as founder or investor
           const isFounder = await actor.isUserFounder();
           const isInvestor = await actor.isUserInvestor();
 
@@ -98,35 +112,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUserStatus();
   }, [isAuthenticated, actor]);
 
-  // Create backend actor function
-  const createBackendActor = async (client: AuthClient) => {
-    try {
-      const newAgent = new HttpAgent({
-        host: 'https://ic0.app',
-        identity: client.getIdentity(),
-      });
-
-      // Fetch root key in development
-      if (
-        process.env.NODE_ENV !== 'production' ||
-        window.location.hostname === 'localhost'
-      ) {
-        await newAgent.fetchRootKey();
-      }
-
-      const newActor = createActor(canisterId, {
-        agent: newAgent,
-      }) as _SERVICE;
-
-      setActor(newActor);
-      return true;
-    } catch (error) {
-      console.error('Error creating backend actor:', error);
-      return false;
-    }
-  };
-
-  // Sign in function
   const signIn = async (): Promise<void> => {
     if (!authClient) {
       throw new Error('Auth client not initialized');
@@ -142,6 +127,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         onSuccess: async () => {
           try {
             setIsAuthenticated(true);
+
+            const identity = authClient.getIdentity();
+            const principalId = identity.getPrincipal().toString();
+            setPrincipal(principalId);
 
             await createBackendActor(authClient);
             resolve();
@@ -163,9 +152,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const signOut = async (): Promise<void> => {
+    if (!authClient) {
+      throw new Error('Auth client not initialized');
+    }
+
+    setIsLoading(true);
+
+    try {
+      await authClient.logout();
+
+      setIsAuthenticated(false);
+      setIsRegistered(false);
+      setUserType(null);
+      setPrincipal(null);
+      setActor(null);
+    } catch (error) {
+      console.error('Sign out error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, isRegistered, userType, signIn }}
+      value={{
+        isAuthenticated,
+        isLoading,
+        isRegistered,
+        userType,
+        principal,
+        signIn,
+        signOut,
+      }}
     >
       {children}
     </AuthContext.Provider>

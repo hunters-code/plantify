@@ -69,16 +69,16 @@ export default function Financials({ startup }) {
 
         {startup.financialProjections &&
           startup.financialProjections.length > 0 && (
-          <div className='bg-white rounded-lg p-4'>
-            <h4 className='text-lg font-medium mb-3 flex items-center gap-2'>
-              <FileText size={18} className='text-blue-500' />
+            <div className='bg-white rounded-lg p-4'>
+              <h4 className='text-lg font-medium mb-3 flex items-center gap-2'>
+                <FileText size={18} className='text-blue-500' />
                 Financial Projections
-            </h4>
-            <p className='text-gray-600 text-sm'>
-              {startup.financialProjections[0]}
-            </p>
-          </div>
-        )}
+              </h4>
+              <p className='text-gray-600 text-sm'>
+                {startup.financialProjections[0]}
+              </p>
+            </div>
+          )}
       </div>
 
       {/* Investment Information */}
