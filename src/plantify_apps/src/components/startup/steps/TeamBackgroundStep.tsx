@@ -11,14 +11,20 @@ import { StartupFormData } from '../types';
 
 interface TeamBackgroundStepProps {
   formData: StartupFormData;
-  setFormData: React.Dispatch<React.SetStateAction<StartupFormData>>;
+  setFormData: (
+    field: string,
+    value: string | File | null | Array<any>,
+    shouldValidate?: boolean
+  ) => void;
   errors: Record<string, string>;
+  touched: Record<string, boolean>;
 }
 
 const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
   formData,
   setFormData,
   errors = {},
+  _touched = {},
 }) => {
   const [isUploadingFounder, setIsUploadingFounder] = useState(false);
   const [isUploadingTeamMember, setIsUploadingTeamMember] = useState<
@@ -29,10 +35,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(name, value);
   };
 
   const handleFounderPhotoUpload = async (files: File[]) => {
@@ -40,10 +43,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
       const file = files[0];
 
       // Set the file in form data
-      setFormData(prev => ({
-        ...prev,
-        founderPhoto: file,
-      }));
+      setFormData('founderPhoto', file);
 
       // Upload the file and get the preview URL
       setIsUploadingFounder(true);
@@ -59,10 +59,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
           console.log('Founder photo uploaded successfully:', fileUrl);
 
           // Store the URL in the form data
-          setFormData(prev => ({
-            ...prev,
-            founderPhotoUrl: fileUrl,
-          }));
+          setFormData('founderPhotoUrl', fileUrl);
         } else {
           console.error('Failed to upload founder photo');
         }
@@ -74,17 +71,26 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
     }
   };
 
-  const handleTeamMemberChange = (index: number, field: string, value: any) => {
+  const handleTeamMemberChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
     const updatedTeamMembers = [...(formData.teamMembers || [])];
     if (!updatedTeamMembers[index]) {
-      updatedTeamMembers[index] = {};
+      updatedTeamMembers[index] = {
+        name: '',
+        role: '',
+        email: '',
+        linkedin: '',
+        background: '',
+        photo: null,
+        isFounder: false,
+      };
     }
-    updatedTeamMembers[index][field] = value;
+    (updatedTeamMembers[index] as any)[field] = value;
 
-    setFormData(prev => ({
-      ...prev,
-      teamMembers: updatedTeamMembers,
-    }));
+    setFormData('teamMembers', updatedTeamMembers);
   };
 
   const handleTeamMemberPhotoUpload = async (index: number, files: File[]) => {
@@ -113,10 +119,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
           const updatedUrls = [...(formData.teamMemberPhotosUrls || [])];
           updatedUrls[index] = fileUrl;
 
-          setFormData(prev => ({
-            ...prev,
-            teamMemberPhotosUrls: updatedUrls,
-          }));
+          setFormData('teamMemberPhotosUrls', updatedUrls);
         } else {
           console.error(`Failed to upload team member ${index} photo`);
         }
@@ -130,20 +133,14 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
 
   const addTeamMember = () => {
     const newTeamMembers = [...(formData.teamMembers || []), {}];
-    setFormData(prev => ({
-      ...prev,
-      teamMembers: newTeamMembers,
-    }));
+    setFormData('teamMembers', newTeamMembers);
   };
 
   const removeTeamMember = (index: number) => {
     const updatedTeamMembers = formData.teamMembers.filter(
       (_, i) => i !== index
     );
-    setFormData(prev => ({
-      ...prev,
-      teamMembers: updatedTeamMembers,
-    }));
+    setFormData('teamMembers', updatedTeamMembers);
   };
 
   return (
