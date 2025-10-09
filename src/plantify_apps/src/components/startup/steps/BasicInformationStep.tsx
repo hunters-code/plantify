@@ -3,6 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import React, { ChangeEvent, useState } from 'react';
 
+import { STARTUP_SECTOR_OPTIONS } from '@/constants/startupSectors';
 import FileUpload from '@/components/ui/FileUpload';
 import { uploadFile } from '@/lib/fileUpload';
 import { StartupFormData } from '../types';
@@ -12,19 +13,6 @@ interface BasicInformationStepProps {
   setFormData: React.Dispatch<React.SetStateAction<StartupFormData>>;
   errors: Record<string, string>;
 }
-
-const SECTORS = [
-  { value: 'fintech', label: 'Fintech' },
-  { value: 'healthtech', label: 'Healthtech' },
-  { value: 'edtech', label: 'Edtech' },
-  { value: 'ecommerce', label: 'E-commerce' },
-  { value: 'saas', label: 'SaaS' },
-  { value: 'ai', label: 'Artificial Intelligence' },
-  { value: 'blockchain', label: 'Blockchain' },
-  { value: 'agriculture', label: 'Agriculture' },
-  { value: 'energy', label: 'Clean Energy' },
-  { value: 'other', label: 'Other' },
-];
 
 const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
   formData,
@@ -170,7 +158,7 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               required
             >
               <option value=''>Select sector</option>
-              {SECTORS.map(({ value, label }) => (
+              {STARTUP_SECTOR_OPTIONS.map(({ value, label }) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
