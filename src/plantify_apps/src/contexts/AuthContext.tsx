@@ -168,8 +168,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setPrincipal(null);
       setActor(null);
 
-      if (typeof window !== 'undefined') {
-      }
     } catch (error) {
       console.error('Sign out error:', error);
       throw error;
