@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
 
 interface Tab {
   label: string;
@@ -10,10 +10,15 @@ interface Tab {
 interface TabsProps {
   tabs: Tab[];
   onChange: (index: number) => void;
+  activeTab?: number; // 👈 tambahkan ini
 }
 
-export default function Tabs({ tabs, onChange }: TabsProps) {
-  const [active, setActive] = useState<number>(0);
+export default function Tabs({ tabs, onChange, activeTab }: TabsProps) {
+  const [active, setActive] = useState<number>(activeTab ?? 0);
+
+  useEffect(() => {
+    if (activeTab !== undefined) setActive(activeTab);
+  }, [activeTab]);
 
   const handleClick = (index: number) => {
     setActive(index);
