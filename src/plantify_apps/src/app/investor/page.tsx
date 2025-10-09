@@ -18,8 +18,6 @@ import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
 import { InvestorService } from '@/services/investors/InvestorService';
 
 interface DashboardData {
-  loading: boolean;
-  error?: string | null;
   totalInvested: number;
   totalReturns: number;
   returnPercentage: number;
@@ -35,8 +33,6 @@ export default function InvestorDashboard() {
   >('overview');
 
   const [dashboardData, setDashboardData] = useState<DashboardData>({
-    loading: true,
-    error: null,
     totalInvested: 0,
     totalReturns: 0,
     returnPercentage: 0,
@@ -107,57 +103,6 @@ export default function InvestorDashboard() {
 
   const refetch = () => window.location.reload();
 
-  // === Loading State ===
-  if (loading || dashboardData.loading) {
-    return (
-      <div className='min-h-screen bg-gray-50'>
-        <Navbar />
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-          <div className='flex items-center justify-center min-h-[400px]'>
-            <div className='text-center'>
-              <LoadingSpinner className='mx-auto mb-4' />
-              <p className='text-gray-600'>Loading dashboard...</p>
-            </div>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  // === Error State ===
-  if (dashboardData.error) {
-    return (
-      <div className='min-h-screen bg-gray-50'>
-        <Navbar />
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-          <Card className='p-8'>
-            <div className='text-center'>
-              <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
-              <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                Error Loading Dashboard
-              </h3>
-              <p className='text-gray-600 mb-4'>{dashboardData.error}</p>
-              <div className='flex gap-2 justify-center'>
-                <Button variant='primary' onClick={refetch}>
-                  Try Again
-                </Button>
-                <Button
-                  variant='secondary'
-                  onClick={() => console.log('Navigate to register')}
-                >
-                  Register as Investor
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  // === Main Render ===
   return (
     <div className='min-h-screen bg-gray-50'>
       <Navbar />
