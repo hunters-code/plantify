@@ -10,7 +10,7 @@ interface TeamMember {
   photo?: string[];
 }
 
-export default function TeamSection({ startupId }: { startupId: number }) {
+export default function TeamSection({ startupId }: { startupId: string }) {
   // === Dummy Data ===
   const startup = {
     startupName: 'Dummy Startup',

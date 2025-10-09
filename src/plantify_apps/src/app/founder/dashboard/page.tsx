@@ -13,12 +13,9 @@ import { useState, useEffect } from 'react';
 import { Layout } from '@/components';
 import Tabs from '@/components/layout/Tabs';
 import { Button, Select, Alert } from '@/components/ui';
+import { useAuth } from '@/contexts/AuthContext';
+import { BaseService } from '@/services/BaseService';
 import { FounderService } from '@/services/founders/FounderService';
-
-// Use the return type from FounderService instead of importing types
-type Startup = Awaited<
-  ReturnType<typeof FounderService.getFounderStartups>
->[number];
 
 import Collateral from './partial/Collateral';
 import DashboardOverview from './partial/DashboardOverview';
@@ -29,11 +26,10 @@ import ProfitSharing from './partial/ProfitSharing';
 import StartupOverview from './partial/StartupOverview';
 import Teams from './partial/Teams';
 
-// Auth hook (replace with your actual implementation)
-const useAuth = () => ({
-  isAuthenticated: true,
-  isLoading: false,
-});
+// Use the return type from FounderService instead of importing types
+type Startup = Awaited<
+  ReturnType<typeof FounderService.getFounderStartups>
+>[number];
 
 export default function Dashboard() {
   const navigate = useRouter();
@@ -55,6 +51,15 @@ export default function Dashboard() {
       }
 
       if (isAuthenticated) {
+        // Wait for the actor to be initialized
+        if (!BaseService.isInitialized()) {
+          // Wait a bit and try again
+          setTimeout(() => {
+            checkFounder();
+          }, 100);
+          return;
+        }
+
         try {
           const founder = await FounderService.getFounderByPrincipal();
           if (!founder) {
@@ -76,6 +81,14 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchStartups = async () => {
       if (!isFounder) return;
+
+      // Ensure actor is initialized before making service calls
+      if (!BaseService.isInitialized()) {
+        setTimeout(() => {
+          fetchStartups();
+        }, 100);
+        return;
+      }
 
       try {
         setStartupsLoading(true);
@@ -119,6 +132,12 @@ export default function Dashboard() {
   const handleRefresh = async () => {
     if (!isFounder) return;
 
+    // Ensure actor is initialized before making service calls
+    if (!BaseService.isInitialized()) {
+      setStartupsError('Service not ready. Please try again.');
+      return;
+    }
+
     try {
       setStartupsLoading(true);
       setStartupsError(null);
@@ -159,9 +178,9 @@ export default function Dashboard() {
       case 3:
         return <MonthlyReports startupId={selectedCompany} />;
       case 4:
-        return <ProfitSharing startupId={selectedCompany} />;
+        return <ProfitSharing />;
       case 5:
-        return <Collateral startupId={selectedCompany} />;
+        return <Collateral />;
       case 6:
         return <Investors startupId={selectedCompany} />;
       default:
