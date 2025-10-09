@@ -114,9 +114,7 @@ export class MonthlyReportService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns List of monthly reports or error message
    */
-  public static async getMonthlyReportsByStartup(
-    startupId: string
-  ): Promise<{
+  public static async getMonthlyReportsByStartup(startupId: string): Promise<{
     success: boolean;
     reportList?: MonthlyReportList;
     error?: string;

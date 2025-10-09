@@ -110,7 +110,6 @@ const eslintConfig = [
       }],
       "jsx-quotes": ["error", "prefer-single"], // jsxSingleQuote: true
       "arrow-parens": ["error", "as-needed"], // arrowParens: "avoid" equivalent
-      "max-len": ["warn", { "code": 80 }], // printWidth: 80 - warning only
       
       // Unused variables and imports
       "no-unused-vars": "off", // Turn off base rule as it can report incorrect errors

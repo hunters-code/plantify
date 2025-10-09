@@ -1,0 +1,56 @@
+name: DFX Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  dfx-build:
+    name: DFX Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install DFX
+      run: |
+        sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+        echo "$HOME/bin" >> $GITHUB_PATH
+        
+    - name: Verify DFX installation
+      run: dfx --version
+      
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Start DFX replica
+      run: dfx start --background --clean
+      
+    - name: Generate DFX declarations
+      run: dfx generate
+      
+    - name: Build canisters
+      run: dfx build
+      
+    - name: Deploy canisters (local)
+      run: dfx deploy
+      
+    - name: Test canister functionality
+      run: |
+        # Test that canisters are running
+        dfx canister status plantify_backend
+        dfx canister status ckUSDC
+        dfx canister status plantify_frontend
+        
+    - name: Stop DFX replica
+      if: always()
+      run: dfx stop

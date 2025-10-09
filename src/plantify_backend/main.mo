@@ -15,26 +15,31 @@ import VotingService "./modules/services/voting";
 import Config "./config";
 
 persistent actor PlantifyBackend {
-  private let config : Types.EnvironmentConfig = Config.getCurrentConfig();
+  private transient let config : Types.EnvironmentConfig = Config.getCurrentConfig();
   
-  // Stable storage variables
-  private var foundersEntries : [(Text, Types.Founder)] = [];
-  private var founderPrincipalsEntries : [(Principal, Text)] = [];
-  private var investorsEntries : [(Text, Types.Investor)] = [];
-  private var investorPrincipalsEntries : [(Principal, Text)] = [];
-  private var startupsEntries : [(Text, Types.Startup)] = [];
-  private var founderStartupsEntries : [(Text, [Text])] = [];
-  private var monthlyReportsEntries : [(Text, Types.MonthlyReport)] = [];
-  private var startupReportsEntries : [(Text, [Text])] = [];
-  private var votesEntries : [(Text, Types.InvestorVote)] = [];
-  private var reportVotesEntries : [(Text, [Text])] = [];
-  private var investorVotesEntries : [(Text, [Text])] = [];
-  private var nextFounderId : Nat = 1;
-  private var nextInvestorId : Nat = 1;
-  private var nextStartupId : Nat = 1;
-  private var nextReportId : Nat = 1;
-  private var nextVoteId : Nat = 1;
+  // Transient storage variables - these do NOT persist across canister upgrades.
+  // They are temporary and rebuilt from stable data after each upgrade.
+  private transient var foundersEntries : [(Text, Types.Founder)] = [];
+  private transient var founderPrincipalsEntries : [(Principal, Text)] = [];
+  private transient var investorsEntries : [(Text, Types.Investor)] = [];
+  private transient var investorPrincipalsEntries : [(Principal, Text)] = [];
+  private transient var startupsEntries : [(Text, Types.Startup)] = [];
+  private transient var founderStartupsEntries : [(Text, [Text])] = [];
+  private transient var monthlyReportsEntries : [(Text, Types.MonthlyReport)] = [];
+  private transient var startupReportsEntries : [(Text, [Text])] = [];
+  private transient var votesEntries : [(Text, Types.InvestorVote)] = [];
+  private transient var reportVotesEntries : [(Text, [Text])] = [];
+  private transient var investorVotesEntries : [(Text, [Text])] = [];
+  private transient var nextFounderId : Nat = 1;
+  private transient var nextInvestorId : Nat = 1;
+  private transient var nextStartupId : Nat = 1;
+  private transient var nextReportId : Nat = 1;
+  private transient var nextVoteId : Nat = 1;
   
+  // Version tracking for migrations
+  private transient var canisterVersion : Nat = 1;
+  
+  // Initialize storage from stable variables (transient - rebuilt on each upgrade)
   private transient let storage = Storage.UserStorage(
     foundersEntries,
     founderPrincipalsEntries,
@@ -163,6 +168,34 @@ persistent actor PlantifyBackend {
       case ("ckUSDC") { ?config.ckUSDCToken.canisterId };
       case (_) { null };
     };
+  };
+
+  public shared func getCanisterVersion() : async Nat {
+    canisterVersion;
+  };
+
+  // ========================================
+  // DATA SYNCHRONIZATION METHODS
+  // ========================================
+
+  // Sync data from storage to stable variables (called before upgrade)
+  private func syncToStable() {
+    foundersEntries := Iter.toArray(storage.founders.entries());
+    founderPrincipalsEntries := Iter.toArray(storage.founderPrincipals.entries());
+    investorsEntries := Iter.toArray(storage.investors.entries());
+    investorPrincipalsEntries := Iter.toArray(storage.investorPrincipals.entries());
+    startupsEntries := Iter.toArray(storage.startups.entries());
+    founderStartupsEntries := Iter.toArray(storage.founderStartups.entries());
+    monthlyReportsEntries := Iter.toArray(storage.monthlyReports.entries());
+    startupReportsEntries := Iter.toArray(storage.startupReports.entries());
+    votesEntries := Iter.toArray(storage.votes.entries());
+    reportVotesEntries := Iter.toArray(storage.reportVotes.entries());
+    investorVotesEntries := Iter.toArray(storage.investorVotes.entries());
+    nextFounderId := storage.nextFounderId;
+    nextInvestorId := storage.nextInvestorId;
+    nextStartupId := storage.nextStartupId;
+    nextReportId := storage.nextReportId;
+    nextVoteId := storage.nextVoteId;
   };
 
   // ========================================
@@ -479,69 +512,55 @@ persistent actor PlantifyBackend {
   // ========================================
 
   system func preupgrade() {
-    foundersEntries := Iter.toArray(storage.founders.entries());
-    founderPrincipalsEntries := Iter.toArray(storage.founderPrincipals.entries());
-    investorsEntries := Iter.toArray(storage.investors.entries());
-    investorPrincipalsEntries := Iter.toArray(storage.investorPrincipals.entries());
-    startupsEntries := Iter.toArray(storage.startups.entries());
-    founderStartupsEntries := Iter.toArray(storage.founderStartups.entries());
-    monthlyReportsEntries := Iter.toArray(storage.monthlyReports.entries());
-    startupReportsEntries := Iter.toArray(storage.startupReports.entries());
-    votesEntries := Iter.toArray(storage.votes.entries());
-    reportVotesEntries := Iter.toArray(storage.reportVotes.entries());
-    investorVotesEntries := Iter.toArray(storage.investorVotes.entries());
-    nextFounderId := storage.nextFounderId;
-    nextInvestorId := storage.nextInvestorId;
-    nextStartupId := storage.nextStartupId;
-    nextReportId := storage.nextReportId;
-    nextVoteId := storage.nextVoteId;
+    syncToStable();
   };
 
   system func postupgrade() {
-    // Migration: Add companyImages field to existing startups
-    // For existing startups, initialize companyImages as empty array
-    let migratedStartups = Array.map<(Text, Types.Startup), (Text, Types.Startup)>(
-      startupsEntries,
-      func((id, startup) : (Text, Types.Startup)) : (Text, Types.Startup) {
-        let migratedStartup : Types.Startup = {
-          id = startup.id;
-          founderId = startup.founderId;
-          startupName = startup.startupName;
-          sector = startup.sector;
-          foundedYear = startup.foundedYear;
-          description = startup.description;
-          website = startup.website;
-          location = startup.location;
-          companyType = startup.companyType;
-          companyLogo = startup.companyLogo;
-          companyImages = []; // Initialize new field as empty array for existing startups
-          nftImage = startup.nftImage;
-          problemStatement = startup.problemStatement;
-          solution = startup.solution;
-          targetMarket = startup.targetMarket;
-          competitiveAdvantage = startup.competitiveAdvantage;
-          marketingStrategy = startup.marketingStrategy;
-          operationalProcess = startup.operationalProcess;
-          founderBackground = startup.founderBackground;
-          teamMembers = startup.teamMembers;
-          advisors = startup.advisors;
-          fundingGoal = startup.fundingGoal;
-          nftPrice = startup.nftPrice;
-          periodicProfitSharing = startup.periodicProfitSharing;
-          revenueModel = startup.revenueModel;
-          monthlyRevenue = startup.monthlyRevenue;
-          monthlyExpenses = startup.monthlyExpenses;
-          useOfFunds = startup.useOfFunds;
-          businessPlan = startup.businessPlan;
-          financialProjections = startup.financialProjections;
-          legalDocuments = startup.legalDocuments;
-          status = startup.status;
-          createdAt = startup.createdAt;
-          updatedAt = startup.updatedAt;
-        };
-        (id, migratedStartup);
-      }
-    );
-    startupsEntries := migratedStartups;
+    if (canisterVersion < Config.CURRENT_CANISTER_VERSION) {
+      let migratedStartups = Array.map<(Text, Types.Startup), (Text, Types.Startup)>(
+        startupsEntries,
+        func((id, startup) : (Text, Types.Startup)) : (Text, Types.Startup) {
+          let migratedStartup : Types.Startup = {
+            id = startup.id;
+            founderId = startup.founderId;
+            startupName = startup.startupName;
+            sector = startup.sector;
+            foundedYear = startup.foundedYear;
+            description = startup.description;
+            website = startup.website;
+            location = startup.location;
+            companyType = startup.companyType;
+            companyLogo = startup.companyLogo;
+            companyImages = []; // Initialize new field as empty array for existing startups
+            nftImage = startup.nftImage;
+            problemStatement = startup.problemStatement;
+            solution = startup.solution;
+            targetMarket = startup.targetMarket;
+            competitiveAdvantage = startup.competitiveAdvantage;
+            marketingStrategy = startup.marketingStrategy;
+            operationalProcess = startup.operationalProcess;
+            founderBackground = startup.founderBackground;
+            teamMembers = startup.teamMembers;
+            advisors = startup.advisors;
+            fundingGoal = startup.fundingGoal;
+            nftPrice = startup.nftPrice;
+            periodicProfitSharing = startup.periodicProfitSharing;
+            revenueModel = startup.revenueModel;
+            monthlyRevenue = startup.monthlyRevenue;
+            monthlyExpenses = startup.monthlyExpenses;
+            useOfFunds = startup.useOfFunds;
+            businessPlan = startup.businessPlan;
+            financialProjections = startup.financialProjections;
+            legalDocuments = startup.legalDocuments;
+            status = startup.status;
+            createdAt = startup.createdAt;
+            updatedAt = startup.updatedAt;
+          };
+          (id, migratedStartup);
+        }
+      );
+      startupsEntries := migratedStartups;
+      canisterVersion := Config.CURRENT_CANISTER_VERSION;
+    };
   };
 };

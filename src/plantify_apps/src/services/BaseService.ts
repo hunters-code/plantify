@@ -1,7 +1,7 @@
 import { HttpAgent } from '@dfinity/agent';
 import { AuthClient } from '@dfinity/auth-client';
 
-import { createActor } from '@/declarations/plantify_backend';
+import { createActor, canisterId } from '@/declarations/plantify_backend';
 import type { _SERVICE } from '@/declarations/plantify_backend/plantify_backend.did';
 
 /**
@@ -10,7 +10,8 @@ import type { _SERVICE } from '@/declarations/plantify_backend/plantify_backend.
 export class BaseService {
   private static actor: _SERVICE | null = null;
   private static agent: HttpAgent | null = null;
-  protected static canisterId: string = process.env.CANISTER_ID || '';
+  // Fallback canister ID for production
+  private static readonly FALLBACK_CANISTER_ID = 'a5ptu-ryaaa-aaaai-q32cq-cai';
 
   /**
    * Initialize the service with an identity
@@ -23,6 +24,16 @@ export class BaseService {
         console.error('Auth client is required');
         return false;
       }
+
+      // Use canister ID from declarations or fallback
+      const effectiveCanisterId = canisterId || this.FALLBACK_CANISTER_ID;
+
+      if (!effectiveCanisterId) {
+        console.error('Canister ID is not available');
+        return false;
+      }
+
+      console.log('Using canister ID:', effectiveCanisterId);
 
       this.agent = new HttpAgent({
         host: 'https://ic0.app',
@@ -37,7 +48,7 @@ export class BaseService {
         await this.agent.fetchRootKey();
       }
 
-      this.actor = createActor(this.canisterId, {
+      this.actor = createActor(effectiveCanisterId, {
         agent: this.agent,
       }) as _SERVICE;
 
@@ -62,6 +73,15 @@ export class BaseService {
       );
     }
     return this.actor;
+  }
+
+  /**
+   * Get the actor instance for external use
+   * @returns The actor instance
+   * @throws Error if the actor is not initialized
+   */
+  public static getActorInstance(): _SERVICE {
+    return this.getActor();
   }
 
   /**
