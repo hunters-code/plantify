@@ -1,3 +1,5 @@
+"use client"
+
 import {
   CircleDollarSign,
   DraftingCompass,
@@ -7,8 +9,11 @@ import {
 } from 'lucide-react';
 
 import Button from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
 
 export default function Hero() {
+  const router = useRouter();
+
   return (
     <section className='relative isolate bg-white'>
       <div className='pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-white to-violet-50' />
@@ -26,7 +31,7 @@ export default function Hero() {
 
           {/* CTAs */}
           <div className='mt-6 flex flex-col sm:flex-row gap-3 justify-center'>
-            <Button as='a' href='#register' variant='primary'>
+            <Button as='a' onClick={() => router.push("/register/founder")} variant='primary'>
               <ShieldUser size={20} />
               Register as Founder
             </Button>

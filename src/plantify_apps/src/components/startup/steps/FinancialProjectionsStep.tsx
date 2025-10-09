@@ -27,11 +27,10 @@ const FinancialProjectionsStep: React.FC<FinancialProjectionsStepProps> = ({
     }));
   };
 
-  // Auto-calculate NFT price based on funding goal
   useEffect(() => {
     if (formData.fundingGoal) {
       const fundingGoal = parseFloat(formData.fundingGoal) || 0;
-      const nftPrice = fundingGoal / 100; // Assuming 100 NFTs
+      const nftPrice = fundingGoal / 100; 
       setFormData(prev => ({
         ...prev,
         nftPrice: nftPrice.toString(),
