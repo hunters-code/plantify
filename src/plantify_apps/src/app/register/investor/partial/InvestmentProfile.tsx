@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Select } from '@/components/ui';
+import {
+  INVESTMENT_EXPERIENCE_OPTIONS,
+  RISK_TOLERANCE_OPTIONS,
+  INVESTMENT_GOAL_OPTIONS,
+  CAPITAL_OPTIONS,
+  Option,
+} from '@/constants/investmentOptions';
 
 interface FormData {
   fullName: string;
@@ -41,11 +48,6 @@ interface InvestmentProfileProps {
     field: K,
     value: FormData[K]
   ) => void;
-}
-
-interface Option {
-  value: string;
-  label: string;
 }
 
 export default function InvestmentProfile({
@@ -127,34 +129,6 @@ export default function InvestmentProfile({
     setErrors(newErrors);
   }, [formData, touched]);
 
-  const experienceOptions: Option[] = [
-    { value: 'beginner', label: 'Beginner (Less than 1 year)' },
-    { value: 'intermediate', label: 'Intermediate (1-5 years)' },
-    { value: 'expert', label: 'Expert (5+ years)' },
-  ];
-
-  const riskOptions: Option[] = [
-    { value: 'low', label: 'Low - Prefer stable, lower returns' },
-    { value: 'medium', label: 'Medium - Balanced risk and return' },
-    { value: 'high', label: 'High - Comfortable with volatility' },
-  ];
-
-  const goalOptions: Option[] = [
-    { value: 'growth', label: 'Growth - Long-term capital appreciation' },
-    { value: 'income', label: 'Income - Regular returns' },
-    {
-      value: 'preservation',
-      label: 'Capital Preservation - Protect principal',
-    },
-  ];
-
-  const capitalOptions: Option[] = [
-    { value: 'under_1k', label: 'Under $1,000' },
-    { value: '1k_10k', label: '$1,000 - $10,000' },
-    { value: '10k_100k', label: '$10,000 - $100,000' },
-    { value: '100k_plus', label: '$100,000+' },
-  ];
-
   return (
     <div>
       <h2 className='text-2xl font-semibold text-gray-900 mb-2 font-ibm'>
@@ -169,11 +143,11 @@ export default function InvestmentProfile({
         <Select
           label='Investment Experience Level'
           value={formData.investmentExperience || ''}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-            handleChange('investmentExperience', e.target.value);
-          }}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            handleChange('investmentExperience', e.target.value)
+          }
           onBlur={() => handleBlur('investmentExperience')}
-          options={experienceOptions}
+          options={INVESTMENT_EXPERIENCE_OPTIONS}
           placeholder='Select your experience level'
           required
           error={errors.investmentExperience}
@@ -182,11 +156,11 @@ export default function InvestmentProfile({
         <Select
           label='Risk Tolerance'
           value={formData.riskTolerance || ''}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-            handleChange('riskTolerance', e.target.value);
-          }}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            handleChange('riskTolerance', e.target.value)
+          }
           onBlur={() => handleBlur('riskTolerance')}
-          options={riskOptions}
+          options={RISK_TOLERANCE_OPTIONS}
           placeholder='Select your risk tolerance'
           required
           error={errors.riskTolerance}
@@ -195,11 +169,11 @@ export default function InvestmentProfile({
         <Select
           label='Primary Investment Goals'
           value={formData.investmentGoals || ''}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-            handleChange('investmentGoals', e.target.value);
-          }}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            handleChange('investmentGoals', e.target.value)
+          }
           onBlur={() => handleBlur('investmentGoals')}
-          options={goalOptions}
+          options={INVESTMENT_GOAL_OPTIONS}
           placeholder='Select your primary goal'
           required
           error={errors.investmentGoals}
@@ -209,11 +183,11 @@ export default function InvestmentProfile({
           <Select
             label='Available Investment Capital'
             value={formData.availableCapital || ''}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange('availableCapital', e.target.value);
-            }}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              handleChange('availableCapital', e.target.value)
+            }
             onBlur={() => handleBlur('availableCapital')}
-            options={capitalOptions}
+            options={CAPITAL_OPTIONS}
             placeholder='Select capital range'
             required
             error={errors.availableCapital}
@@ -224,9 +198,9 @@ export default function InvestmentProfile({
             label='Monthly Investment Budget'
             placeholder='e.g., $100'
             value={formData.monthlyBudget || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleChange('monthlyBudget', e.target.value);
-            }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleChange('monthlyBudget', e.target.value)
+            }
             onBlur={() => handleBlur('monthlyBudget')}
             required
             error={errors.monthlyBudget}

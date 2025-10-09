@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui';
+import { KNOWLEDGE_ITEMS } from '@/constants/knowledgeItems';
 
 interface FormData {
   fullName: string;
@@ -35,12 +36,6 @@ interface KnowledgeAssessmentProps {
   ) => void;
 }
 
-interface CheckboxItem {
-  field: KnowledgeField;
-  title: string;
-  description: string;
-}
-
 export default function KnowledgeAssessment({
   formData,
   handleInputChange,
@@ -49,34 +44,7 @@ export default function KnowledgeAssessment({
     handleInputChange(field, value);
   };
 
-  const checkboxItems: CheckboxItem[] = [
-    {
-      field: 'investmentRisks',
-      title: 'I understand investment risks',
-      description:
-        'Startup investments are high-risk and I may lose some or all of my investment. Returns are not guaranteed and depend on startup performance.',
-    },
-    {
-      field: 'nftModel',
-      title: 'I understand NFT investment model',
-      description:
-        'Each NFT represents profit sharing rights in a specific startup. Profit sharing is distributed monthly based on startup performance and community voting.',
-    },
-    {
-      field: 'governance',
-      title: 'I understand community governance',
-      description:
-        'I must participate in monthly voting to approve/reject startup progress reports. My vote affects whether profit sharing is distributed that month.',
-    },
-    {
-      field: 'liquidity',
-      title: 'I understand liquidity restrictions',
-      description:
-        'NFTs are locked for 36 months and cannot be sold or transferred. I will not have access to my initial investment capital during this period.',
-    },
-  ];
-
-  const allChecked = checkboxItems.every(item => formData[item.field]);
+  const allChecked = KNOWLEDGE_ITEMS.every(item => formData[item.field]);
 
   return (
     <div>
@@ -89,7 +57,7 @@ export default function KnowledgeAssessment({
       </p>
 
       <div className='space-y-4'>
-        {checkboxItems.map((item, index) => (
+        {KNOWLEDGE_ITEMS.map((item, index) => (
           <Card
             key={item.field}
             className={`flex items-start gap-3 p-4 cursor-pointer transition-all duration-200 ${
