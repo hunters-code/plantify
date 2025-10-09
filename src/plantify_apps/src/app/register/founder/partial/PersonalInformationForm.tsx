@@ -1,5 +1,5 @@
 import { Input, Textarea } from '@/components/ui';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 
 interface FormData {
   fullName: string;
@@ -18,95 +18,97 @@ interface FormData {
 }
 
 interface PersonalInformationFormProps {
-  formData: {
-    fullName: string;
-    email: string;
-    phone: string;
-    address: string;
-  };
-  handleInputChange: (field: keyof FormData, value: any) => void;
+  formData: Pick<FormData, 'fullName' | 'email' | 'phone' | 'address'>;
+  handleInputChange: <
+    K extends keyof Pick<FormData, 'fullName' | 'email' | 'phone' | 'address'>,
+  >(
+    field: K,
+    value: string
+  ) => void;
 }
 
 export default function PersonalInformationForm({
   formData,
   handleInputChange,
 }: PersonalInformationFormProps) {
-  const [errors, setErrors] = useState({
+  const [errors, setErrors] = useState<Record<keyof typeof formData, string>>({
     fullName: '',
     email: '',
     phone: '',
     address: '',
   });
 
-  const [touched, setTouched] = useState({
+  const [touched, setTouched] = useState<
+    Record<keyof typeof formData, boolean>
+  >({
     fullName: false,
     email: false,
     phone: false,
     address: false,
   });
 
-  // Validate individual fields
-  const validateField = (field: keyof typeof formData, value: string) => {
+  const validateField = (
+    field: keyof typeof formData,
+    value: string
+  ): string => {
     let error = '';
 
     switch (field) {
       case 'fullName':
-        if (!value.trim()) {
-          error = 'Full name is required';
-        } else if (value.trim().length < 3) {
+        if (!value.trim()) error = 'Full name is required';
+        else if (value.trim().length < 3)
           error = 'Full name must be at least 3 characters';
-        } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+        else if (!/^[a-zA-Z\s]+$/.test(value))
           error = 'Full name can only contain letters and spaces';
-        }
         break;
 
       case 'email':
-        if (!value.trim()) {
-          error = 'Email is required';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        if (!value.trim()) error = 'Email is required';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
           error = 'Please enter a valid email address';
-        }
         break;
 
       case 'phone':
-        if (!value.trim()) {
-          error = 'Phone number is required';
-        } else if (!/^[\d+\-\s()]+$/.test(value)) {
+        if (!value.trim()) error = 'Phone number is required';
+        else if (!/^[\d+\-\s()]+$/.test(value))
           error = 'Please enter a valid phone number';
-        } else if (value.replace(/\D/g, '').length < 10) {
+        else if (value.replace(/\D/g, '').length < 10)
           error = 'Phone number must be at least 10 digits';
-        }
         break;
 
       case 'address':
-        if (!value.trim()) {
-          error = 'Address is required';
-        } else if (value.trim().length < 10) {
+        if (!value.trim()) error = 'Address is required';
+        else if (value.trim().length < 10)
           error = 'Please provide a complete address (minimum 10 characters)';
-        }
         break;
     }
 
     return error;
   };
 
-  // Update errors when formData changes
   useEffect(() => {
-    const newErrors = {
-      fullName: touched.fullName ? validateField('fullName', formData.fullName) : '',
+    const newErrors: Record<keyof typeof formData, string> = {
+      fullName: touched.fullName
+        ? validateField('fullName', formData.fullName)
+        : '',
       email: touched.email ? validateField('email', formData.email) : '',
       phone: touched.phone ? validateField('phone', formData.phone) : '',
-      address: touched.address ? validateField('address', formData.address) : '',
+      address: touched.address
+        ? validateField('address', formData.address)
+        : '',
     };
     setErrors(newErrors);
   }, [formData, touched]);
 
-  const handleBlur = (field: keyof typeof formData) => {
+  const handleBlur = (field: keyof typeof formData): void => {
     setTouched(prev => ({ ...prev, [field]: true }));
   };
 
-  const handleChange = (field: keyof typeof formData, value: string) => {
-    handleInputChange(field, value);
+  const handleChange = (
+    field: keyof typeof formData,
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ): void => {
+    handleInputChange(field, event.target.value);
   };
 
   return (
@@ -115,7 +117,8 @@ export default function PersonalInformationForm({
         Personal Information
       </h2>
       <p className='text-gray-600 mb-8'>
-        Please provide your personal details. All fields marked with * are required.
+        Please provide your personal details. All fields marked with * are
+        required.
       </p>
 
       <div className='space-y-6'>
@@ -124,7 +127,7 @@ export default function PersonalInformationForm({
           label='Full name'
           placeholder='Enter your full name here'
           value={formData.fullName}
-          onChange={e => handleChange('fullName', e.target.value)}
+          onChange={e => handleChange('fullName', e)}
           onBlur={() => handleBlur('fullName')}
           required
           error={errors.fullName}
@@ -136,7 +139,7 @@ export default function PersonalInformationForm({
             label='Email'
             placeholder='example@email.com'
             value={formData.email}
-            onChange={e => handleChange('email', e.target.value)}
+            onChange={e => handleChange('email', e)}
             onBlur={() => handleBlur('email')}
             required
             error={errors.email}
@@ -146,7 +149,7 @@ export default function PersonalInformationForm({
             label='Phone number'
             placeholder='+62 812 3456 7890'
             value={formData.phone}
-            onChange={e => handleChange('phone', e.target.value)}
+            onChange={e => handleChange('phone', e)}
             onBlur={() => handleBlur('phone')}
             required
             error={errors.phone}
@@ -157,7 +160,7 @@ export default function PersonalInformationForm({
           label='Complete address'
           placeholder='Street address, city, province, postal code, country'
           value={formData.address}
-          onChange={e => handleChange('address', e.target.value)}
+          onChange={e => handleChange('address', e)}
           onBlur={() => handleBlur('address')}
           rows={4}
           required

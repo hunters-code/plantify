@@ -16,28 +16,38 @@ interface FormData {
   transparency: boolean;
 }
 
+interface VerificationFormFields {
+  idNumber?: string;
+  taxNumber?: string;
+  governmentIdFile?: File;
+  taxIdFile?: File;
+}
+
 interface VerificationDocumentsFormProps {
-  formData: {
-    idNumber?: string;
-    taxNumber?: string;
-    governmentIdFile?: File;
-    taxIdFile?: File;
-    [key: string]: any;
-  };
-  handleInputChange: (field: keyof FormData, value: any) => void;
+  formData: VerificationFormFields;
+  handleInputChange: <K extends keyof (FormData & VerificationFormFields)>(
+    field: K,
+    value: (FormData & VerificationFormFields)[K]
+  ) => void;
 }
 
 function VerificationDocumentsForm({
   formData,
   handleInputChange,
 }: VerificationDocumentsFormProps) {
-  const handleChange = (field: 'idNumber' | 'taxNumber', value: string) => {
-    handleInputChange(field as keyof FormData, value);
+  const handleChange = (
+    field: 'idNumber' | 'taxNumber',
+    value: string
+  ): void => {
+    handleInputChange(field, value);
   };
 
-  const handleFileChange = (field: string, files: FileList | File[]) => {
+  const handleFileChange = (
+    field: keyof VerificationFormFields,
+    files: FileList | File[]
+  ): void => {
     if (files && files.length > 0) {
-      handleInputChange(field as keyof FormData, files[0]);
+      handleInputChange(field, files[0]);
     }
   };
 
@@ -52,7 +62,7 @@ function VerificationDocumentsForm({
           type='text'
           label='Government ID number'
           placeholder='Enter your government-issued ID number (SSN, Passport, etc.)'
-          value={formData.idNumber || ''}
+          value={formData.idNumber ?? ''}
           onChange={e => handleChange('idNumber', e.target.value)}
           required
         />
@@ -61,7 +71,7 @@ function VerificationDocumentsForm({
           type='text'
           label='Tax ID number'
           placeholder='Enter your tax identification number'
-          value={formData.taxNumber || ''}
+          value={formData.taxNumber ?? ''}
           onChange={e => handleChange('taxNumber', e.target.value)}
           required
         />

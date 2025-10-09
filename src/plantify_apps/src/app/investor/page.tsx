@@ -15,7 +15,6 @@ import { Button, Card, LoadingSpinner } from '@/components/ui';
 import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
 import { Layout } from '@/components';
 
-// Types
 interface Investment {
   startupId: string;
   name: string;
@@ -183,10 +182,11 @@ export default function InvestorDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.id
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
                   <Icon size={16} />
                   {tab.label}
@@ -204,5 +204,5 @@ export default function InvestorDashboard() {
         )}
       </div>
     </Layout>
-  )
+  );
 }
