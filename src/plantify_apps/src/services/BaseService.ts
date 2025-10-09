@@ -62,16 +62,30 @@ export class BaseService {
   }
 
   /**
-   * Get the actor instance
+   * Get the actor instance with automatic retry
    * @returns The actor instance
-   * @throws Error if the actor is not initialized
+   * @throws Error if the actor cannot be initialized after retries
    */
-  protected static getActor(): _SERVICE {
+  protected static async getActor(): Promise<_SERVICE> {
+    if (this.actor) {
+      return this.actor;
+    }
+
+    // Wait for initialization with retry mechanism
+    const maxRetries = 50; // 5 seconds total (50 * 100ms)
+    let retries = 0;
+
+    while (!this.actor && retries < maxRetries) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      retries++;
+    }
+
     if (!this.actor) {
       throw new Error(
-        'Actor not initialized. Call BaseService.initialize() first.'
+        'Actor not initialized. Please ensure you are authenticated and try again.'
       );
     }
+
     return this.actor;
   }
 
@@ -80,7 +94,7 @@ export class BaseService {
    * @returns The actor instance
    * @throws Error if the actor is not initialized
    */
-  public static getActorInstance(): _SERVICE {
+  public static async getActorInstance(): Promise<_SERVICE> {
     return this.getActor();
   }
 
@@ -98,7 +112,8 @@ export class BaseService {
    */
   public static async whoami(): Promise<string> {
     try {
-      const principal = await this.getActor().whoami();
+      const actor = await this.getActor();
+      const principal = await actor.whoami();
       return principal.toString();
     } catch (error) {
       console.error('Error getting principal:', error);

@@ -14,7 +14,6 @@ import { Layout } from '@/components';
 import Tabs from '@/components/layout/Tabs';
 import { Button, Select, Alert } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
-import { BaseService } from '@/services/BaseService';
 import { FounderService } from '@/services/founders/FounderService';
 
 import Collateral from './partial/Collateral';
@@ -51,15 +50,6 @@ export default function Dashboard() {
       }
 
       if (isAuthenticated) {
-        // Wait for the actor to be initialized
-        if (!BaseService.isInitialized()) {
-          // Wait a bit and try again
-          setTimeout(() => {
-            checkFounder();
-          }, 100);
-          return;
-        }
-
         try {
           const founder = await FounderService.getFounderByPrincipal();
           if (!founder) {
@@ -81,14 +71,6 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchStartups = async () => {
       if (!isFounder) return;
-
-      // Ensure actor is initialized before making service calls
-      if (!BaseService.isInitialized()) {
-        setTimeout(() => {
-          fetchStartups();
-        }, 100);
-        return;
-      }
 
       try {
         setStartupsLoading(true);
@@ -131,12 +113,6 @@ export default function Dashboard() {
 
   const handleRefresh = async () => {
     if (!isFounder) return;
-
-    // Ensure actor is initialized before making service calls
-    if (!BaseService.isInitialized()) {
-      setStartupsError('Service not ready. Please try again.');
-      return;
-    }
 
     try {
       setStartupsLoading(true);
