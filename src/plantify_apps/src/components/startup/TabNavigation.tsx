@@ -99,7 +99,7 @@ export default function TabNavigation({
       )}
     >
       <div className='bg-white border border-neutral-200 border-solid relative rounded-[16px] shrink-0 w-full'>
-        <div className='box-border content-stretch flex gap-[4px] items-center justify-center overflow-clip p-[4px] relative rounded-[inherit] w-full'>
+        <div className='flex gap-1 p-0.5 justify-between overflow-clip relative rounded-[inherit] w-full'>
           {tabStates.map(tab => {
             return (
               <button
@@ -141,7 +141,7 @@ export default function TabNavigation({
                   </span>
                 </div>
                 {tab.state === 'active' && (
-                  <div className='absolute inset-0 pointer-events-none' />
+                  <div className='absolute inset-0 pointer-events-none shadow-2xl rounded-2xl' />
                 )}
               </button>
             );

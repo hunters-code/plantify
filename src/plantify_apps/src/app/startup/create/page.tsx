@@ -1,7 +1,7 @@
 'use client';
 
 import { AuthClient } from '@dfinity/auth-client';
-import { Formik, Form, FormikProps } from 'formik';
+import { Formik, FormikProps } from 'formik';
 import {
   CircleArrowRight,
   CircleArrowLeft,
@@ -11,8 +11,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import Footer from '@/components/layout/Footer';
-import Navbar from '@/components/layout/Navbar';
+import { Layout } from '@/components';
 import {
   BasicInformationStep,
   BusinessDetailsStep,
@@ -30,7 +29,7 @@ import type {
   TeamMember,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 import { uploadFile } from '@/lib/fileUpload';
-import { validationSchemas } from '@/lib/validationSchemas';
+import { validationSchemas } from '@/lib/validation/startupValidationSchemas';
 import { FounderService } from '@/services/founders/FounderService';
 
 export default function CreateStartupPage() {
@@ -127,14 +126,9 @@ export default function CreateStartupPage() {
     if (typeof file === 'string') return file;
 
     try {
-      console.log(`Processing file upload for: ${file.name}`);
-
       const fileUrl = await uploadFile(file, 'startup-files');
 
       if (fileUrl) {
-        console.log(
-          `Successfully uploaded file: ${file.name}, URL: ${fileUrl}`
-        );
         return fileUrl;
       } else {
         console.error(`Failed to upload file: ${file.name}`);
@@ -151,23 +145,17 @@ export default function CreateStartupPage() {
   const mapFormDataToBackend = async (
     formData: StartupFormData
   ): Promise<StartupCreationRequest> => {
-    console.log('Preparing data for backend submission...');
-
     let logoUrl: string | null = null;
     if (formData.logoUrl) {
       logoUrl = formData.logoUrl;
-      console.log('Using pre-uploaded logo URL:', logoUrl);
     } else if (formData.logo) {
-      console.log('Uploading logo now...');
       logoUrl = await fileToString(formData.logo);
     }
 
     let founderPhotoUrl: string | null = null;
     if (formData.founderPhotoUrl) {
       founderPhotoUrl = formData.founderPhotoUrl;
-      console.log('Using pre-uploaded founder photo URL:', founderPhotoUrl);
     } else if (formData.founderPhoto) {
-      console.log('Uploading founder photo now...');
       founderPhotoUrl = await fileToString(formData.founderPhoto);
     }
 
@@ -177,12 +165,7 @@ export default function CreateStartupPage() {
 
       if (member.photoUrl) {
         teamMemberPhotoUrls[i] = member.photoUrl;
-        console.log(
-          `Using pre-uploaded team member ${i} photo URL:`,
-          member.photoUrl
-        );
       } else if (member.photo) {
-        console.log(`Uploading team member ${i} photo now...`);
         teamMemberPhotoUrls[i] = await fileToString(member.photo);
       } else {
         teamMemberPhotoUrls[i] = null;
@@ -192,21 +175,14 @@ export default function CreateStartupPage() {
     let businessPlanUrl: string | null = null;
     if (formData.businessPlanUrl) {
       businessPlanUrl = formData.businessPlanUrl;
-      console.log('Using pre-uploaded business plan URL:', businessPlanUrl);
     } else if (formData.businessPlan) {
-      console.log('Uploading business plan now...');
       businessPlanUrl = await fileToString(formData.businessPlan);
     }
 
     let financialProjectionsUrl: string | null = null;
     if (formData.financialProjectionsUrl) {
       financialProjectionsUrl = formData.financialProjectionsUrl;
-      console.log(
-        'Using pre-uploaded financial projections URL:',
-        financialProjectionsUrl
-      );
     } else if (formData.financialProjectionsFile) {
-      console.log('Uploading financial projections now...');
       financialProjectionsUrl = await fileToString(
         formData.financialProjectionsFile
       );
@@ -215,9 +191,7 @@ export default function CreateStartupPage() {
     let legalDocumentsUrl: string | null = null;
     if (formData.legalDocumentsUrl) {
       legalDocumentsUrl = formData.legalDocumentsUrl;
-      console.log('Using pre-uploaded legal documents URL:', legalDocumentsUrl);
     } else if (formData.legalDocuments) {
-      console.log('Uploading legal documents now...');
       legalDocumentsUrl = await fileToString(formData.legalDocuments);
     }
 
@@ -314,41 +288,14 @@ export default function CreateStartupPage() {
     setIsSubmitting(true);
 
     try {
-      console.log('Files to upload:');
-      if (values.logo) console.log(`Logo: ${values.logo.name}`);
-      if (values.founderPhoto)
-        console.log(`Founder photo: ${values.founderPhoto.name}`);
-      if (values.businessPlan)
-        console.log(`Business plan: ${values.businessPlan.name}`);
-      if (values.financialProjectionsFile)
-        console.log(
-          `Financial projections: ${values.financialProjectionsFile.name}`
-        );
-      if (values.legalDocuments)
-        console.log(`Legal documents: ${values.legalDocuments.name}`);
-
-      values.teamMembers.forEach((member, index) => {
-        if (member.photo) {
-          console.log(`Team member ${index} photo: ${member.photo.name}`);
-        }
-      });
-
       const authClient = await AuthClient.create();
-      console.log('Auth client created');
-
       await FounderService.initialize(authClient);
-      console.log('Founder service initialized');
-
-      console.log('Starting file uploads to Supabase...');
 
       try {
         const startupRequest = await mapFormDataToBackend(values);
-        console.log('Files uploaded successfully, submitting startup data...');
-
         const result = await FounderService.createStartup(startupRequest);
 
         if (result.success) {
-          console.log('Startup created successfully!');
           setSubmitSuccess(
             'Startup submitted successfully! Your startup is now under review.'
           );
@@ -374,24 +321,20 @@ export default function CreateStartupPage() {
 
   if (authLoading) {
     return (
-      <div className='bg-gray-50 text-gray-900 min-h-screen'>
-        <Navbar />
+      <Layout>
         <div className='flex items-center justify-center min-h-[60vh]'>
           <div className='text-center'>
             <LoadingSpinner size='lg' />
             <p className='text-gray-600 mt-4'>Loading...</p>
           </div>
         </div>
-        <Footer />
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <div className='bg-gray-50 text-gray-900 min-h-screen'>
-      <Navbar />
-
-      <div className='max-w-7xl mx-auto mt-8 mb-8'>
+    <Layout>
+      <div className='mt-8 mb-24'>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchemas[step - 1]}
@@ -406,7 +349,6 @@ export default function CreateStartupPage() {
             isValid,
             submitForm,
           }: FormikProps<StartupFormData>) => {
-            // Convert Formik errors to simple string errors for step components
             const stepErrors: Record<string, string> = {};
             Object.keys(errors).forEach(key => {
               const error = errors[key as keyof typeof errors];
@@ -415,7 +357,6 @@ export default function CreateStartupPage() {
               }
             });
 
-            // Convert Formik touched to simple boolean object for step components
             const stepTouched: Record<string, boolean> = {};
             Object.keys(touched).forEach(key => {
               const touch = touched[key as keyof typeof touched];
@@ -425,35 +366,37 @@ export default function CreateStartupPage() {
             });
 
             return (
-              <Form>
-                {/* Progress Steps */}
+              <div className='w-full'>
                 <TabNavigation
                   tabs={tabs}
                   currentStep={step}
                   onStepChange={setStep}
                 />
 
-                {/* Error/Success Messages */}
-                {submitError && (
-                  <div className='mb-4 p-4 bg-red-50 border border-red-200 rounded-lg'>
-                    <p className='text-red-800'>{submitError}</p>
-                    <button
-                      onClick={() => setSubmitError(null)}
-                      className='mt-2 text-red-600 hover:text-red-800 underline'
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                )}
+                <div className='w-full px-6'>
+                  {submitError && (
+                    <div className='mb-4 p-4 bg-red-50 border border-red-200 rounded-lg'>
+                      <p className='text-red-800'>{submitError}</p>
+                      <button
+                        onClick={() => setSubmitError(null)}
+                        className='mt-2 text-red-600 hover:text-red-800 underline'
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  )}
 
-                {submitSuccess && (
-                  <div className='mb-4 p-4 bg-green-50 border border-green-200 rounded-lg'>
-                    <p className='text-green-800'>{submitSuccess}</p>
-                  </div>
-                )}
+                  {submitSuccess && (
+                    <div className='mb-4 p-4 bg-green-50 border border-green-200 rounded-lg'>
+                      <p className='text-green-800'>{submitSuccess}</p>
+                    </div>
+                  )}
+                </div>
 
-                {/* Form Content */}
-                <div className='bg-neutral-100 rounded-2xl shadow-sm p-8'>
+                <div
+                  className='w-full bg-neutral-50 rounded-2xl shadow-sm p-8 mt-8'
+                  style={{ width: '100%', maxWidth: 'none' }}
+                >
                   {step === 1 && (
                     <BasicInformationStep
                       formData={values}
@@ -504,9 +447,7 @@ export default function CreateStartupPage() {
                   )}
                 </div>
 
-                {/* Navigation */}
-                <div className='flex justify-between mt-2 pt-6 border-t border-gray-100'>
-                  {/* Previous Button */}
+                <div className='flex justify-between items-center mt-12'>
                   {step > 1 ? (
                     <Button
                       onClick={prevStep}
@@ -520,7 +461,6 @@ export default function CreateStartupPage() {
                     <div></div>
                   )}
 
-                  {/* Next / Submit Button */}
                   {step < tabs.length ? (
                     <Button
                       onClick={nextStep}
@@ -552,13 +492,11 @@ export default function CreateStartupPage() {
                     </Button>
                   )}
                 </div>
-              </Form>
+              </div>
             );
           }}
         </Formik>
       </div>
-
-      <Footer />
-    </div>
+    </Layout>
   );
 }
