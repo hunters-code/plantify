@@ -16,6 +16,7 @@ import MonthlyReports from './partial/MonthlyReports';
 import ProfitSharing from './partial/ProfitSharing';
 import StartupOverview from './partial/StartupOverview';
 import Teams from './partial/Teams';
+import { Layout } from '@/components';
 
 interface Startup {
   id: number;
@@ -78,9 +79,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className='bg-gray-50 min-h-screen text-gray-900'>
-      <Navbar />
-
+    <Layout>
       <main className='max-w-6xl mx-auto px-6 py-10'>
         <h1 className='text-2xl font-semibold mb-6 font-ibm'>
           Dashboard Overview
@@ -136,8 +135,6 @@ export default function Dashboard() {
           <div className='rounded-2xl shadow-sm'>{renderContent()}</div>
         </div>
       </main>
-
-      <Footer />
-    </div>
+    </Layout>
   );
 }

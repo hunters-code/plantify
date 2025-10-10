@@ -5,7 +5,6 @@ import React, { ChangeEvent, useState } from 'react';
 
 import FileUpload from '@/components/ui/FileUpload';
 import { uploadFile } from '@/lib/fileUpload';
-
 import { StartupFormData } from '../types';
 
 interface BasicInformationStepProps {
@@ -13,6 +12,19 @@ interface BasicInformationStepProps {
   setFormData: React.Dispatch<React.SetStateAction<StartupFormData>>;
   errors: Record<string, string>;
 }
+
+const SECTORS = [
+  { value: 'fintech', label: 'Fintech' },
+  { value: 'healthtech', label: 'Healthtech' },
+  { value: 'edtech', label: 'Edtech' },
+  { value: 'ecommerce', label: 'E-commerce' },
+  { value: 'saas', label: 'SaaS' },
+  { value: 'ai', label: 'Artificial Intelligence' },
+  { value: 'blockchain', label: 'Blockchain' },
+  { value: 'agriculture', label: 'Agriculture' },
+  { value: 'energy', label: 'Clean Energy' },
+  { value: 'other', label: 'Other' },
+];
 
 const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
   formData,
@@ -36,23 +48,17 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
     if (files && files.length > 0) {
       const file = files[0];
 
-      // Set the file in the form data
       setFormData(prev => ({
         ...prev,
         logo: file,
       }));
-
-      // Upload the file and get the preview URL
       setIsUploading(true);
       try {
-        console.log('Uploading logo for preview...');
         const fileUrl = await uploadFile(file, 'plantify-uploads', 'logo');
 
         if (fileUrl) {
-          console.log('Logo uploaded successfully:', fileUrl);
           setLogoPreviewUrl(fileUrl);
 
-          // Store the URL in the form data
           setFormData(prev => ({
             ...prev,
             logoUrl: fileUrl,
@@ -164,16 +170,11 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               required
             >
               <option value=''>Select sector</option>
-              <option value='fintech'>Fintech</option>
-              <option value='healthtech'>Healthtech</option>
-              <option value='edtech'>Edtech</option>
-              <option value='ecommerce'>E-commerce</option>
-              <option value='saas'>SaaS</option>
-              <option value='ai'>Artificial Intelligence</option>
-              <option value='blockchain'>Blockchain</option>
-              <option value='agriculture'>Agriculture</option>
-              <option value='energy'>Clean Energy</option>
-              <option value='other'>Other</option>
+              {SECTORS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
             {errors.sector && (
               <p className='mt-1 text-sm text-red-600'>{errors.sector}</p>

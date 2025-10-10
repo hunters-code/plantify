@@ -29,16 +29,13 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
     if (files && files.length > 0) {
       const file = files[0];
 
-      // Set the file in form data
       setFormData(prev => ({
         ...prev,
         businessPlan: file,
       }));
 
-      // Upload the file and get the preview URL
       setIsUploadingBusinessPlan(true);
       try {
-        console.log('Uploading business plan for preview...');
         const fileUrl = await uploadFile(
           file,
           'plantify-uploads',
@@ -46,16 +43,11 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
         );
 
         if (fileUrl) {
-          console.log('Business plan uploaded successfully:', fileUrl);
-
-          // Store the URL in the form data
           setFormData(prev => ({
             ...prev,
             businessPlanUrl: fileUrl,
           }));
-        } else {
-          console.error('Failed to upload business plan');
-        }
+        } 
       } catch (error) {
         console.error('Error uploading business plan:', error);
       } finally {

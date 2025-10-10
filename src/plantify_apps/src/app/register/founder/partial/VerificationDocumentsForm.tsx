@@ -1,28 +1,52 @@
 import { Input, FileUpload } from '@/components/ui';
 
+interface FormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  experience: string;
+  previousBusinesses: string;
+  expertise: string;
+  linkedIn: string;
+  idNumber: string;
+  taxNumber: string;
+  terms: boolean;
+  risks: boolean;
+  transparency: boolean;
+}
+
+interface VerificationFormFields {
+  idNumber?: string;
+  taxNumber?: string;
+  governmentIdFile?: File;
+  taxIdFile?: File;
+}
+
 interface VerificationDocumentsFormProps {
-  formData: {
-    idNumber?: string;
-    taxNumber?: string;
-    governmentIdFile?: File;
-    taxIdFile?: File;
-    [key: string]: any;
-  };
-  handleInputChange?: (field: string, value: any) => void;
+  formData: VerificationFormFields;
+  handleInputChange: <K extends keyof (FormData & VerificationFormFields)>(
+    field: K,
+    value: (FormData & VerificationFormFields)[K]
+  ) => void;
 }
 
 function VerificationDocumentsForm({
   formData,
   handleInputChange,
 }: VerificationDocumentsFormProps) {
-  const handleChange = (field: string, value: string) => {
-    if (handleInputChange) {
-      handleInputChange(field, value);
-    }
+  const handleChange = (
+    field: 'idNumber' | 'taxNumber',
+    value: string
+  ): void => {
+    handleInputChange(field, value);
   };
 
-  const handleFileChange = (field: string, files: FileList | File[]) => {
-    if (handleInputChange && files && files.length > 0) {
+  const handleFileChange = (
+    field: keyof VerificationFormFields,
+    files: FileList | File[]
+  ): void => {
+    if (files && files.length > 0) {
       handleInputChange(field, files[0]);
     }
   };
@@ -38,7 +62,7 @@ function VerificationDocumentsForm({
           type='text'
           label='Government ID number'
           placeholder='Enter your government-issued ID number (SSN, Passport, etc.)'
-          value={formData.idNumber || ''}
+          value={formData.idNumber ?? ''}
           onChange={e => handleChange('idNumber', e.target.value)}
           required
         />
@@ -47,7 +71,7 @@ function VerificationDocumentsForm({
           type='text'
           label='Tax ID number'
           placeholder='Enter your tax identification number'
-          value={formData.taxNumber || ''}
+          value={formData.taxNumber ?? ''}
           onChange={e => handleChange('taxNumber', e.target.value)}
           required
         />
