@@ -39,6 +39,7 @@ export default function CreateStartupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const [isNFTGenerated, setIsNFTGenerated] = useState(false);
 
   const initialValues: StartupFormData = {
     startupName: '',
@@ -443,7 +444,11 @@ export default function CreateStartupPage() {
                   )}
 
                   {step === 6 && (
-                    <ReviewSubmitStep formData={values} onEdit={handleEdit} />
+                    <ReviewSubmitStep
+                      formData={values}
+                      onEdit={handleEdit}
+                      onNFTGenerated={setIsNFTGenerated}
+                    />
                   )}
                 </div>
 
@@ -472,24 +477,33 @@ export default function CreateStartupPage() {
                       Next <CircleArrowRight size={16} />
                     </Button>
                   ) : (
-                    <Button
-                      onClick={submitForm}
-                      disabled={isSubmitting}
-                      variant='primary'
-                      className='flex items-center gap-2'
-                      type='button'
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 size={16} className='animate-spin' />
-                          Submitting...
-                        </>
-                      ) : (
-                        <>
-                          <CircleCheckBig size={16} /> Submit Startup
-                        </>
+                    <div className='flex flex-col items-end space-y-2'>
+                      {step === 6 && !isNFTGenerated && (
+                        <p className='text-sm text-amber-600'>
+                          Please generate an NFT image before submitting
+                        </p>
                       )}
-                    </Button>
+                      <Button
+                        onClick={submitForm}
+                        disabled={
+                          isSubmitting || (step === 6 && !isNFTGenerated)
+                        }
+                        variant='primary'
+                        className='flex items-center gap-2'
+                        type='button'
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 size={16} className='animate-spin' />
+                            Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <CircleCheckBig size={16} /> Submit Startup
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>

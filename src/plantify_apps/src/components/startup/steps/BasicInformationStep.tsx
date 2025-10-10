@@ -1,9 +1,11 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import React, { ChangeEvent, useState } from 'react';
 
 import FileUpload from '@/components/ui/FileUpload';
+import { COMPANY_TYPE_OPTIONS } from '@/constants/companyTypes';
 import { STARTUP_SECTOR_OPTIONS } from '@/constants/startupSectors';
 import { uploadFile } from '@/lib/fileUpload';
 
@@ -114,9 +116,11 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               <p className='text-sm font-medium text-gray-700 mb-1'>Preview:</p>
               <div className='flex items-center space-x-2'>
                 <div className='h-16 w-16 rounded-md overflow-hidden border border-gray-200'>
-                  <img
+                  <Image
                     src={logoPreviewUrl}
                     alt='Logo Preview'
+                    width={64}
+                    height={64}
                     className='h-full w-full object-cover'
                   />
                 </div>
@@ -200,11 +204,11 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               required
             >
               <option value=''>Select company type</option>
-              <option value='corporation'>Corporation</option>
-              <option value='llc'>LLC</option>
-              <option value='partnership'>Partnership</option>
-              <option value='sole_proprietorship'>Sole Proprietorship</option>
-              <option value='other'>Other</option>
+              {COMPANY_TYPE_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
             {errors.companyType && touched.companyType && (
               <p className='mt-1 text-sm text-red-600'>{errors.companyType}</p>

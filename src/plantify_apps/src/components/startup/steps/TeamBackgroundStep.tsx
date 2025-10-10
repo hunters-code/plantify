@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 
 import { Input, Textarea, Button } from '@/components/ui';
 import FileUpload from '@/components/ui/FileUpload';
+import { JOB_ROLE_OPTIONS } from '@/constants/jobRoles';
 import { uploadFile } from '@/lib/fileUpload';
 
 import { StartupFormData } from '../types';
@@ -169,16 +170,30 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
               error={errors.founderName}
             />
 
-            <Input
-              type='text'
-              name='founderRole'
-              label='Role'
-              value={formData.founderRole || ''}
-              onChange={handleChange}
-              placeholder='CEO, CTO, CFO, etc.'
-              required
-              error={errors.founderRole}
-            />
+            <div>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                Role <span className='text-red-500'>*</span>
+              </label>
+              <select
+                name='founderRole'
+                value={formData.founderRole || ''}
+                onChange={handleChange}
+                className={`w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px] ${errors.founderRole ? 'border-red-500' : ''}`}
+                required
+              >
+                <option value=''>Select role</option>
+                {JOB_ROLE_OPTIONS.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              {errors.founderRole && (
+                <p className='mt-1 text-sm text-red-600'>
+                  {errors.founderRole}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Founder Email and LinkedIn */}
@@ -306,16 +321,26 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
                     required
                   />
 
-                  <Input
-                    type='text'
-                    label='Role'
-                    value={member.role || ''}
-                    onChange={e =>
-                      handleTeamMemberChange(index, 'role', e.target.value)
-                    }
-                    placeholder='CEO, CTO, CFO, etc.'
-                    required
-                  />
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                      Role <span className='text-red-500'>*</span>
+                    </label>
+                    <select
+                      value={member.role || ''}
+                      onChange={e =>
+                        handleTeamMemberChange(index, 'role', e.target.value)
+                      }
+                      className='w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]'
+                      required
+                    >
+                      <option value=''>Select role</option>
+                      {JOB_ROLE_OPTIONS.map(({ value, label }) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* Team Member Email and LinkedIn */}
