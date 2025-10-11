@@ -15,26 +15,24 @@ import VotingService "./modules/services/voting";
 import Config "./config";
 
 persistent actor PlantifyBackend {
-  private transient let config : Types.EnvironmentConfig = Config.getCurrentConfig();
-  
-  // Transient storage variables - these do NOT persist across canister upgrades.
-  // They are temporary and rebuilt from stable data after each upgrade.
-  private transient var foundersEntries : [(Text, Types.Founder)] = [];
-  private transient var founderPrincipalsEntries : [(Principal, Text)] = [];
-  private transient var investorsEntries : [(Text, Types.Investor)] = [];
-  private transient var investorPrincipalsEntries : [(Principal, Text)] = [];
-  private transient var startupsEntries : [(Text, Types.Startup)] = [];
-  private transient var founderStartupsEntries : [(Text, [Text])] = [];
-  private transient var monthlyReportsEntries : [(Text, Types.MonthlyReport)] = [];
-  private transient var startupReportsEntries : [(Text, [Text])] = [];
-  private transient var votesEntries : [(Text, Types.InvestorVote)] = [];
-  private transient var reportVotesEntries : [(Text, [Text])] = [];
-  private transient var investorVotesEntries : [(Text, [Text])] = [];
-  private transient var nextFounderId : Nat = 1;
-  private transient var nextInvestorId : Nat = 1;
-  private transient var nextStartupId : Nat = 1;
-  private transient var nextReportId : Nat = 1;
-  private transient var nextVoteId : Nat = 1;
+  // Stable variables for persistence across canister upgrades
+  private var config : Types.EnvironmentConfig = Config.getCurrentConfig();
+  private var foundersEntries : [(Text, Types.Founder)] = [];
+  private var founderPrincipalsEntries : [(Principal, Text)] = [];
+  private var investorsEntries : [(Text, Types.Investor)] = [];
+  private var investorPrincipalsEntries : [(Principal, Text)] = [];
+  private var startupsEntries : [(Text, Types.Startup)] = [];
+  private var founderStartupsEntries : [(Text, [Text])] = [];
+  private var monthlyReportsEntries : [(Text, Types.MonthlyReport)] = [];
+  private var startupReportsEntries : [(Text, [Text])] = [];
+  private var votesEntries : [(Text, Types.InvestorVote)] = [];
+  private var reportVotesEntries : [(Text, [Text])] = [];
+  private var investorVotesEntries : [(Text, [Text])] = [];
+  private var nextFounderId : Nat = 1;
+  private var nextInvestorId : Nat = 1;
+  private var nextStartupId : Nat = 1;
+  private var nextReportId : Nat = 1;
+  private var nextVoteId : Nat = 1;
   
   // Version tracking for migrations
   private transient var canisterVersion : Nat = 1;
@@ -511,11 +509,25 @@ persistent actor PlantifyBackend {
   // PERSISTENCE METHODS
   // ========================================
 
+  // Migration function to handle stable variable compatibility
+  private func migrateStableVariables() {
+    // This function handles migration from old stable variables to new ones
+    // If this is a fresh deployment, the stable variables will be empty arrays
+    // If this is an upgrade, the stable variables will contain the previous data
+    // No explicit migration needed as we're keeping the same structure
+  };
+
   system func preupgrade() {
     syncToStable();
   };
 
   system func postupgrade() {
+    // Call migration function to handle stable variable compatibility
+    migrateStableVariables();
+    
+    // Update config to use current configuration
+    config := Config.getCurrentConfig();
+    
     if (canisterVersion < Config.CURRENT_CANISTER_VERSION) {
       let migratedStartups = Array.map<(Text, Types.Startup), (Text, Types.Startup)>(
         startupsEntries,
