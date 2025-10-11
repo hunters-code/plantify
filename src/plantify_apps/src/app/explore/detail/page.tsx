@@ -33,6 +33,7 @@ import {
   CardSkeleton,
   ChatInterface,
 } from '@/components/ui';
+import { InvestorService } from '@/services/investors/InvestorService';
 import { StartupService } from '@/services/marketplace';
 import { getRiskLevel } from '@/utils/riskLevels';
 
@@ -82,7 +83,6 @@ export default function ExploreDetail() {
   const [error, setError] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const investmentLoadingData = false;
   const [investmentData, setInvestmentData] =
     useState<InvestmentDetails | null>(null);
 
@@ -177,49 +177,141 @@ export default function ExploreDetail() {
   };
 
   const handleInvestNow = async () => {
+    // Use existing startup data for immediate modal opening
+    const fallbackNftPrice = Number(startup?.nftPrice) || 75;
+    const fallbackAvailableNFTs = 10; // Default value
+
+    // Calculate monthly returns using existing data
+    const periodicProfitSharing =
+      Number(startup?.periodicProfitSharing?.replace(/[^0-9.]/g, '')) || 5;
+    const monthlyReturns = Math.round(
+      fallbackNftPrice * (periodicProfitSharing / 100)
+    );
+    const expectedROI = Math.round(
+      ((monthlyReturns * 12) / fallbackNftPrice) * 100
+    );
+
+    // Create initial details with fallback data for immediate modal opening
+    const initialDetails: InvestmentDetails = {
+      id,
+      name: startup?.startupName || 'Unknown Startup',
+      nftPrice: fallbackNftPrice,
+      monthlyReturns,
+      expectedROI,
+      availableNFTs: fallbackAvailableNFTs,
+      totalNFTs: fallbackAvailableNFTs + 5,
+      soldNFTs: 5,
+    };
+
+    // Open modal immediately with fallback data
+    setInvestmentData(initialDetails);
+    setIsModalOpen(true);
+    console.log(
+      'Opening investment modal immediately with data:',
+      initialDetails
+    );
+
+    // Then fetch real data in the background and update if needed
     try {
-      // Get NFT price from backend
-      const priceResult = await StartupService.getNFTPrice(id);
-      const nftPrice = priceResult.success
+      const [priceResult, nftsResult] = await Promise.all([
+        StartupService.getNFTPrice(id),
+        StartupService.getNFTsByStartup(id),
+      ]);
+
+      const actualNftPrice = priceResult.success
         ? Number(priceResult.price)
-        : Number(startup?.nftPrice) || 75;
+        : fallbackNftPrice;
 
-      // Get NFTs for this startup to calculate availability
-      const nftsResult = await StartupService.getNFTsByStartup(id);
-      const availableNFTs = nftsResult.success
-        ? nftsResult.nfts?.length || 10
-        : 10;
+      const actualAvailableNFTs = nftsResult.success
+        ? nftsResult.nfts?.length || fallbackAvailableNFTs
+        : fallbackAvailableNFTs;
 
-      // Calculate monthly returns (this could be fetched from backend in a real implementation)
-      const periodicProfitSharing =
-        Number(startup?.periodicProfitSharing?.replace(/[^0-9.]/g, '')) || 5;
-      const monthlyReturns = Math.round(
-        nftPrice * (periodicProfitSharing / 100)
-      );
-      const expectedROI = Math.round(((monthlyReturns * 12) / nftPrice) * 100);
+      // Only update if the data is different from fallback
+      if (
+        actualNftPrice !== fallbackNftPrice ||
+        actualAvailableNFTs !== fallbackAvailableNFTs
+      ) {
+        const actualMonthlyReturns = Math.round(
+          actualNftPrice * (periodicProfitSharing / 100)
+        );
+        const actualExpectedROI = Math.round(
+          ((actualMonthlyReturns * 12) / actualNftPrice) * 100
+        );
 
-      const details: InvestmentDetails = {
-        id,
-        name: startup?.startupName || 'Unknown Startup',
-        nftPrice,
-        monthlyReturns,
-        expectedROI,
-        availableNFTs,
-        totalNFTs: availableNFTs + 5, // This would come from backend in real implementation
-        soldNFTs: 5, // This would come from backend in real implementation
-      };
-      setInvestmentData(details);
-      setIsModalOpen(true);
+        const updatedDetails: InvestmentDetails = {
+          id,
+          name: startup?.startupName || 'Unknown Startup',
+          nftPrice: actualNftPrice,
+          monthlyReturns: actualMonthlyReturns,
+          expectedROI: actualExpectedROI,
+          availableNFTs: actualAvailableNFTs,
+          totalNFTs: actualAvailableNFTs + 5,
+          soldNFTs: 5,
+        };
+
+        setInvestmentData(updatedDetails);
+        console.log('Updated investment modal with real data:', updatedDetails);
+      }
     } catch (error) {
-      console.error('Error preparing investment data:', error);
-      console.error('Failed to prepare investment data. Please try again.');
+      console.error('Error fetching updated investment data:', error);
+      // Modal is already open with fallback data, so no need to show error
     }
   };
 
   // Handle AI analysis
-  const handleAnalyzeStartup = async (startupId: string) => {
+  const handleAnalyzeStartup = async (_startupId: string) => {
     if (!startup) return;
     setIsChatOpen(true);
+  };
+
+  // Handle investment from chat
+  const handleInvestFromChat = () => {
+    handleInvestNow();
+  };
+
+  // Handle actual investment purchase
+  const handleInvestmentPurchase = async (investmentDetails: {
+    startupId: string | number;
+    quantity: number;
+    totalAmount: number;
+  }) => {
+    try {
+      console.log('Processing investment:', investmentDetails);
+      // Get current investor information
+      const investor = await InvestorService.getInvestorByPrincipal();
+      if (!investor) {
+        throw new Error(
+          'Investor not found. Please register as an investor first.'
+        );
+      }
+      // Create NFT purchase request
+      const purchaseRequest = {
+        startupId: investmentDetails.startupId.toString(),
+        investorId: investor.id,
+        amount: BigInt(investmentDetails.totalAmount),
+        memo: [
+          `Purchase of ${investmentDetails.quantity} NFTs for ${startup?.startupName}`,
+        ] as [] | [string],
+      };
+
+      // Call backend service
+      const result = await InvestorService.purchaseNFT(purchaseRequest);
+      if (result.success) {
+        console.log('Investment successful!', result.response);
+        setIsModalOpen(false);
+        // Show success message
+        // Show success message
+        console.log(
+          `🎉 Investment successful! You have purchased ${investmentDetails.quantity} NFTs for ${startup?.startupName}.`
+        );
+      } else {
+        console.error('Investment failed:', result.error);
+        throw new Error(result.error || 'Investment failed');
+      }
+    } catch (error) {
+      console.error('Error processing investment:', error);
+      throw error; // Re-throw to let the modal handle the error state
+    }
   };
 
   if (loading) {
@@ -324,16 +416,9 @@ export default function ExploreDetail() {
             <ProgressBar value={45} max={100} color='bg-orange-500' />
           </div>
 
-          <Button
-            onClick={handleInvestNow}
-            disabled={investmentLoadingData || startup.status !== 'active'}
-          >
+          <Button onClick={handleInvestNow}>
             <Banknote size={20} />
-            {investmentLoading
-              ? 'Loading...'
-              : startup.status === 'active'
-                ? 'Invest Now'
-                : 'Not Available'}
+            {investmentLoading ? 'Loading...' : 'Invest Now'}
           </Button>
         </Card>
       </div>
@@ -361,8 +446,9 @@ export default function ExploreDetail() {
                 <ChatInterface
                   isOpen={isChatOpen}
                   onClose={() => setIsChatOpen(false)}
-                  startupData={startup}
+                  startupData={startup as any}
                   startupName={startup.startupName}
+                  onInvestClick={handleInvestFromChat}
                 />
               )}
             </div>
@@ -373,26 +459,19 @@ export default function ExploreDetail() {
       <InvestmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        startup={investmentData as InvestmentDetails}
-        onInvest={async investmentDetails => {
-          try {
-            // In a real implementation, you would call the backend to process the investment
-            // For example:
-            // const result = await InvestorService.purchaseNFT({
-            //   startupId: id,
-            //   investorId: currentUser.id,
-            //   amount: investmentDetails.quantity * investmentDetails.nftPrice,
-            //   memo: `Purchase of ${investmentDetails.quantity} NFTs for ${startup?.startupName}`
-            // });
-
-            console.log('Investment details:', investmentDetails);
-            console.log(`Successfully invested in ${startup?.startupName}!`);
-            setIsModalOpen(false);
-          } catch (error) {
-            console.error('Error processing investment:', error);
-            console.error('Failed to process investment. Please try again.');
-          }
-        }}
+        startup={
+          investmentData
+            ? {
+                id: investmentData.id,
+                name: investmentData.name,
+                availableNFTs: investmentData.availableNFTs,
+                nftPrice: investmentData.nftPrice,
+                monthlyReturns: investmentData.monthlyReturns,
+                expectedROI: investmentData.expectedROI,
+              }
+            : undefined
+        }
+        onInvest={handleInvestmentPurchase}
         isLoading={investmentLoading}
       />
 

@@ -21,8 +21,19 @@ interface Message {
 interface ChatInterfaceProps {
   isOpen: boolean;
   onClose: () => void;
-  startupData?: any;
+  startupData?: {
+    id: string;
+    startupName: string;
+    description: string;
+    sector: string;
+    location?: string;
+    fundingGoal?: string;
+    nftPrice?: string;
+    periodicProfitSharing?: string;
+    [key: string]: unknown;
+  };
   startupName?: string;
+  onInvestClick?: () => void;
 }
 
 export default function ChatInterface({
@@ -30,6 +41,7 @@ export default function ChatInterface({
   onClose,
   startupData,
   startupName,
+  onInvestClick,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
@@ -89,7 +101,7 @@ export default function ChatInterface({
       } else {
         // For other questions, use the existing AI service
         if (startupData) {
-          const analysis = await analyzeStartup(startupData);
+          const analysis = await analyzeStartup(startupData as any);
           const aiResponse: Message = {
             id: (Date.now() + 1).toString(),
             type: 'ai',
@@ -253,36 +265,48 @@ Or you can use the shortcut below.'
         </div>
 
         {messages.length === 0 && (
-          <div className='flex flex-wrap gap-2'>
-            <button
-              onClick={handleQuickAnalysis}
-              disabled={isLoading}
-              className='bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm py-2 px-3 rounded-full border border-gray-200 transition-colors'
-            >
-              💰 Market Valuation
-            </button>
-            <button
-              onClick={() =>
-                handleSendMessage(
-                  'What are the main risks of investing in this startup?'
-                )
-              }
-              disabled={isLoading}
-              className='bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm py-2 px-3 rounded-full border border-gray-200 transition-colors'
-            >
-              ⚠️ Investment Risks
-            </button>
-            <button
-              onClick={() =>
-                handleSendMessage(
-                  'How does this startup compare to competitors?'
-                )
-              }
-              disabled={isLoading}
-              className='bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm py-2 px-3 rounded-full border border-gray-200 transition-colors'
-            >
-              📊 Competitive Analysis
-            </button>
+          <div className='space-y-3'>
+            <div className='flex flex-wrap gap-2'>
+              <button
+                onClick={handleQuickAnalysis}
+                disabled={isLoading}
+                className='bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm py-2 px-3 rounded-full border border-gray-200 transition-colors'
+              >
+                💰 Market Valuation
+              </button>
+              <button
+                onClick={() =>
+                  handleSendMessage(
+                    'What are the main risks of investing in this startup?'
+                  )
+                }
+                disabled={isLoading}
+                className='bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm py-2 px-3 rounded-full border border-gray-200 transition-colors'
+              >
+                ⚠️ Investment Risks
+              </button>
+              <button
+                onClick={() =>
+                  handleSendMessage(
+                    'How does this startup compare to competitors?'
+                  )
+                }
+                disabled={isLoading}
+                className='bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm py-2 px-3 rounded-full border border-gray-200 transition-colors'
+              >
+                📊 Competitive Analysis
+              </button>
+            </div>
+
+            {onInvestClick && (
+              <button
+                onClick={onInvestClick}
+                className='w-full bg-purple-500 hover:bg-purple-600 text-white py-3 px-4 rounded-xl font-medium transition-colors shadow-lg flex items-center justify-center gap-2'
+              >
+                <span className='text-lg'>💎</span>
+                Invest in {startupName}
+              </button>
+            )}
           </div>
         )}
       </div>
