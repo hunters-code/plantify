@@ -33,6 +33,9 @@ persistent actor PlantifyBackend {
   private var nextStartupId : Nat = 1;
   private var nextReportId : Nat = 1;
   private var nextVoteId : Nat = 1;
+  // Legacy stable variables for migration compatibility
+  private var featuredStartupsEntries : [(Text, Types.FeaturedStartup)] = [];
+  private var nextFeaturedStartupId : Nat = 1;
   
   // Version tracking for migrations
   private transient var canisterVersion : Nat = 1;
@@ -130,6 +133,28 @@ persistent actor PlantifyBackend {
 
   public shared func getStartupDetails(startupId : Text) : async ?Types.Startup {
     storage.getStartup(startupId);
+  };
+
+  // ========================================
+  // FEATURED STARTUPS METHODS
+  // ========================================
+
+  public shared func getFeaturedStartup() : async ?Types.Startup {
+    let allStartups = storage.getAllStartups();
+    if (allStartups.size() == 0) {
+      null;
+    } else {
+      // Sort by creation date (newest first) and return the first one
+      let sortedStartups = Array.sort<Types.Startup>(
+        allStartups,
+        func(a : Types.Startup, b : Types.Startup) : {#less; #equal; #greater} {
+          if (a.createdAt > b.createdAt) { #greater }
+          else if (a.createdAt < b.createdAt) { #less }
+          else { #equal };
+        },
+      );
+      ?sortedStartups[0];
+    };
   };
 
   // ========================================
@@ -517,6 +542,14 @@ persistent actor PlantifyBackend {
     // No explicit migration needed as we're keeping the same structure
   };
 
+  // Migration function to handle featured startups variable type change
+  private func migrateFeaturedStartups() {
+    // Clear the old featured startups entries since we're no longer using them
+    // The new system just returns the newest startup directly
+    featuredStartupsEntries := [];
+    nextFeaturedStartupId := 1;
+  };
+
   system func preupgrade() {
     syncToStable();
   };
@@ -524,6 +557,9 @@ persistent actor PlantifyBackend {
   system func postupgrade() {
     // Call migration function to handle stable variable compatibility
     migrateStableVariables();
+    
+    // Migrate featured startups variables
+    migrateFeaturedStartups();
     
     // Update config to use current configuration
     config := Config.getCurrentConfig();
