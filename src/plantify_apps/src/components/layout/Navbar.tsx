@@ -35,14 +35,8 @@ export default function Navbar(): JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const {
-    isAuthenticated,
-    isLoading,
-    isRegistered,
-    userType,
-    principal,
-    signOut,
-  } = useAuth();
+  const { isAuthenticated, isLoading, userType, principal, signOut } =
+    useAuth();
 
   const getNavigationItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
@@ -50,44 +44,6 @@ export default function Navbar(): JSX.Element {
       { label: 'How it Works', path: '/', onClick: () => router.push('/') },
       { label: 'About', path: '/', onClick: () => router.push('/') },
     ];
-
-    if (isAuthenticated && isRegistered) {
-      if (userType === 'founder') {
-        baseItems.push(
-          {
-            label: 'Dashboard',
-            path: '/founder',
-            onClick: () => router.push('/founder'),
-            isDashboard: true,
-          },
-          {
-            label: 'Create Startup',
-            path: '/founder/create',
-            onClick: () => router.push('/founder/create'),
-          }
-        );
-      } else if (userType === 'investor') {
-        baseItems.push(
-          {
-            label: 'Dashboard',
-            path: '/investor',
-            onClick: () => router.push('/investor'),
-            isDashboard: true,
-          },
-          {
-            label: 'Portfolio',
-            path: '/investor/portfolio',
-            onClick: () => router.push('/investor/portfolio'),
-          }
-        );
-      }
-    } else {
-      baseItems.push({
-        label: 'For Founders',
-        path: '/',
-        onClick: () => router.push('/'),
-      });
-    }
 
     return baseItems;
   };
