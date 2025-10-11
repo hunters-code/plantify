@@ -12,9 +12,6 @@ export class BaseService {
   private static agent: HttpAgent | null = null;
   // Fallback canister ID for production
   private static readonly FALLBACK_CANISTER_ID = 'a5ptu-ryaaa-aaaai-q32cq-cai';
-  // Make canisterId accessible to child classes
-  protected static canisterId = 'a5ptu-ryaaa-aaaai-q32cq-cai';
-
   /**
    * Initialize the service with an identity
    * @param authClient - The authentication client
@@ -41,9 +38,6 @@ export class BaseService {
         host: 'https://ic0.app',
         identity: authClient.getIdentity(),
       });
-
-      // Skip fetchRootKey to avoid HTTP errors
-      console.log('Skipping fetchRootKey in development environment');
 
       this.actor = createActor(effectiveCanisterId, {
         agent: this.agent,

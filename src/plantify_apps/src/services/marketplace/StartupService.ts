@@ -1,6 +1,6 @@
 import { HttpAgent } from '@dfinity/agent';
 
-import { createActor } from '@/declarations/plantify_backend';
+import { canisterId, createActor } from '@/declarations/plantify_backend';
 import type {
   Startup,
   NFTInfo,
@@ -19,8 +19,6 @@ import { BaseService } from '../BaseService';
  * Service for startup marketplace operations
  */
 export class StartupService extends BaseService {
-  // Hardcoded canister ID as fallback
-  private static readonly HARDCODED_CANISTER_ID = 'a5ptu-ryaaa-aaaai-q32cq-cai';
   /**
    * Get all startups - can be called anonymously
    * @returns Array of startups
@@ -34,14 +32,11 @@ export class StartupService extends BaseService {
         // Skip fetchRootKey to avoid HTTP errors
         console.log('Skipping fetchRootKey in development environment');
 
-        // Use canisterId from BaseService or hardcoded fallback
-        const effectiveCanisterId =
-          this.canisterId || this.HARDCODED_CANISTER_ID;
+        const effectiveCanisterId = canisterId;
         console.log(
           'Using canister ID for anonymous actor:',
           effectiveCanisterId
         );
-
         const anonymousActor = createActor(effectiveCanisterId, {
           agent: anonymousAgent,
         }) as _SERVICE;
@@ -74,9 +69,7 @@ export class StartupService extends BaseService {
         // Skip fetchRootKey to avoid HTTP errors
         console.log('Skipping fetchRootKey in development environment');
 
-        // Use canisterId from BaseService or hardcoded fallback
-        const effectiveCanisterId =
-          this.canisterId || this.HARDCODED_CANISTER_ID;
+        const effectiveCanisterId = canisterId;
         console.log(
           'Using canister ID for getStartupDetails:',
           effectiveCanisterId
@@ -117,9 +110,7 @@ export class StartupService extends BaseService {
         // Skip fetchRootKey to avoid HTTP errors
         console.log('Skipping fetchRootKey in development environment');
 
-        // Use canisterId from BaseService or hardcoded fallback
-        const effectiveCanisterId =
-          this.canisterId || this.HARDCODED_CANISTER_ID;
+        const effectiveCanisterId = canisterId;
         console.log('Using canister ID for getNFTPrice:', effectiveCanisterId);
         const anonymousActor = createActor(effectiveCanisterId, {
           agent: anonymousAgent,
@@ -160,9 +151,7 @@ export class StartupService extends BaseService {
         // Skip fetchRootKey to avoid HTTP errors
         console.log('Skipping fetchRootKey in development environment');
 
-        // Use canisterId from BaseService or hardcoded fallback
-        const effectiveCanisterId =
-          this.canisterId || this.HARDCODED_CANISTER_ID;
+        const effectiveCanisterId = canisterId;
         console.log(
           'Using canister ID for getNFTsByStartup:',
           effectiveCanisterId
