@@ -39,7 +39,7 @@ export class SupabaseService {
 
       // Upload to Supabase Storage
       const { error } = await supabase.storage
-        .from('Plantify')
+        .from('plantify-uploads')
         .upload(filePath, buffer, {
           contentType: 'image/png',
           upsert: false
@@ -51,7 +51,7 @@ export class SupabaseService {
 
       // Get public URL
       const { data: urlData } = supabase.storage
-        .from('Plantify')
+        .from('plantify-uploads')
         .getPublicUrl(filePath);
 
       return {
@@ -77,7 +77,7 @@ export class SupabaseService {
       .replace(/[^a-z0-9]/g, '_')
       .substring(0, 50);
     
-    return this.uploadBase64Image(base64Data, `logo_${sanitizedName}`, 'logos');
+    return this.uploadBase64Image(base64Data, `logo_${sanitizedName}`, 'plantify-uploads');
   }
 
   static async uploadNFTImage(
@@ -90,7 +90,7 @@ export class SupabaseService {
   static async deleteImage(filePath: string): Promise<boolean> {
     try {
       const { error } = await supabase.storage
-        .from('Plantify')
+        .from('plantify-uploads')
         .remove([filePath]);
 
       if (error) {

@@ -57,7 +57,7 @@ function useInvestors(startupId?: number) {
 }
 
 interface InvestorsProps {
-  startupId?: number;
+  startupId?: string;
 }
 
 export default function Investors({ startupId }: InvestorsProps) {

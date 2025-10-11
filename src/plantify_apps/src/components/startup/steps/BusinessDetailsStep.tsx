@@ -6,21 +6,20 @@ import { StartupFormData } from '../types';
 
 interface BusinessDetailsStepProps {
   formData: StartupFormData;
-  setFormData: React.Dispatch<React.SetStateAction<StartupFormData>>;
+  setFormData: (field: string, value: any, shouldValidate?: boolean) => void;
   errors: Record<string, string>;
+  touched: Record<string, boolean>;
 }
 
 const BusinessDetailsStep: React.FC<BusinessDetailsStepProps> = ({
   formData,
   setFormData,
   errors = {},
+  touched = {},
 }) => {
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(name, value);
   };
 
   const inputStyle =

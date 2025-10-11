@@ -1,6 +1,3 @@
-import { HttpAgent } from '@dfinity/agent';
-
-import { createActor } from '@/declarations/plantify_backend';
 import type {
   Startup,
   NFTInfo,
@@ -10,7 +7,6 @@ import type {
   Result_10,
   Result_13,
   Result_14,
-  _SERVICE,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -25,26 +21,11 @@ export class StartupService extends BaseService {
    */
   public static async getAllStartups(): Promise<Startup[]> {
     try {
-      // Create anonymous actor if not initialized
+      // Initialize with anonymous actor if not already initialized
       if (!this.isInitialized()) {
-        const anonymousAgent = new HttpAgent({ host: 'https://ic0.app' });
-
-        // Fetch root key in development
-        if (
-          process.env.NODE_ENV !== 'production' ||
-          window.location.hostname === 'localhost'
-        ) {
-          await anonymousAgent.fetchRootKey();
-        }
-
-        const anonymousActor = createActor(this.canisterId, {
-          agent: anonymousAgent,
-        }) as _SERVICE;
-
-        return await anonymousActor.getAllStartups();
+        await this.initialize();
       }
 
-      // Use existing actor if already initialized
       return await this.getActor().getAllStartups();
     } catch (error) {
       console.error('Error getting all startups:', error);
@@ -61,6 +42,12 @@ export class StartupService extends BaseService {
     startupId: string
   ): Promise<Startup | null> {
     try {
+      // Initialize with anonymous actor if not already initialized
+      if (!this.isInitialized()) {
+        console.log('Initializing service for getStartupDetails');
+        await this.initialize();
+      }
+
       const startupOpt = await this.getActor().getStartupDetails(startupId);
       return startupOpt.length ? startupOpt[0] : null;
     } catch (error) {
