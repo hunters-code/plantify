@@ -44,7 +44,10 @@ export default function ProfessionalBackgroundForm({
   });
 
   // Validate individual fields
-  const validateField = (field: 'experience' | 'expertise' | 'linkedIn', value: string) => {
+  const validateField = (
+    field: 'experience' | 'expertise' | 'linkedIn',
+    value: string
+  ) => {
     let error = '';
 
     switch (field) {
@@ -76,16 +79,23 @@ export default function ProfessionalBackgroundForm({
 
   // Validate LinkedIn URL
   const isValidLinkedInUrl = (url: string): boolean => {
-    const linkedInPattern = /^(https?:\/\/)?(www\.)?linkedin\.com\/(in|company)\/[\w-]+\/?$/i;
+    const linkedInPattern =
+      /^(https?:\/\/)?(www\.)?linkedin\.com\/(in|company)\/[\w-]+\/?$/i;
     return linkedInPattern.test(url);
   };
 
   // Update errors when formData changes
   useEffect(() => {
     const newErrors = {
-      experience: touched.experience ? validateField('experience', formData.experience || '') : '',
-      expertise: touched.expertise ? validateField('expertise', formData.expertise || '') : '',
-      linkedIn: touched.linkedIn ? validateField('linkedIn', formData.linkedIn || '') : '',
+      experience: touched.experience
+        ? validateField('experience', formData.experience || '')
+        : '',
+      expertise: touched.expertise
+        ? validateField('expertise', formData.expertise || '')
+        : '',
+      linkedIn: touched.linkedIn
+        ? validateField('linkedIn', formData.linkedIn || '')
+        : '',
     };
     setErrors(newErrors);
   }, [formData, touched]);
@@ -94,7 +104,10 @@ export default function ProfessionalBackgroundForm({
     setTouched(prev => ({ ...prev, [field]: true }));
   };
 
-  const handleChange = (field: 'experience' | 'previousBusinesses' | 'expertise' | 'linkedIn', value: string) => {
+  const handleChange = (
+    field: 'experience' | 'previousBusinesses' | 'expertise' | 'linkedIn',
+    value: string
+  ) => {
     handleInputChange(field as keyof FormData, value);
   };
 
@@ -104,7 +117,8 @@ export default function ProfessionalBackgroundForm({
         Professional Background
       </h2>
       <p className='text-gray-600 mb-8'>
-        Tell us about your professional experience and expertise. Fields marked with * are required.
+        Tell us about your professional experience and expertise. Fields marked
+        with * are required.
       </p>
 
       <div className='space-y-6'>
@@ -169,8 +183,9 @@ export default function ProfessionalBackgroundForm({
               Why We Ask This
             </h4>
             <p className='text-purple-800 text-sm'>
-              Your professional background helps us match you with the right investors and opportunities.
-              The more detailed information you provide, the better we can support your startup journey.
+              Your professional background helps us match you with the right
+              investors and opportunities. The more detailed information you
+              provide, the better we can support your startup journey.
             </p>
           </div>
         </div>

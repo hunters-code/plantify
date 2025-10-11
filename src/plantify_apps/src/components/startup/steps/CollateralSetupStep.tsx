@@ -10,7 +10,11 @@ import { StartupFormData } from '../types';
 
 interface CollateralSetupStepProps {
   formData: StartupFormData;
-  setFormData: (field: string, value: any, shouldValidate?: boolean) => void;
+  setFormData: (
+    field: string,
+    value: string | File | null,
+    shouldValidate?: boolean
+  ) => void;
   errors: Record<string, string>;
   touched: Record<string, boolean>;
 }
