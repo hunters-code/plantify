@@ -126,7 +126,7 @@ function useInvestors(startupId?: string) {
             });
         }
 
-        if (allPurchasesResult && allPurchasesResult) {
+        if (allPurchasesResult) {
           setAllPurchases(allPurchasesResult);
         }
 
