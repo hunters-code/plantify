@@ -1,23 +1,32 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import React, { ChangeEvent, useState } from 'react';
 
-import { STARTUP_SECTOR_OPTIONS } from '@/constants/startupSectors';
 import FileUpload from '@/components/ui/FileUpload';
+import { COMPANY_TYPE_OPTIONS } from '@/constants/companyTypes';
+import { STARTUP_SECTOR_OPTIONS } from '@/constants/startupSectors';
 import { uploadFile } from '@/lib/fileUpload';
+
 import { StartupFormData } from '../types';
 
 interface BasicInformationStepProps {
   formData: StartupFormData;
-  setFormData: React.Dispatch<React.SetStateAction<StartupFormData>>;
+  setFormData: (
+    field: string,
+    value: string | File | null,
+    shouldValidate?: boolean
+  ) => void;
   errors: Record<string, string>;
+  touched: Record<string, boolean>;
 }
 
 const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
   formData,
   setFormData,
   errors = {},
+  touched = {},
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
@@ -26,20 +35,14 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(name, value);
   };
 
   const handleLogoUpload = async (files: File[]) => {
     if (files && files.length > 0) {
       const file = files[0];
 
-      setFormData(prev => ({
-        ...prev,
-        logo: file,
-      }));
+      setFormData('logo', file);
       setIsUploading(true);
       try {
         const fileUrl = await uploadFile(file, 'plantify-uploads', 'logo');
@@ -47,10 +50,7 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
         if (fileUrl) {
           setLogoPreviewUrl(fileUrl);
 
-          setFormData(prev => ({
-            ...prev,
-            logoUrl: fileUrl,
-          }));
+          setFormData('logoUrl', fileUrl);
         } else {
           console.error('Failed to upload logo');
         }
@@ -116,9 +116,11 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               <p className='text-sm font-medium text-gray-700 mb-1'>Preview:</p>
               <div className='flex items-center space-x-2'>
                 <div className='h-16 w-16 rounded-md overflow-hidden border border-gray-200'>
-                  <img
+                  <Image
                     src={logoPreviewUrl}
                     alt='Logo Preview'
+                    width={64}
+                    height={64}
                     className='h-full w-full object-cover'
                   />
                 </div>
@@ -164,7 +166,7 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
                 </option>
               ))}
             </select>
-            {errors.sector && (
+            {errors.sector && touched.sector && (
               <p className='mt-1 text-sm text-red-600'>{errors.sector}</p>
             )}
           </div>
@@ -182,7 +184,7 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               className={`${inputStyle} ${errors.foundedYear ? 'border-red-500' : ''}`}
               required
             />
-            {errors.foundedYear && (
+            {errors.foundedYear && touched.foundedYear && (
               <p className='mt-1 text-sm text-red-600'>{errors.foundedYear}</p>
             )}
           </div>
@@ -202,13 +204,13 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               required
             >
               <option value=''>Select company type</option>
-              <option value='corporation'>Corporation</option>
-              <option value='llc'>LLC</option>
-              <option value='partnership'>Partnership</option>
-              <option value='sole_proprietorship'>Sole Proprietorship</option>
-              <option value='other'>Other</option>
+              {COMPANY_TYPE_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
-            {errors.companyType && (
+            {errors.companyType && touched.companyType && (
               <p className='mt-1 text-sm text-red-600'>{errors.companyType}</p>
             )}
           </div>
@@ -226,7 +228,7 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               className={`${inputStyle} ${errors.location ? 'border-red-500' : ''}`}
               required
             />
-            {errors.location && (
+            {errors.location && touched.location && (
               <p className='mt-1 text-sm text-red-600'>{errors.location}</p>
             )}
           </div>
@@ -246,7 +248,7 @@ const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
             className={`${inputStyle} resize-none ${errors.description ? 'border-red-500' : ''}`}
             required
           />
-          {errors.description && (
+          {errors.description && touched.description && (
             <p className='mt-1 text-sm text-red-600'>{errors.description}</p>
           )}
         </div>

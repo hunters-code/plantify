@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  User,
-  Briefcase,
-  CheckCircle,
-  FileText,
-  Loader2,
-} from 'lucide-react';
+import { User, Briefcase, CheckCircle, FileText, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -121,9 +115,11 @@ export default function RegisterFounder() {
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.push('Please enter a valid email address');
     }
-    if (!formData.terms) errors.push('You must accept the terms and conditions');
+    if (!formData.terms)
+      errors.push('You must accept the terms and conditions');
     if (!formData.risks) errors.push('You must acknowledge the risks');
-    if (!formData.transparency) errors.push('You must agree to transparency requirements');
+    if (!formData.transparency)
+      errors.push('You must agree to transparency requirements');
     return errors;
   };
 

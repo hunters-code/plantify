@@ -1,6 +1,7 @@
 'use client';
 
 import { CirclePlus, FileChartLine, HandCoins, Users } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 import Footer from '@/components/layout/Footer';
@@ -25,6 +26,7 @@ interface Startup {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState(0);
   const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
 
@@ -78,6 +80,10 @@ export default function Dashboard() {
     }
   };
 
+  const navigateCreateStartup = () => {
+    router.push('/startup/create');
+  };
+
   return (
     <Layout>
       <main className='max-w-6xl mx-auto px-6 py-10'>
@@ -91,7 +97,7 @@ export default function Dashboard() {
             <h2 className='text-2xl font-semibold mb-4 font-ibm'>
               Your Startups
             </h2>
-            <Button variant='primary'>
+            <Button variant='primary' onClick={navigateCreateStartup}>
               <CirclePlus size={16} />
               Create new startup
             </Button>

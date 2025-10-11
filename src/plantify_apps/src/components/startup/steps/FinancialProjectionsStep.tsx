@@ -8,33 +8,29 @@ import { StartupFormData } from '../types';
 
 interface FinancialProjectionsStepProps {
   formData: StartupFormData;
-  setFormData: React.Dispatch<React.SetStateAction<StartupFormData>>;
+  setFormData: (field: string, value: any, shouldValidate?: boolean) => void;
   errors: Record<string, string>;
+  touched: Record<string, boolean>;
 }
 
 const FinancialProjectionsStep: React.FC<FinancialProjectionsStepProps> = ({
   formData,
   setFormData,
   errors = {},
+  touched = {},
 }) => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(name, value);
   };
 
   useEffect(() => {
     if (formData.fundingGoal) {
       const fundingGoal = parseFloat(formData.fundingGoal) || 0;
-      const nftPrice = fundingGoal / 100; 
-      setFormData(prev => ({
-        ...prev,
-        nftPrice: nftPrice.toString(),
-      }));
+      const nftPrice = fundingGoal / 100;
+      setFormData('nftPrice', nftPrice.toString());
     }
   }, [formData.fundingGoal, setFormData]);
 

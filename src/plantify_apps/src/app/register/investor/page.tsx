@@ -102,7 +102,7 @@ export default function RegisterInvestor() {
 
     checkExistingInvestor();
   }, [isAuthenticated, navigate]);
-  
+
   const handleInputChange = <K extends keyof FormData>(
     field: K,
     value: FormData[K]

@@ -10,14 +10,20 @@ import { StartupFormData } from '../types';
 
 interface CollateralSetupStepProps {
   formData: StartupFormData;
-  setFormData: React.Dispatch<React.SetStateAction<StartupFormData>>;
+  setFormData: (
+    field: string,
+    value: string | File | null,
+    shouldValidate?: boolean
+  ) => void;
   errors: Record<string, string>;
+  touched: Record<string, boolean>;
 }
 
 const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
   formData,
   setFormData,
   errors = {},
+  touched = {},
 }) => {
   const [isUploadingBusinessPlan, setIsUploadingBusinessPlan] = useState(false);
   const [isUploadingFinancialProjections, setIsUploadingFinancialProjections] =
@@ -29,10 +35,7 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
     if (files && files.length > 0) {
       const file = files[0];
 
-      setFormData(prev => ({
-        ...prev,
-        businessPlan: file,
-      }));
+      setFormData('businessPlan', file);
 
       setIsUploadingBusinessPlan(true);
       try {
@@ -43,11 +46,8 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
         );
 
         if (fileUrl) {
-          setFormData(prev => ({
-            ...prev,
-            businessPlanUrl: fileUrl,
-          }));
-        } 
+          setFormData('businessPlanUrl', fileUrl);
+        }
       } catch (error) {
         console.error('Error uploading business plan:', error);
       } finally {
@@ -61,10 +61,7 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
       const file = files[0];
 
       // Set the file in form data
-      setFormData(prev => ({
-        ...prev,
-        financialProjectionsFile: file,
-      }));
+      setFormData('financialProjectionsFile', file);
 
       // Upload the file and get the preview URL
       setIsUploadingFinancialProjections(true);
@@ -80,10 +77,7 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
           console.log('Financial projections uploaded successfully:', fileUrl);
 
           // Store the URL in the form data
-          setFormData(prev => ({
-            ...prev,
-            financialProjectionsUrl: fileUrl,
-          }));
+          setFormData('financialProjectionsUrl', fileUrl);
         } else {
           console.error('Failed to upload financial projections');
         }
@@ -100,10 +94,7 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
       const file = files[0];
 
       // Set the file in form data
-      setFormData(prev => ({
-        ...prev,
-        legalDocuments: file,
-      }));
+      setFormData('legalDocuments', file);
 
       // Upload the file and get the preview URL
       setIsUploadingLegalDocuments(true);
@@ -119,10 +110,7 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
           console.log('Legal documents uploaded successfully:', fileUrl);
 
           // Store the URL in the form data
-          setFormData(prev => ({
-            ...prev,
-            legalDocumentsUrl: fileUrl,
-          }));
+          setFormData('legalDocumentsUrl', fileUrl);
         } else {
           console.error('Failed to upload legal documents');
         }
