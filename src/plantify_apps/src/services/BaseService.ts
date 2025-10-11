@@ -17,11 +17,16 @@ export class BaseService {
    * @param authClient - The authentication client
    * @returns A promise that resolves to true if initialization was successful
    */
-  public static async initialize(authClient: AuthClient): Promise<boolean> {
+  public static async initialize(authClient?: AuthClient): Promise<boolean> {
     try {
+      // If no auth client provided, use anonymous actor
       if (!authClient) {
-        console.error('Auth client is required');
-        return false;
+        console.log(
+          'No auth client provided, initializing with anonymous actor'
+        );
+        this.actor = await this.createAnonymousActor();
+        this.agent = null; // Anonymous actor manages its own agent
+        return true;
       }
 
       // Use canister ID from declarations or fallback
@@ -93,6 +98,41 @@ export class BaseService {
       return principal.toString();
     } catch (error) {
       console.error('Error getting principal:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create an anonymous actor for public operations
+   * @returns Anonymous actor instance
+   */
+  public static async createAnonymousActor(): Promise<_SERVICE> {
+    try {
+      const anonymousAgent = new HttpAgent({ host: 'https://ic0.app' });
+
+      // Fetch root key in development
+      if (
+        process.env.NODE_ENV !== 'production' ||
+        (typeof window !== 'undefined' &&
+          window.location.hostname === 'localhost')
+      ) {
+        await anonymousAgent.fetchRootKey();
+      }
+
+      // Use canister ID from declarations or fallback
+      const effectiveCanisterId = canisterId || this.FALLBACK_CANISTER_ID;
+
+      if (!effectiveCanisterId) {
+        throw new Error('Canister ID is not available');
+      }
+
+      const anonymousActor = createActor(effectiveCanisterId, {
+        agent: anonymousAgent,
+      }) as _SERVICE;
+
+      return anonymousActor;
+    } catch (error) {
+      console.error('Failed to create anonymous actor:', error);
       throw error;
     }
   }
