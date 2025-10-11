@@ -13,7 +13,9 @@ import {
   ThumbsUp,
   Users,
 } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
 
 import Footer from '@/components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
@@ -24,11 +26,15 @@ import {
   Card,
   ImageGallery,
   InvestmentModal,
+  NFTAnalysisCard,
   ProgressBar,
   Skeleton,
   SkeletonText,
   CardSkeleton,
+  ChatInterface,
 } from '@/components/ui';
+import { StartupService } from '@/services/marketplace';
+import { getRiskLevel } from '@/utils/riskLevels';
 
 import Documents from './partial/Documents';
 import Financials from './partial/Financials';
@@ -52,9 +58,21 @@ interface Startup {
   fundingGoal: string;
 }
 
+interface InvestmentDetails {
+  id: string;
+  name: string;
+  nftPrice: number;
+  monthlyReturns: number;
+  expectedROI: number;
+  availableNFTs: number;
+  totalNFTs: number;
+  soldNFTs: number;
+}
+
 export default function ExploreDetail() {
-  const id = '1'; // dummy ID
-  const isAuthenticated = true;
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id') || '1'; // Get ID from query parameter
+  console.log('Detail page loaded with ID:', id);
   const authLoading = false;
   const investmentLoading = false;
 
@@ -65,7 +83,11 @@ export default function ExploreDetail() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const investmentLoadingData = false;
-  const [investmentData, setInvestmentData] = useState<any>(null);
+  const [investmentData, setInvestmentData] =
+    useState<InvestmentDetails | null>(null);
+
+  // Chat interface state
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     setStartup(null);
@@ -73,50 +95,57 @@ export default function ExploreDetail() {
     setLoading(true);
   }, [id]);
 
+  // Fetch startup details from backend
+  const fetchStartupDetails = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log('Fetching startup details for ID:', id);
+      // Use StartupService to fetch details
+      const startupData = await StartupService.getStartupDetails(id);
+      console.log('Startup data received:', startupData);
+
+      if (startupData) {
+        // Transform backend data to match UI requirements
+        const transformedStartup: Startup = {
+          id: startupData.id,
+          startupName: startupData.startupName,
+          description: startupData.description,
+          sector: startupData.sector,
+          status: startupData.status,
+          location: startupData.location,
+          teamMembers:
+            startupData.teamMembers?.map(member => ({
+              name: member.name,
+              role: member.role,
+            })) || [],
+          companyImages: startupData.companyImages || [],
+          companyLogo:
+            startupData.companyLogo && startupData.companyLogo.length > 0
+              ? [startupData.companyLogo[0] as string]
+              : ['/assets/images/icon-startup.png'],
+          periodicProfitSharing: startupData.periodicProfitSharing,
+          monthlyRevenue: startupData.monthlyRevenue,
+          nftPrice: startupData.nftPrice,
+          fundingGoal: startupData.fundingGoal,
+        };
+        setStartup(transformedStartup);
+      } else {
+        setError('Startup not found');
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to load startup details: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     if (authLoading) return;
-
-    const fetchStartupDetails = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // dummy data
-        const mockStartup: Startup = {
-          id,
-          startupName: 'EcoFarm Solutions',
-          description:
-            'Revolutionary hydroponic farming system using IoT technology...',
-          sector: 'Agriculture',
-          status: 'approved',
-          location: 'Bandung, Indonesia',
-          teamMembers: [
-            { name: 'Anya Rodriguez', role: 'CEO & Founder' },
-            { name: 'Marcus Johnson', role: 'CTO' },
-            { name: 'Lisa Chen', role: 'Head of Product' },
-          ],
-          companyImages: [
-            '/assets/images/product.png',
-            '/assets/images/product.png',
-            '/assets/images/product.png',
-            '/assets/images/product.png',
-          ],
-          companyLogo: ['/assets/images/icon-startup.png'],
-          periodicProfitSharing: '15% annually',
-          monthlyRevenue: '25,000',
-          nftPrice: '500',
-          fundingGoal: '100,000',
-        };
-        setTimeout(() => setStartup(mockStartup), 1200); // delay 1.2s
-      } catch (err: any) {
-        setError(`Failed to load startup details: ${err.message}`);
-      } finally {
-        setTimeout(() => setLoading(false), 1200);
-      }
-    };
-
     fetchStartupDetails();
-  }, [id, authLoading]);
+  }, [fetchStartupDetails, authLoading]);
 
   const tabs = [
     { label: 'Overview', icon: <FileText size={16} /> },
@@ -148,18 +177,49 @@ export default function ExploreDetail() {
   };
 
   const handleInvestNow = async () => {
-    const details = {
-      id,
-      name: startup?.startupName || 'Unknown Startup',
-      nftPrice: startup?.nftPrice || 75,
-      monthlyReturns: 50,
-      expectedROI: 192,
-      availableNFTs: 10,
-      totalNFTs: 10,
-      soldNFTs: 0,
-    };
-    setInvestmentData(details);
-    setIsModalOpen(true);
+    try {
+      // Get NFT price from backend
+      const priceResult = await StartupService.getNFTPrice(id);
+      const nftPrice = priceResult.success
+        ? Number(priceResult.price)
+        : Number(startup?.nftPrice) || 75;
+
+      // Get NFTs for this startup to calculate availability
+      const nftsResult = await StartupService.getNFTsByStartup(id);
+      const availableNFTs = nftsResult.success
+        ? nftsResult.nfts?.length || 10
+        : 10;
+
+      // Calculate monthly returns (this could be fetched from backend in a real implementation)
+      const periodicProfitSharing =
+        Number(startup?.periodicProfitSharing?.replace(/[^0-9.]/g, '')) || 5;
+      const monthlyReturns = Math.round(
+        nftPrice * (periodicProfitSharing / 100)
+      );
+      const expectedROI = Math.round(((monthlyReturns * 12) / nftPrice) * 100);
+
+      const details: InvestmentDetails = {
+        id,
+        name: startup?.startupName || 'Unknown Startup',
+        nftPrice,
+        monthlyReturns,
+        expectedROI,
+        availableNFTs,
+        totalNFTs: availableNFTs + 5, // This would come from backend in real implementation
+        soldNFTs: 5, // This would come from backend in real implementation
+      };
+      setInvestmentData(details);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error preparing investment data:', error);
+      console.error('Failed to prepare investment data. Please try again.');
+    }
+  };
+
+  // Handle AI analysis
+  const handleAnalyzeStartup = async (startupId: string) => {
+    if (!startup) return;
+    setIsChatOpen(true);
   };
 
   if (loading) {
@@ -204,7 +264,7 @@ export default function ExploreDetail() {
       <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
         {/* Left Side */}
         <ImageGallery
-          images={images}
+          images={images.filter(img => img && !img.includes('undefined'))}
           showViewMore={true}
           onViewMore={() => console.log('View more clicked')}
         />
@@ -215,17 +275,25 @@ export default function ExploreDetail() {
             <Badge variant='primary' icon={<ThumbsUp size={16} />}>
               Featured
             </Badge>
-            <Badge variant='success'>Agriculture</Badge>
-            <Badge variant='warning'>Moderate Risk</Badge>
+            <Badge variant='success'>{startup.sector}</Badge>
+            <Badge variant='warning'>{getRiskLevel(startup.sector)}</Badge>
           </div>
 
           <div className='flex gap-3'>
-            <img
+            <Image
               src={
-                startup.companyLogo?.[0] || '/assets/images/icon-startup.png'
+                startup.companyLogo?.[0] &&
+                !startup.companyLogo[0].includes('undefined')
+                  ? startup.companyLogo[0]
+                  : '/assets/images/icon-startup.png'
               }
               className='w-8 h-8 rounded'
               alt='Logo'
+              width={32}
+              height={32}
+              unoptimized={startup.companyLogo?.[0]?.startsWith(
+                'https://gecvpysiaymyyynjhpfz.supabase.co'
+              )}
             />
             <h2 className='text-2xl font-semibold'>{startup.startupName}</h2>
           </div>
@@ -256,23 +324,75 @@ export default function ExploreDetail() {
             <ProgressBar value={45} max={100} color='bg-orange-500' />
           </div>
 
-          <Button onClick={handleInvestNow} disabled={investmentLoadingData}>
+          <Button
+            onClick={handleInvestNow}
+            disabled={investmentLoadingData || startup.status !== 'active'}
+          >
             <Banknote size={20} />
-            {investmentLoading ? 'Loading...' : 'Invest Now'}
+            {investmentLoading
+              ? 'Loading...'
+              : startup.status === 'active'
+                ? 'Invest Now'
+                : 'Not Available'}
           </Button>
         </Card>
       </div>
 
       <div className='max-w-6xl mx-auto'>
-        <Tabs tabs={tabs} onChange={setActiveTab} />
-        <div>{renderContent()}</div>
+        {/* Tabs and Analysis Card Layout */}
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+          {/* Left side - Tabs and Content */}
+          <div className='lg:col-span-2'>
+            <Tabs tabs={tabs} onChange={setActiveTab} />
+            <div>{renderContent()}</div>
+          </div>
+
+          {/* Right side - Chat Interface */}
+          <div className='lg:col-span-1 flex justify-center lg:justify-start'>
+            <div className='sticky top-8 w-full max-w-sm h-[600px]'>
+              {!isChatOpen ? (
+                <NFTAnalysisCard
+                  startupId={id}
+                  startupName={startup.startupName}
+                  onAnalyze={handleAnalyzeStartup}
+                  className='w-full'
+                />
+              ) : (
+                <ChatInterface
+                  isOpen={isChatOpen}
+                  onClose={() => setIsChatOpen(false)}
+                  startupData={startup}
+                  startupName={startup.startupName}
+                />
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <InvestmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        startup={investmentData}
-        onInvest={() => {}}
+        startup={investmentData as InvestmentDetails}
+        onInvest={async investmentDetails => {
+          try {
+            // In a real implementation, you would call the backend to process the investment
+            // For example:
+            // const result = await InvestorService.purchaseNFT({
+            //   startupId: id,
+            //   investorId: currentUser.id,
+            //   amount: investmentDetails.quantity * investmentDetails.nftPrice,
+            //   memo: `Purchase of ${investmentDetails.quantity} NFTs for ${startup?.startupName}`
+            // });
+
+            console.log('Investment details:', investmentDetails);
+            console.log(`Successfully invested in ${startup?.startupName}!`);
+            setIsModalOpen(false);
+          } catch (error) {
+            console.error('Error processing investment:', error);
+            console.error('Failed to process investment. Please try again.');
+          }
+        }}
         isLoading={investmentLoading}
       />
 
