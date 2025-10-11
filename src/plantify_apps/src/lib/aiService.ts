@@ -1,9 +1,24 @@
 import { StartupFormData } from '@/components/startup/types';
 
+// Startup interface for analysis
+interface Startup {
+  id: string;
+  startupName: string;
+  description: string;
+  sector: string;
+  location: string;
+  teamMembers?: { name: string; role: string }[];
+  monthlyRevenue?: string;
+  fundingGoal: string;
+  nftPrice: string;
+  periodicProfitSharing: string;
+}
+
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
 
 const IMAGE_MODEL = 'google/gemini-2.5-flash-image-preview';
+const TEXT_MODEL = 'anthropic/claude-3.5-sonnet';
 
 export interface NFTImagePrompt {
   object: {
@@ -322,4 +337,133 @@ export function generateFallbackNFTImage(formData: StartupFormData): string {
   `;
 
   return `data:image/svg+xml;base64,${btoa(svg)}`;
+}
+
+/**
+ * Interface for startup analysis result
+ */
+export interface StartupAnalysisResult {
+  overallScore: number; // 0-100
+  strengths: string[];
+  weaknesses: string[];
+  opportunities: string[];
+  threats: string[];
+  investmentRecommendation:
+    | 'strong_buy'
+    | 'buy'
+    | 'hold'
+    | 'sell'
+    | 'strong_sell';
+  riskLevel: 'low' | 'medium' | 'high';
+  summary: string;
+  keyMetrics: {
+    marketPotential: number;
+    teamStrength: number;
+    financialHealth: number;
+    competitivePosition: number;
+    scalability: number;
+  };
+}
+
+/**
+ * Analyzes a startup using AI and returns comprehensive analysis
+ */
+export async function analyzeStartup(
+  startupData: Startup
+): Promise<StartupAnalysisResult> {
+  if (!OPENROUTER_API_KEY) {
+    throw new Error('OpenRouter API key is not configured');
+  }
+
+  try {
+    const analysisPrompt = `
+You are a professional startup investment analyst. Analyze the following startup and provide a comprehensive investment analysis.
+
+Startup Information:
+- Name: ${startupData.startupName}
+- Sector: ${startupData.sector}
+- Description: ${startupData.description}
+- Location: ${startupData.location}
+- Team Size: ${startupData.teamMembers?.length || 'Unknown'}
+- Monthly Revenue: ${startupData.monthlyRevenue || 'Not disclosed'}
+- Funding Goal: ${startupData.fundingGoal}
+- NFT Price: ${startupData.nftPrice}
+- Profit Sharing: ${startupData.periodicProfitSharing}
+
+Please provide a detailed analysis in the following JSON format:
+{
+  "overallScore": <number 0-100>,
+  "strengths": [<array of key strengths>],
+  "weaknesses": [<array of potential weaknesses>],
+  "opportunities": [<array of market opportunities>],
+  "threats": [<array of potential threats>],
+  "investmentRecommendation": "<strong_buy|buy|hold|sell|strong_sell>",
+  "riskLevel": "<low|medium|high>",
+  "summary": "<2-3 sentence executive summary>",
+  "keyMetrics": {
+    "marketPotential": <number 0-100>,
+    "teamStrength": <number 0-100>,
+    "financialHealth": <number 0-100>,
+    "competitivePosition": <number 0-100>,
+    "scalability": <number 0-100>
+  }
+}
+
+Base your analysis on startup fundamentals, market conditions, financial metrics, and industry trends. Be objective and provide actionable insights.
+`;
+
+    console.log('Analyzing startup with AI...');
+
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: TEXT_MODEL,
+        messages: [
+          {
+            role: 'user',
+            content: analysisPrompt,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 2000,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result = await response.json();
+
+    if (result.choices && result.choices.length > 0) {
+      const content = result.choices[0].message.content;
+
+      try {
+        // Extract JSON from the response
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const analysisResult = JSON.parse(jsonMatch[0]);
+          return analysisResult as StartupAnalysisResult;
+        } else {
+          throw new Error('No valid JSON found in AI response');
+        }
+      } catch (parseError) {
+        console.error('Error parsing AI response:', parseError);
+        throw new Error('Failed to parse AI analysis result');
+      }
+    }
+
+    throw new Error('No analysis generated in the response');
+  } catch (error) {
+    console.error('Error analyzing startup:', error);
+    throw new Error(
+      `Failed to analyze startup: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
 }
