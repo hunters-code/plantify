@@ -17,10 +17,6 @@
       "ic": "a5ptu-ryaaa-aaaai-q32cq-cai",
       "args": "--enhanced-orthogonal-persistence"
     },
-    "ckUSDC": {
-      "main": "src/ckUSDC/ckUSDC.mo",
-      "type": "motoko"
-    },
     "plantify_frontend": {
       "dependencies": [
         "plantify_backend"
