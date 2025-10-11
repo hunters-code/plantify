@@ -29,15 +29,15 @@ export class StartupService extends BaseService {
       if (!this.isInitialized()) {
         const anonymousAgent = new HttpAgent({ host: 'https://ic0.app' });
 
-        // Skip fetchRootKey to avoid HTTP errors
-        console.log('Skipping fetchRootKey in development environment');
+        // Fetch root key in development
+        if (
+          process.env.NODE_ENV !== 'production' ||
+          window.location.hostname === 'localhost'
+        ) {
+          await anonymousAgent.fetchRootKey();
+        }
 
-        const effectiveCanisterId = canisterId;
-        console.log(
-          'Using canister ID for anonymous actor:',
-          effectiveCanisterId
-        );
-        const anonymousActor = createActor(effectiveCanisterId, {
+        const anonymousActor = createActor(canisterId, {
           agent: anonymousAgent,
         }) as _SERVICE;
 
@@ -101,26 +101,7 @@ export class StartupService extends BaseService {
     startupId: string
   ): Promise<{ success: boolean; price?: bigint; error?: string }> {
     try {
-      let result: Result_14;
-      // Create anonymous actor if not initialized
-      if (!this.isInitialized()) {
-        console.log('Creating anonymous actor for getNFTPrice');
-        const anonymousAgent = new HttpAgent({ host: 'https://ic0.app' });
-
-        // Skip fetchRootKey to avoid HTTP errors
-        console.log('Skipping fetchRootKey in development environment');
-
-        const effectiveCanisterId = canisterId;
-        console.log('Using canister ID for getNFTPrice:', effectiveCanisterId);
-        const anonymousActor = createActor(effectiveCanisterId, {
-          agent: anonymousAgent,
-        }) as _SERVICE;
-
-        result = await anonymousActor.getNFTPrice(startupId);
-      } else {
-        // Use existing actor if already initialized
-        result = await this.getActor().getNFTPrice(startupId);
-      }
+      const result: Result_14 = await this.getActor().getNFTPrice(startupId);
 
       if ('ok' in result) {
         return { success: true, price: result.ok };
@@ -142,29 +123,8 @@ export class StartupService extends BaseService {
     startupId: string
   ): Promise<{ success: boolean; nfts?: NFTInfo[]; error?: string }> {
     try {
-      let result: Result_13;
-      // Create anonymous actor if not initialized
-      if (!this.isInitialized()) {
-        console.log('Creating anonymous actor for getNFTsByStartup');
-        const anonymousAgent = new HttpAgent({ host: 'https://ic0.app' });
-
-        // Skip fetchRootKey to avoid HTTP errors
-        console.log('Skipping fetchRootKey in development environment');
-
-        const effectiveCanisterId = canisterId;
-        console.log(
-          'Using canister ID for getNFTsByStartup:',
-          effectiveCanisterId
-        );
-        const anonymousActor = createActor(effectiveCanisterId, {
-          agent: anonymousAgent,
-        }) as _SERVICE;
-
-        result = await anonymousActor.getNFTsByStartup(startupId);
-      } else {
-        // Use existing actor if already initialized
-        result = await this.getActor().getNFTsByStartup(startupId);
-      }
+      const result: Result_13 =
+        await this.getActor().getNFTsByStartup(startupId);
 
       if ('ok' in result) {
         return { success: true, nfts: result.ok };
