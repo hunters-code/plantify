@@ -22,7 +22,8 @@ export class FounderService extends BaseService {
     request: FounderRegistrationRequest
   ): Promise<{ success: boolean; founder?: Founder; error?: string }> {
     try {
-      const result: Result_5 = await this.getActor().registerFounder(request);
+      const actor = await this.getActor();
+      const result: Result_5 = await actor.registerFounder(request);
 
       if ('ok' in result) {
         return { success: true, founder: result.ok };
@@ -41,7 +42,8 @@ export class FounderService extends BaseService {
    */
   public static async getFounderByPrincipal(): Promise<Founder | null> {
     try {
-      const founderOpt = await this.getActor().getFounderByPrincipal();
+      const actor = await this.getActor();
+      const founderOpt = await actor.getFounderByPrincipal();
       return founderOpt.length ? founderOpt[0] : null;
     } catch (error) {
       console.error('Error getting founder by principal:', error);
@@ -58,7 +60,8 @@ export class FounderService extends BaseService {
     request: StartupCreationRequest
   ): Promise<{ success: boolean; startup?: Startup; error?: string }> {
     try {
-      const result: Result_23 = await this.getActor().createStartup(request);
+      const actor = await this.getActor();
+      const result: Result_23 = await actor.createStartup(request);
 
       if ('ok' in result) {
         return { success: true, startup: result.ok };
@@ -82,7 +85,8 @@ export class FounderService extends BaseService {
         return [];
       }
 
-      const allStartups = await this.getActor().getAllStartups();
+      const actor = await this.getActor();
+      const allStartups = await actor.getAllStartups();
       return allStartups.filter(startup => startup.founderId === founder.id);
     } catch (error) {
       console.error('Error getting founder startups:', error);
@@ -101,7 +105,8 @@ export class FounderService extends BaseService {
     newStatus: string
   ): Promise<boolean> {
     try {
-      return await this.getActor().updateStartupStatus(startupId, newStatus);
+      const actor = await this.getActor();
+      return await actor.updateStartupStatus(startupId, newStatus);
     } catch (error) {
       console.error('Error updating startup status:', error);
       return false;
