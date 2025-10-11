@@ -301,7 +301,7 @@ export default function CreateStartupPage() {
             'Startup submitted successfully! Your startup is now under review.'
           );
           setTimeout(() => {
-            router.push('/founder/dashboard');
+            router.push('/founder');
           }, 2000);
         } else {
           console.error('Error from backend:', result.error);

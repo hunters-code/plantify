@@ -24,7 +24,8 @@ export class InvestorService extends BaseService {
     request: InvestorRegistrationRequest
   ): Promise<{ success: boolean; investor?: Investor; error?: string }> {
     try {
-      const result: Result_4 = await this.getActor().registerInvestor(request);
+      const actor = await this.getActor();
+      const result: Result_4 = await actor.registerInvestor(request);
 
       if ('ok' in result) {
         return { success: true, investor: result.ok };
@@ -43,7 +44,8 @@ export class InvestorService extends BaseService {
    */
   public static async getInvestorByPrincipal(): Promise<Investor | null> {
     try {
-      const investorOpt = await this.getActor().getInvestorByPrincipal();
+      const actor = await this.getActor();
+      const investorOpt = await actor.getInvestorByPrincipal();
       return investorOpt.length ? investorOpt[0] : null;
     } catch (error) {
       console.error('Error getting investor by principal:', error);
@@ -62,7 +64,8 @@ export class InvestorService extends BaseService {
     error?: string;
   }> {
     try {
-      const result: Result_6 = await this.getActor().purchaseNFT(request);
+      const actor = await this.getActor();
+      const result: Result_6 = await actor.purchaseNFT(request);
 
       if ('ok' in result) {
         return { success: true, response: result.ok };
@@ -86,10 +89,8 @@ export class InvestorService extends BaseService {
     startupId: string
   ): Promise<boolean> {
     try {
-      const result = await this.getActor().canPurchaseNFT(
-        investorId,
-        startupId
-      );
+      const actor = await this.getActor();
+      const result = await actor.canPurchaseNFT(investorId, startupId);
       return 'ok' in result ? result.ok : false;
     } catch (error) {
       console.error('Error checking if investor can purchase NFT:', error);
@@ -108,8 +109,9 @@ export class InvestorService extends BaseService {
     error?: string;
   }> {
     try {
+      const actor = await this.getActor();
       const result: Result_10 =
-        await this.getActor().getInvestorPurchaseHistory(investorId);
+        await actor.getInvestorPurchaseHistory(investorId);
 
       if ('ok' in result) {
         return { success: true, history: result.ok };
@@ -128,7 +130,8 @@ export class InvestorService extends BaseService {
    */
   public static async getAllInvestors(): Promise<Investor[]> {
     try {
-      return await this.getActor().getInvestors();
+      const actor = await this.getActor();
+      return await actor.getInvestors();
     } catch (error) {
       console.error('Error getting all investors:', error);
       return [];

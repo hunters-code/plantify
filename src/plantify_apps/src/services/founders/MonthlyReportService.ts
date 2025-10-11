@@ -23,8 +23,8 @@ export class MonthlyReportService extends BaseService {
     request: MonthlyReportRequest
   ): Promise<{ success: boolean; report?: MonthlyReport; error?: string }> {
     try {
-      const result: Result_1 =
-        await this.getActor().createMonthlyReport(request);
+      const actor = await this.getActor();
+      const result: Result_1 = await actor.createMonthlyReport(request);
 
       if ('ok' in result) {
         return { success: true, report: result.ok };
@@ -48,7 +48,8 @@ export class MonthlyReportService extends BaseService {
     request: MonthlyReportRequest
   ): Promise<{ success: boolean; report?: MonthlyReport; error?: string }> {
     try {
-      const result: Result_1 = await this.getActor().updateMonthlyReport(
+      const actor = await this.getActor();
+      const result: Result_1 = await actor.updateMonthlyReport(
         reportId,
         request
       );
@@ -73,8 +74,8 @@ export class MonthlyReportService extends BaseService {
     reportId: string
   ): Promise<{ success: boolean; report?: MonthlyReport; error?: string }> {
     try {
-      const result: Result_1 =
-        await this.getActor().submitMonthlyReport(reportId);
+      const actor = await this.getActor();
+      const result: Result_1 = await actor.submitMonthlyReport(reportId);
 
       if ('ok' in result) {
         return { success: true, report: result.ok };
@@ -96,7 +97,8 @@ export class MonthlyReportService extends BaseService {
     reportId: string
   ): Promise<{ success: boolean; report?: MonthlyReport; error?: string }> {
     try {
-      const result: Result_1 = await this.getActor().getMonthlyReport(reportId);
+      const actor = await this.getActor();
+      const result: Result_1 = await actor.getMonthlyReport(reportId);
 
       if ('ok' in result) {
         return { success: true, report: result.ok };
@@ -120,8 +122,9 @@ export class MonthlyReportService extends BaseService {
     error?: string;
   }> {
     try {
+      const actor = await this.getActor();
       const result: Result_18 =
-        await this.getActor().getMonthlyReportsByStartup(startupId);
+        await actor.getMonthlyReportsByStartup(startupId);
 
       if ('ok' in result) {
         return { success: true, reportList: result.ok };
@@ -143,7 +146,8 @@ export class MonthlyReportService extends BaseService {
     status: MonthlyReportStatus
   ): Promise<MonthlyReport[]> {
     try {
-      return await this.getActor().getMonthlyReportsByStatus(status);
+      const actor = await this.getActor();
+      return await actor.getMonthlyReportsByStatus(status);
     } catch (error) {
       console.error('Error getting monthly reports by status:', error);
       return [];
@@ -156,7 +160,8 @@ export class MonthlyReportService extends BaseService {
    */
   public static async getMonthlyReportStats(): Promise<MonthlyReportStats | null> {
     try {
-      return await this.getActor().getMonthlyReportStats();
+      const actor = await this.getActor();
+      return await actor.getMonthlyReportStats();
     } catch (error) {
       console.error('Error getting monthly report stats:', error);
       return null;

@@ -108,7 +108,7 @@ export default function Dashboard() {
   );
 
   const handleCreateStartup = () => {
-    navigate.push('/founder/create-startup');
+    navigate.push('/startup/create');
   };
 
   const handleRefresh = async () => {
@@ -154,9 +154,9 @@ export default function Dashboard() {
       case 3:
         return <MonthlyReports startupId={selectedCompany} />;
       case 4:
-        return <ProfitSharing />;
+        return <ProfitSharing startupId={selectedCompany} />;
       case 5:
-        return <Collateral />;
+        return <Collateral startupId={selectedCompany} />;
       case 6:
         return <Investors startupId={selectedCompany} />;
       default:

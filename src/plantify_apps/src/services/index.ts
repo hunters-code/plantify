@@ -5,6 +5,7 @@ export { AuthService } from './AuthService';
 // Founder services
 export { FounderService } from './founders/FounderService';
 export { MonthlyReportService } from './founders/MonthlyReportService';
+export { CollateralService } from './founders/CollateralService';
 
 // Investor services
 export { InvestorService } from './investors/InvestorService';

@@ -1,56 +1,174 @@
 'use client';
 
-import { Search, Filter, Eye, MessageCircle, MapPin } from 'lucide-react';
-import { useState } from 'react';
+import {
+  Search,
+  Filter,
+  Eye,
+  MessageCircle,
+  MapPin,
+  Users,
+  TrendingUp,
+  Award,
+  Activity,
+} from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 import { Badge, Button, Card, CardSkeleton } from '@/components/ui';
+import type {
+  Investor,
+  NFTPurchaseHistory,
+  NFTPurchaseInfo,
+  InvestorVote,
+} from '@/declarations/plantify_backend/plantify_backend.did';
+import { InvestorService } from '@/services/investors/InvestorService';
+import { VotingService } from '@/services/investors/VotingService';
+import { StartupService } from '@/services/marketplace/StartupService';
 import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
 
-function useInvestors(startupId?: number) {
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+interface InvestorWithStats extends Investor {
+  totalInvestment: number;
+  nftsOwned: number;
+  profitReceived: number;
+  participation: number;
+  badges: string[];
+  lastActivity?: Date;
+}
 
-  const investors = [
-    {
-      fullName: 'Alice Johnson',
-      principal: '0xA1B2C3D4E5',
-      totalInvestment: 5200,
-      participation: 85,
-      nftsOwned: 5,
-      profitReceived: 340,
-      location: 'New York, USA',
-      badges: ['VIP', 'Active'],
-    },
-    {
-      fullName: 'Bob Lee',
-      principal: '0x12345ABCDEF',
-      totalInvestment: 2500,
-      participation: 60,
-      nftsOwned: 3,
-      profitReceived: 200,
-      location: 'London, UK',
-      badges: ['Active'],
-    },
-    {
-      fullName: 'Catherine Nguyen',
-      principal: '0x9F8E7D6C5B',
-      totalInvestment: 700,
-      participation: 40,
-      nftsOwned: 1,
-      profitReceived: 50,
-      location: 'Singapore',
-      badges: ['Inactive'],
-    },
-  ];
+function useInvestors(startupId?: string) {
+  const [investors, setInvestors] = useState<InvestorWithStats[]>([]);
+  const [purchaseHistory, setPurchaseHistory] =
+    useState<NFTPurchaseHistory | null>(null);
+  const [allPurchases, setAllPurchases] = useState<NFTPurchaseInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchInvestorData = async () => {
+      if (!startupId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        console.log('Fetching investor data for startup:', startupId);
+
+        // Fetch all required data in parallel
+        const [allInvestorsResult, purchaseHistoryResult, allPurchasesResult] =
+          await Promise.all([
+            InvestorService.getAllInvestors(),
+            StartupService.getStartupPurchaseHistory(startupId),
+            StartupService.getAllPurchases(),
+          ]);
+
+        console.log('All investors:', allInvestorsResult);
+        console.log('Purchase history:', purchaseHistoryResult);
+        console.log('All purchases:', allPurchasesResult);
+
+        // Process purchase history to get startup-specific investors
+        let startupInvestors: InvestorWithStats[] = [];
+
+        if (purchaseHistoryResult.success && purchaseHistoryResult.history) {
+          setPurchaseHistory(purchaseHistoryResult.history);
+
+          // Get unique investor IDs from purchase history
+          const investorIds = new Set(
+            purchaseHistoryResult.history.purchases.map(p => p.investorId)
+          );
+
+          // Filter investors who have invested in this startup
+          startupInvestors = allInvestorsResult
+            .filter(investor => investorIds.has(investor.id))
+            .map(investor => {
+              // Calculate stats for this investor in this startup
+              const investorPurchases =
+                purchaseHistoryResult.history!.purchases.filter(
+                  p => p.investorId === investor.id
+                );
+              const totalInvestment =
+                investorPurchases.reduce(
+                  (sum, p) => sum + Number(p.amount),
+                  0
+                ) / 100;
+              const nftsOwned = investorPurchases.length;
+
+              // Calculate participation based on investment amount vs total raised
+              const totalRaised =
+                Number(purchaseHistoryResult.history!.totalSpent) / 100;
+              const participation =
+                totalRaised > 0 ? (totalInvestment / totalRaised) * 100 : 0;
+
+              // Determine badges
+              const badges: string[] = [];
+              if (totalInvestment > 5000) badges.push('VIP');
+              if (participation > 10) badges.push('Active');
+              if (participation < 5) badges.push('Inactive');
+
+              // Get last activity
+              const lastPurchase = investorPurchases.sort(
+                (a, b) => Number(b.timestamp) - Number(a.timestamp)
+              )[0];
+              const lastActivity = lastPurchase
+                ? new Date(Number(lastPurchase.timestamp) / 1000000)
+                : undefined;
+
+              return {
+                ...investor,
+                totalInvestment,
+                nftsOwned,
+                profitReceived: 0, // TODO: Calculate from profit sharing data
+                participation: Math.round(participation),
+                badges,
+                lastActivity,
+              };
+            });
+        }
+
+        if (allPurchasesResult && allPurchasesResult) {
+          setAllPurchases(allPurchasesResult);
+        }
+
+        // Sort investors by total investment (descending)
+        startupInvestors.sort((a, b) => b.totalInvestment - a.totalInvestment);
+
+        setInvestors(startupInvestors);
+        console.log('Processed startup investors:', startupInvestors);
+      } catch (err) {
+        console.error('Error fetching investor data:', err);
+        setError('Failed to load investor data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvestorData();
+  }, [startupId]);
+
+  // Calculate summary statistics
+  const totalInvestment = investors.reduce(
+    (sum, investor) => sum + investor.totalInvestment,
+    0
+  );
+  const totalInvestors = investors.length;
+  const activeInvestors = investors.filter(i => i.participation > 10).length;
+  const vipInvestors = investors.filter(i => i.totalInvestment > 5000).length;
+  const averageParticipation =
+    totalInvestors > 0
+      ? investors.reduce((sum, investor) => sum + investor.participation, 0) /
+        totalInvestors
+      : 0;
 
   return {
     investors,
-    totalInvestment: investors.reduce((s, i) => s + i.totalInvestment, 0),
-    totalInvestors: investors.length,
-    activeInvestors: investors.filter(i => i.participation > 50).length,
-    vipInvestors: investors.filter(i => i.totalInvestment > 5000).length,
-    averageParticipation:
-      investors.reduce((s, i) => s + i.participation, 0) / investors.length,
+    totalInvestment,
+    totalInvestors,
+    activeInvestors,
+    vipInvestors,
+    averageParticipation,
+    purchaseHistory,
+    allPurchases,
     loading,
     error,
   };
@@ -68,11 +186,33 @@ export default function Investors({ startupId }: InvestorsProps) {
     activeInvestors,
     vipInvestors,
     averageParticipation,
+    purchaseHistory,
     loading,
     error,
   } = useInvestors(startupId);
 
   const [activeInvestorTab, setActiveInvestorTab] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<
+    'all' | 'active' | 'vip' | 'inactive'
+  >('all');
+
+  // Filter investors based on search and filter
+  const filteredInvestors = investors.filter(investor => {
+    const matchesSearch =
+      searchTerm === '' ||
+      investor.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investor.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investor.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesFilter =
+      filterType === 'all' ||
+      (filterType === 'active' && investor.participation > 10) ||
+      (filterType === 'vip' && investor.totalInvestment > 5000) ||
+      (filterType === 'inactive' && investor.participation < 5);
+
+    return matchesSearch && matchesFilter;
+  });
 
   const investorTabs = [
     { label: 'Overview' },
@@ -136,30 +276,45 @@ export default function Investors({ startupId }: InvestorsProps) {
       {/* SUMMARY CARDS */}
       <div className='grid grid-cols-5 gap-4 mb-6'>
         <Card className='text-center p-4'>
+          <div className='flex items-center justify-center mb-2'>
+            <TrendingUp className='w-5 h-5 text-green-500 mr-2' />
+          </div>
           <div className='text-2xl font-bold text-gray-900 mb-1'>
             {formatCurrency(totalInvestment)}
           </div>
           <div className='text-sm text-gray-500'>Total investment</div>
         </Card>
         <Card className='text-center p-4'>
+          <div className='flex items-center justify-center mb-2'>
+            <Users className='w-5 h-5 text-blue-500 mr-2' />
+          </div>
           <div className='text-2xl font-bold text-gray-900 mb-1'>
             {totalInvestors}
           </div>
           <div className='text-sm text-gray-500'>Total investors</div>
         </Card>
         <Card className='text-center p-4'>
+          <div className='flex items-center justify-center mb-2'>
+            <Activity className='w-5 h-5 text-purple-500 mr-2' />
+          </div>
           <div className='text-2xl font-bold text-gray-900 mb-1'>
             {activeInvestors}
           </div>
           <div className='text-sm text-gray-500'>Active investors</div>
         </Card>
         <Card className='text-center p-4'>
+          <div className='flex items-center justify-center mb-2'>
+            <Award className='w-5 h-5 text-orange-500 mr-2' />
+          </div>
           <div className='text-2xl font-bold text-gray-900 mb-1'>
             {vipInvestors}
           </div>
           <div className='text-sm text-gray-500'>VIP investors</div>
         </Card>
         <Card className='text-center p-4'>
+          <div className='flex items-center justify-center mb-2'>
+            <TrendingUp className='w-5 h-5 text-indigo-500 mr-2' />
+          </div>
           <div className='text-2xl font-bold text-gray-900 mb-1'>
             {formatNumber(averageParticipation, 1)}%
           </div>
@@ -176,14 +331,25 @@ export default function Investors({ startupId }: InvestorsProps) {
           />
           <input
             type='text'
-            placeholder='Search investors by name or wallet address'
+            placeholder='Search investors by name, email, or ID'
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
             className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500'
           />
         </div>
-        <Button variant='secondary'>
-          <Filter size={16} />
-          Filters
-        </Button>
+        <select
+          value={filterType}
+          onChange={e => setFilterType(e.target.value as any)}
+          className='px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500'
+        >
+          <option value='all'>All Investors</option>
+          <option value='active'>Active (10%)</option>
+          <option value='vip'>VIP ($5K)</option>
+          <option value='inactive'>Inactive (5%)</option>
+        </select>
+        <div className='flex items-center text-sm text-gray-500'>
+          {filteredInvestors.length} of {totalInvestors} investors
+        </div>
       </div>
 
       {/* TAB NAVIGATION */}
@@ -206,18 +372,86 @@ export default function Investors({ startupId }: InvestorsProps) {
       {/* TAB 0 — OVERVIEW */}
       {activeInvestorTab === 0 && (
         <div className='space-y-6'>
-          <h4 className='text-sm font-semibold mb-4'>Top Investors</h4>
+          <div className='flex justify-between items-center'>
+            <h4 className='text-sm font-semibold'>Top Investors</h4>
+            <span className='text-sm text-gray-500'>
+              Showing top {Math.min(10, filteredInvestors.length)} investors
+            </span>
+          </div>
           <div className='space-y-3'>
-            {investors.map((investor, index) => (
-              <div
-                key={index}
-                className='bg-white rounded-lg p-4 border border-gray-200 flex justify-between'
+            {filteredInvestors.slice(0, 10).map((investor, index) => (
+              <Card
+                key={investor.id}
+                className='p-4 bg-white border border-gray-200 flex justify-between items-center'
               >
                 <div>
-                  <span className='font-medium'>
-                    #{index + 1} {investor.fullName}
-                  </span>
-                  <div className='flex gap-1 mt-1'>
+                  <div className='flex items-center gap-2'>
+                    <span className='font-medium'>
+                      #{index + 1} {investor.fullName}
+                    </span>
+                    <div className='flex gap-1'>
+                      {investor.badges.map((badge, badgeIndex) => (
+                        <Badge
+                          key={badgeIndex}
+                          variant={getBadgeVariant(badge)}
+                          size='sm'
+                        >
+                          {badge}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div className='text-sm text-gray-500 mt-1'>
+                    {investor.email} • {investor.nftsOwned} NFTs owned
+                  </div>
+                  {investor.lastActivity && (
+                    <div className='text-xs text-gray-400 mt-1'>
+                      Last activity:{' '}
+                      {investor.lastActivity.toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+                <div className='text-right text-sm'>
+                  <div className='font-medium text-green-600'>
+                    {formatCurrency(investor.totalInvestment)}
+                  </div>
+                  <div className='text-gray-500'>
+                    {investor.participation}% participation
+                  </div>
+                  <div className='text-xs text-gray-400'>
+                    {investor.city}, {investor.country}
+                  </div>
+                </div>
+              </Card>
+            ))}
+            {filteredInvestors.length === 0 && (
+              <Card className='p-6 text-center bg-gray-50'>
+                <Users size={32} className='mx-auto text-gray-400 mb-2' />
+                <p className='text-gray-500'>No investors found</p>
+                <p className='text-gray-400 text-sm mt-1'>
+                  Try adjusting your search or filter criteria
+                </p>
+              </Card>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 1 — INVESTOR LIST */}
+      {activeInvestorTab === 1 && (
+        <div className='space-y-4'>
+          {filteredInvestors.map(investor => (
+            <Card
+              key={investor.id}
+              className='p-4 bg-white border border-gray-200'
+            >
+              <div className='flex justify-between mb-3'>
+                <div>
+                  <h5 className='font-medium'>{investor.fullName}</h5>
+                  <p className='text-sm text-gray-500'>
+                    ID: {investor.id.slice(0, 16)}...
+                  </p>
+                  <div className='flex gap-1 mt-2'>
                     {investor.badges.map((badge, badgeIndex) => (
                       <Badge
                         key={badgeIndex}
@@ -229,41 +463,12 @@ export default function Investors({ startupId }: InvestorsProps) {
                     ))}
                   </div>
                 </div>
-                <div className='text-right text-sm'>
-                  <div className='font-medium'>
-                    {formatCurrency(investor.totalInvestment)}
-                  </div>
-                  <div className='text-gray-500'>
-                    {investor.participation}% participation
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 1 — INVESTOR LIST */}
-      {activeInvestorTab === 1 && (
-        <div className='space-y-4'>
-          {investors.map((investor, index) => (
-            <div
-              key={index}
-              className='bg-white rounded-lg p-4 border border-gray-200'
-            >
-              <div className='flex justify-between mb-3'>
-                <div>
-                  <h5 className='font-medium'>{investor.fullName}</h5>
-                  <p className='text-sm text-gray-500'>
-                    {investor.principal.slice(0, 10)}...
-                  </p>
-                </div>
                 <div className='flex gap-2'>
-                  <Button variant='secondary'>
+                  <Button variant='secondary' size='sm'>
                     <Eye size={14} />
                     View
                   </Button>
-                  <Button variant='secondary'>
+                  <Button variant='secondary' size='sm'>
                     <MessageCircle size={14} />
                     Message
                   </Button>
@@ -272,7 +477,7 @@ export default function Investors({ startupId }: InvestorsProps) {
               <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>
                 <div>
                   <span className='text-gray-500'>Investment:</span>
-                  <div className='font-medium'>
+                  <div className='font-medium text-green-600'>
                     {formatCurrency(investor.totalInvestment)}
                   </div>
                 </div>
@@ -291,11 +496,199 @@ export default function Investors({ startupId }: InvestorsProps) {
                   <div className='font-medium'>{investor.participation}%</div>
                 </div>
               </div>
-              <div className='mt-3 text-sm text-gray-500'>
-                <MapPin size={18} /> {investor.location}
+              <div className='mt-3 flex justify-between items-center'>
+                <div className='flex items-center text-sm text-gray-500'>
+                  <MapPin size={16} className='mr-1' />
+                  {investor.city}, {investor.country}
+                </div>
+                {investor.lastActivity && (
+                  <div className='text-xs text-gray-400'>
+                    Last activity: {investor.lastActivity.toLocaleDateString()}
+                  </div>
+                )}
               </div>
-            </div>
+            </Card>
           ))}
+          {filteredInvestors.length === 0 && (
+            <Card className='p-6 text-center bg-gray-50'>
+              <Users size={32} className='mx-auto text-gray-400 mb-2' />
+              <p className='text-gray-500'>No investors found</p>
+              <p className='text-gray-400 text-sm mt-1'>
+                Try adjusting your search or filter criteria
+              </p>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* TAB 2 — ANALYTICS */}
+      {activeInvestorTab === 2 && (
+        <div className='space-y-6'>
+          <h4 className='text-sm font-semibold mb-4'>Investment Analytics</h4>
+
+          {/* Investment Distribution */}
+          <Card className='p-4'>
+            <h5 className='font-medium mb-3'>Investment Distribution</h5>
+            <div className='space-y-3'>
+              {filteredInvestors.slice(0, 5).map((investor, index) => {
+                const percentage =
+                  totalInvestment > 0
+                    ? (investor.totalInvestment / totalInvestment) * 100
+                    : 0;
+                return (
+                  <div
+                    key={investor.id}
+                    className='flex items-center justify-between'
+                  >
+                    <div className='flex items-center gap-2'>
+                      <span className='text-sm font-medium'>#{index + 1}</span>
+                      <span className='text-sm'>{investor.fullName}</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <div className='w-20 bg-gray-200 rounded-full h-2'>
+                        <div
+                          className='bg-blue-500 h-2 rounded-full'
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                      <span className='text-sm font-medium w-12 text-right'>
+                        {percentage.toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* Investment Timeline */}
+          {purchaseHistory && (
+            <Card className='p-4'>
+              <h5 className='font-medium mb-3'>Recent Investments</h5>
+              <div className='space-y-2'>
+                {purchaseHistory.purchases
+                  .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
+                  .slice(0, 10)
+                  .map((purchase, index) => {
+                    const investor = investors.find(
+                      i => i.id === purchase.investorId
+                    );
+                    return (
+                      <div
+                        key={index}
+                        className='flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0'
+                      >
+                        <div>
+                          <span className='text-sm font-medium'>
+                            {investor?.fullName || 'Unknown Investor'}
+                          </span>
+                          <div className='text-xs text-gray-500'>
+                            {new Date(
+                              Number(purchase.timestamp) / 1000000
+                            ).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <div className='text-right'>
+                          <div className='text-sm font-medium text-green-600'>
+                            {formatCurrency(Number(purchase.amount) / 100)}
+                          </div>
+                          <div className='text-xs text-gray-500'>
+                            NFT #{Number(purchase.tokenId)}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* TAB 3 — ENGAGEMENT */}
+      {activeInvestorTab === 3 && (
+        <div className='space-y-6'>
+          <h4 className='text-sm font-semibold mb-4'>Investor Engagement</h4>
+
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            {/* Engagement Metrics */}
+            <Card className='p-4'>
+              <h5 className='font-medium mb-3'>Engagement Overview</h5>
+              <div className='space-y-3'>
+                <div className='flex justify-between'>
+                  <span className='text-sm text-gray-500'>
+                    Active Investors:
+                  </span>
+                  <span className='font-medium'>
+                    {activeInvestors}/{totalInvestors}
+                  </span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-sm text-gray-500'>
+                    Avg Participation:
+                  </span>
+                  <span className='font-medium'>
+                    {formatNumber(averageParticipation, 1)}%
+                  </span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-sm text-gray-500'>VIP Investors:</span>
+                  <span className='font-medium'>{vipInvestors}</span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-sm text-gray-500'>
+                    Total Investment:
+                  </span>
+                  <span className='font-medium text-green-600'>
+                    {formatCurrency(totalInvestment)}
+                  </span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Recent Activity */}
+            <Card className='p-4'>
+              <h5 className='font-medium mb-3'>Recent Activity</h5>
+              <div className='space-y-2'>
+                {filteredInvestors
+                  .filter(i => i.lastActivity)
+                  .sort(
+                    (a, b) =>
+                      (b.lastActivity?.getTime() || 0) -
+                      (a.lastActivity?.getTime() || 0)
+                  )
+                  .slice(0, 5)
+                  .map(investor => (
+                    <div
+                      key={investor.id}
+                      className='flex justify-between items-center py-2'
+                    >
+                      <div>
+                        <span className='text-sm font-medium'>
+                          {investor.fullName}
+                        </span>
+                        <div className='text-xs text-gray-500'>
+                          {investor.lastActivity?.toLocaleDateString()}
+                        </div>
+                      </div>
+                      <Badge
+                        variant={getBadgeVariant(
+                          investor.badges[0] || 'Active'
+                        )}
+                        size='sm'
+                      >
+                        {investor.badges[0] || 'Active'}
+                      </Badge>
+                    </div>
+                  ))}
+                {filteredInvestors.filter(i => i.lastActivity).length === 0 && (
+                  <p className='text-sm text-gray-500 text-center py-4'>
+                    No recent activity data available
+                  </p>
+                )}
+              </div>
+            </Card>
+          </div>
         </div>
       )}
     </Card>

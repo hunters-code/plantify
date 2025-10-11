@@ -81,7 +81,7 @@ export default function RegisterFounder() {
         try {
           const existingFounder = await FounderService.getFounderByPrincipal();
           if (existingFounder) {
-            navigate.push('/founder/dashboard');
+            navigate.push('/founder');
           }
         } catch (err) {
           console.error('Error checking existing founder:', err);

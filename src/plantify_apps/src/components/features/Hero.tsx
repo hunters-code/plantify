@@ -7,9 +7,9 @@ import {
   ShieldUser,
   UsersRound,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import Button from '@/components/ui/Button';
-import { useRouter } from 'next/navigation';
 
 export default function Hero() {
   const router = useRouter();

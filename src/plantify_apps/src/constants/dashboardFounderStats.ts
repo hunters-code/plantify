@@ -1,4 +1,4 @@
-import { formatCurrency, formatNumber } from "@/utils/formatCurrency";
+import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
 
 export interface StatItem {
   label: string;
@@ -26,29 +26,29 @@ export const getDashboardStatsItems = (
   stats: DashboardStatsData
 ): StatItem[] => [
   {
-    label: "Total Funding Raised",
-    value: stats.loading ? "-" : formatCurrency(stats.totalFundingRaised),
-    subtitle: "ckUSDC",
+    label: 'Total Funding Raised',
+    value: stats.loading ? '-' : formatCurrency(stats.totalFundingRaised),
+    subtitle: 'ckUSDC',
     loading: stats.loading,
     error: stats.error,
   },
   {
-    label: "NFT Holders",
-    value: stats.loading ? "-" : formatNumber(stats.nftHolders),
-    subtitle: "active investors",
+    label: 'NFT Holders',
+    value: stats.loading ? '-' : formatNumber(stats.nftHolders),
+    subtitle: 'active investors',
     loading: stats.loading,
     error: stats.error,
   },
   {
-    label: "Monthly Commitments",
-    value: stats.loading ? "-" : formatCurrency(stats.monthlyCommitments),
-    subtitle: "ckUSDC/month",
+    label: 'Monthly Commitments',
+    value: stats.loading ? '-' : formatCurrency(stats.monthlyCommitments),
+    subtitle: 'ckUSDC/month',
     loading: stats.loading,
     error: stats.error,
   },
   {
-    label: "Active Startups",
-    value: stats.loading ? "-" : formatNumber(stats.activeStartups),
+    label: 'Active Startups',
+    value: stats.loading ? '-' : formatNumber(stats.activeStartups),
     subtitle: `of ${
       stats.activeStartups + stats.pendingStartups + stats.draftStartups
     } total`,
@@ -56,39 +56,37 @@ export const getDashboardStatsItems = (
     error: stats.error,
   },
   {
-    label: "Monthly Reports",
-    value: stats.loading ? "-" : formatNumber(stats.totalReports),
-    subtitle: "submitted reports",
+    label: 'Monthly Reports',
+    value: stats.loading ? '-' : formatNumber(stats.totalReports),
+    subtitle: 'submitted reports',
     loading: stats.loading,
     error: stats.error,
   },
   {
-    label: "Total Votes",
-    value: stats.loading ? "-" : formatNumber(stats.totalVotes),
-    subtitle: "investor votes",
+    label: 'Total Votes',
+    value: stats.loading ? '-' : formatNumber(stats.totalVotes),
+    subtitle: 'investor votes',
     loading: stats.loading,
     error: stats.error,
   },
   {
-    label: "Approval Rate",
-    value: stats.loading
-      ? "-"
-      : `${formatNumber(stats.averageApprovalRate)}%`,
-    subtitle: "average approval",
+    label: 'Approval Rate',
+    value: stats.loading ? '-' : `${formatNumber(stats.averageApprovalRate)}%`,
+    subtitle: 'average approval',
     loading: stats.loading,
     error: stats.error,
   },
   {
-    label: "Pending Startups",
-    value: stats.loading ? "-" : formatNumber(stats.pendingStartups),
-    subtitle: "awaiting collateral",
+    label: 'Pending Startups',
+    value: stats.loading ? '-' : formatNumber(stats.pendingStartups),
+    subtitle: 'awaiting collateral',
     loading: stats.loading,
     error: stats.error,
   },
   {
-    label: "Draft Startups",
-    value: stats.loading ? "-" : formatNumber(stats.draftStartups),
-    subtitle: "in development",
+    label: 'Draft Startups',
+    value: stats.loading ? '-' : formatNumber(stats.draftStartups),
+    subtitle: 'in development',
     loading: stats.loading,
     error: stats.error,
   },

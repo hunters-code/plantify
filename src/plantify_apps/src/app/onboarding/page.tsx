@@ -30,7 +30,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (isAuthenticated && isRegistered && userType) {
       if (userType === 'founder') {
-        router.push('/founder/dashboard');
+        router.push('/founder');
       } else if (userType === 'investor') {
         router.push('/investor');
       }
