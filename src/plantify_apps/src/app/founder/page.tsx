@@ -53,7 +53,7 @@ export default function Dashboard() {
         try {
           const founder = await FounderService.getFounderByPrincipal();
           if (!founder) {
-            // navigate.push('/register/founder');
+            navigate.push('/register/founder');
             return;
           }
           setIsFounder(true);
