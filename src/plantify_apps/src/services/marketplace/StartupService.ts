@@ -57,6 +57,26 @@ export class StartupService extends BaseService {
   }
 
   /**
+   * Get the featured startup (newest startup)
+   * @returns The featured startup or null if not found
+   */
+  public static async getFeaturedStartup(): Promise<Startup | null> {
+    try {
+      // Initialize with anonymous actor if not already initialized
+      if (!this.isInitialized()) {
+        console.log('Initializing service for getFeaturedStartup');
+        await this.initialize();
+      }
+
+      const startupOpt = await this.getActor().getFeaturedStartup();
+      return startupOpt.length ? startupOpt[0] : null;
+    } catch (error) {
+      console.error('Error getting featured startup:', error);
+      return null;
+    }
+  }
+
+  /**
    * Get the NFT price for a startup
    * @param startupId - The ID of the startup
    * @returns The NFT price or error message
