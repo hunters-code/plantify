@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import {
   CircleDollarSign,
@@ -31,7 +31,11 @@ export default function Hero() {
 
           {/* CTAs */}
           <div className='mt-6 flex flex-col sm:flex-row gap-3 justify-center'>
-            <Button as='a' onClick={() => router.push("/register/founder")} variant='primary'>
+            <Button
+              as='a'
+              onClick={() => router.push('/register/founder')}
+              variant='primary'
+            >
               <ShieldUser size={20} />
               Register as Founder
             </Button>
