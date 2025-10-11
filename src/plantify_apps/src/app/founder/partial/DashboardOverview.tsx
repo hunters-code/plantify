@@ -2,23 +2,21 @@ import React, { useState, useEffect } from "react";
 import { StatsCard } from "@/components/ui";
 import { formatCurrency, formatNumber } from "@/utils/formatCurrency";
 import { FounderService } from "@/services/founders/FounderService";
+import { getDashboardStatsItems, DashboardStatsData } from "@/constants/dashboardFounderStats";
 
-interface DashboardStats {
-  totalFundingRaised: number;
-  nftHolders: number;
-  monthlyCommitments: number;
-  activeStartups: number;
-  pendingStartups: number;
-  draftStartups: number;
-  totalReports: number;
-  totalVotes: number;
-  averageApprovalRate: number;
-  loading: boolean;
-  error: string | null;
+// Extended Startup type with additional properties
+interface ExtendedStartup {
+  status?: string;
+  currentFunding?: number;
+  investorCount?: number;
+  monthlyCommitment?: number;
+  reportCount?: number;
+  totalVotes?: number;
+  approvalRate?: number;
 }
 
 export function useDashboardStats() {
-  const [stats, setStats] = useState<DashboardStats>({
+  const [stats, setStats] = useState<DashboardStatsData>({
     totalFundingRaised: 0,
     nftHolders: 0,
     monthlyCommitments: 0,
@@ -37,7 +35,7 @@ export function useDashboardStats() {
       try {
         setStats((prev) => ({ ...prev, loading: true, error: null }));
 
-        const [founder, startups] = await Promise.all([
+        const [founder, startupsData] = await Promise.all([
           FounderService.getFounderByPrincipal(),
           FounderService.getFounderStartups(),
         ]);
@@ -51,7 +49,8 @@ export function useDashboardStats() {
           return;
         }
 
-        // Hitung jumlah startup berdasarkan status
+        const startups = startupsData as ExtendedStartup[];
+
         const activeStartups = startups.filter(
           (s) => s.status?.toLowerCase() === "active"
         ).length;
@@ -62,37 +61,31 @@ export function useDashboardStats() {
           (s) => s.status?.toLowerCase() === "draft"
         ).length;
 
-        // Total dana yang sudah dikumpulkan
         const totalFundingRaised = startups.reduce(
           (sum, s) => sum + Number(s.currentFunding || 0),
           0
         );
 
-        // Jumlah NFT holder unik
         const nftHolders = startups.reduce(
           (sum, s) => sum + Number(s.investorCount || 0),
           0
         );
 
-        // Komitmen bulanan
         const monthlyCommitments = startups.reduce(
           (sum, s) => sum + Number(s.monthlyCommitment || 0),
           0
         );
 
-        // Total laporan
         const totalReports = startups.reduce(
           (sum, s) => sum + Number(s.reportCount || 0),
           0
         );
 
-        // Total votes
         const totalVotes = startups.reduce(
           (sum, s) => sum + Number(s.totalVotes || 0),
           0
         );
 
-        // Rata-rata approval rate
         const approvalRates = startups
           .map((s) => Number(s.approvalRate || 0))
           .filter((r) => r > 0);
@@ -100,7 +93,7 @@ export function useDashboardStats() {
         const averageApprovalRate =
           approvalRates.length > 0
             ? approvalRates.reduce((sum, r) => sum + r, 0) /
-              approvalRates.length
+            approvalRates.length
             : 0;
 
         setStats({
@@ -132,86 +125,9 @@ export function useDashboardStats() {
   return stats;
 }
 
-interface StatItem {
-  label: string;
-  value: string | number;
-  subtitle?: string;
-  loading?: boolean;
-  error?: string | null;
-}
-
 const DashboardOverview: React.FC = () => {
   const stats = useDashboardStats();
-
-  const items: StatItem[] = [
-    {
-      label: "Total Funding Raised",
-      value: stats.loading ? "-" : formatCurrency(stats.totalFundingRaised),
-      subtitle: "ckUSDC",
-      loading: stats.loading,
-      error: stats.error,
-    },
-    {
-      label: "NFT Holders",
-      value: stats.loading ? "-" : formatNumber(stats.nftHolders),
-      subtitle: "active investors",
-      loading: stats.loading,
-      error: stats.error,
-    },
-    {
-      label: "Monthly Commitments",
-      value: stats.loading ? "-" : formatCurrency(stats.monthlyCommitments),
-      subtitle: "ckUSDC/month",
-      loading: stats.loading,
-      error: stats.error,
-    },
-    {
-      label: "Active Startups",
-      value: stats.loading ? "-" : formatNumber(stats.activeStartups),
-      subtitle: `of ${
-        stats.activeStartups + stats.pendingStartups + stats.draftStartups
-      } total`,
-      loading: stats.loading,
-      error: stats.error,
-    },
-    {
-      label: "Monthly Reports",
-      value: stats.loading ? "-" : formatNumber(stats.totalReports),
-      subtitle: "submitted reports",
-      loading: stats.loading,
-      error: stats.error,
-    },
-    {
-      label: "Total Votes",
-      value: stats.loading ? "-" : formatNumber(stats.totalVotes),
-      subtitle: "investor votes",
-      loading: stats.loading,
-      error: stats.error,
-    },
-    {
-      label: "Approval Rate",
-      value: stats.loading
-        ? "-"
-        : `${formatNumber(stats.averageApprovalRate)}%`,
-      subtitle: "average approval",
-      loading: stats.loading,
-      error: stats.error,
-    },
-    {
-      label: "Pending Startups",
-      value: stats.loading ? "-" : formatNumber(stats.pendingStartups),
-      subtitle: "awaiting collateral",
-      loading: stats.loading,
-      error: stats.error,
-    },
-    {
-      label: "Draft Startups",
-      value: stats.loading ? "-" : formatNumber(stats.draftStartups),
-      subtitle: "in development",
-      loading: stats.loading,
-      error: stats.error,
-    },
-  ];
+  const items = getDashboardStatsItems(stats);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">

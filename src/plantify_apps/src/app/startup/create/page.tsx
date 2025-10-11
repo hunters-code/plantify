@@ -482,7 +482,7 @@ export default function CreateStartupPage() {
           );
 
           // Redirect to dashboard
-          router.push('/founder/dashboard');
+          router.push('/founder');
         } else {
           // Error from backend
           console.error('Error from backend:', result.error);
