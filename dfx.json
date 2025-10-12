@@ -14,11 +14,8 @@
     "plantify_backend": {
       "main": "src/plantify_backend/main.mo",
       "type": "motoko",
-      "ic": "a5ptu-ryaaa-aaaai-q32cq-cai"
-    },
-    "ckUSDC": {
-      "main": "src/ckUSDC/ckUSDC.mo",
-      "type": "motoko"
+      "ic": "a5ptu-ryaaa-aaaai-q32cq-cai",
+      "args": "--enhanced-orthogonal-persistence"
     },
     "plantify_frontend": {
       "dependencies": [
