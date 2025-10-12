@@ -229,12 +229,12 @@ type Result_5 =
 type Result_4 = 
  variant {
    err: text;
-   ok: Investor;
+   ok: TopUpResponse;
  };
 type Result_3 = 
  variant {
    err: text;
-   ok: TopUpResponse;
+   ok: TransferNFTResponse;
  };
 type Result_24 = 
  variant {
@@ -264,7 +264,7 @@ type Result_20 =
 type Result_2 = 
  variant {
    err: text;
-   ok: TransferNFTResponse;
+   ok: Investor;
  };
 type Result_19 = 
  variant {
@@ -331,6 +331,19 @@ type ReportVoteDetails =
    individualVotes: vec InvestorVote;
    reportId: text;
    summary: VoteSummary;
+ };
+type PaginationParams = 
+ record {
+   limit: nat;
+   page: nat;
+ };
+type PaginatedStartups = 
+ record {
+   limit: nat;
+   page: nat;
+   startups: vec Startup;
+   totalCount: nat;
+   totalPages: nat;
  };
 type NFTPurchaseStats = 
  record {
@@ -534,20 +547,45 @@ type InvestorVote =
 type InvestorRegistrationRequest = 
  record {
    availableCapital: text;
+   bio: text;
    city: text;
+   company: text;
    country: text;
    email: text;
    fullName: text;
    investmentExperience: text;
    investmentGoals: text;
+   location: text;
    monthlyBudget: text;
+   occupation: text;
    phone: text;
+   profilePhoto: opt text;
    riskTolerance: text;
+ };
+type InvestorProfileUpdateRequest = 
+ record {
+   availableCapital: opt text;
+   bio: opt text;
+   city: opt text;
+   company: opt text;
+   country: opt text;
+   email: opt text;
+   fullName: opt text;
+   investmentExperience: opt text;
+   investmentGoals: opt text;
+   location: opt text;
+   monthlyBudget: opt text;
+   occupation: opt text;
+   phone: opt text;
+   profilePhoto: opt text;
+   riskTolerance: opt text;
  };
 type Investor = 
  record {
    availableCapital: text;
+   bio: text;
    city: text;
+   company: text;
    country: text;
    createdAt: Time;
    email: text;
@@ -555,9 +593,12 @@ type Investor =
    id: text;
    investmentExperience: text;
    investmentGoals: text;
+   location: text;
    monthlyBudget: text;
+   occupation: text;
    phone: text;
    "principal": principal;
+   profilePhoto: opt text;
    riskTolerance: text;
    updatedAt: Time;
  };
@@ -659,19 +700,6 @@ type BalanceResponse =
               tokenType: text;
             };
  };
-type PaginationParams = 
- record {
-   limit: nat;
-   page: nat;
- };
-type PaginatedStartups = 
- record {
-   limit: nat;
-   page: nat;
-   startups: vec Startup;
-   totalCount: nat;
-   totalPages: nat;
- };
 service : {
   approveMonthlyReport: (reportId: text) -> (Result_1);
   calculateRequiredCollateral: (monthlyProfitSharing: nat, tokenType:
@@ -690,10 +718,9 @@ service : {
   getAllPurchases: () -> (vec NFTPurchaseInfo);
   getAllStartups: () -> (vec Startup);
   getAllVotes: () -> (vec InvestorVote);
-  getStartupsCount: () -> (nat);
-  getStartupsPaginated: (params: PaginationParams) -> (PaginatedStartups);
   getBalance: (account: TransferAccount, tokenType: text) ->
    (BalanceResponse);
+  getCanisterVersion: () -> (nat);
   getCkUSDCBalance: (account: TransferAccount) -> (BalanceResponse);
   getCkUSDCTokenConfig: () -> (TokenConfig);
   getCollateralProgress: (startupId: text) -> (CollateralProgressResponse);
@@ -702,11 +729,13 @@ service : {
   getCollectionInfo: () -> (NFTConfig);
   getEnvironment: () -> (text);
   getEnvironmentConfig: () -> (EnvironmentConfig);
+  getFeaturedStartup: () -> (opt Startup);
   getFounderByPrincipal: () -> (opt Founder);
   getFounders: () -> (vec Founder);
   getICPBalance: (account: TransferAccount) -> (BalanceResponse);
   getICPTokenConfig: () -> (TokenConfig);
   getInvestorByPrincipal: () -> (opt Investor);
+  getInvestorProfile: () -> (opt Investor);
   getInvestorPurchaseHistory: (investorId: text) -> (Result_10);
   getInvestorVoteForReport: (reportId: text) -> (Result_20);
   getInvestorVoteHistory: (investorId: text) -> (Result_19);
@@ -734,6 +763,8 @@ service : {
   getReportVotes: (reportId: text) -> (vec InvestorVote);
   getStartupDetails: (startupId: text) -> (opt Startup);
   getStartupPurchaseHistory: (startupId: text) -> (Result_10);
+  getStartupsCount: () -> (nat);
+  getStartupsPaginated: (params: PaginationParams) -> (PaginatedStartups);
   getTokenCanisterId: (tokenType: text) -> (opt text);
   getTokenInfo: (tokenType: text) -> (TokenInfoResponse);
   getUserType: () -> (opt UserType);
@@ -748,16 +779,18 @@ service : {
   mintNFTForStartup: (startupId: text) -> (Result_7);
   purchaseNFT: (request: NFTPurchaseRequest) -> (Result_6);
   registerFounder: (request: FounderRegistrationRequest) -> (Result_5);
-  registerInvestor: (request: InvestorRegistrationRequest) -> (Result_4);
+  registerInvestor: (request: InvestorRegistrationRequest) -> (Result_2);
   rejectMonthlyReport: (reportId: text) -> (Result_1);
   submitMonthlyReport: (reportId: text) -> (Result_1);
-  topUpCollateral: (request: TopUpRequest) -> (Result_3);
+  topUpCollateral: (request: TopUpRequest) -> (Result_4);
   transferCkUSDC: (toAccount: TransferAccount, amount: nat, memo:
    opt text) -> (TransferResponse);
   transferICP: (toAccount: TransferAccount, amount: nat, memo: opt text) ->
    (TransferResponse);
-  transferNFT: (request: TransferNFTRequest) -> (Result_2);
+  transferNFT: (request: TransferNFTRequest) -> (Result_3);
   transferTokens: (args: TransferArgs) -> (TransferResponse);
+  updateInvestorProfile: (request: InvestorProfileUpdateRequest) ->
+   (Result_2);
   updateMonthlyReport: (reportId: text, request: MonthlyReportRequest) ->
    (Result_1);
   updateStartupStatus: (startupId: text, newStatus: text) -> (bool);

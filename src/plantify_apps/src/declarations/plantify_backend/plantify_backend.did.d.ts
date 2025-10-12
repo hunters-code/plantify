@@ -1,6 +1,6 @@
+import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
-import type { Principal } from '@dfinity/principal';
 
 export type BalanceResponse =
   | { Error: string }
@@ -90,31 +90,58 @@ export interface FounderRegistrationRequest {
 }
 export interface Investor {
   id: string;
+  bio: string;
+  occupation: string;
   principal: Principal;
   country: string;
   riskTolerance: string;
   monthlyBudget: string;
   city: string;
   createdAt: Time;
+  profilePhoto: [] | [string];
   fullName: string;
   email: string;
   updatedAt: Time;
+  company: string;
   investmentGoals: string;
   availableCapital: string;
   phone: string;
   investmentExperience: string;
+  location: string;
+}
+export interface InvestorProfileUpdateRequest {
+  bio: [] | [string];
+  occupation: [] | [string];
+  country: [] | [string];
+  riskTolerance: [] | [string];
+  monthlyBudget: [] | [string];
+  city: [] | [string];
+  profilePhoto: [] | [string];
+  fullName: [] | [string];
+  email: [] | [string];
+  company: [] | [string];
+  investmentGoals: [] | [string];
+  availableCapital: [] | [string];
+  phone: [] | [string];
+  investmentExperience: [] | [string];
+  location: [] | [string];
 }
 export interface InvestorRegistrationRequest {
+  bio: string;
+  occupation: string;
   country: string;
   riskTolerance: string;
   monthlyBudget: string;
   city: string;
+  profilePhoto: [] | [string];
   fullName: string;
   email: string;
+  company: string;
   investmentGoals: string;
   availableCapital: string;
   phone: string;
   investmentExperience: string;
+  location: string;
 }
 export interface InvestorVote {
   id: string;
@@ -284,6 +311,17 @@ export interface NFTPurchaseStats {
   averagePurchaseAmount: bigint;
   totalRevenue: bigint;
 }
+export interface PaginatedStartups {
+  startups: Array<Startup>;
+  page: bigint;
+  totalCount: bigint;
+  limit: bigint;
+  totalPages: bigint;
+}
+export interface PaginationParams {
+  page: bigint;
+  limit: bigint;
+}
 export interface ReportVoteDetails {
   summary: VoteSummary;
   individualVotes: Array<InvestorVote>;
@@ -301,14 +339,14 @@ export type Result_16 = { ok: NFTInfo } | { err: string };
 export type Result_17 = { ok: NFTBalanceResponse } | { err: string };
 export type Result_18 = { ok: MonthlyReportList } | { err: string };
 export type Result_19 = { ok: InvestorVoteHistory } | { err: string };
-export type Result_2 = { ok: TransferNFTResponse } | { err: string };
+export type Result_2 = { ok: Investor } | { err: string };
 export type Result_20 = { ok: [] | [InvestorVote] } | { err: string };
 export type Result_21 = { ok: Array<CollateralTopUp> } | { err: string };
 export type Result_22 = { ok: CollateralInfo } | { err: string };
 export type Result_23 = { ok: Startup } | { err: string };
 export type Result_24 = { ok: boolean } | { err: string };
-export type Result_3 = { ok: TopUpResponse } | { err: string };
-export type Result_4 = { ok: Investor } | { err: string };
+export type Result_3 = { ok: TransferNFTResponse } | { err: string };
+export type Result_4 = { ok: TopUpResponse } | { err: string };
 export type Result_5 = { ok: Founder } | { err: string };
 export type Result_6 = { ok: NFTPurchaseResponse } | { err: string };
 export type Result_7 = { ok: string } | { err: string };
@@ -490,17 +528,6 @@ export interface VotingStats {
   totalReportsVoted: bigint;
 }
 export interface _SERVICE {
-  getStartupsPaginated: ActorMethod<
-    [{ page: number; limit: number }],
-    {
-      startups: Startup[];
-      totalCount: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    }
-  >;
-  getStartupsCount: ActorMethod<[], number>;
   approveMonthlyReport: ActorMethod<[string], Result_1>;
   calculateRequiredCollateral: ActorMethod<[bigint, string], bigint>;
   canInvestorVote: ActorMethod<[string], Result_24>;
@@ -520,6 +547,7 @@ export interface _SERVICE {
   getAllStartups: ActorMethod<[], Array<Startup>>;
   getAllVotes: ActorMethod<[], Array<InvestorVote>>;
   getBalance: ActorMethod<[TransferAccount, string], BalanceResponse>;
+  getCanisterVersion: ActorMethod<[], bigint>;
   getCkUSDCBalance: ActorMethod<[TransferAccount], BalanceResponse>;
   getCkUSDCTokenConfig: ActorMethod<[], TokenConfig>;
   getCollateralProgress: ActorMethod<[string], CollateralProgressResponse>;
@@ -528,11 +556,13 @@ export interface _SERVICE {
   getCollectionInfo: ActorMethod<[], NFTConfig>;
   getEnvironment: ActorMethod<[], string>;
   getEnvironmentConfig: ActorMethod<[], EnvironmentConfig>;
+  getFeaturedStartup: ActorMethod<[], [] | [Startup]>;
   getFounderByPrincipal: ActorMethod<[], [] | [Founder]>;
   getFounders: ActorMethod<[], Array<Founder>>;
   getICPBalance: ActorMethod<[TransferAccount], BalanceResponse>;
   getICPTokenConfig: ActorMethod<[], TokenConfig>;
   getInvestorByPrincipal: ActorMethod<[], [] | [Investor]>;
+  getInvestorProfile: ActorMethod<[], [] | [Investor]>;
   getInvestorPurchaseHistory: ActorMethod<[string], Result_10>;
   getInvestorVoteForReport: ActorMethod<[string], Result_20>;
   getInvestorVoteHistory: ActorMethod<[string], Result_19>;
@@ -560,6 +590,8 @@ export interface _SERVICE {
   getReportVotes: ActorMethod<[string], Array<InvestorVote>>;
   getStartupDetails: ActorMethod<[string], [] | [Startup]>;
   getStartupPurchaseHistory: ActorMethod<[string], Result_10>;
+  getStartupsCount: ActorMethod<[], bigint>;
+  getStartupsPaginated: ActorMethod<[PaginationParams], PaginatedStartups>;
   getTokenCanisterId: ActorMethod<[string], [] | [string]>;
   getTokenInfo: ActorMethod<[string], TokenInfoResponse>;
   getUserType: ActorMethod<[], [] | [UserType]>;
@@ -573,10 +605,10 @@ export interface _SERVICE {
   mintNFTForStartup: ActorMethod<[string], Result_7>;
   purchaseNFT: ActorMethod<[NFTPurchaseRequest], Result_6>;
   registerFounder: ActorMethod<[FounderRegistrationRequest], Result_5>;
-  registerInvestor: ActorMethod<[InvestorRegistrationRequest], Result_4>;
+  registerInvestor: ActorMethod<[InvestorRegistrationRequest], Result_2>;
   rejectMonthlyReport: ActorMethod<[string], Result_1>;
   submitMonthlyReport: ActorMethod<[string], Result_1>;
-  topUpCollateral: ActorMethod<[TopUpRequest], Result_3>;
+  topUpCollateral: ActorMethod<[TopUpRequest], Result_4>;
   transferCkUSDC: ActorMethod<
     [TransferAccount, bigint, [] | [string]],
     TransferResponse
@@ -585,8 +617,9 @@ export interface _SERVICE {
     [TransferAccount, bigint, [] | [string]],
     TransferResponse
   >;
-  transferNFT: ActorMethod<[TransferNFTRequest], Result_2>;
+  transferNFT: ActorMethod<[TransferNFTRequest], Result_3>;
   transferTokens: ActorMethod<[TransferArgs], TransferResponse>;
+  updateInvestorProfile: ActorMethod<[InvestorProfileUpdateRequest], Result_2>;
   updateMonthlyReport: ActorMethod<[string, MonthlyReportRequest], Result_1>;
   updateStartupStatus: ActorMethod<[string, string], boolean>;
   updateVote: ActorMethod<[string, VoteRequest], Result>;

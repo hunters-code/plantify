@@ -68,6 +68,11 @@ module Registration {
                 phone = request.phone;
                 country = request.country;
                 city = request.city;
+                location = request.location;
+                occupation = request.occupation;
+                company = request.company;
+                bio = request.bio;
+                profilePhoto = request.profilePhoto;
                 investmentExperience = request.investmentExperience;
                 riskTolerance = request.riskTolerance;
                 investmentGoals = request.investmentGoals;

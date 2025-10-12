@@ -101,6 +101,26 @@ persistent actor PlantifyBackend {
     storage.getInvestorByPrincipal(msg.caller);
   };
 
+  public shared (msg) func updateInvestorProfile(request : Types.InvestorProfileUpdateRequest) : async Result.Result<Types.Investor, Text> {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #err("Investor not found") };
+      case (?investor) {
+        if (storage.updateInvestorProfile(investor.id, request)) {
+          switch (storage.getInvestor(investor.id)) {
+            case null { #err("Failed to retrieve updated investor") };
+            case (?updatedInvestor) { #ok(updatedInvestor) };
+          };
+        } else {
+          #err("Failed to update investor profile");
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getInvestorProfile() : async ?Types.Investor {
+    storage.getInvestorByPrincipal(msg.caller);
+  };
+
   public shared (msg) func getUserType() : async ?Types.UserType {
     switch (storage.getFounderByPrincipal(msg.caller)) {
       case (?_founder) { ?#Founder };

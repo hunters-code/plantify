@@ -17,9 +17,7 @@ export class CollateralService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The collateral info or error message
    */
-  public static async getCollateralStatus(
-    startupId: string
-  ): Promise<{
+  public static async getCollateralStatus(startupId: string): Promise<{
     success: boolean;
     collateral?: CollateralInfo;
     error?: string;
@@ -44,9 +42,7 @@ export class CollateralService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The collateral progress or error message
    */
-  public static async getCollateralProgress(
-    startupId: string
-  ): Promise<{
+  public static async getCollateralProgress(startupId: string): Promise<{
     success: boolean;
     progress?: CollateralProgress;
     error?: string;
