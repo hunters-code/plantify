@@ -4,6 +4,7 @@ import { CircleDollarSign, Coins, Eye, Globe, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+
 import { useFeaturedStartup } from '@/hooks/useFeaturedStartup';
 
 interface StartupCardProps {

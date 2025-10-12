@@ -34,6 +34,8 @@ interface FormData {
   terms: boolean;
   risks: boolean;
   transparency: boolean;
+  governmentIdFile?: File;
+  taxIdFile?: File;
 }
 
 export default function RegisterFounder() {

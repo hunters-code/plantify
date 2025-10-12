@@ -32,7 +32,8 @@ export class TokenService extends BaseService {
     tokenType: string
   ): Promise<BalanceResponse> {
     try {
-      return await this.getActor().getBalance(account, tokenType);
+      const actor = await this.getActor();
+      return await actor.getBalance(account, tokenType);
     } catch (error) {
       console.error('Error getting balance:', error);
       return { Error: 'Failed to get balance' };
@@ -48,7 +49,8 @@ export class TokenService extends BaseService {
     account: TransferAccount
   ): Promise<BalanceResponse> {
     try {
-      return await this.getActor().getCkUSDCBalance(account);
+      const actor = await this.getActor();
+      return await actor.getCkUSDCBalance(account);
     } catch (error) {
       console.error('Error getting ckUSDC balance:', error);
       return { Error: 'Failed to get ckUSDC balance' };
@@ -64,7 +66,8 @@ export class TokenService extends BaseService {
     account: TransferAccount
   ): Promise<BalanceResponse> {
     try {
-      return await this.getActor().getICPBalance(account);
+      const actor = await this.getActor();
+      return await actor.getICPBalance(account);
     } catch (error) {
       console.error('Error getting ICP balance:', error);
       return { Error: 'Failed to get ICP balance' };
@@ -80,7 +83,8 @@ export class TokenService extends BaseService {
     args: TransferArgs
   ): Promise<TransferResponse> {
     try {
-      return await this.getActor().transferTokens(args);
+      const actor = await this.getActor();
+      return await actor.transferTokens(args);
     } catch (error) {
       console.error('Error transferring tokens:', error);
       return { Error: 'Failed to transfer tokens' };
@@ -100,11 +104,8 @@ export class TokenService extends BaseService {
     memo?: string
   ): Promise<TransferResponse> {
     try {
-      return await this.getActor().transferCkUSDC(
-        toAccount,
-        amount,
-        memo ? [memo] : []
-      );
+      const actor = await this.getActor();
+      return await actor.transferCkUSDC(toAccount, amount, memo ? [memo] : []);
     } catch (error) {
       console.error('Error transferring ckUSDC:', error);
       return { Error: 'Failed to transfer ckUSDC' };
@@ -124,11 +125,8 @@ export class TokenService extends BaseService {
     memo?: string
   ): Promise<TransferResponse> {
     try {
-      return await this.getActor().transferICP(
-        toAccount,
-        amount,
-        memo ? [memo] : []
-      );
+      const actor = await this.getActor();
+      return await actor.transferICP(toAccount, amount, memo ? [memo] : []);
     } catch (error) {
       console.error('Error transferring ICP:', error);
       return { Error: 'Failed to transfer ICP' };
@@ -144,7 +142,8 @@ export class TokenService extends BaseService {
     tokenType: string
   ): Promise<TokenInfoResponse> {
     try {
-      return await this.getActor().getTokenInfo(tokenType);
+      const actor = await this.getActor();
+      return await actor.getTokenInfo(tokenType);
     } catch (error) {
       console.error('Error getting token info:', error);
       return { Error: 'Failed to get token info' };
@@ -157,7 +156,8 @@ export class TokenService extends BaseService {
    */
   public static async getCkUSDCTokenConfig(): Promise<TokenConfig | null> {
     try {
-      return await this.getActor().getCkUSDCTokenConfig();
+      const actor = await this.getActor();
+      return await actor.getCkUSDCTokenConfig();
     } catch (error) {
       console.error('Error getting ckUSDC token config:', error);
       return null;
@@ -170,7 +170,8 @@ export class TokenService extends BaseService {
    */
   public static async getICPTokenConfig(): Promise<TokenConfig | null> {
     try {
-      return await this.getActor().getICPTokenConfig();
+      const actor = await this.getActor();
+      return await actor.getICPTokenConfig();
     } catch (error) {
       console.error('Error getting ICP token config:', error);
       return null;
@@ -186,7 +187,8 @@ export class TokenService extends BaseService {
     request: TopUpRequest
   ): Promise<{ success: boolean; response?: TopUpResponse; error?: string }> {
     try {
-      const result: Result_3 = await this.getActor().topUpCollateral(request);
+      const actor = await this.getActor();
+      const result: Result_3 = await actor.topUpCollateral(request);
 
       if ('ok' in result) {
         return { success: true, response: result.ok };
@@ -208,8 +210,8 @@ export class TokenService extends BaseService {
     startupId: string
   ): Promise<{ success: boolean; info?: CollateralInfo; error?: string }> {
     try {
-      const result: Result_22 =
-        await this.getActor().getCollateralStatus(startupId);
+      const actor = await this.getActor();
+      const result: Result_22 = await actor.getCollateralStatus(startupId);
 
       if ('ok' in result) {
         return { success: true, info: result.ok };
@@ -231,7 +233,8 @@ export class TokenService extends BaseService {
     startupId: string
   ): Promise<CollateralProgressResponse> {
     try {
-      return await this.getActor().getCollateralProgress(startupId);
+      const actor = await this.getActor();
+      return await actor.getCollateralProgress(startupId);
     } catch (error) {
       console.error('Error getting collateral progress:', error);
       return { Error: 'Failed to get collateral progress' };
@@ -249,8 +252,9 @@ export class TokenService extends BaseService {
     error?: string;
   }> {
     try {
+      const actor = await this.getActor();
       const result: Result_21 =
-        await this.getActor().getCollateralTopUpHistory(startupId);
+        await actor.getCollateralTopUpHistory(startupId);
 
       if ('ok' in result) {
         return { success: true, history: result.ok };

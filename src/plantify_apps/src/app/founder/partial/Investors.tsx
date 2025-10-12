@@ -464,11 +464,11 @@ export default function Investors({ startupId }: InvestorsProps) {
                   </div>
                 </div>
                 <div className='flex gap-2'>
-                  <Button variant='secondary' size='sm'>
+                  <Button variant='secondary' className='text-xs px-3 py-2'>
                     <Eye size={14} />
                     View
                   </Button>
-                  <Button variant='secondary' size='sm'>
+                  <Button variant='secondary' className='text-xs px-3 py-2'>
                     <MessageCircle size={14} />
                     Message
                   </Button>

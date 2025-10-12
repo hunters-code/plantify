@@ -25,7 +25,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
   formData,
   setFormData,
   errors = {},
-  _touched = {},
+  touched = {},
 }) => {
   const [isUploadingFounder, setIsUploadingFounder] = useState(false);
   const [isUploadingTeamMember, setIsUploadingTeamMember] = useState<
@@ -33,7 +33,9 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
   >(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData(name, value);
@@ -75,7 +77,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
   const handleTeamMemberChange = (
     index: number,
     field: string,
-    value: string
+    value: string | File
   ) => {
     const updatedTeamMembers = [...(formData.teamMembers || [])];
     if (!updatedTeamMembers[index]) {

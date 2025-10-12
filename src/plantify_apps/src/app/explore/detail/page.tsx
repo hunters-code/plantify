@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 
 import Footer from '@/components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
@@ -70,7 +70,7 @@ interface InvestmentDetails {
   soldNFTs: number;
 }
 
-export default function ExploreDetail() {
+function ExploreDetailContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id') || '1'; // Get ID from query parameter
   console.log('Detail page loaded with ID:', id);
@@ -477,5 +477,13 @@ export default function ExploreDetail() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function ExploreDetail() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ExploreDetailContent />
+    </Suspense>
   );
 }

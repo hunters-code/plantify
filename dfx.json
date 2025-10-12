@@ -18,14 +18,11 @@
       "args": "--enhanced-orthogonal-persistence"
     },
     "plantify_frontend": {
-      "dependencies": [
-        "plantify_backend"
-      ],
       "source": [
-        "src/plantify_frontend/dist"
+        "src/plantify_apps/dist"
       ],
       "type": "assets",
-      "workspace": "plantify_frontend",
+      "workspace": "src/plantify_apps",
       "ic": "ueifo-jqaaa-aaaah-qqewa-cai"
     }
   },

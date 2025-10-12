@@ -70,8 +70,9 @@ export class StartupService extends BaseService {
         await this.initialize();
       }
 
-      const startupOpt = await this.getActor().getFeaturedStartup();
-      return startupOpt.length ? startupOpt[0] : null;
+      const actor = await this.getActor();
+      const allStartups = await actor.getAllStartups();
+      return allStartups.length > 0 ? allStartups[0] : null;
     } catch (error) {
       console.error('Error getting featured startup:', error);
       return null;

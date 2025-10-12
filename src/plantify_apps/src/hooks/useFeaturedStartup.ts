@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { StartupService } from '@/services/marketplace/StartupService';
+
 import type { Startup } from '@/declarations/plantify_backend/plantify_backend.did';
+import { StartupService } from '@/services/marketplace/StartupService';
 
 export interface FeaturedStartupData {
   startup: Startup | null;
