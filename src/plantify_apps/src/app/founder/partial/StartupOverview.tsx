@@ -36,8 +36,6 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
         setLoading(true);
         setError(null);
 
-        console.log('Fetching startup overview data for:', startupId);
-
         // Fetch startup details and purchase history in parallel
         const [startupResult, purchaseResult] = await Promise.all([
           StartupService.getStartupDetails(startupId),
@@ -46,12 +44,10 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
 
         if (startupResult) {
           setStartup(startupResult);
-          console.log('Startup overview data loaded:', startupResult);
         }
 
         if (purchaseResult.success && purchaseResult.history) {
           setPurchaseHistory(purchaseResult.history);
-          console.log('Purchase history loaded:', purchaseResult.history);
         }
       } catch (err) {
         console.error('Error fetching startup overview data:', err);

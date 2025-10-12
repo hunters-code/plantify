@@ -107,17 +107,11 @@ export default function Explores() {
         setLoading(true);
         setError(null);
 
-        console.log(
-          `Fetching startups for page ${page} with limit ${ITEMS_PER_PAGE}`
-        );
-
         // Use the StartupService to fetch startups with pagination - no authentication required
         const result = await StartupService.getStartupsPaginated({
           page,
           limit: ITEMS_PER_PAGE,
         });
-
-        console.log('API response:', result);
 
         // Map the backend data to the UI format
         const mappedStartups = result.startups.map(mapStartupData);
@@ -176,7 +170,6 @@ export default function Explores() {
   // Handle page change
   const handlePageChange = useCallback(
     (page: number) => {
-      console.log(`Page change requested to: ${page}`);
       updateURLParams(page, filter, searchTerm);
       fetchStartups(page);
     },
@@ -215,7 +208,6 @@ export default function Explores() {
 
   // Load startups on component mount
   useEffect(() => {
-    console.log('Component mounted, fetching initial data');
     fetchStartups(currentPage);
   }, [fetchStartups, currentPage]);
 

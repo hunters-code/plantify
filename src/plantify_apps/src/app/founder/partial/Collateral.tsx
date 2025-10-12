@@ -38,8 +38,6 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
         setLoading(true);
         setError(null);
 
-        console.log('Fetching collateral data for startup:', startupId);
-
         // Fetch all collateral data in parallel
         const [statusResult, progressResult, historyResult] = await Promise.all(
           [
@@ -51,17 +49,14 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
 
         if (statusResult.success && statusResult.collateral) {
           setCollateralInfo(statusResult.collateral);
-          console.log('Collateral status loaded:', statusResult.collateral);
         }
 
         if (progressResult.success && progressResult.progress) {
           setCollateralProgress(progressResult.progress);
-          console.log('Collateral progress loaded:', progressResult.progress);
         }
 
         if (historyResult.success && historyResult.history) {
           setTopUpHistory(historyResult.history);
-          console.log('Top-up history loaded:', historyResult.history);
         }
       } catch (err) {
         console.error('Error fetching collateral data:', err);

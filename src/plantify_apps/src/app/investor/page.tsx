@@ -60,20 +60,20 @@ export default function InvestorDashboard() {
   const isAuthenticated = true;
   const authLoading = false;
 
-  const refetch = () => console.log('Refetch dashboard...');
-  const refetchPortfolio = () => console.log('Refetch portfolio...');
+  const refetch = () => {};
+  const refetchPortfolio = () => {};
 
   // ========== Handlers ==========
   const handleViewDetails = (investment: Investment) => {
-    console.log('View details of', investment.startupId);
+    // Handle view details
   };
 
   const handleVoteReport = (investment: Investment) => {
-    console.log('Vote on report for:', investment.name);
+    // Handle vote report
   };
 
   const handleAddInvestment = (investment: Investment) => {
-    console.log('Add investment:', investment.startupId);
+    // Handle add investment
   };
 
   const tabs = [
@@ -85,16 +85,7 @@ export default function InvestorDashboard() {
 
   // Debug log
   useEffect(() => {
-    console.log('Investor Dashboard Debug:', {
-      activeTab,
-      isAuthenticated,
-      authLoading,
-      dashboardLoading: dashboardData.loading,
-      portfolioLoading: portfolioData.loading,
-      dashboardError: dashboardData.error,
-      portfolioError: portfolioData.error,
-      investmentsCount: portfolioData.investments?.length || 0,
-    });
+    // Debug info
   }, [activeTab]);
 
   // ========== Loading State ==========
@@ -133,10 +124,7 @@ export default function InvestorDashboard() {
                 <Button variant='primary' onClick={refetch}>
                   Try Again
                 </Button>
-                <Button
-                  variant='secondary'
-                  onClick={() => console.log('Navigate to register')}
-                >
+                <Button variant='secondary' onClick={() => {}}>
                   Register as Investor
                 </Button>
               </div>

@@ -66,7 +66,6 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
       // Upload the file and get the preview URL
       setIsUploadingFinancialProjections(true);
       try {
-        console.log('Uploading financial projections for preview...');
         const fileUrl = await uploadFile(
           file,
           'plantify-uploads',
@@ -74,8 +73,6 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
         );
 
         if (fileUrl) {
-          console.log('Financial projections uploaded successfully:', fileUrl);
-
           // Store the URL in the form data
           setFormData('financialProjectionsUrl', fileUrl);
         } else {
@@ -99,7 +96,6 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
       // Upload the file and get the preview URL
       setIsUploadingLegalDocuments(true);
       try {
-        console.log('Uploading legal documents for preview...');
         const fileUrl = await uploadFile(
           file,
           'plantify-uploads',
@@ -107,8 +103,6 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
         );
 
         if (fileUrl) {
-          console.log('Legal documents uploaded successfully:', fileUrl);
-
           // Store the URL in the form data
           setFormData('legalDocumentsUrl', fileUrl);
         } else {

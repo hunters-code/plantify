@@ -29,13 +29,10 @@ export default function TeamSection({ startupId }: { startupId: string }) {
         setLoading(true);
         setError(null);
 
-        console.log('Fetching startup details for ID:', startupId);
         const startupData = await StartupService.getStartupDetails(startupId);
         if (startupData) {
           setStartup(startupData);
           setTeamMembers(startupData.teamMembers || []);
-          console.log('Startup data loaded:', startupData);
-          console.log('Team members:', startupData.teamMembers);
         } else {
           setError('Startup not found');
         }

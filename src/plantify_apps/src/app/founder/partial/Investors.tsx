@@ -53,8 +53,6 @@ function useInvestors(startupId?: string) {
         setLoading(true);
         setError(null);
 
-        console.log('Fetching investor data for startup:', startupId);
-
         // Fetch all required data in parallel
         const [allInvestorsResult, purchaseHistoryResult, allPurchasesResult] =
           await Promise.all([
@@ -62,10 +60,6 @@ function useInvestors(startupId?: string) {
             StartupService.getStartupPurchaseHistory(startupId),
             StartupService.getAllPurchases(),
           ]);
-
-        console.log('All investors:', allInvestorsResult);
-        console.log('Purchase history:', purchaseHistoryResult);
-        console.log('All purchases:', allPurchasesResult);
 
         // Process purchase history to get startup-specific investors
         let startupInvestors: InvestorWithStats[] = [];
@@ -134,7 +128,6 @@ function useInvestors(startupId?: string) {
         startupInvestors.sort((a, b) => b.totalInvestment - a.totalInvestment);
 
         setInvestors(startupInvestors);
-        console.log('Processed startup investors:', startupInvestors);
       } catch (err) {
         console.error('Error fetching investor data:', err);
         setError('Failed to load investor data');

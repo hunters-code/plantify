@@ -51,7 +51,6 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
       // Upload the file and get the preview URL
       setIsUploadingFounder(true);
       try {
-        console.log('Uploading founder photo for preview...');
         const fileUrl = await uploadFile(
           file,
           'plantify-uploads',
@@ -59,8 +58,6 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
         );
 
         if (fileUrl) {
-          console.log('Founder photo uploaded successfully:', fileUrl);
-
           // Store the URL in the form data
           setFormData('founderPhotoUrl', fileUrl);
         } else {
@@ -106,15 +103,9 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
       // Upload the file and get the preview URL
       setIsUploadingTeamMember(index);
       try {
-        console.log(`Uploading team member ${index} photo for preview...`);
         const fileUrl = await uploadFile(file, 'plantify-uploads', 'teamPhoto');
 
         if (fileUrl) {
-          console.log(
-            `Team member ${index} photo uploaded successfully:`,
-            fileUrl
-          );
-
           // Store the URL in the team member data
           handleTeamMemberChange(index, 'photoUrl', fileUrl);
 
