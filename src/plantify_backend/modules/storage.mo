@@ -5,31 +5,48 @@ import HashMap "mo:base/HashMap";
 import Time "mo:base/Time";
 import Array "mo:base/Array";
 import Iter "mo:base/Iter";
+import Char "mo:base/Char";
+import Nat32 "mo:base/Nat32";
 import Types "./types";
 
 module Storage {
+  // Helper function to convert text to natural number
+  private func textToNat(txt : Text) : Nat {
+    assert (txt.size() > 0);
+    let chars = txt.chars();
+
+    var num : Nat = 0;
+    for (v in chars) {
+      let charToNum = Nat32.toNat(Char.toNat32(v) -48);
+      assert (charToNum >= 0 and charToNum <= 9);
+      num := num * 10 + charToNum;
+    };
+
+    num;
+  };
+
   public class UserStorage(
-    foundersEntries: [(Text, Types.Founder)],
-    founderPrincipalsEntries: [(Principal, Text)],
-    investorsEntries: [(Text, Types.Investor)],
-    investorPrincipalsEntries: [(Principal, Text)],
-    startupsEntries: [(Text, Types.Startup)],
-    founderStartupsEntries: [(Text, [Text])],
-    monthlyReportsEntries: [(Text, Types.MonthlyReport)],
-    startupReportsEntries: [(Text, [Text])],
-    votesEntries: [(Text, Types.InvestorVote)],
-    reportVotesEntries: [(Text, [Text])],
-    investorVotesEntries: [(Text, [Text])],
-    initialNextFounderId: Nat,
-    initialNextInvestorId: Nat,
-    initialNextStartupId: Nat,
-    initialNextReportId: Nat,
-    initialNextVoteId: Nat
+    foundersEntries : [(Text, Types.Founder)],
+    founderPrincipalsEntries : [(Principal, Text)],
+    investorsEntries : [(Text, Types.Investor)],
+    investorPrincipalsEntries : [(Principal, Text)],
+    startupsEntries : [(Text, Types.Startup)],
+    founderStartupsEntries : [(Text, [Text])],
+    monthlyReportsEntries : [(Text, Types.MonthlyReport)],
+    startupReportsEntries : [(Text, [Text])],
+    votesEntries : [(Text, Types.InvestorVote)],
+    reportVotesEntries : [(Text, [Text])],
+    investorVotesEntries : [(Text, [Text])],
+    initialNextFounderId : Nat,
+    initialNextInvestorId : Nat,
+    initialNextStartupId : Nat,
+    initialNextReportId : Nat,
+    initialNextVoteId : Nat,
   ) {
     // ========================================
     // STORAGE VARIABLES
     // ========================================
-    
+
     // Founder Storage
     public var founders = HashMap.fromIter<Text, Types.Founder>(
       foundersEntries.vals(),
@@ -153,7 +170,7 @@ module Storage {
     public func getAllFounders() : [Types.Founder] {
       let founderArray = Array.map<(Text, Types.Founder), Types.Founder>(
         Iter.toArray(founders.entries()),
-        func((id, founder) : (Text, Types.Founder)) : Types.Founder { founder }
+        func((id, founder) : (Text, Types.Founder)) : Types.Founder { founder },
       );
       founderArray;
     };
@@ -161,7 +178,9 @@ module Storage {
     public func getAllInvestors() : [Types.Investor] {
       let investorArray = Array.map<(Text, Types.Investor), Types.Investor>(
         Iter.toArray(investors.entries()),
-        func((id, investor) : (Text, Types.Investor)) : Types.Investor { investor }
+        func((id, investor) : (Text, Types.Investor)) : Types.Investor {
+          investor;
+        },
       );
       investorArray;
     };
@@ -252,7 +271,6 @@ module Storage {
             monthlyExpenses = startupRequest.monthlyExpenses;
             useOfFunds = startupRequest.useOfFunds;
 
-
             // Documents
             businessPlan = startupRequest.businessPlan;
             financialProjections = startupRequest.financialProjections;
@@ -321,7 +339,7 @@ module Storage {
 
     public func getStartupsByFounderPrincipalPaginated(principal : Principal, params : Types.PaginationParams) : Types.PaginatedStartups {
       switch (founderPrincipals.get(principal)) {
-        case null { 
+        case null {
           {
             startups = [];
             totalCount = 0;
@@ -334,35 +352,75 @@ module Storage {
           let founderStartups = getStartupsByFounder(founderId);
           let totalCount = founderStartups.size();
           let offset = params.page * params.limit;
-          
+
           let paginatedStartups = if (offset >= totalCount or params.limit == 0) {
             [];
           } else {
             let endIndex = Nat.min(offset + params.limit, totalCount);
-            let takeCount = if (endIndex > offset) { 
-              if (endIndex >= offset) { 
-                if (endIndex > offset) { endIndex - offset } else { 0 }
-              } else { 0 }
+            let takeCount = if (endIndex > offset) {
+              if (endIndex >= offset) {
+                if (endIndex > offset) { endIndex - offset } else { 0 };
+              } else { 0 };
             } else { 0 };
-            
+
             if (takeCount == 0) {
               [];
             } else {
-              Array.tabulate<Types.Startup>(takeCount, func(i : Nat) : Types.Startup {
-                founderStartups[offset + i];
-              });
+              Array.tabulate<Types.Startup>(
+                takeCount,
+                func(i : Nat) : Types.Startup {
+                  founderStartups[offset + i];
+                },
+              );
             };
           };
-          
-          let totalPages = if (totalCount == 0 or params.limit == 0) { 
-            0 
-          } else { 
+
+          // Convert to lightweight startup summaries
+          let startupSummaries = Array.map<Types.Startup, Types.StartupSummary>(
+            paginatedStartups,
+            func(startup : Types.Startup) : Types.StartupSummary {
+              // Get first company image or empty array if none
+              let firstImage = if (startup.companyImages.size() > 0) {
+                [startup.companyImages[0]];
+              } else {
+                [];
+              };
+
+              // Parse funding goal to calculate available NFTs
+              let fundingGoal = textToNat(startup.fundingGoal);
+              let nftPrice = textToNat(startup.nftPrice);
+              let availableNFTs = if (nftPrice > 0 and fundingGoal > 0) {
+                fundingGoal / nftPrice;
+              } else {
+                0;
+              };
+
+              // For now, set totalFunded to 0 - this would need to be calculated from NFT purchases
+              let totalFunded = 0;
+
+              {
+                id = startup.id;
+                startupName = startup.startupName;
+                description = startup.description;
+                nftPrice = startup.nftPrice;
+                companyImages = firstImage;
+                companyType = startup.companyType;
+                totalFunding = startup.fundingGoal;
+                availableNFTs = availableNFTs;
+                totalFunded = totalFunded;
+              };
+            },
+          );
+
+          let totalPages = if (totalCount == 0 or params.limit == 0) {
+            0;
+          } else {
             let pages = totalCount / params.limit;
-            if (totalCount % params.limit == 0) { pages } else { pages + 1 }
+            if (totalCount % params.limit == 0) { pages } else { pages + 1 };
           };
-          
+
           {
-            startups = paginatedStartups;
+            startups = startupSummaries;
             totalCount = totalCount;
             page = params.page;
             limit = params.limit;
@@ -404,38 +462,79 @@ module Storage {
           startup;
         },
       );
-      
+
       let totalCount = allStartups.size();
       let offset = params.page * params.limit;
-      
+
       let paginatedStartups = if (offset >= totalCount or params.limit == 0) {
         [];
       } else {
         let endIndex = Nat.min(offset + params.limit, totalCount);
-        let takeCount = if (endIndex > offset) { 
-          if (endIndex >= offset) { 
-            if (endIndex > offset) { endIndex - offset } else { 0 }
-          } else { 0 }
+        let takeCount = if (endIndex > offset) {
+          if (endIndex >= offset) {
+            if (endIndex > offset) { endIndex - offset } else { 0 };
+          } else { 0 };
         } else { 0 };
-        
+
         if (takeCount == 0) {
           [];
         } else {
-          Array.tabulate<Types.Startup>(takeCount, func(i : Nat) : Types.Startup {
-            allStartups[offset + i];
-          });
+          Array.tabulate<Types.Startup>(
+            takeCount,
+            func(i : Nat) : Types.Startup {
+              allStartups[offset + i];
+            },
+          );
         };
       };
-      
-      let totalPages = if (totalCount == 0 or params.limit == 0) { 
-        0 
-      } else { 
+
+      // Convert to lightweight startup summaries
+      let startupSummaries = Array.map<Types.Startup, Types.StartupSummary>(
+        paginatedStartups,
+        func(startup : Types.Startup) : Types.StartupSummary {
+          // Get first company image or empty array if none
+          let firstImage = if (startup.companyImages.size() > 0) {
+            [startup.companyImages[0]];
+          } else {
+            [];
+          };
+
+          // Parse funding goal to calculate available NFTs
+          let fundingGoal = textToNat(startup.fundingGoal);
+          let nftPrice = textToNat(startup.nftPrice);
+          let availableNFTs = if (nftPrice > 0 and fundingGoal > 0) {
+            fundingGoal / nftPrice;
+          } else {
+            0;
+          };
+
+          // For now, set totalFunded to 0 - this would need to be calculated from NFT purchases
+          // This is a placeholder that should be replaced with actual calculation
+          let totalFunded = 0;
+
+          {
+            id = startup.id;
+            startupName = startup.startupName;
+            description = startup.description;
+            nftPrice = startup.nftPrice;
+            companyImages = firstImage;
+            companyType = startup.companyType;
+            totalFunding = startup.fundingGoal;
+            availableNFTs = availableNFTs;
+            totalFunded = totalFunded;
+          };
+        },
+      );
+
+      let totalPages = if (totalCount == 0 or params.limit == 0) {
+        0;
+      } else {
         let pages = totalCount / params.limit;
-        if (totalCount % params.limit == 0) { pages } else { pages + 1 }
+        if (totalCount % params.limit == 0) { pages } else { pages + 1 };
       };
-      
+
       {
-        startups = paginatedStartups;
+        startups = startupSummaries;
         totalCount = totalCount;
         page = params.page;
         limit = params.limit;
@@ -457,7 +556,6 @@ module Storage {
         case (?startup) { founders.get(startup.founderId) };
       };
     };
-
 
     public func updateStartupStatus(startupId : Text, newStatus : Text) : Bool {
       switch (startups.get(startupId)) {

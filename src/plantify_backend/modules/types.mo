@@ -628,8 +628,21 @@ module Types {
     limit : Nat;
   };
 
+  // Lightweight startup data for pagination
+  public type StartupSummary = {
+    id : Text;
+    startupName : Text;
+    description : Text;
+    nftPrice : Text;
+    companyImages : [Text];
+    companyType : Text;
+    totalFunding : Text;
+    availableNFTs : Nat;
+    totalFunded : Nat;
+  };
+
   public type PaginatedStartups = {
-    startups : [Startup];
+    startups : [StartupSummary];
     totalCount : Nat;
     page : Nat;
     limit : Nat;
