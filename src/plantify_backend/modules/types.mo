@@ -622,4 +622,18 @@ module Types {
     #Error : Text;
   };
 
+  // Pagination types
+  public type PaginationParams = {
+    page : Nat;
+    limit : Nat;
+  };
+
+  public type PaginatedStartups = {
+    startups : [Startup];
+    totalCount : Nat;
+    page : Nat;
+    limit : Nat;
+    totalPages : Nat;
+  };
+
 };

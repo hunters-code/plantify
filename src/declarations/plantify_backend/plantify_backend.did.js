@@ -384,6 +384,14 @@ export const idlFactory = ({ IDL }) => {
     'reportId' : IDL.Text,
   });
   const Result_11 = IDL.Variant({ 'ok' : ReportVoteDetails, 'err' : IDL.Text });
+  const PaginationParams = IDL.Record({ 'page' : IDL.Nat, 'limit' : IDL.Nat });
+  const PaginatedStartups = IDL.Record({
+    'startups' : IDL.Vec(Startup),
+    'page' : IDL.Nat,
+    'totalCount' : IDL.Nat,
+    'limit' : IDL.Nat,
+    'totalPages' : IDL.Nat,
+  });
   const TokenInfoResponse = IDL.Variant({
     'Error' : IDL.Text,
     'Success' : IDL.Record({
@@ -597,6 +605,12 @@ export const idlFactory = ({ IDL }) => {
     'getReportVotes' : IDL.Func([IDL.Text], [IDL.Vec(InvestorVote)], []),
     'getStartupDetails' : IDL.Func([IDL.Text], [IDL.Opt(Startup)], []),
     'getStartupPurchaseHistory' : IDL.Func([IDL.Text], [Result_10], []),
+    'getStartupsCount' : IDL.Func([], [IDL.Nat], []),
+    'getStartupsPaginated' : IDL.Func(
+        [PaginationParams],
+        [PaginatedStartups],
+        [],
+      ),
     'getTokenCanisterId' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], []),
     'getTokenInfo' : IDL.Func([IDL.Text], [TokenInfoResponse], []),
     'getUserType' : IDL.Func([], [IDL.Opt(UserType)], []),

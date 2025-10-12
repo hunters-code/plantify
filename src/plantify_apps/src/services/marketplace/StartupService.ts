@@ -35,6 +35,60 @@ export class StartupService extends BaseService {
   }
 
   /**
+   * Get startups with pagination - can be called anonymously
+   * @param params - Pagination parameters
+   * @returns Paginated startups data
+   */
+  public static async getStartupsPaginated(params: {
+    page: number;
+    limit: number;
+  }): Promise<{
+    startups: Startup[];
+    totalCount: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    try {
+      // Initialize with anonymous actor if not already initialized
+      if (!this.isInitialized()) {
+        await this.initialize();
+      }
+
+      const actor = await this.getActor();
+      return await actor.getStartupsPaginated(params);
+    } catch (error) {
+      console.error('Error getting paginated startups:', error);
+      return {
+        startups: [],
+        totalCount: 0,
+        page: params.page,
+        limit: params.limit,
+        totalPages: 0,
+      };
+    }
+  }
+
+  /**
+   * Get total count of startups - can be called anonymously
+   * @returns Total number of startups
+   */
+  public static async getStartupsCount(): Promise<number> {
+    try {
+      // Initialize with anonymous actor if not already initialized
+      if (!this.isInitialized()) {
+        await this.initialize();
+      }
+
+      const actor = await this.getActor();
+      return await actor.getStartupsCount();
+    } catch (error) {
+      console.error('Error getting startups count:', error);
+      return 0;
+    }
+  }
+
+  /**
    * Get details for a specific startup
    * @param startupId - The ID of the startup
    * @returns The startup details or null if not found

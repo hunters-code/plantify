@@ -131,6 +131,14 @@ persistent actor PlantifyBackend {
     storage.getAllStartups();
   };
 
+  public shared func getStartupsPaginated(params : Types.PaginationParams) : async Types.PaginatedStartups {
+    storage.getStartupsPaginated(params);
+  };
+
+  public shared func getStartupsCount() : async Nat {
+    storage.getStartupsCount();
+  };
+
   public shared func getStartupDetails(startupId : Text) : async ?Types.Startup {
     storage.getStartup(startupId);
   };

@@ -275,6 +275,14 @@ export interface NFTPurchaseStats {
   'averagePurchaseAmount' : bigint,
   'totalRevenue' : bigint,
 }
+export interface PaginatedStartups {
+  'startups' : Array<Startup>,
+  'page' : bigint,
+  'totalCount' : bigint,
+  'limit' : bigint,
+  'totalPages' : bigint,
+}
+export interface PaginationParams { 'page' : bigint, 'limit' : bigint }
 export interface ReportVoteDetails {
   'summary' : VoteSummary,
   'individualVotes' : Array<InvestorVote>,
@@ -566,6 +574,8 @@ export interface _SERVICE {
   'getReportVotes' : ActorMethod<[string], Array<InvestorVote>>,
   'getStartupDetails' : ActorMethod<[string], [] | [Startup]>,
   'getStartupPurchaseHistory' : ActorMethod<[string], Result_10>,
+  'getStartupsCount' : ActorMethod<[], bigint>,
+  'getStartupsPaginated' : ActorMethod<[PaginationParams], PaginatedStartups>,
   'getTokenCanisterId' : ActorMethod<[string], [] | [string]>,
   'getTokenInfo' : ActorMethod<[string], TokenInfoResponse>,
   'getUserType' : ActorMethod<[], [] | [UserType]>,

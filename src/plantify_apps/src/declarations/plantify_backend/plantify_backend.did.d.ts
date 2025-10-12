@@ -490,6 +490,17 @@ export interface VotingStats {
   totalReportsVoted: bigint;
 }
 export interface _SERVICE {
+  getStartupsPaginated: ActorMethod<
+    [{ page: number; limit: number }],
+    {
+      startups: Startup[];
+      totalCount: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }
+  >;
+  getStartupsCount: ActorMethod<[], number>;
   approveMonthlyReport: ActorMethod<[string], Result_1>;
   calculateRequiredCollateral: ActorMethod<[bigint, string], bigint>;
   canInvestorVote: ActorMethod<[string], Result_24>;

@@ -332,6 +332,19 @@ type ReportVoteDetails =
    reportId: text;
    summary: VoteSummary;
  };
+type PaginationParams = 
+ record {
+   limit: nat;
+   page: nat;
+ };
+type PaginatedStartups = 
+ record {
+   limit: nat;
+   page: nat;
+   startups: vec Startup;
+   totalCount: nat;
+   totalPages: nat;
+ };
 type NFTPurchaseStats = 
  record {
    averagePurchaseAmount: nat;
@@ -721,6 +734,8 @@ service : {
   getReportVotes: (reportId: text) -> (vec InvestorVote);
   getStartupDetails: (startupId: text) -> (opt Startup);
   getStartupPurchaseHistory: (startupId: text) -> (Result_10);
+  getStartupsCount: () -> (nat);
+  getStartupsPaginated: (params: PaginationParams) -> (PaginatedStartups);
   getTokenCanisterId: (tokenType: text) -> (opt text);
   getTokenInfo: (tokenType: text) -> (TokenInfoResponse);
   getUserType: () -> (opt UserType);
