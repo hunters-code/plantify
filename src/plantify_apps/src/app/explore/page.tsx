@@ -81,17 +81,20 @@ export default function Explores() {
     };
   }, []);
 
-  // Fetch startups from backend
+  // Fetch startups from backend with pagination
   const fetchStartups = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Use the StartupService to fetch all startups - no authentication required
-      const result = await StartupService.getAllStartups();
+      // Use the StartupService to fetch startups with pagination - no authentication required
+      const result = await StartupService.getStartupsPaginated({
+        page: 1,
+        limit: 3,
+      });
 
       // Map the backend data to the UI format
-      const mappedStartups = result.map(mapStartupData);
+      const mappedStartups = result.startups.map(mapStartupData);
       setStartups(mappedStartups);
       setLoading(false);
     } catch (err) {

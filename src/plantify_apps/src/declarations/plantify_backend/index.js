@@ -2,7 +2,6 @@ import { Actor, HttpAgent } from '@dfinity/agent';
 
 // Imports and re-exports candid interface
 import { idlFactory } from './plantify_backend.did.js';
-
 export { idlFactory } from './plantify_backend.did.js';
 
 /* CANISTER_ID is replaced by webpack based on node environment
@@ -10,18 +9,9 @@ export { idlFactory } from './plantify_backend.did.js';
  * process.env.CANISTER_ID_<CANISTER_NAME_UPPERCASE>
  * beginning in dfx 0.15.0
  */
-// Use environment variable or fallback to hardcoded ID
-export const canisterId =
-  process.env.CANISTER_ID_PLANTIFY_BACKEND || 'a5ptu-ryaaa-aaaai-q32cq-cai';
+export const canisterId = process.env.CANISTER_ID_PLANTIFY_BACKEND;
 
-export const createActor = (canisterIdParam, options = {}) => {
-  // Always ensure we have a valid canister ID
-  const effectiveCanisterId =
-    canisterIdParam || canisterId || 'a5ptu-ryaaa-aaaai-q32cq-cai';
-
-  if (!effectiveCanisterId) {
-    throw new Error('Canister ID is required but not provided');
-  }
+export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
 
   if (options.agent && options.agentOptions) {
@@ -30,16 +20,24 @@ export const createActor = (canisterIdParam, options = {}) => {
     );
   }
 
-  // Skip fetchRootKey to avoid HTTP errors
-  console.log('Skipping fetchRootKey in development environment');
+  // Fetch root key for certificate validation during development
+  if (process.env.DFX_NETWORK !== 'ic') {
+    agent.fetchRootKey().catch(err => {
+      console.warn(
+        'Unable to fetch root key. Check to ensure that your local replica is running'
+      );
+      console.error(err);
+    });
+  }
 
   // Creates an actor with using the candid interface and the HttpAgent
   return Actor.createActor(idlFactory, {
     agent,
-    canisterId: effectiveCanisterId,
+    canisterId,
     ...options.actorOptions,
   });
 };
 
-// Always create the actor with our hardcoded fallback if needed
-export const plantify_backend = createActor(canisterId);
+export const plantify_backend = canisterId
+  ? createActor(canisterId)
+  : undefined;
