@@ -279,19 +279,24 @@ export const idlFactory = ({ IDL }) => {
   });
   const Investor = IDL.Record({
     id: IDL.Text,
+    bio: IDL.Text,
+    occupation: IDL.Text,
     principal: IDL.Principal,
     country: IDL.Text,
     riskTolerance: IDL.Text,
     monthlyBudget: IDL.Text,
     city: IDL.Text,
     createdAt: Time,
+    profilePhoto: IDL.Opt(IDL.Text),
     fullName: IDL.Text,
     email: IDL.Text,
     updatedAt: Time,
+    company: IDL.Text,
     investmentGoals: IDL.Text,
     availableCapital: IDL.Text,
     phone: IDL.Text,
     investmentExperience: IDL.Text,
+    location: IDL.Text,
   });
   const NFTPurchaseHistory = IDL.Record({
     totalNFTs: IDL.Nat,
@@ -384,6 +389,14 @@ export const idlFactory = ({ IDL }) => {
     reportId: IDL.Text,
   });
   const Result_11 = IDL.Variant({ ok: ReportVoteDetails, err: IDL.Text });
+  const PaginationParams = IDL.Record({ page: IDL.Nat, limit: IDL.Nat });
+  const PaginatedStartups = IDL.Record({
+    startups: IDL.Vec(Startup),
+    page: IDL.Nat,
+    totalCount: IDL.Nat,
+    limit: IDL.Nat,
+    totalPages: IDL.Nat,
+  });
   const TokenInfoResponse = IDL.Variant({
     Error: IDL.Text,
     Success: IDL.Record({
@@ -455,18 +468,23 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_5 = IDL.Variant({ ok: Founder, err: IDL.Text });
   const InvestorRegistrationRequest = IDL.Record({
+    bio: IDL.Text,
+    occupation: IDL.Text,
     country: IDL.Text,
     riskTolerance: IDL.Text,
     monthlyBudget: IDL.Text,
     city: IDL.Text,
+    profilePhoto: IDL.Opt(IDL.Text),
     fullName: IDL.Text,
     email: IDL.Text,
+    company: IDL.Text,
     investmentGoals: IDL.Text,
     availableCapital: IDL.Text,
     phone: IDL.Text,
     investmentExperience: IDL.Text,
+    location: IDL.Text,
   });
-  const Result_4 = IDL.Variant({ ok: Investor, err: IDL.Text });
+  const Result_2 = IDL.Variant({ ok: Investor, err: IDL.Text });
   const TopUpRequest = IDL.Record({
     startupId: IDL.Text,
     memo: IDL.Opt(IDL.Text),
@@ -485,7 +503,7 @@ export const idlFactory = ({ IDL }) => {
       transactionId: IDL.Text,
     }),
   });
-  const Result_3 = IDL.Variant({ ok: TopUpResponse, err: IDL.Text });
+  const Result_4 = IDL.Variant({ ok: TopUpResponse, err: IDL.Text });
   const TransferResponse = IDL.Variant({
     Error: IDL.Text,
     Success: IDL.Record({
@@ -508,7 +526,7 @@ export const idlFactory = ({ IDL }) => {
       transactionId: IDL.Opt(IDL.Text),
     }),
   });
-  const Result_2 = IDL.Variant({
+  const Result_3 = IDL.Variant({
     ok: TransferNFTResponse,
     err: IDL.Text,
   });
@@ -517,6 +535,23 @@ export const idlFactory = ({ IDL }) => {
     tokenType: IDL.Text,
     toAccount: TransferAccount,
     amount: IDL.Nat,
+  });
+  const InvestorProfileUpdateRequest = IDL.Record({
+    bio: IDL.Opt(IDL.Text),
+    occupation: IDL.Opt(IDL.Text),
+    country: IDL.Opt(IDL.Text),
+    riskTolerance: IDL.Opt(IDL.Text),
+    monthlyBudget: IDL.Opt(IDL.Text),
+    city: IDL.Opt(IDL.Text),
+    profilePhoto: IDL.Opt(IDL.Text),
+    fullName: IDL.Opt(IDL.Text),
+    email: IDL.Opt(IDL.Text),
+    company: IDL.Opt(IDL.Text),
+    investmentGoals: IDL.Opt(IDL.Text),
+    availableCapital: IDL.Opt(IDL.Text),
+    phone: IDL.Opt(IDL.Text),
+    investmentExperience: IDL.Opt(IDL.Text),
+    location: IDL.Opt(IDL.Text),
   });
   return IDL.Service({
     approveMonthlyReport: IDL.Func([IDL.Text], [Result_1], []),
@@ -539,6 +574,7 @@ export const idlFactory = ({ IDL }) => {
     getAllStartups: IDL.Func([], [IDL.Vec(Startup)], []),
     getAllVotes: IDL.Func([], [IDL.Vec(InvestorVote)], []),
     getBalance: IDL.Func([TransferAccount, IDL.Text], [BalanceResponse], []),
+    getCanisterVersion: IDL.Func([], [IDL.Nat], []),
     getCkUSDCBalance: IDL.Func([TransferAccount], [BalanceResponse], []),
     getCkUSDCTokenConfig: IDL.Func([], [TokenConfig], []),
     getCollateralProgress: IDL.Func(
@@ -551,11 +587,13 @@ export const idlFactory = ({ IDL }) => {
     getCollectionInfo: IDL.Func([], [NFTConfig], []),
     getEnvironment: IDL.Func([], [IDL.Text], []),
     getEnvironmentConfig: IDL.Func([], [EnvironmentConfig], []),
+    getFeaturedStartup: IDL.Func([], [IDL.Opt(Startup)], []),
     getFounderByPrincipal: IDL.Func([], [IDL.Opt(Founder)], []),
     getFounders: IDL.Func([], [IDL.Vec(Founder)], []),
     getICPBalance: IDL.Func([TransferAccount], [BalanceResponse], []),
     getICPTokenConfig: IDL.Func([], [TokenConfig], []),
     getInvestorByPrincipal: IDL.Func([], [IDL.Opt(Investor)], []),
+    getInvestorProfile: IDL.Func([], [IDL.Opt(Investor)], []),
     getInvestorPurchaseHistory: IDL.Func([IDL.Text], [Result_10], []),
     getInvestorVoteForReport: IDL.Func([IDL.Text], [Result_20], []),
     getInvestorVoteHistory: IDL.Func([IDL.Text], [Result_19], []),
@@ -591,6 +629,8 @@ export const idlFactory = ({ IDL }) => {
     getReportVotes: IDL.Func([IDL.Text], [IDL.Vec(InvestorVote)], []),
     getStartupDetails: IDL.Func([IDL.Text], [IDL.Opt(Startup)], []),
     getStartupPurchaseHistory: IDL.Func([IDL.Text], [Result_10], []),
+    getStartupsCount: IDL.Func([], [IDL.Nat], []),
+    getStartupsPaginated: IDL.Func([PaginationParams], [PaginatedStartups], []),
     getTokenCanisterId: IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], []),
     getTokenInfo: IDL.Func([IDL.Text], [TokenInfoResponse], []),
     getUserType: IDL.Func([], [IDL.Opt(UserType)], []),
@@ -608,10 +648,10 @@ export const idlFactory = ({ IDL }) => {
     mintNFTForStartup: IDL.Func([IDL.Text], [Result_7], []),
     purchaseNFT: IDL.Func([NFTPurchaseRequest], [Result_6], []),
     registerFounder: IDL.Func([FounderRegistrationRequest], [Result_5], []),
-    registerInvestor: IDL.Func([InvestorRegistrationRequest], [Result_4], []),
+    registerInvestor: IDL.Func([InvestorRegistrationRequest], [Result_2], []),
     rejectMonthlyReport: IDL.Func([IDL.Text], [Result_1], []),
     submitMonthlyReport: IDL.Func([IDL.Text], [Result_1], []),
-    topUpCollateral: IDL.Func([TopUpRequest], [Result_3], []),
+    topUpCollateral: IDL.Func([TopUpRequest], [Result_4], []),
     transferCkUSDC: IDL.Func(
       [TransferAccount, IDL.Nat, IDL.Opt(IDL.Text)],
       [TransferResponse],
@@ -622,8 +662,13 @@ export const idlFactory = ({ IDL }) => {
       [TransferResponse],
       []
     ),
-    transferNFT: IDL.Func([TransferNFTRequest], [Result_2], []),
+    transferNFT: IDL.Func([TransferNFTRequest], [Result_3], []),
     transferTokens: IDL.Func([TransferArgs], [TransferResponse], []),
+    updateInvestorProfile: IDL.Func(
+      [InvestorProfileUpdateRequest],
+      [Result_2],
+      []
+    ),
     updateMonthlyReport: IDL.Func(
       [IDL.Text, MonthlyReportRequest],
       [Result_1],
