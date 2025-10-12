@@ -80,14 +80,8 @@ export class FounderService extends BaseService {
    */
   public static async getFounderStartups(): Promise<Startup[]> {
     try {
-      const founder = await this.getFounderByPrincipal();
-      if (!founder) {
-        return [];
-      }
-
       const actor = await this.getActor();
-      const allStartups = await actor.getAllStartups();
-      return allStartups.filter(startup => startup.founderId === founder.id);
+      return await actor.getStartupsByFounderPrincipal();
     } catch (error) {
       console.error('Error getting founder startups:', error);
       return [];
