@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { StatsCard } from "@/components/ui";
-import { formatCurrency, formatNumber } from "@/utils/formatCurrency";
-import { FounderService } from "@/services/founders/FounderService";
-import { getDashboardStatsItems, DashboardStatsData } from "@/constants/dashboardFounderStats";
+import React, { useState, useEffect } from 'react';
+
+import { StatsCard } from '@/components/ui';
+import {
+  getDashboardStatsItems,
+  DashboardStatsData,
+} from '@/constants/dashboardFounderStats';
+import { FounderService } from '@/services/founders/FounderService';
+import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
 
 // Extended Startup type with additional properties
 interface ExtendedStartup {
@@ -33,7 +37,7 @@ export function useDashboardStats() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        setStats((prev) => ({ ...prev, loading: true, error: null }));
+        setStats(prev => ({ ...prev, loading: true, error: null }));
 
         const [founder, startupsData] = await Promise.all([
           FounderService.getFounderByPrincipal(),
@@ -41,10 +45,10 @@ export function useDashboardStats() {
         ]);
 
         if (!founder) {
-          setStats((prev) => ({
+          setStats(prev => ({
             ...prev,
             loading: false,
-            error: "Founder not found",
+            error: 'Founder not found',
           }));
           return;
         }
@@ -52,13 +56,13 @@ export function useDashboardStats() {
         const startups = startupsData as ExtendedStartup[];
 
         const activeStartups = startups.filter(
-          (s) => s.status?.toLowerCase() === "active"
+          s => s.status?.toLowerCase() === 'active'
         ).length;
         const pendingStartups = startups.filter(
-          (s) => s.status?.toLowerCase() === "pending"
+          s => s.status?.toLowerCase() === 'pending'
         ).length;
         const draftStartups = startups.filter(
-          (s) => s.status?.toLowerCase() === "draft"
+          s => s.status?.toLowerCase() === 'draft'
         ).length;
 
         const totalFundingRaised = startups.reduce(
@@ -87,13 +91,13 @@ export function useDashboardStats() {
         );
 
         const approvalRates = startups
-          .map((s) => Number(s.approvalRate || 0))
-          .filter((r) => r > 0);
+          .map(s => Number(s.approvalRate || 0))
+          .filter(r => r > 0);
 
         const averageApprovalRate =
           approvalRates.length > 0
             ? approvalRates.reduce((sum, r) => sum + r, 0) /
-            approvalRates.length
+              approvalRates.length
             : 0;
 
         setStats({
@@ -110,11 +114,11 @@ export function useDashboardStats() {
           error: null,
         });
       } catch (err: any) {
-        console.error("Error fetching dashboard stats:", err);
-        setStats((prev) => ({
+        console.error('Error fetching dashboard stats:', err);
+        setStats(prev => ({
           ...prev,
           loading: false,
-          error: err.message || "Failed to fetch dashboard statistics",
+          error: err.message || 'Failed to fetch dashboard statistics',
         }));
       }
     };
@@ -130,7 +134,7 @@ const DashboardOverview: React.FC = () => {
   const items = getDashboardStatsItems(stats);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6'>
       {items.map((item, i) => (
         <StatsCard
           key={i}

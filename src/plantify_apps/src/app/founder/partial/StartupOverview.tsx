@@ -1,9 +1,16 @@
+'use client';
+
 import { Eye, MapPin, Sparkles, ThumbsUp, WalletCards } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 import { Badge, Button, Card, ProgressBar } from '@/components/ui';
+import type {
+  Startup,
+  NFTPurchaseHistory,
+} from '@/declarations/plantify_backend/plantify_backend.did';
+import { StartupService } from '@/services/marketplace/StartupService';
+import { formatCurrency } from '@/utils/formatCurrency';
 
-// Dummy helper functions
-const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
 const formatNumber = (value: number, decimals: number = 0) =>
   value.toFixed(decimals);
 
@@ -12,28 +19,101 @@ interface StartupOverviewProps {
 }
 
 export default function StartupOverview({ startupId }: StartupOverviewProps) {
-  // Dummy data
-  const startup = {
-    startupName: 'CryptoKita',
-    location: 'Jakarta, Indonesia',
-    teamMembers: ['Ali', 'Budi', 'Citra'],
-    status: 'approved',
-    sector: 'Fintech',
-    companyType: 'Startup',
-    description:
-      'A blockchain-based fintech platform to democratize investments.',
-    fundingGoal: '50000',
-  };
+  const [startup, setStartup] = useState<Startup | null>(null);
+  const [purchaseHistory, setPurchaseHistory] =
+    useState<NFTPurchaseHistory | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fundingProgress = 65; // %
-  const nftSales = 120;
-  const totalNFTs = 200;
+  useEffect(() => {
+    const fetchStartupData = async () => {
+      if (!startupId) {
+        setLoading(false);
+        return;
+      }
 
-  // const loading = false;
-  // const error = null;
+      try {
+        setLoading(true);
+        setError(null);
+
+        console.log('Fetching startup overview data for:', startupId);
+
+        // Fetch startup details and purchase history in parallel
+        const [startupResult, purchaseResult] = await Promise.all([
+          StartupService.getStartupDetails(startupId),
+          StartupService.getStartupPurchaseHistory(startupId),
+        ]);
+
+        if (startupResult) {
+          setStartup(startupResult);
+          console.log('Startup overview data loaded:', startupResult);
+        }
+
+        if (purchaseResult.success && purchaseResult.history) {
+          setPurchaseHistory(purchaseResult.history);
+          console.log('Purchase history loaded:', purchaseResult.history);
+        }
+      } catch (err) {
+        console.error('Error fetching startup overview data:', err);
+        setError('Failed to load startup data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStartupData();
+  }, [startupId]);
+
+  if (loading) {
+    return (
+      <div className='bg-neutral-100 rounded-[16px] p-6'>
+        <div className='animate-pulse space-y-4'>
+          <div className='h-8 bg-gray-300 rounded w-1/3'></div>
+          <div className='h-4 bg-gray-200 rounded w-2/3'></div>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            {[1, 2, 3].map(i => (
+              <div key={i} className='bg-white rounded-lg p-4'>
+                <div className='h-6 bg-gray-300 rounded mb-2'></div>
+                <div className='h-4 bg-gray-200 rounded'></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='bg-red-50 border border-red-200 rounded-[16px] p-6'>
+        <div className='text-red-600'>
+          <h2 className='text-xl font-semibold mb-2'>Error Loading Overview</h2>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!startup) {
+    return (
+      <div className='bg-neutral-100 rounded-[16px] p-6'>
+        <div className='text-center py-8'>
+          <h2 className='text-xl font-semibold mb-2'>No Startup Data</h2>
+          <p className='text-gray-500'>Unable to load startup information.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate metrics from real data
+  const fundingGoal = Number(startup.fundingGoal.replace(/[^0-9.]/g, '')) || 0;
+  const totalRaised = purchaseHistory ? Number(purchaseHistory.totalSpent) : 0;
+  const fundingProgress =
+    fundingGoal > 0 ? (totalRaised / fundingGoal) * 100 : 0;
+  const nftSales = purchaseHistory ? Number(purchaseHistory.totalNFTs) : 0;
+  const totalNFTs = nftSales + 50; // Estimate total available NFTs
 
   const teamSize = startup.teamMembers ? startup.teamMembers.length : 0;
-  const fundingGoal = parseFloat(startup.fundingGoal) || 0;
   const fundingRaised = (fundingProgress / 100) * fundingGoal;
   const nftSalesPercentage = totalNFTs > 0 ? (nftSales / totalNFTs) * 100 : 0;
 

@@ -1,45 +1,54 @@
+'use client';
+
 import { Plus, MoreHorizontal, User } from 'lucide-react';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
 import { Button, Card } from '@/components/ui';
-
-interface TeamMember {
-  id: number;
-  name: string;
-  role: string;
-  isFounder?: boolean;
-  photo?: string[];
-}
+import type {
+  TeamMember,
+  Startup,
+} from '@/declarations/plantify_backend/plantify_backend.did';
+import { StartupService } from '@/services/marketplace/StartupService';
 
 export default function TeamSection({ startupId }: { startupId: string }) {
-  // === Dummy Data ===
-  const startup = {
-    startupName: 'Dummy Startup',
-  };
+  const [startup, setStartup] = useState<Startup | null>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const teamMembers: TeamMember[] = [
-    {
-      id: 1,
-      name: 'John Doe',
-      role: 'CEO',
-      isFounder: true,
-      photo: ['https://via.placeholder.com/300x400'],
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      role: 'CTO',
-      photo: ['https://via.placeholder.com/300x400'],
-    },
-    {
-      id: 3,
-      name: 'Robert Brown',
-      role: 'Lead Designer',
-      photo: [],
-    },
-  ];
+  // Fetch startup details and team members
+  useEffect(() => {
+    const fetchStartupData = async () => {
+      if (!startupId) {
+        setLoading(false);
+        return;
+      }
 
-  const loading = false;
-  const error = null;
+      try {
+        setLoading(true);
+        setError(null);
+
+        console.log('Fetching startup details for ID:', startupId);
+        const startupData = await StartupService.getStartupDetails(startupId);
+        if (startupData) {
+          setStartup(startupData);
+          setTeamMembers(startupData.teamMembers || []);
+          console.log('Startup data loaded:', startupData);
+          console.log('Team members:', startupData.teamMembers);
+        } else {
+          setError('Startup not found');
+        }
+      } catch (err) {
+        console.error('Error fetching startup data:', err);
+        setError('Failed to load startup data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStartupData();
+  }, [startupId]);
 
   if (loading) {
     return (
@@ -116,39 +125,58 @@ export default function TeamSection({ startupId }: { startupId: string }) {
         </div>
       ) : (
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
-          {teamMembers.map(member => (
-            <Card key={member.id} className='overflow-hidden'>
-              <div className='p-2'>
-                {member.photo && member.photo.length > 0 ? (
-                  <img
-                    src={member.photo[0]}
-                    alt={member.name}
-                    className='w-full h-[370px] object-cover rounded-xl'
-                  />
-                ) : (
-                  <div className='w-full h-[370px] bg-gray-200 rounded-xl flex items-center justify-center'>
-                    <User size={64} className='text-gray-400' />
-                  </div>
-                )}
-              </div>
-              <div className='flex items-center justify-between p-4'>
-                <div>
-                  <p className='text-gray-900 font-medium text-[16px]'>
-                    {member.name}
-                  </p>
-                  <p className='text-gray-500 text-sm'>{member.role}</p>
-                  {member.isFounder && (
-                    <span className='inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1'>
-                      Founder
-                    </span>
+          {teamMembers.map(member => {
+            // Helper function to get photo URL from backend format
+            const getPhotoUrl = (photo: [] | [string]) => {
+              if (Array.isArray(photo) && photo.length > 0) {
+                return photo[0];
+              }
+              return null;
+            };
+
+            const photoUrl = getPhotoUrl(member.photo);
+
+            return (
+              <Card key={member.id.toString()} className='overflow-hidden'>
+                <div className='p-2'>
+                  {photoUrl ? (
+                    <Image
+                      src={photoUrl}
+                      alt={member.name}
+                      width={300}
+                      height={370}
+                      className='w-full h-[370px] object-cover rounded-xl'
+                    />
+                  ) : (
+                    <div className='w-full h-[370px] bg-gray-200 rounded-xl flex items-center justify-center'>
+                      <User size={64} className='text-gray-400' />
+                    </div>
                   )}
                 </div>
-                <Button variant='secondary' className='p-3'>
-                  <MoreHorizontal size={18} className='text-gray-600' />
-                </Button>
-              </div>
-            </Card>
-          ))}
+                <div className='flex items-center justify-between p-4'>
+                  <div className='flex-1'>
+                    <p className='text-gray-900 font-medium text-[16px]'>
+                      {member.name}
+                    </p>
+                    <p className='text-gray-500 text-sm'>{member.role}</p>
+                    {member.isFounder && (
+                      <span className='inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1'>
+                        Founder
+                      </span>
+                    )}
+                    {member.email && (
+                      <p className='text-gray-400 text-xs mt-1'>
+                        {member.email}
+                      </p>
+                    )}
+                  </div>
+                  <Button variant='secondary' className='p-3'>
+                    <MoreHorizontal size={18} className='text-gray-600' />
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

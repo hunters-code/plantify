@@ -1,25 +1,85 @@
+'use client';
+
 import { Lock, BanknoteArrowDown } from 'lucide-react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Button, Card, CardSkeleton } from '@/components/ui';
 import FundingProgress from '@/components/ui/FundingProgress';
+import type {
+  Startup,
+  NFTPurchaseHistory,
+  CollateralInfo,
+  CollateralProgress,
+} from '@/declarations/plantify_backend/plantify_backend.did';
+import { CollateralService } from '@/services/founders/CollateralService';
+import { StartupService } from '@/services/marketplace/StartupService';
 import { formatCurrency } from '@/utils/formatCurrency';
 
 function useFundingStatus(startupId: string) {
-  const loading = true; // simulasi loading
-  const error = null;
-  const startup = { id: startupId, name: 'Demo Startup' };
+  const [startup, setStartup] = useState<Startup | null>(null);
+  const [purchaseHistory, setPurchaseHistory] =
+    useState<NFTPurchaseHistory | null>(null);
+  const [collateralInfo, setCollateralInfo] = useState<CollateralInfo | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const totalRaised = 80000;
-  const fundingGoal = 100000;
-  const fundingProgress = (totalRaised / fundingGoal) * 100;
-  const availableFunds = totalRaised * 0.8;
-  const platformReserve = totalRaised * 0.2;
-  const collateralInfo = {
-    currentAmount: 40000,
-    requiredAmount: 50000,
-    status: 'active',
-  };
+  useEffect(() => {
+    const fetchFundingData = async () => {
+      if (!startupId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        console.log('Fetching funding data for startup:', startupId);
+
+        // Fetch startup details, purchase history, and collateral info in parallel
+        const [startupResult, purchaseResult, collateralResult] =
+          await Promise.all([
+            StartupService.getStartupDetails(startupId),
+            StartupService.getStartupPurchaseHistory(startupId),
+            CollateralService.getCollateralStatus(startupId),
+          ]);
+
+        if (startupResult) {
+          setStartup(startupResult);
+          console.log('Startup details loaded:', startupResult);
+        }
+
+        if (purchaseResult.success && purchaseResult.history) {
+          setPurchaseHistory(purchaseResult.history);
+          console.log('Purchase history loaded:', purchaseResult.history);
+        }
+
+        if (collateralResult.success && collateralResult.collateral) {
+          setCollateralInfo(collateralResult.collateral);
+          console.log('Collateral info loaded:', collateralResult.collateral);
+        }
+      } catch (err) {
+        console.error('Error fetching funding data:', err);
+        setError('Failed to load funding data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFundingData();
+  }, [startupId]);
+
+  // Calculate funding metrics
+  const fundingGoal = startup
+    ? Number(startup.fundingGoal.replace(/[^0-9.]/g, '')) || 0
+    : 0;
+  const totalRaised = purchaseHistory ? Number(purchaseHistory.totalSpent) : 0;
+  const fundingProgress =
+    fundingGoal > 0 ? (totalRaised / fundingGoal) * 100 : 0;
+  const availableFunds = totalRaised * 0.8; // 80% available to founder
+  const platformReserve = totalRaised * 0.2; // 20% platform reserve
 
   return {
     startup,
@@ -29,6 +89,7 @@ function useFundingStatus(startupId: string) {
     availableFunds,
     platformReserve,
     collateralInfo,
+    purchaseHistory,
     loading,
     error,
   };
@@ -105,7 +166,7 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
               80% of raised funds (ckUSDC)
             </p>
           </div>
-          <div className='flex justify-end'>
+          {/* <div className='flex justify-end'>
             <Button
               variant='secondary'
               className='mt-4 flex items-center gap-2 w-fit'
@@ -114,7 +175,7 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
               <BanknoteArrowDown size={16} />
               Request Withdrawal
             </Button>
-          </div>
+          </div> */}
         </Card>
 
         {/* Platform Reserve */}
@@ -142,7 +203,7 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
         <div className='mt-6'>
           <Card className='p-4'>
             <h3 className='text-lg font-semibold mb-3'>Collateral Status</h3>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
               <div>
                 <p className='text-sm text-gray-500'>Current Amount</p>
                 <p className='text-lg font-semibold'>
@@ -158,10 +219,43 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
               <div>
                 <p className='text-sm text-gray-500'>Status</p>
                 <p className='text-lg font-semibold capitalize'>
-                  {collateralInfo.status}
+                  {typeof collateralInfo.status === 'object'
+                    ? Object.keys(collateralInfo.status)[0].toLowerCase()
+                    : collateralInfo.status}
+                </p>
+              </div>
+              <div>
+                <p className='text-sm text-gray-500'>Token Type</p>
+                <p className='text-lg font-semibold uppercase'>
+                  {collateralInfo.tokenType}
                 </p>
               </div>
             </div>
+
+            {/* Progress Bar for Collateral */}
+            {collateralInfo.requiredAmount > 0 && (
+              <div className='mt-4'>
+                <div className='flex justify-between text-sm text-gray-600 mb-2'>
+                  <span>Collateral Progress</span>
+                  <span>
+                    {Math.round(
+                      (Number(collateralInfo.currentAmount) /
+                        Number(collateralInfo.requiredAmount)) *
+                        100
+                    )}
+                    %
+                  </span>
+                </div>
+                <div className='w-full bg-gray-200 rounded-full h-2'>
+                  <div
+                    className='bg-blue-500 h-2 rounded-full transition-all duration-300'
+                    style={{
+                      width: `${Math.min(100, (Number(collateralInfo.currentAmount) / Number(collateralInfo.requiredAmount)) * 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </Card>
         </div>
       )}

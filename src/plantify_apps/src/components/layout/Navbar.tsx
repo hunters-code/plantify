@@ -14,6 +14,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import React, { useState, useEffect, useRef, JSX } from 'react';
 
 import { useAuth } from '@/contexts/AuthContext';
+import type { TransferAccount } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { Logo } from '../icons';
 
@@ -69,9 +70,8 @@ export default function Navbar(): JSX.Element {
   const handleConnectClick = async () => {
     if (isAuthenticated) {
       setDropdownOpen(!dropdownOpen);
-      if (icpBalance === '0' && ckUSDCBalance === '0') {
-        fetchBalances();
-      }
+      // Always fetch balances when dropdown is opened to ensure fresh data
+      fetchBalances();
     } else {
       // Redirect to auth page instead of calling signIn directly
       router.push('/auth');
@@ -79,17 +79,55 @@ export default function Navbar(): JSX.Element {
   };
 
   const fetchBalances = async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !principal) return;
 
     setBalanceLoading(true);
     try {
-      setTimeout(() => {
-        setIcpBalance('1.2345');
-        setCkUSDCBalance('100.50');
-        setBalanceLoading(false);
-      }, 1000);
+      const { BalanceService } = await import('@/services');
+
+      const { Principal } = await import('@dfinity/principal');
+
+      console.log('Original principal string:', principal);
+
+      let principalObj;
+      try {
+        principalObj = Principal.fromText(principal);
+        console.log('Created Principal object:', principalObj.toString());
+        console.log('Principal toUint8Array:', principalObj.toUint8Array());
+      } catch (error) {
+        console.error('Error creating Principal from text:', error);
+        throw new Error(`Invalid principal format: ${principal}`);
+      }
+
+      const account: TransferAccount = {
+        owner: principalObj,
+        subaccount: [],
+      };
+
+      console.log('Fetching balances for account:', account);
+
+      const balances = await BalanceService.getAllBalances(account);
+
+      console.log('Balance results:', balances);
+
+      if (balances.icp.success && balances.icp.balance !== undefined) {
+        setIcpBalance(balances.icp.balance.toFixed(4));
+      } else {
+        console.error('Failed to get ICP balance:', balances.icp.error);
+        setIcpBalance('0.0000');
+      }
+
+      if (balances.ckUSDC.success && balances.ckUSDC.balance !== undefined) {
+        setCkUSDCBalance(balances.ckUSDC.balance.toFixed(2));
+      } else {
+        console.error('Failed to get ckUSDC balance:', balances.ckUSDC.error);
+        setCkUSDCBalance('0.00');
+      }
     } catch (error) {
       console.error('Failed to fetch balances:', error);
+      setIcpBalance('0.0000');
+      setCkUSDCBalance('0.00');
+    } finally {
       setBalanceLoading(false);
     }
   };

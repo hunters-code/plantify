@@ -10,10 +10,10 @@ import {
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
+import { Layout } from '@/components';
 import { Button, Card, LoadingSpinner } from '@/components/ui';
 
 import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
-import { Layout } from '@/components';
 
 interface Investment {
   startupId: string;

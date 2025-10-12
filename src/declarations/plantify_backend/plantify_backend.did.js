@@ -543,6 +543,7 @@ export const idlFactory = ({ IDL }) => {
     'getAllStartups' : IDL.Func([], [IDL.Vec(Startup)], []),
     'getAllVotes' : IDL.Func([], [IDL.Vec(InvestorVote)], []),
     'getBalance' : IDL.Func([TransferAccount, IDL.Text], [BalanceResponse], []),
+    'getCanisterVersion' : IDL.Func([], [IDL.Nat], []),
     'getCkUSDCBalance' : IDL.Func([TransferAccount], [BalanceResponse], []),
     'getCkUSDCTokenConfig' : IDL.Func([], [TokenConfig], []),
     'getCollateralProgress' : IDL.Func(
@@ -555,6 +556,7 @@ export const idlFactory = ({ IDL }) => {
     'getCollectionInfo' : IDL.Func([], [NFTConfig], []),
     'getEnvironment' : IDL.Func([], [IDL.Text], []),
     'getEnvironmentConfig' : IDL.Func([], [EnvironmentConfig], []),
+    'getFeaturedStartup' : IDL.Func([], [IDL.Opt(Startup)], []),
     'getFounderByPrincipal' : IDL.Func([], [IDL.Opt(Founder)], []),
     'getFounders' : IDL.Func([], [IDL.Vec(Founder)], []),
     'getICPBalance' : IDL.Func([TransferAccount], [BalanceResponse], []),

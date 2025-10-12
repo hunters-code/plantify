@@ -679,6 +679,7 @@ service : {
   getAllVotes: () -> (vec InvestorVote);
   getBalance: (account: TransferAccount, tokenType: text) ->
    (BalanceResponse);
+  getCanisterVersion: () -> (nat);
   getCkUSDCBalance: (account: TransferAccount) -> (BalanceResponse);
   getCkUSDCTokenConfig: () -> (TokenConfig);
   getCollateralProgress: (startupId: text) -> (CollateralProgressResponse);
@@ -687,6 +688,7 @@ service : {
   getCollectionInfo: () -> (NFTConfig);
   getEnvironment: () -> (text);
   getEnvironmentConfig: () -> (EnvironmentConfig);
+  getFeaturedStartup: () -> (opt Startup);
   getFounderByPrincipal: () -> (opt Founder);
   getFounders: () -> (vec Founder);
   getICPBalance: (account: TransferAccount) -> (BalanceResponse);

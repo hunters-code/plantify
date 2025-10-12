@@ -149,6 +149,34 @@ module Types {
     status : Text;
   };
 
+  // Legacy FeaturedStartup type for migration compatibility
+  public type FeaturedStartup = {
+    id : Text;
+    startupId : Text;
+    featuredAt : Time.Time;
+    featuredBy : Principal;
+    isActive : Bool;
+    priority : Nat;
+    featuredUntil : ?Time.Time;
+    description : ?Text;
+  };
+
+  // Enhanced startup details with related information
+  public type EnhancedStartupDetails = {
+    startup : Startup;
+    founder : ?Founder;
+    relatedStartups : [Startup];
+    monthlyReports : [MonthlyReport];
+    nftInfo : ?{
+      tokenId : Nat;
+      owner : NFTAccount;
+      metadata : NFTMetadata;
+    };
+    collateralInfo : ?CollateralInfo;
+    totalVotes : Nat;
+    averageVoteScore : ?Float;
+  };
+
   public type TokenConfig = {
     canisterId : Text;
     ledgerId : Text;

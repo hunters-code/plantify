@@ -28,7 +28,8 @@ export class VotingService extends BaseService {
     request: VoteRequest
   ): Promise<{ success: boolean; vote?: InvestorVote; error?: string }> {
     try {
-      const result: Result = await this.getActor().castVote(request);
+      const actor = await this.getActor();
+      const result: Result = await actor.castVote(request);
 
       if ('ok' in result) {
         return { success: true, vote: result.ok };
@@ -52,10 +53,8 @@ export class VotingService extends BaseService {
     request: VoteRequest
   ): Promise<{ success: boolean; vote?: InvestorVote; error?: string }> {
     try {
-      const result: Result = await this.getActor().updateVote(
-        reportId,
-        request
-      );
+      const actor = await this.getActor();
+      const result: Result = await actor.updateVote(reportId, request);
 
       if ('ok' in result) {
         return { success: true, vote: result.ok };
@@ -75,7 +74,8 @@ export class VotingService extends BaseService {
    */
   public static async canInvestorVote(reportId: string): Promise<boolean> {
     try {
-      const result: Result_24 = await this.getActor().canInvestorVote(reportId);
+      const actor = await this.getActor();
+      const result: Result_24 = await actor.canInvestorVote(reportId);
       return 'ok' in result ? result.ok : false;
     } catch (error) {
       console.error('Error checking if investor can vote:', error);
@@ -92,8 +92,8 @@ export class VotingService extends BaseService {
     reportId: string
   ): Promise<InvestorVote | null> {
     try {
-      const result: Result_20 =
-        await this.getActor().getInvestorVoteForReport(reportId);
+      const actor = await this.getActor();
+      const result: Result_20 = await actor.getInvestorVoteForReport(reportId);
 
       if ('ok' in result) {
         return result.ok.length ? result.ok[0] : null;
@@ -118,8 +118,8 @@ export class VotingService extends BaseService {
     error?: string;
   }> {
     try {
-      const result: Result_19 =
-        await this.getActor().getInvestorVoteHistory(investorId);
+      const actor = await this.getActor();
+      const result: Result_19 = await actor.getInvestorVoteHistory(investorId);
 
       if ('ok' in result) {
         return { success: true, history: result.ok };
@@ -141,7 +141,8 @@ export class VotingService extends BaseService {
     reportId: string
   ): Promise<{ success: boolean; summary?: VoteSummary; error?: string }> {
     try {
-      const result: Result_9 = await this.getActor().getVoteSummary(reportId);
+      const actor = await this.getActor();
+      const result: Result_9 = await actor.getVoteSummary(reportId);
 
       if ('ok' in result) {
         return { success: true, summary: result.ok };
@@ -165,8 +166,8 @@ export class VotingService extends BaseService {
     error?: string;
   }> {
     try {
-      const result: Result_11 =
-        await this.getActor().getReportVoteDetails(reportId);
+      const actor = await this.getActor();
+      const result: Result_11 = await actor.getReportVoteDetails(reportId);
 
       if ('ok' in result) {
         return { success: true, details: result.ok };
@@ -185,10 +186,31 @@ export class VotingService extends BaseService {
    */
   public static async getVotingStats(): Promise<VotingStats | null> {
     try {
-      return await this.getActor().getVotingStats();
+      const actor = await this.getActor();
+      return await actor.getVotingStats();
     } catch (error) {
       console.error('Error getting voting stats:', error);
       return null;
+    }
+  }
+
+  /**
+   * Get all votes for a specific report
+   * @param reportId - The ID of the report
+   * @returns The votes or error message
+   */
+  public static async getReportVotes(reportId: string): Promise<{
+    success: boolean;
+    votes?: InvestorVote[];
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const votes = await actor.getReportVotes(reportId);
+      return { success: true, votes };
+    } catch (error) {
+      console.error('Error getting report votes:', error);
+      return { success: false, error: 'Failed to get report votes' };
     }
   }
 }
