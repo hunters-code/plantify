@@ -239,19 +239,19 @@ module Storage {
             };
             location = switch (updateRequest.location) {
               case null { existingInvestor.location };
-              case (?location) { location };
+              case (?location) { ?location };
             };
             occupation = switch (updateRequest.occupation) {
               case null { existingInvestor.occupation };
-              case (?occupation) { occupation };
+              case (?occupation) { ?occupation };
             };
             company = switch (updateRequest.company) {
               case null { existingInvestor.company };
-              case (?company) { company };
+              case (?company) { ?company };
             };
             bio = switch (updateRequest.bio) {
               case null { existingInvestor.bio };
-              case (?bio) { bio };
+              case (?bio) { ?bio };
             };
             profilePhoto = switch (updateRequest.profilePhoto) {
               case null { existingInvestor.profilePhoto };

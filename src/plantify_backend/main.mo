@@ -13,8 +13,9 @@ import NFTPurchaseService "./modules/services/nftPurchase";
 import MonthlyReportService "./modules/services/monthlyReport";
 import VotingService "./modules/services/voting";
 import Config "./config";
+import {migration} "./modules/migration";
 
-persistent actor PlantifyBackend {
+(with migration) persistent actor PlantifyBackend {
   // Stable variables for persistence across canister upgrades
   private var config : Types.EnvironmentConfig = Config.getCurrentConfig();
   private var foundersEntries : [(Text, Types.Founder)] = [];
@@ -569,6 +570,7 @@ persistent actor PlantifyBackend {
     // If this is an upgrade, the stable variables will contain the previous data
     // No explicit migration needed as we're keeping the same structure
   };
+
 
   // Migration function to handle featured startups variable type change
   private func migrateFeaturedStartups() {
