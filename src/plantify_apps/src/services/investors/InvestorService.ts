@@ -1,12 +1,14 @@
 import type {
   Investor,
   InvestorRegistrationRequest,
+  InvestorProfileUpdateRequest,
   Result_4,
   NFTPurchaseRequest,
   NFTPurchaseResponse,
   NFTPurchaseHistory,
   Result_6,
   Result_10,
+  Result_2,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -25,7 +27,7 @@ export class InvestorService extends BaseService {
   ): Promise<{ success: boolean; investor?: Investor; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_4 = await actor.registerInvestor(request);
+      const result: Result_2 = await actor.registerInvestor(request);
 
       if ('ok' in result) {
         return { success: true, investor: result.ok };
@@ -135,6 +137,44 @@ export class InvestorService extends BaseService {
     } catch (error) {
       console.error('Error getting all investors:', error);
       return [];
+    }
+  }
+
+  /**
+   * Get the current investor's profile
+   * @returns The investor profile or null if not found
+   */
+  public static async getInvestorProfile(): Promise<Investor | null> {
+    try {
+      const actor = await this.getActor();
+      const investorOpt = await actor.getInvestorProfile();
+      return investorOpt.length ? investorOpt[0] : null;
+    } catch (error) {
+      console.error('Error getting investor profile:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Update the current investor's profile
+   * @param request - The profile update request
+   * @returns The updated investor or error message
+   */
+  public static async updateInvestorProfile(
+    request: InvestorProfileUpdateRequest
+  ): Promise<{ success: boolean; investor?: Investor; error?: string }> {
+    try {
+      const actor = await this.getActor();
+      const result: Result_2 = await actor.updateInvestorProfile(request);
+
+      if ('ok' in result) {
+        return { success: true, investor: result.ok };
+      } else {
+        return { success: false, error: result.err };
+      }
+    } catch (error) {
+      console.error('Error updating investor profile:', error);
+      return { success: false, error: 'Failed to update investor profile' };
     }
   }
 }

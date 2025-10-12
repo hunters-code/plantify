@@ -42,6 +42,7 @@ import Financials from './partial/Financials';
 import FounderTeam from './partial/FounderTeam';
 import Overview from './partial/Overview';
 import Risks from './partial/Risks';
+import { Layout } from '@/components';
 
 interface Startup {
   id: string;
@@ -337,133 +338,130 @@ function ExploreDetailContent() {
   }
 
   return (
-    <div className='bg-gray-50 text-gray-900 min-h-screen'>
-      <Navbar />
+    <>
+      <Layout>
+        <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
+          {/* Left Side */}
+          <ImageGallery
+            images={images.filter(img => img && !img.includes('undefined'))}
+            showViewMore={true}
+            onViewMore={() => console.log('View more clicked')}
+          />
 
-      <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
-        {/* Left Side */}
-        <ImageGallery
-          images={images.filter(img => img && !img.includes('undefined'))}
-          showViewMore={true}
-          onViewMore={() => {}}
-        />
+          {/* Right Side */}
+          <Card className='bg-neutral-100 flex flex-col gap-4'>
+            <div className='flex gap-2'>
+              <Badge variant='primary' icon={<ThumbsUp size={16} />}>
+                Featured
+              </Badge>
+              <Badge variant='success'>{startup.sector}</Badge>
+              <Badge variant='warning'>{getRiskLevel(startup.sector)}</Badge>
+            </div>
 
-        {/* Right Side */}
-        <Card className='bg-neutral-100 flex flex-col gap-4'>
-          <div className='flex gap-2'>
-            <Badge variant='primary' icon={<ThumbsUp size={16} />}>
-              Featured
-            </Badge>
-            <Badge variant='success'>{startup.sector}</Badge>
-            <Badge variant='warning'>{getRiskLevel(startup.sector)}</Badge>
-          </div>
+            <div className='flex gap-3'>
+              <Image
+                src={
+                  startup.companyLogo?.[0] &&
+                  !startup.companyLogo[0].includes('undefined')
+                    ? startup.companyLogo[0]
+                    : '/assets/images/icon-startup.png'
+                }
+                className='w-8 h-8 rounded'
+                alt='Logo'
+                width={32}
+                height={32}
+                unoptimized={startup.companyLogo?.[0]?.startsWith(
+                  'https://gecvpysiaymyyynjhpfz.supabase.co'
+                )}
+              />
+              <h2 className='text-2xl font-semibold'>{startup.startupName}</h2>
+            </div>
+            <p className='text-gray-600 text-sm'>{startup.description}</p>
+            <p className='text-sm text-gray-500'>📍 {startup.location}</p>
 
-          <div className='flex gap-3'>
-            <Image
-              src={
-                startup.companyLogo?.[0] &&
-                !startup.companyLogo[0].includes('undefined')
-                  ? startup.companyLogo[0]
-                  : '/assets/images/icon-startup.png'
-              }
-              className='w-8 h-8 rounded'
-              alt='Logo'
-              width={32}
-              height={32}
-              unoptimized={startup.companyLogo?.[0]?.startsWith(
-                'https://gecvpysiaymyyynjhpfz.supabase.co'
-              )}
-            />
-            <h2 className='text-2xl font-semibold'>{startup.startupName}</h2>
-          </div>
-          <p className='text-gray-600 text-sm'>{startup.description}</p>
-          <p className='text-sm text-gray-500'>📍 {startup.location}</p>
+            <div className='space-y-2 text-sm'>
+              <p className='flex gap-2 items-center'>
+                <ChartCandlestick size={20} /> Periodic Returns:{' '}
+                <span className='font-semibold'>
+                  {startup.periodicProfitSharing}
+                </span>
+              </p>
+              <p className='flex gap-2 items-center'>
+                <BanknoteArrowUp size={20} /> Monthly Revenue:{' '}
+                <span className='font-semibold'>${startup.monthlyRevenue}</span>
+              </p>
+              <p className='flex gap-2 items-center'>
+                <GalleryHorizontalEnd size={20} /> NFT Price:{' '}
+                <span className='font-semibold'>${startup.nftPrice}</span>
+              </p>
+              <p className='flex gap-2 items-center'>
+                <Sparkle size={20} /> Funding Goal:{' '}
+                <span className='text-orange-500 font-semibold'>
+                  ${startup.fundingGoal}
+                </span>
+              </p>
+              <ProgressBar value={45} max={100} color='bg-orange-500' />
+            </div>
 
-          <div className='space-y-2 text-sm'>
-            <p className='flex gap-2 items-center'>
-              <ChartCandlestick size={20} /> Periodic Returns:{' '}
-              <span className='font-semibold'>
-                {startup.periodicProfitSharing}
-              </span>
-            </p>
-            <p className='flex gap-2 items-center'>
-              <BanknoteArrowUp size={20} /> Monthly Revenue:{' '}
-              <span className='font-semibold'>${startup.monthlyRevenue}</span>
-            </p>
-            <p className='flex gap-2 items-center'>
-              <GalleryHorizontalEnd size={20} /> NFT Price:{' '}
-              <span className='font-semibold'>${startup.nftPrice}</span>
-            </p>
-            <p className='flex gap-2 items-center'>
-              <Sparkle size={20} /> Funding Goal:{' '}
-              <span className='text-orange-500 font-semibold'>
-                ${startup.fundingGoal}
-              </span>
-            </p>
-            <ProgressBar value={45} max={100} color='bg-orange-500' />
-          </div>
+            <Button onClick={handleInvestNow}>
+              <Banknote size={20} />
+              {investmentLoading ? 'Loading...' : 'Invest Now'}
+            </Button>
+          </Card>
+        </div>
 
-          <Button onClick={handleInvestNow}>
-            <Banknote size={20} />
-            {investmentLoading ? 'Loading...' : 'Invest Now'}
-          </Button>
-        </Card>
-      </div>
+        <div className='max-w-6xl mx-auto'>
+          {/* Tabs and Analysis Card Layout */}
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+            {/* Left side - Tabs and Content */}
+            <div className='lg:col-span-2'>
+              <Tabs tabs={tabs} onChange={setActiveTab} />
+              <div>{renderContent()}</div>
+            </div>
 
-      <div className='max-w-6xl mx-auto'>
-        {/* Tabs and Analysis Card Layout */}
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-          {/* Left side - Tabs and Content */}
-          <div className='lg:col-span-2'>
-            <Tabs tabs={tabs} onChange={setActiveTab} />
-            <div>{renderContent()}</div>
-          </div>
-
-          {/* Right side - Chat Interface */}
-          <div className='lg:col-span-1 flex justify-center lg:justify-start'>
-            <div className='sticky top-8 w-full max-w-sm h-[600px]'>
-              {!isChatOpen ? (
-                <NFTAnalysisCard
-                  startupId={id}
-                  startupName={startup.startupName}
-                  onAnalyze={handleAnalyzeStartup}
-                  className='w-full'
-                />
-              ) : (
-                <ChatInterface
-                  isOpen={isChatOpen}
-                  onClose={() => setIsChatOpen(false)}
-                  startupData={startup as any}
-                  startupName={startup.startupName}
-                  onInvestClick={handleInvestFromChat}
-                />
-              )}
+            {/* Right side - Chat Interface */}
+            <div className='lg:col-span-1 flex justify-center lg:justify-start'>
+              <div className='sticky top-8 w-full max-w-sm h-[600px]'>
+                {!isChatOpen ? (
+                  <NFTAnalysisCard
+                    startupId={id}
+                    startupName={startup.startupName}
+                    onAnalyze={handleAnalyzeStartup}
+                  />
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <InvestmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        startup={
-          investmentData
-            ? {
-                id: investmentData.id,
-                name: investmentData.name,
-                availableNFTs: investmentData.availableNFTs,
-                nftPrice: investmentData.nftPrice,
-                monthlyReturns: investmentData.monthlyReturns,
-                expectedROI: investmentData.expectedROI,
-              }
-            : undefined
-        }
-        onInvest={handleInvestmentPurchase}
-        isLoading={investmentLoading}
+        <InvestmentModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          startup={
+            investmentData
+              ? {
+                  id: investmentData.id,
+                  name: investmentData.name,
+                  availableNFTs: investmentData.availableNFTs,
+                  nftPrice: investmentData.nftPrice,
+                  monthlyReturns: investmentData.monthlyReturns,
+                  expectedROI: investmentData.expectedROI,
+                }
+              : undefined
+          }
+          onInvest={handleInvestmentPurchase}
+          isLoading={investmentLoading}
+        />
+      </Layout>
+
+      <ChatInterface
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        startupData={startup as any}
+        startupName={startup.startupName}
+        onInvestClick={handleInvestFromChat}
       />
-
-      <Footer />
-    </div>
+    </>
   );
 }
 

@@ -200,6 +200,11 @@ module Storage {
         phone = investor.phone;
         country = investor.country;
         city = investor.city;
+        location = investor.location;
+        occupation = investor.occupation;
+        company = investor.company;
+        bio = investor.bio;
+        profilePhoto = investor.profilePhoto;
         investmentExperience = investor.investmentExperience;
         riskTolerance = investor.riskTolerance;
         investmentGoals = investor.investmentGoals;
@@ -221,6 +226,82 @@ module Storage {
       switch (investorPrincipals.get(principal)) {
         case null { null };
         case (?id) { investors.get(id) };
+      };
+    };
+
+    public func updateInvestorProfile(investorId : Text, updateRequest : Types.InvestorProfileUpdateRequest) : Bool {
+      switch (investors.get(investorId)) {
+        case null { false };
+        case (?existingInvestor) {
+          let updatedInvestor : Types.Investor = {
+            id = existingInvestor.id;
+            principal = existingInvestor.principal;
+            fullName = switch (updateRequest.fullName) {
+              case null { existingInvestor.fullName };
+              case (?name) { name };
+            };
+            email = switch (updateRequest.email) {
+              case null { existingInvestor.email };
+              case (?email) { email };
+            };
+            phone = switch (updateRequest.phone) {
+              case null { existingInvestor.phone };
+              case (?phone) { phone };
+            };
+            country = switch (updateRequest.country) {
+              case null { existingInvestor.country };
+              case (?country) { country };
+            };
+            city = switch (updateRequest.city) {
+              case null { existingInvestor.city };
+              case (?city) { city };
+            };
+            location = switch (updateRequest.location) {
+              case null { existingInvestor.location };
+              case (?location) { ?location };
+            };
+            occupation = switch (updateRequest.occupation) {
+              case null { existingInvestor.occupation };
+              case (?occupation) { ?occupation };
+            };
+            company = switch (updateRequest.company) {
+              case null { existingInvestor.company };
+              case (?company) { ?company };
+            };
+            bio = switch (updateRequest.bio) {
+              case null { existingInvestor.bio };
+              case (?bio) { ?bio };
+            };
+            profilePhoto = switch (updateRequest.profilePhoto) {
+              case null { existingInvestor.profilePhoto };
+              case (?photo) { ?photo };
+            };
+            investmentExperience = switch (updateRequest.investmentExperience) {
+              case null { existingInvestor.investmentExperience };
+              case (?experience) { experience };
+            };
+            riskTolerance = switch (updateRequest.riskTolerance) {
+              case null { existingInvestor.riskTolerance };
+              case (?tolerance) { tolerance };
+            };
+            investmentGoals = switch (updateRequest.investmentGoals) {
+              case null { existingInvestor.investmentGoals };
+              case (?goals) { goals };
+            };
+            availableCapital = switch (updateRequest.availableCapital) {
+              case null { existingInvestor.availableCapital };
+              case (?capital) { capital };
+            };
+            monthlyBudget = switch (updateRequest.monthlyBudget) {
+              case null { existingInvestor.monthlyBudget };
+              case (?budget) { budget };
+            };
+            createdAt = existingInvestor.createdAt;
+            updatedAt = Time.now();
+          };
+          investors.put(investorId, updatedInvestor);
+          true;
+        };
       };
     };
 

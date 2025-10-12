@@ -1,21 +1,28 @@
 'use client';
 
-import { X, ArrowUp } from 'lucide-react';
+import {
+  X,
+  ArrowUp,
+  TrendingUp,
+  Users,
+  DollarSign,
+  Target,
+} from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-
-import { analyzeStartup } from '@/lib/aiService';
-
+import { analyzeStartup, StartupAnalysisResult } from '@/lib/aiService';
 import LoadingSpinner from './LoadingSpinner';
+import { Button } from '.';
 
 interface Message {
   id: string;
-  type: 'user' | 'ai' | 'table';
+  type: 'user' | 'ai' | 'table' | 'analysis';
   content: string;
   timestamp: Date;
   tableData?: {
     headers: string[];
     rows: string[][];
   };
+  analysisData?: StartupAnalysisResult;
 }
 
 interface ChatInterfaceProps {
@@ -30,6 +37,8 @@ interface ChatInterfaceProps {
     fundingGoal?: string;
     nftPrice?: string;
     periodicProfitSharing?: string;
+    monthlyRevenue?: string;
+    teamMembers?: { name: string; role: string }[];
     [key: string]: unknown;
   };
   startupName?: string;
@@ -72,13 +81,47 @@ export default function ChatInterface({
     setIsLoading(true);
 
     try {
-      // Simulate AI response based on the question type
-      if (messageText.toLowerCase().includes('valuation')) {
-        // Add AI response with table for valuation questions
+      const lowerMessage = messageText.toLowerCase();
+
+      if (
+        lowerMessage.includes('analyze') ||
+        lowerMessage.includes('analysis') ||
+        lowerMessage.includes('full')
+      ) {
+        if (!startupData) {
+          throw new Error('Startup data not available');
+        }
+
+        const analysis = await analyzeStartup({
+          id: startupData.id,
+          startupName: startupData.startupName,
+          description: startupData.description,
+          sector: startupData.sector,
+          location: startupData.location || 'Not specified',
+          teamMembers: startupData.teamMembers,
+          monthlyRevenue: startupData.monthlyRevenue,
+          fundingGoal: startupData.fundingGoal || '0',
+          nftPrice: startupData.nftPrice || '0',
+          periodicProfitSharing: startupData.periodicProfitSharing || '0',
+        });
+
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'analysis',
+          content: `Here's a comprehensive analysis of ${startupName}:`,
+          timestamp: new Date(),
+          analysisData: analysis,
+        };
+
+        setMessages(prev => [...prev, aiResponse]);
+      } else if (
+        lowerMessage.includes('valuation') ||
+        lowerMessage.includes('value')
+      ) {
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'ai',
-          content: `Based on comparable EdTech startups over the past 3 years, the fair market valuation range for ${startupName} is between $2.2M – $2.8M.\n\nThe current valuation of $2.5M sits within this range, making it a reasonable entry point.`,
+          content: `Based on comparable ${startupData?.sector} startups, the fair market valuation range for ${startupName} is estimated between $${(Number(startupData?.fundingGoal) * 0.8).toLocaleString()} – $${(Number(startupData?.fundingGoal) * 1.2).toLocaleString()}.`,
           timestamp: new Date(),
         };
 
@@ -90,225 +133,335 @@ export default function ChatInterface({
           tableData: {
             headers: ['Company', 'Deal Year', 'Valuation Multiple', 'Sector'],
             rows: [
-              ['Duolingo', '2020', '12x Revenue', 'EdTech'],
-              ['Babbel', '2021', '10x Revenue', 'EdTech'],
-              ['LingQ', '2022', '8x Revenue', 'EdTech'],
+              [
+                'Comparable A',
+                '2023',
+                '12x Revenue',
+                startupData?.sector || 'Tech',
+              ],
+              [
+                'Comparable B',
+                '2024',
+                '10x Revenue',
+                startupData?.sector || 'Tech',
+              ],
+              [
+                'Comparable C',
+                '2024',
+                '8x Revenue',
+                startupData?.sector || 'Tech',
+              ],
             ],
           },
         };
 
         setMessages(prev => [...prev, aiResponse, tableMessage]);
-      } else {
-        // For other questions, use the existing AI service
-        if (startupData) {
-          const analysis = await analyzeStartup(startupData as any);
-          const aiResponse: Message = {
-            id: (Date.now() + 1).toString(),
-            type: 'ai',
-            content: `Based on my analysis of ${startupName}:\n\n**Overall Score: ${analysis.overallScore}/100**\n\n**Key Insights:**\n${analysis.summary}\n\n**Investment Recommendation:** ${analysis.investmentRecommendation.replace('_', ' ').toUpperCase()}\n\n**Risk Level:** ${analysis.riskLevel.toUpperCase()}`,
-            timestamp: new Date(),
-          };
-          setMessages(prev => [...prev, aiResponse]);
+      } else if (lowerMessage.includes('risk')) {
+        if (!startupData) {
+          throw new Error('Startup data not available');
         }
+
+        const analysis = await analyzeStartup({
+          id: startupData.id,
+          startupName: startupData.startupName,
+          description: startupData.description,
+          sector: startupData.sector,
+          location: startupData.location || 'Not specified',
+          teamMembers: startupData.teamMembers,
+          monthlyRevenue: startupData.monthlyRevenue,
+          fundingGoal: startupData.fundingGoal || '0',
+          nftPrice: startupData.nftPrice || '0',
+          periodicProfitSharing: startupData.periodicProfitSharing || '0',
+        });
+
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'ai',
+          content: `**Risk Assessment for ${startupName}**\n\nRisk Level: ${analysis.riskLevel.toUpperCase()}\n\n**Key Threats:**\n${analysis.threats.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\n**Mitigation Opportunities:**\n${analysis.opportunities
+            .slice(0, 2)
+            .map((o, i) => `${i + 1}. ${o}`)
+            .join('\n')}`,
+          timestamp: new Date(),
+        };
+
+        setMessages(prev => [...prev, aiResponse]);
+      } else if (
+        lowerMessage.includes('invest') ||
+        lowerMessage.includes('recommendation')
+      ) {
+        if (!startupData) {
+          throw new Error('Startup data not available');
+        }
+
+        const analysis = await analyzeStartup({
+          id: startupData.id,
+          startupName: startupData.startupName,
+          description: startupData.description,
+          sector: startupData.sector,
+          location: startupData.location || 'Not specified',
+          teamMembers: startupData.teamMembers,
+          monthlyRevenue: startupData.monthlyRevenue,
+          fundingGoal: startupData.fundingGoal || '0',
+          nftPrice: startupData.nftPrice || '0',
+          periodicProfitSharing: startupData.periodicProfitSharing || '0',
+        });
+
+        const recommendationText = {
+          strong_buy:
+            '🟢 STRONG BUY - Excellent opportunity with high potential',
+          buy: '🟢 BUY - Good investment opportunity',
+          hold: '🟡 HOLD - Monitor for better entry point',
+          sell: '🔴 SELL - Consider alternatives',
+          strong_sell: '🔴 STRONG SELL - High risk, avoid investment',
+        };
+
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'ai',
+          content: `**Investment Recommendation**\n\n${recommendationText[analysis.investmentRecommendation]}\n\n**Overall Score:** ${analysis.overallScore}/100\n\n${analysis.summary}\n\n**Key Strengths:**\n${analysis.strengths
+            .slice(0, 3)
+            .map((s, i) => `${i + 1}. ${s}`)
+            .join('\n')}`,
+          timestamp: new Date(),
+        };
+
+        setMessages(prev => [...prev, aiResponse]);
+      } else {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'ai',
+          content: `I can help you analyze ${startupName}. Try asking me about:\n\n• Full startup analysis\n• Market valuation\n• Risk assessment\n• Investment recommendation\n\nWhat would you like to know?`,
+          timestamp: new Date(),
+        };
+
+        setMessages(prev => [...prev, aiResponse]);
       }
     } catch (error) {
-      console.error('Error getting AI response:', error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content:
-          'I apologize, but I encountered an error while analyzing your request. Please try again.',
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      console.error('Error processing message:', error);
+      setMessages(prev => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          type: 'ai',
+          content: `Sorry, I encountered an error while analyzing your request. ${error instanceof Error ? error.message : 'Please try again.'}`,
+          timestamp: new Date(),
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleQuickAnalysis = () => {
-    handleSendMessage('What is a fair market valuation for this startup?');
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div className='bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden h-full flex flex-col'>
-      {/* Header */}
-      <div className='flex items-center gap-2 p-4 border-b border-gray-200'>
-        <div className='flex items-center gap-2 flex-1'>
-          <div className='w-7 h-7 bg-green-500 rounded-full flex items-center justify-center'>
-            <svg width='18' height='15' viewBox='0 0 18 15' fill='none'>
-              <path
-                d='M9 0L10.09 6.26L17 7L10.09 7.74L9 14L7.91 7.74L1 7L7.91 6.26L9 0Z'
-                fill='white'
-              />
-            </svg>
-          </div>
-          <h3 className='text-2xl font-serif text-gray-900'>{startupName}</h3>
-        </div>
-        <button
-          onClick={onClose}
-          className='p-1 hover:bg-gray-100 rounded-lg transition-colors'
-        >
-          <X size={24} className='text-gray-600' />
-        </button>
-      </div>
-
-      {/* Messages */}
-      <div className='flex-1 overflow-y-auto p-4 space-y-4'>
-        {messages.length === 0 && (
-          <div className='text-center text-gray-500 mt-8'>
-            <p className='text-lg mb-2'>Ask anything about this startup</p>
-            <p className='text-sm'>I&apos;ll analyze it for you using AI</p>
-          </div>
-        )}
-
-        {messages.map((message: Message) => (
-          <div key={message.id} className='space-y-4'>
-            {message.type === 'user' && (
-              <div className='flex justify-end'>
-                <div className='bg-gray-100 rounded-2xl px-4 py-3 max-w-xs'>
-                  <p className='text-sm font-medium text-gray-700'>
-                    {message.content}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {message.type === 'ai' && (
-              <div className='flex justify-start'>
-                <div className='bg-purple-500 rounded-2xl px-4 py-3 max-w-md'>
-                  <p className='text-sm text-white whitespace-pre-line'>
-                    {message.content}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {message.type === 'table' && message.tableData && (
-              <div className='flex justify-start'>
-                <div className='border border-gray-200 rounded-2xl overflow-hidden max-w-md'>
-                  <table className='w-full text-sm'>
-                    <thead>
-                      <tr className='bg-gray-200'>
-                        {message.tableData.headers.map((header, index) => (
-                          <th
-                            key={index}
-                            className='px-3 py-2 text-left font-medium text-gray-900'
-                          >
-                            {header}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {message.tableData.rows.map((row, rowIndex) => (
-                        <tr key={rowIndex} className='border-t border-gray-200'>
-                          {row.map((cell, cellIndex) => (
-                            <td
-                              key={cellIndex}
-                              className='px-3 py-2 text-gray-900'
-                            >
-                              {cell}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-
-        {isLoading && (
-          <div className='flex justify-start'>
-            <div className='bg-purple-500 rounded-2xl px-4 py-3'>
-              <LoadingSpinner size='sm' />
+    <div className='fixed inset-0 z-[9999] flex justify-end bg-black/20 backdrop-blur-sm'>
+      <div className='w-full sm:w-[450px] md:w-[500px] h-screen bg-white shadow-2xl border-l border-gray-200 flex flex-col rounded-none relative animate-slide-in-right'>
+        {/* Header */}
+        <div className='flex items-center gap-2 p-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-blue-50'>
+          <div className='flex items-center gap-2 flex-1'>
+            <div className='w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-md'>
+              <svg width='18' height='15' viewBox='0 0 18 15' fill='none'>
+                <path
+                  d='M9 0L10.09 6.26L17 7L10.09 7.74L9 14L7.91 7.74L1 7L7.91 6.26L9 0Z'
+                  fill='white'
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className='text-xl font-bold text-gray-900'>{startupName}</h3>
+              <p className='text-xs text-gray-600'>AI Investment Advisor</p>
             </div>
           </div>
-        )}
+          <button
+            onClick={onClose}
+            className='p-2 hover:bg-white/80 rounded-lg transition-colors'
+          >
+            <X size={20} className='text-gray-600' />
+          </button>
+        </div>
 
-        <div ref={messagesEndRef} />
-      </div>
+        {/* Messages */}
+        <div className='flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50'>
+          {messages.length === 0 && (
+            <div className='flex flex-col items-center justify-center h-full text-center text-gray-500'>
+              <div className='w-16 h-16 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center mb-4'>
+                <TrendingUp size={32} className='text-purple-600' />
+              </div>
+              <p className='text-lg font-semibold mb-2'>
+                AI Investment Analysis
+              </p>
+              <p className='text-sm text-gray-400'>
+                Ask me anything about this startup
+              </p>
+            </div>
+          )}
 
-      {/* Input Area */}
-      <div className='p-4 border-t border-gray-200 space-y-4'>
-        <div className='flex gap-2'>
-          <div className='flex-1 relative'>
+          {messages.map(message => (
+            <div key={message.id} className='space-y-2'>
+              {message.type === 'user' && (
+                <div className='flex justify-end'>
+                  <div className='bg-neutral-100 rounded-2xl rounded-tr-sm px-4 py-3 max-w-xs'>
+                    <p className='text-sm text-black whitespace-pre-line'>
+                      {message.content}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {message.type === 'ai' && (
+                <div className='flex justify-start'>
+                  <div className='bg-purple-500 border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 max-w-md shadow-sm'>
+                    <p className='text-sm text-white whitespace-pre-line'>
+                      {message.content}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {message.type === 'analysis' && message.analysisData && (
+                <div className='flex justify-start'>
+                  <div className='bg-purple-500 border border-gray-200 rounded-2xl p-4 max-w-md shadow-sm space-y-4'>
+                    <div className='flex items-center justify-between'>
+                      <h4 className='font-bold text-white'>Analysis Report</h4>
+                      <div className='flex items-center gap-1'>
+                        <span className='text-2xl font-bold text-white'>
+                          {message.analysisData.overallScore}
+                        </span>
+                        <span className='text-sm text-white'>/100</span>
+                      </div>
+                    </div>
+
+                    <div className='space-y-2'>
+                      <div className='flex items-center gap-2 p-2 bg-gray-50 rounded-lg'>
+                        <Target className='text-purple-600' size={16} />
+                        <span className='text-xs font-medium text-gray-700'>
+                          {message.analysisData.investmentRecommendation
+                            .replace('_', ' ')
+                            .toUpperCase()}
+                        </span>
+                      </div>
+
+                      <div className='flex items-center gap-2 p-2 bg-gray-50 rounded-lg'>
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            message.analysisData.riskLevel === 'low'
+                              ? 'bg-green-500'
+                              : message.analysisData.riskLevel === 'medium'
+                                ? 'bg-yellow-500'
+                                : 'bg-red-500'
+                          }`}
+                        />
+                        <span className='text-xs text-gray-700'>
+                          Risk Level:{' '}
+                          <span className='font-medium capitalize'>
+                            {message.analysisData.riskLevel}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className='grid grid-cols-2 gap-2'>
+                      {Object.entries(message.analysisData.keyMetrics).map(
+                        ([key, value]) => (
+                          <div key={key} className='bg-gray-50 rounded-lg p-2'>
+                            <p className='text-xs text-gray-500 capitalize'>
+                              {key.replace(/([A-Z])/g, ' $1').trim()}
+                            </p>
+                            <p className='text-lg font-bold text-purple-600'>
+                              {value}
+                            </p>
+                          </div>
+                        )
+                      )}
+                    </div>
+
+                    <div className='pt-2 border-t border-gray-200'>
+                      <p className='text-xs text-white/80'>
+                        {message.analysisData.summary}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {message.type === 'table' && message.tableData && (
+                <div className='flex justify-start'>
+                  <div className='border border-gray-200 rounded-2xl overflow-hidden max-w-md shadow-sm bg-white'>
+                    <table className='w-full text-xs'>
+                      <thead>
+                        <tr className='bg-gray-100'>
+                          {message.tableData.headers.map((header, index) => (
+                            <th
+                              key={index}
+                              className='px-3 py-2 text-left font-semibold text-gray-900'
+                            >
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {message.tableData.rows.map((row, rowIndex) => (
+                          <tr
+                            key={rowIndex}
+                            className='border-t border-gray-100'
+                          >
+                            {row.map((cell, cellIndex) => (
+                              <td
+                                key={cellIndex}
+                                className='px-3 py-2 text-gray-700'
+                              >
+                                {cell}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className='flex justify-start'>
+              <div className='bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm'>
+                <LoadingSpinner size='sm' />
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Area */}
+        <div className='p-4 border-t border-gray-200 bg-white'>
+          <div className='relative flex items-end border border-gray-200 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-transparent'>
             <textarea
               value={inputText}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setInputText(e.target.value)
-              }
-              placeholder='Ask anything related to this startup and we will analyze it for you.
-
-Or you can use the shortcut below.'
-              className='w-full h-24 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm'
-              onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+              onChange={e => setInputText(e.target.value)}
+              placeholder='Ask anything related to this startup and we will analyze it for you.'
+              className='flex-1 h-20 p-3 pr-14 bg-transparent resize-none focus:outline-none text-sm'
+              onKeyDown={e => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   handleSendMessage();
                 }
               }}
             />
-          </div>
-          <button
-            onClick={handleQuickAnalysis}
-            disabled={isLoading}
-            className='w-12 h-12 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center justify-center transition-colors shadow-lg'
-          >
-            <ArrowUp size={20} className='text-white' />
-          </button>
-        </div>
-
-        {messages.length === 0 && (
-          <div className='space-y-3'>
-            <div className='flex flex-wrap gap-2'>
-              <button
-                onClick={handleQuickAnalysis}
-                disabled={isLoading}
-                className='bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm py-2 px-3 rounded-full border border-gray-200 transition-colors'
+            <div className='absolute right-2 top-2'>
+              <Button
+                onClick={() => handleSendMessage()}
+                disabled={isLoading || !inputText.trim()}
+                variant='primary'
+                className='w-10 h-10 !p-0 !rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
               >
-                💰 Market Valuation
-              </button>
-              <button
-                onClick={() =>
-                  handleSendMessage(
-                    'What are the main risks of investing in this startup?'
-                  )
-                }
-                disabled={isLoading}
-                className='bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm py-2 px-3 rounded-full border border-gray-200 transition-colors'
-              >
-                ⚠️ Investment Risks
-              </button>
-              <button
-                onClick={() =>
-                  handleSendMessage(
-                    'How does this startup compare to competitors?'
-                  )
-                }
-                disabled={isLoading}
-                className='bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm py-2 px-3 rounded-full border border-gray-200 transition-colors'
-              >
-                📊 Competitive Analysis
-              </button>
+                <ArrowUp size={18} />
+              </Button>
             </div>
-
-            {onInvestClick && (
-              <button
-                onClick={onInvestClick}
-                className='w-full bg-purple-500 hover:bg-purple-600 text-white py-3 px-4 rounded-xl font-medium transition-colors shadow-lg flex items-center justify-center gap-2'
-              >
-                <span className='text-lg'>💎</span>
-                Invest in {startupName}
-              </button>
-            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -13,8 +13,9 @@ import NFTPurchaseService "./modules/services/nftPurchase";
 import MonthlyReportService "./modules/services/monthlyReport";
 import VotingService "./modules/services/voting";
 import Config "./config";
+import {migration} "./modules/migration";
 
-persistent actor PlantifyBackend {
+(with migration) persistent actor PlantifyBackend {
   // Stable variables for persistence across canister upgrades
   private var config : Types.EnvironmentConfig = Config.getCurrentConfig();
   private var foundersEntries : [(Text, Types.Founder)] = [];
@@ -98,6 +99,26 @@ persistent actor PlantifyBackend {
   };
 
   public shared (msg) func getInvestorByPrincipal() : async ?Types.Investor {
+    storage.getInvestorByPrincipal(msg.caller);
+  };
+
+  public shared (msg) func updateInvestorProfile(request : Types.InvestorProfileUpdateRequest) : async Result.Result<Types.Investor, Text> {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #err("Investor not found") };
+      case (?investor) {
+        if (storage.updateInvestorProfile(investor.id, request)) {
+          switch (storage.getInvestor(investor.id)) {
+            case null { #err("Failed to retrieve updated investor") };
+            case (?updatedInvestor) { #ok(updatedInvestor) };
+          };
+        } else {
+          #err("Failed to update investor profile");
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getInvestorProfile() : async ?Types.Investor {
     storage.getInvestorByPrincipal(msg.caller);
   };
 
@@ -561,6 +582,7 @@ persistent actor PlantifyBackend {
     // If this is an upgrade, the stable variables will contain the previous data
     // No explicit migration needed as we're keeping the same structure
   };
+
 
   // Migration function to handle featured startups variable type change
   private func migrateFeaturedStartups() {

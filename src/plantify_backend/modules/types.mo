@@ -33,6 +33,11 @@ module Types {
     phone : Text;
     country : Text;
     city : Text;
+    location : ?Text;
+    occupation : ?Text;
+    company : ?Text;
+    bio : ?Text;
+    profilePhoto : ?Text;
     investmentExperience : Text;
     riskTolerance : Text;
     investmentGoals : Text;
@@ -61,11 +66,34 @@ module Types {
     phone : Text;
     country : Text;
     city : Text;
+    location : ?Text;
+    occupation : ?Text;
+    company : ?Text;
+    bio : ?Text;
+    profilePhoto : ?Text;
     investmentExperience : Text;
     riskTolerance : Text;
     investmentGoals : Text;
     availableCapital : Text;
     monthlyBudget : Text;
+  };
+
+  public type InvestorProfileUpdateRequest = {
+    fullName : ?Text;
+    email : ?Text;
+    phone : ?Text;
+    country : ?Text;
+    city : ?Text;
+    location : ?Text;
+    occupation : ?Text;
+    company : ?Text;
+    bio : ?Text;
+    profilePhoto : ?Text;
+    investmentExperience : ?Text;
+    riskTolerance : ?Text;
+    investmentGoals : ?Text;
+    availableCapital : ?Text;
+    monthlyBudget : ?Text;
   };
 
   public type TeamMember = {
