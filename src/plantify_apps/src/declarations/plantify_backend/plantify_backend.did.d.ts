@@ -592,6 +592,11 @@ export interface _SERVICE {
   getStartupPurchaseHistory: ActorMethod<[string], Result_10>;
   getStartupsCount: ActorMethod<[], bigint>;
   getStartupsPaginated: ActorMethod<[PaginationParams], PaginatedStartups>;
+  getStartupsByFounderPrincipal: ActorMethod<[], Array<Startup>>;
+  getStartupsByFounderPrincipalPaginated: ActorMethod<
+    [PaginationParams],
+    PaginatedStartups
+  >;
   getTokenCanisterId: ActorMethod<[string], [] | [string]>;
   getTokenInfo: ActorMethod<[string], TokenInfoResponse>;
   getUserType: ActorMethod<[], [] | [UserType]>;

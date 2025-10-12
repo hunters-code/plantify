@@ -765,6 +765,8 @@ service : {
   getStartupPurchaseHistory: (startupId: text) -> (Result_10);
   getStartupsCount: () -> (nat);
   getStartupsPaginated: (params: PaginationParams) -> (PaginatedStartups);
+  getStartupsByFounderPrincipal: () -> (vec Startup);
+  getStartupsByFounderPrincipalPaginated: (params: PaginationParams) -> (PaginatedStartups);
   getTokenCanisterId: (tokenType: text) -> (opt text);
   getTokenInfo: (tokenType: text) -> (TokenInfoResponse);
   getUserType: () -> (opt UserType);

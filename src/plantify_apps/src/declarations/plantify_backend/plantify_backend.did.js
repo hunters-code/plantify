@@ -631,6 +631,12 @@ export const idlFactory = ({ IDL }) => {
     getStartupPurchaseHistory: IDL.Func([IDL.Text], [Result_10], []),
     getStartupsCount: IDL.Func([], [IDL.Nat], []),
     getStartupsPaginated: IDL.Func([PaginationParams], [PaginatedStartups], []),
+    getStartupsByFounderPrincipal: IDL.Func([], [IDL.Vec(Startup)], []),
+    getStartupsByFounderPrincipalPaginated: IDL.Func(
+      [PaginationParams],
+      [PaginatedStartups],
+      []
+    ),
     getTokenCanisterId: IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], []),
     getTokenInfo: IDL.Func([IDL.Text], [TokenInfoResponse], []),
     getUserType: IDL.Func([], [IDL.Opt(UserType)], []),

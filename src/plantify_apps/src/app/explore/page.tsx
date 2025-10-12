@@ -2,6 +2,7 @@
 
 import { Funnel, ListFilter, Search } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import {
   Navbar,
@@ -39,12 +40,30 @@ type FilterType = 'all' | 'available' | 'featured';
 
 export default function Explores() {
   const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get URL parameters with defaults
+  const pageParam = searchParams.get('page');
+  const filterParam = searchParams.get('filter') as FilterType | null;
+  const searchParam = searchParams.get('search');
+
+  const ITEMS_PER_PAGE = 3; // Adjust based on the API response
 
   const [startups, setStartups] = useState<Startup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState<FilterType>('all');
+  const [searchTerm, setSearchTerm] = useState(searchParam || '');
+  const [filter, setFilter] = useState<FilterType>(
+    filterParam && ['all', 'available', 'featured'].includes(filterParam)
+      ? filterParam
+      : 'all'
+  );
+  const [currentPage, setCurrentPage] = useState(
+    pageParam ? parseInt(pageParam, 10) : 1
+  );
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Function to map backend startup data to ProductCard props
   const mapStartupData = useCallback((startup: BackendStartup): Startup => {
@@ -81,27 +100,43 @@ export default function Explores() {
     };
   }, []);
 
-  // Fetch startups from backend
-  const fetchStartups = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Fetch startups from backend with pagination
+  const fetchStartups = useCallback(
+    async (page: number) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      // Use the StartupService to fetch all startups - no authentication required
-      const result = await StartupService.getAllStartups();
+        console.log(
+          `Fetching startups for page ${page} with limit ${ITEMS_PER_PAGE}`
+        );
 
-      // Map the backend data to the UI format
-      const mappedStartups = result.map(mapStartupData);
-      setStartups(mappedStartups);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching startups:', err);
-      setError('Failed to load startups. Please try again.');
-      setLoading(false);
-    }
-  }, [mapStartupData]);
+        // Use the StartupService to fetch startups with pagination - no authentication required
+        const result = await StartupService.getStartupsPaginated({
+          page,
+          limit: ITEMS_PER_PAGE,
+        });
 
-  // Filter startups
+        console.log('API response:', result);
+
+        // Map the backend data to the UI format
+        const mappedStartups = result.startups.map(mapStartupData);
+        setStartups(mappedStartups);
+        setTotalPages(result.totalPages);
+        setTotalCount(result.totalCount);
+        setCurrentPage(page);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching startups:', err);
+        setError('Failed to load startups. Please try again.');
+        setLoading(false);
+      }
+    },
+    [mapStartupData, ITEMS_PER_PAGE]
+  );
+
+  // Filter startups - only apply client-side filtering for search
+  // For real filter changes, we should fetch from the server with the new filters
   const filteredStartups = startups.filter(startup => {
     const matchesSearch =
       searchTerm === '' ||
@@ -109,6 +144,8 @@ export default function Explores() {
       startup.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.location.toLowerCase().includes(searchTerm.toLowerCase());
 
+    // For demo purposes, we'll still filter on the client side
+    // In a real app, we would pass these filters to the API
     let matchesFilter = true;
     if (filter === 'available') {
       matchesFilter = startup.status === 'active' && startup.available > 0;
@@ -119,10 +156,68 @@ export default function Explores() {
     return matchesSearch && matchesFilter;
   });
 
+  // Update URL parameters and state
+  const updateURLParams = useCallback(
+    (page: number, currentFilter: FilterType, currentSearch: string) => {
+      const params = new URLSearchParams();
+
+      // Only add parameters that are not default values
+      if (page > 1) params.set('page', page.toString());
+      if (currentFilter !== 'all') params.set('filter', currentFilter);
+      if (currentSearch) params.set('search', currentSearch);
+
+      // Update URL without refreshing the page
+      const url = params.toString() ? `?${params.toString()}` : '';
+      router.push(`/explore${url}`, { scroll: false });
+    },
+    [router]
+  );
+
+  // Handle page change
+  const handlePageChange = useCallback(
+    (page: number) => {
+      console.log(`Page change requested to: ${page}`);
+      updateURLParams(page, filter, searchTerm);
+      fetchStartups(page);
+    },
+    [fetchStartups, updateURLParams, filter, searchTerm]
+  );
+
+  // Handle filter change
+  const handleFilterChange = useCallback(
+    (newFilter: FilterType) => {
+      setFilter(newFilter);
+      updateURLParams(1, newFilter, searchTerm);
+      fetchStartups(1);
+    },
+    [fetchStartups, updateURLParams, searchTerm]
+  );
+
+  // Handle search change - only update the state
+  const handleSearchChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newSearchTerm = event.target.value;
+      setSearchTerm(newSearchTerm);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (searchTerm === undefined) return;
+
+    const timer = setTimeout(() => {
+      updateURLParams(1, filter, searchTerm);
+      fetchStartups(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, filter, updateURLParams, fetchStartups]);
+
   // Load startups on component mount
   useEffect(() => {
-    fetchStartups();
-  }, [fetchStartups]);
+    console.log('Component mounted, fetching initial data');
+    fetchStartups(currentPage);
+  }, [fetchStartups, currentPage]);
 
   return (
     <div className='bg-gray-50 text-gray-900 min-h-screen'>
@@ -141,8 +236,9 @@ export default function Explores() {
               type='text'
               placeholder='Search by name, sector, location, or tags...'
               className='w-full'
+              value={searchTerm}
               icon={<Search size={20} className='text-gray-500' />}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
 
@@ -160,18 +256,18 @@ export default function Explores() {
 
         <div className='flex items-center gap-3 mb-8 mt-8'>
           <Button
-            onClick={() => setFilter('all')}
-            variant='secondary'
+            onClick={() => handleFilterChange('all')}
+            variant={filter === 'all' ? 'primary' : 'secondary'}
             className='flex items-center gap-1'
           >
             All Startups
             <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
-              {startups.length}
+              {totalCount}
             </span>
           </Button>
           <Button
-            onClick={() => setFilter('available')}
-            variant='secondary'
+            onClick={() => handleFilterChange('available')}
+            variant={filter === 'available' ? 'primary' : 'secondary'}
             className='flex items-center gap-1'
           >
             Available
@@ -183,8 +279,8 @@ export default function Explores() {
             </span>
           </Button>
           <Button
-            onClick={() => setFilter('featured')}
-            variant='secondary'
+            onClick={() => handleFilterChange('featured')}
+            variant={filter === 'featured' ? 'primary' : 'secondary'}
             className='flex items-center gap-1'
           >
             Featured
@@ -214,7 +310,7 @@ export default function Explores() {
                 </h3>
                 <p className='text-red-600 text-sm mt-1'>{error}</p>
                 <button
-                  onClick={fetchStartups}
+                  onClick={() => fetchStartups(currentPage)}
                   className='mt-2 text-sm text-red-600 hover:text-red-800 underline'
                 >
                   Try Again
@@ -270,7 +366,8 @@ export default function Explores() {
                     <button
                       onClick={() => {
                         setSearchTerm('');
-                        setFilter('all');
+                        handleFilterChange('all');
+                        router.push('/explore');
                       }}
                       className='mt-4 text-purple-600 hover:text-purple-800 underline'
                     >
@@ -299,7 +396,28 @@ export default function Explores() {
           </>
         )}
 
-        <Pagination />
+        {!loading && !error && isAuthenticated && (
+          <div className='mt-10'>
+            {filteredStartups.length > 0 ? (
+              <div className='text-center text-sm text-gray-600 mb-4'>
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
+                {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of{' '}
+                {totalCount} startups
+              </div>
+            ) : (
+              <div className='text-center text-sm text-gray-600 mb-4'>
+                Page {currentPage} of {Math.max(totalPages, 1)}
+              </div>
+            )}
+
+            {/* Always show pagination component */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.max(totalPages, 1)}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </div>
 
       <div className='mb-12'>

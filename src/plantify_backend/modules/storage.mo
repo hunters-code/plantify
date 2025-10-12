@@ -393,6 +393,79 @@ module Storage {
       };
     };
 
+    public func getStartupsByFounderPrincipal(principal : Principal) : [Types.Startup] {
+      switch (founderPrincipals.get(principal)) {
+        case null { [] };
+        case (?founderId) { getStartupsByFounder(founderId) };
+      };
+    };
+
+    public func getStartupsByFounderPrincipalPaginated(principal : Principal, params : Types.PaginationParams) : Types.PaginatedStartups {
+      switch (founderPrincipals.get(principal)) {
+        case null { 
+          {
+            startups = [];
+            totalCount = 0;
+            page = params.page;
+            limit = params.limit;
+            totalPages = 0;
+          };
+        };
+        case (?founderId) {
+          let founderStartups = getStartupsByFounder(founderId);
+          let totalCount = founderStartups.size();
+          let offset = params.page * params.limit;
+          
+          let paginatedStartups = if (offset >= totalCount or params.limit == 0) {
+            [];
+          } else {
+            let endIndex = Nat.min(offset + params.limit, totalCount);
+            let takeCount = if (endIndex > offset) { 
+              if (endIndex >= offset) { 
+                if (endIndex > offset) { endIndex - offset } else { 0 }
+              } else { 0 }
+            } else { 0 };
+            
+            if (takeCount == 0) {
+              [];
+            } else {
+              Array.tabulate<Types.Startup>(takeCount, func(i : Nat) : Types.Startup {
+                founderStartups[offset + i];
+              });
+            };
+          };
+          
+          let totalPages = if (totalCount == 0 or params.limit == 0) { 
+            0 
+          } else { 
+            let pages = totalCount / params.limit;
+            if (totalCount % params.limit == 0) { pages } else { pages + 1 }
+          };
+          
+          {
+            startups = paginatedStartups;
+            totalCount = totalCount;
+            page = params.page;
+            limit = params.limit;
+            totalPages = totalPages;
+          };
+        };
+      };
+    };
+
+    public func getStartupsByFounderNameAndId(founderName : Text, founderId : Text) : [Types.Startup] {
+      switch (founders.get(founderId)) {
+        case null { [] };
+        case (?founder) {
+          if (founder.fullName == founderName) {
+            getStartupsByFounder(founderId);
+          } else {
+            [];
+          };
+        };
+      };
+    };
+
     public func getAllStartups() : [Types.Startup] {
       let startupArray = Array.map<(Text, Types.Startup), Types.Startup>(
         Iter.toArray(startups.entries()),

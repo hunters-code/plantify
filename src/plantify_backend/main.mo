@@ -164,6 +164,18 @@ import {migration} "./modules/migration";
     storage.getStartup(startupId);
   };
 
+  public shared (msg) func getStartupsByFounderPrincipal() : async [Types.Startup] {
+    storage.getStartupsByFounderPrincipal(msg.caller);
+  };
+
+  public shared (msg) func getStartupsByFounderPrincipalPaginated(params : Types.PaginationParams) : async Types.PaginatedStartups {
+    storage.getStartupsByFounderPrincipalPaginated(msg.caller, params);
+  };
+
+  public shared func getStartupsByFounderNameAndId(founderName : Text, founderId : Text) : async [Types.Startup] {
+    storage.getStartupsByFounderNameAndId(founderName, founderId);
+  };
+
   // ========================================
   // FEATURED STARTUPS METHODS
   // ========================================
