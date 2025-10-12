@@ -734,6 +734,11 @@ service : {
   getReportVotes: (reportId: text) -> (vec InvestorVote);
   getStartupDetails: (startupId: text) -> (opt Startup);
   getStartupPurchaseHistory: (startupId: text) -> (Result_10);
+  getStartupsByFounderNameAndId: (founderName: text, founderId: text) ->
+   (vec Startup);
+  getStartupsByFounderPrincipal: () -> (vec Startup);
+  getStartupsByFounderPrincipalPaginated: (params: PaginationParams) ->
+   (PaginatedStartups);
   getStartupsCount: () -> (nat);
   getStartupsPaginated: (params: PaginationParams) -> (PaginatedStartups);
   getTokenCanisterId: (tokenType: text) -> (opt text);

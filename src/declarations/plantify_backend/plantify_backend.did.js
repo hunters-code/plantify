@@ -605,6 +605,17 @@ export const idlFactory = ({ IDL }) => {
     'getReportVotes' : IDL.Func([IDL.Text], [IDL.Vec(InvestorVote)], []),
     'getStartupDetails' : IDL.Func([IDL.Text], [IDL.Opt(Startup)], []),
     'getStartupPurchaseHistory' : IDL.Func([IDL.Text], [Result_10], []),
+    'getStartupsByFounderNameAndId' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Vec(Startup)],
+        [],
+      ),
+    'getStartupsByFounderPrincipal' : IDL.Func([], [IDL.Vec(Startup)], []),
+    'getStartupsByFounderPrincipalPaginated' : IDL.Func(
+        [PaginationParams],
+        [PaginatedStartups],
+        [],
+      ),
     'getStartupsCount' : IDL.Func([], [IDL.Nat], []),
     'getStartupsPaginated' : IDL.Func(
         [PaginationParams],
