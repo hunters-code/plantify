@@ -21,9 +21,6 @@ export class BaseService {
     try {
       // If no auth client provided, use anonymous actor
       if (!authClient) {
-        console.log(
-          'No auth client provided, initializing with anonymous actor'
-        );
         this.actor = await this.createAnonymousActor();
         this.agent = null; // Anonymous actor manages its own agent
         return true;
@@ -36,8 +33,6 @@ export class BaseService {
         console.error('Canister ID is not available');
         return false;
       }
-
-      console.log('Using canister ID:', effectiveCanisterId);
 
       this.agent = new HttpAgent({
         host: 'https://ic0.app',
@@ -58,11 +53,48 @@ export class BaseService {
   }
 
   /**
-   * Get the actor instance with automatic retry
+   * Ensure the service is initialized before making any calls
+   * @returns Promise that resolves when service is ready
+   */
+  public static async ensureInitialized(): Promise<void> {
+    if (this.actor) {
+      return;
+    }
+
+    // Try to initialize with anonymous actor if not already initialized
+    try {
+      await this.initialize();
+    } catch (error) {
+      console.error('Failed to ensure initialization:', error);
+      throw new Error('Service initialization failed');
+    }
+  }
+
+  /**
+   * Execute a service method with automatic initialization
+   * This method should be used to wrap all service method calls
+   * @param method - The service method to execute
+   * @param args - Arguments to pass to the method
+   * @returns The result of the method execution
+   */
+  protected static async executeWithInitialization<T>(
+    method: (...args: any[]) => Promise<T>,
+    ...args: any[]
+  ): Promise<T> {
+    await this.ensureInitialized();
+    return await method.apply(this, args);
+  }
+
+  /**
+   * Get the actor instance with automatic initialization
+   * This method automatically ensures initialization before returning the actor
    * @returns The actor instance
    * @throws Error if the actor cannot be initialized after retries
    */
   protected static async getActor(): Promise<_SERVICE> {
+    // Always ensure initialization before returning actor
+    await this.ensureInitialized();
+
     if (this.actor) {
       return this.actor;
     }

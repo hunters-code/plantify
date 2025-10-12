@@ -50,11 +50,6 @@ export class StartupService extends BaseService {
     totalPages: number;
   }> {
     try {
-      // Initialize with anonymous actor if not already initialized
-      if (!this.isInitialized()) {
-        await this.initialize();
-      }
-
       const actor = await this.getActor();
       const result = await actor.getStartupsPaginated({
         page: BigInt(params.page),
@@ -87,11 +82,6 @@ export class StartupService extends BaseService {
    */
   public static async getStartupsCount(): Promise<number> {
     try {
-      // Initialize with anonymous actor if not already initialized
-      if (!this.isInitialized()) {
-        await this.initialize();
-      }
-
       const actor = await this.getActor();
       const count = await actor.getStartupsCount();
       return Number(count);
@@ -110,12 +100,6 @@ export class StartupService extends BaseService {
     startupId: string
   ): Promise<Startup | null> {
     try {
-      // Initialize with anonymous actor if not already initialized
-      if (!this.isInitialized()) {
-        console.log('Initializing service for getStartupDetails');
-        await this.initialize();
-      }
-
       const actor = await this.getActor();
       const startupOpt = await actor.getStartupDetails(startupId);
       return startupOpt.length ? startupOpt[0] : null;
@@ -131,12 +115,6 @@ export class StartupService extends BaseService {
    */
   public static async getFeaturedStartup(): Promise<Startup | null> {
     try {
-      // Initialize with anonymous actor if not already initialized
-      if (!this.isInitialized()) {
-        console.log('Initializing service for getFeaturedStartup');
-        await this.initialize();
-      }
-
       const actor = await this.getActor();
       const result = await actor.getStartupsPaginated({
         page: BigInt(1),

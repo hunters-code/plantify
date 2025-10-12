@@ -32,6 +32,7 @@ export default function Navbar(): JSX.Element {
   const [ckUSDCBalance, setCkUSDCBalance] = useState<string>('0');
   const [balanceLoading, setBalanceLoading] = useState<boolean>(false);
   const [signOutLoading, setSignOutLoading] = useState<boolean>(false);
+  const [balancesFetched, setBalancesFetched] = useState<boolean>(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -67,11 +68,22 @@ export default function Navbar(): JSX.Element {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Reset balances when user signs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setBalancesFetched(false);
+      setIcpBalance('0');
+      setCkUSDCBalance('0');
+    }
+  }, [isAuthenticated]);
+
   const handleConnectClick = async () => {
     if (isAuthenticated) {
       setDropdownOpen(!dropdownOpen);
-      // Always fetch balances when dropdown is opened to ensure fresh data
-      fetchBalances();
+      // Only fetch balances if not already fetched
+      if (!balancesFetched) {
+        fetchBalances();
+      }
     } else {
       // Redirect to auth page instead of calling signIn directly
       router.push('/auth');
@@ -87,13 +99,9 @@ export default function Navbar(): JSX.Element {
 
       const { Principal } = await import('@dfinity/principal');
 
-      console.log('Original principal string:', principal);
-
       let principalObj;
       try {
         principalObj = Principal.fromText(principal);
-        console.log('Created Principal object:', principalObj.toString());
-        console.log('Principal toUint8Array:', principalObj.toUint8Array());
       } catch (error) {
         console.error('Error creating Principal from text:', error);
         throw new Error(`Invalid principal format: ${principal}`);
@@ -104,11 +112,7 @@ export default function Navbar(): JSX.Element {
         subaccount: [],
       };
 
-      console.log('Fetching balances for account:', account);
-
       const balances = await BalanceService.getAllBalances(account);
-
-      console.log('Balance results:', balances);
 
       if (balances.icp.success && balances.icp.balance !== undefined) {
         setIcpBalance(balances.icp.balance.toFixed(4));
@@ -129,6 +133,7 @@ export default function Navbar(): JSX.Element {
       setCkUSDCBalance('0.00');
     } finally {
       setBalanceLoading(false);
+      setBalancesFetched(true);
     }
   };
 
