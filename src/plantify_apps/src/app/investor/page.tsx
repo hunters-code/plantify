@@ -14,10 +14,7 @@ import { Layout } from '@/components';
 import { Button, Card, LoadingSpinner } from '@/components/ui';
 import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
 
-interface Investment {
-  startupId: string;
-  name: string;
-}
+import { InvestorService } from '@/services/investors/InvestorService';
 
 interface DashboardData {
   totalInvested: number;
@@ -56,55 +53,54 @@ export default function InvestorDashboard() {
         const investorData = await InvestorService.getInvestorByPrincipal();
         setInvestor(investorData);
 
-  // ========== Loading State ==========
-  if (
-    authLoading ||
-    (activeTab === 'overview' && dashboardData.loading) ||
-    (activeTab === 'portfolio' && portfolioData.loading)
-  ) {
-    return (
-      <Layout>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-          <div className='flex items-center justify-center min-h-[400px]'>
-            <div className='text-center'>
-              <LoadingSpinner className='mx-auto mb-4' />
-              <p className='text-gray-600'>Loading dashboard...</p>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+        const investorId =
+          (investorData as any)?.investor_id ||
+          (investorData as any)?.id ||
+          (investorData as any)?.investorId ||
+          null;
 
-  // ========== Error State ==========
-  if (activeTab === 'overview' && dashboardData.error) {
-    return (
-      <Layout>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-          <Card className='p-8'>
-            <div className='text-center'>
-              <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
-              <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                Error Loading Dashboard
-              </h3>
-              <p className='text-gray-600 mb-4'>{dashboardData.error}</p>
-              <div className='flex gap-2 justify-center'>
-                <Button variant='primary' onClick={refetch}>
-                  Try Again
-                </Button>
-                <Button
-                  variant='secondary'
-                  onClick={() => console.log('Navigate to register')}
-                >
-                  Register as Investor
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
+        if (investorId) {
+          const historyRes = await InvestorService.getInvestorPurchaseHistory(investorId);
+
+          if (historyRes.success) {
+            const history = Array.isArray(historyRes.history)
+              ? historyRes.history
+              : historyRes.history
+                ? [historyRes.history]
+                : [];
+            setPurchaseHistory(history as any[]);
+          } else {
+            setError(historyRes.error || 'Gagal memuat riwayat pembelian');
+          }
+        }
+
+        setDashboardData(prev => ({
+          ...prev,
+          loading: false,
+          totalInvested: 10000,
+          totalReturns: 2500,
+          returnPercentage: 25,
+          monthlyCommitments: 500,
+          activeInvestments: 3,
+          upcomingVotes: 2,
+          votingPending: 1,
+        }));
+      } catch (err) {
+        console.error(err);
+        setDashboardData(prev => ({
+          ...prev,
+          loading: false,
+          error: 'Gagal memuat data investor',
+        }));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const refetch = () => window.location.reload();
 
   return (
     <Layout>
@@ -157,6 +153,30 @@ export default function InvestorDashboard() {
             })}
           </div>
         </div>
+
+        {/* === Tab Content === */}
+        {activeTab === 'overview' && (
+          <OverviewTab
+            dashboardData={dashboardData}
+            matchingStartups={[]}
+            recentActivity={purchaseHistory}
+          />
+        )}
+
+        {activeTab === 'portfolio' && (
+          <PortfolioTab
+            portfolioData={{
+              loading: false,   
+              investments: [],  
+              error: undefined, 
+            }}
+            onViewDetails={() => { }}
+            onVoteReport={() => { }}
+            onAddInvestment={() => { }}
+            onRefresh={refetch}
+          />
+        )}
+
         {activeTab === 'voting' && (
           <VotingTab onBackToOverview={() => setActiveTab('overview')} />
         )}
