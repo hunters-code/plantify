@@ -193,22 +193,25 @@ export default function Explores() {
     [fetchStartups, updateURLParams, searchTerm]
   );
 
-  // Handle search change
+  // Handle search change - only update the state
   const handleSearchChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const newSearchTerm = event.target.value;
       setSearchTerm(newSearchTerm);
-
-      // Debounce search to avoid too many URL updates
-      const timer = setTimeout(() => {
-        updateURLParams(1, filter, newSearchTerm);
-        fetchStartups(1);
-      }, 500);
-
-      return () => clearTimeout(timer);
     },
-    [fetchStartups, updateURLParams, filter]
+    []
   );
+
+  useEffect(() => {
+    if (searchTerm === undefined) return;
+
+    const timer = setTimeout(() => {
+      updateURLParams(1, filter, searchTerm);
+      fetchStartups(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, filter, updateURLParams, fetchStartups]);
 
   // Load startups on component mount
   useEffect(() => {
