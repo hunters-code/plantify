@@ -209,7 +209,7 @@ export default function ProductCard({
         <div className='mt-4 flex gap-2'>
           <Button
             as='a'
-            href={`/explore/detail/${
+            href={`/explore/detail?id=${
               id || title.replace(/\s+/g, '-').toLowerCase()
             }`}
             variant='secondary'

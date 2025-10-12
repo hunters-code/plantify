@@ -323,6 +323,57 @@ module Storage {
       startupArray;
     };
 
+    public func getStartupsPaginated(params : Types.PaginationParams) : Types.PaginatedStartups {
+      let allStartups = Array.map<(Text, Types.Startup), Types.Startup>(
+        Iter.toArray(startups.entries()),
+        func(entry : (Text, Types.Startup)) : Types.Startup {
+          let (id, startup) = entry;
+          startup;
+        },
+      );
+      
+      let totalCount = allStartups.size();
+      let offset = params.page * params.limit;
+      
+      let paginatedStartups = if (offset >= totalCount or params.limit == 0) {
+        [];
+      } else {
+        let endIndex = Nat.min(offset + params.limit, totalCount);
+        let takeCount = if (endIndex > offset) { 
+          if (endIndex >= offset) { 
+            if (endIndex > offset) { endIndex - offset } else { 0 }
+          } else { 0 }
+        } else { 0 };
+        
+        if (takeCount == 0) {
+          [];
+        } else {
+          Array.tabulate<Types.Startup>(takeCount, func(i : Nat) : Types.Startup {
+            allStartups[offset + i];
+          });
+        };
+      };
+      
+      let totalPages = if (totalCount == 0 or params.limit == 0) { 
+        0 
+      } else { 
+        let pages = totalCount / params.limit;
+        if (totalCount % params.limit == 0) { pages } else { pages + 1 }
+      };
+      
+      {
+        startups = paginatedStartups;
+        totalCount = totalCount;
+        page = params.page;
+        limit = params.limit;
+        totalPages = totalPages;
+      };
+    };
+
+    public func getStartupsCount() : Nat {
+      startups.size();
+    };
+
     // ========================================
     // FOUNDER-STARTUP RELATIONSHIP METHODS
     // ========================================

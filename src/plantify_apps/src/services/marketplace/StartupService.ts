@@ -1,6 +1,3 @@
-import { HttpAgent } from '@dfinity/agent';
-
-import { createActor } from '@/declarations/plantify_backend';
 import type {
   Startup,
   NFTInfo,
@@ -10,7 +7,6 @@ import type {
   Result_10,
   Result_13,
   Result_14,
-  _SERVICE,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -25,30 +21,70 @@ export class StartupService extends BaseService {
    */
   public static async getAllStartups(): Promise<Startup[]> {
     try {
-      // Create anonymous actor if not initialized
+      // Initialize with anonymous actor if not already initialized
       if (!this.isInitialized()) {
-        const anonymousAgent = new HttpAgent({ host: 'https://ic0.app' });
-
-        // Fetch root key in development
-        if (
-          process.env.NODE_ENV !== 'production' ||
-          window.location.hostname === 'localhost'
-        ) {
-          await anonymousAgent.fetchRootKey();
-        }
-
-        const anonymousActor = createActor(this.canisterId, {
-          agent: anonymousAgent,
-        }) as _SERVICE;
-
-        return await anonymousActor.getAllStartups();
+        await this.initialize();
       }
 
-      // Use existing actor if already initialized
-      return await this.getActor().getAllStartups();
+      const actor = await this.getActor();
+      return await actor.getAllStartups();
     } catch (error) {
       console.error('Error getting all startups:', error);
       return [];
+    }
+  }
+
+  /**
+   * Get startups with pagination - can be called anonymously
+   * @param params - Pagination parameters
+   * @returns Paginated startups data
+   */
+  public static async getStartupsPaginated(params: {
+    page: number;
+    limit: number;
+  }): Promise<{
+    startups: Startup[];
+    totalCount: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    try {
+      // Initialize with anonymous actor if not already initialized
+      if (!this.isInitialized()) {
+        await this.initialize();
+      }
+
+      const actor = await this.getActor();
+      return await actor.getStartupsPaginated(params);
+    } catch (error) {
+      console.error('Error getting paginated startups:', error);
+      return {
+        startups: [],
+        totalCount: 0,
+        page: params.page,
+        limit: params.limit,
+        totalPages: 0,
+      };
+    }
+  }
+
+  /**
+   * Get total count of startups - can be called anonymously
+   * @returns Total number of startups
+   */
+  public static async getStartupsCount(): Promise<number> {
+    try {
+      // Initialize with anonymous actor if not already initialized
+      if (!this.isInitialized()) {
+        await this.initialize();
+      }
+
+      const actor = await this.getActor();
+      return await actor.getStartupsCount();
+    } catch (error) {
+      console.error('Error getting startups count:', error);
+      return 0;
     }
   }
 
@@ -61,10 +97,38 @@ export class StartupService extends BaseService {
     startupId: string
   ): Promise<Startup | null> {
     try {
-      const startupOpt = await this.getActor().getStartupDetails(startupId);
+      // Initialize with anonymous actor if not already initialized
+      if (!this.isInitialized()) {
+        console.log('Initializing service for getStartupDetails');
+        await this.initialize();
+      }
+
+      const actor = await this.getActor();
+      const startupOpt = await actor.getStartupDetails(startupId);
       return startupOpt.length ? startupOpt[0] : null;
     } catch (error) {
       console.error('Error getting startup details:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get the featured startup (newest startup)
+   * @returns The featured startup or null if not found
+   */
+  public static async getFeaturedStartup(): Promise<Startup | null> {
+    try {
+      // Initialize with anonymous actor if not already initialized
+      if (!this.isInitialized()) {
+        console.log('Initializing service for getFeaturedStartup');
+        await this.initialize();
+      }
+
+      const actor = await this.getActor();
+      const allStartups = await actor.getAllStartups();
+      return allStartups.length > 0 ? allStartups[0] : null;
+    } catch (error) {
+      console.error('Error getting featured startup:', error);
       return null;
     }
   }
@@ -78,7 +142,8 @@ export class StartupService extends BaseService {
     startupId: string
   ): Promise<{ success: boolean; price?: bigint; error?: string }> {
     try {
-      const result: Result_14 = await this.getActor().getNFTPrice(startupId);
+      const actor = await this.getActor();
+      const result: Result_14 = await actor.getNFTPrice(startupId);
 
       if ('ok' in result) {
         return { success: true, price: result.ok };
@@ -100,8 +165,8 @@ export class StartupService extends BaseService {
     startupId: string
   ): Promise<{ success: boolean; nfts?: NFTInfo[]; error?: string }> {
     try {
-      const result: Result_13 =
-        await this.getActor().getNFTsByStartup(startupId);
+      const actor = await this.getActor();
+      const result: Result_13 = await actor.getNFTsByStartup(startupId);
 
       if ('ok' in result) {
         return { success: true, nfts: result.ok };
@@ -125,8 +190,9 @@ export class StartupService extends BaseService {
     error?: string;
   }> {
     try {
+      const actor = await this.getActor();
       const result: Result_10 =
-        await this.getActor().getStartupPurchaseHistory(startupId);
+        await actor.getStartupPurchaseHistory(startupId);
 
       if ('ok' in result) {
         return { success: true, history: result.ok };
@@ -145,7 +211,8 @@ export class StartupService extends BaseService {
    */
   public static async getAllPurchases(): Promise<NFTPurchaseInfo[]> {
     try {
-      return await this.getActor().getAllPurchases();
+      const actor = await this.getActor();
+      return await actor.getAllPurchases();
     } catch (error) {
       console.error('Error getting all purchases:', error);
       return [];
@@ -158,7 +225,8 @@ export class StartupService extends BaseService {
    */
   public static async getPurchaseStats(): Promise<NFTPurchaseStats | null> {
     try {
-      return await this.getActor().getPurchaseStats();
+      const actor = await this.getActor();
+      return await actor.getPurchaseStats();
     } catch (error) {
       console.error('Error getting purchase stats:', error);
       return null;

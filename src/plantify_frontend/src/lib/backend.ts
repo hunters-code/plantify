@@ -59,7 +59,9 @@ export interface BackendActor {
   getICPBalance: (account: TransferAccount) => Promise<BalanceResponse>;
   getCkUSDCBalance: (account: TransferAccount) => Promise<BalanceResponse>;
   getICPBalanceByPrincipal: (principalText: string) => Promise<BalanceResponse>;
-  getCkUSDCBalanceByPrincipal: (principalText: string) => Promise<BalanceResponse>;
+  getCkUSDCBalanceByPrincipal: (
+    principalText: string
+  ) => Promise<BalanceResponse>;
   transferICP: (
     toAccount: TransferAccount,
     amount: number,
@@ -103,28 +105,62 @@ export interface BackendActor {
   isUserFounder?: () => Promise<boolean>;
   isUserInvestor?: () => Promise<boolean>;
   getAllStartups: () => Promise<Startup[]>;
+  getStartupsPaginated: (params: { page: number; limit: number }) => Promise<{
+    startups: Startup[];
+    totalCount: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>;
+  getStartupsCount: () => Promise<number>;
   updateStartupStatus: (startupId: string, status: string) => Promise<boolean>;
   getStartupDetails: (startupId: string) => Promise<[] | [Startup]>;
-  
+
   // Monthly Report Methods
-  createMonthlyReport: (request: MonthlyReportRequest) => Promise<{ ok: MonthlyReport } | { err: string }>;
-  updateMonthlyReport: (reportId: string, request: MonthlyReportRequest) => Promise<{ ok: MonthlyReport } | { err: string }>;
-  submitMonthlyReport: (reportId: string) => Promise<{ ok: MonthlyReport } | { err: string }>;
-  approveMonthlyReport: (reportId: string) => Promise<{ ok: MonthlyReport } | { err: string }>;
-  rejectMonthlyReport: (reportId: string) => Promise<{ ok: MonthlyReport } | { err: string }>;
-  getMonthlyReport: (reportId: string) => Promise<{ ok: MonthlyReport } | { err: string }>;
-  getMonthlyReportsByStartup: (startupId: string) => Promise<{ ok: MonthlyReportList } | { err: string }>;
+  createMonthlyReport: (
+    request: MonthlyReportRequest
+  ) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  updateMonthlyReport: (
+    reportId: string,
+    request: MonthlyReportRequest
+  ) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  submitMonthlyReport: (
+    reportId: string
+  ) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  approveMonthlyReport: (
+    reportId: string
+  ) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  rejectMonthlyReport: (
+    reportId: string
+  ) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  getMonthlyReport: (
+    reportId: string
+  ) => Promise<{ ok: MonthlyReport } | { err: string }>;
+  getMonthlyReportsByStartup: (
+    startupId: string
+  ) => Promise<{ ok: MonthlyReportList } | { err: string }>;
   getAllMonthlyReports: () => Promise<MonthlyReport[]>;
   getMonthlyReportStats: () => Promise<MonthlyReportStats>;
-  getMonthlyReportsByStatus: (status: MonthlyReportStatus) => Promise<MonthlyReport[]>;
-  
+  getMonthlyReportsByStatus: (
+    status: MonthlyReportStatus
+  ) => Promise<MonthlyReport[]>;
+
   // Voting Methods
-  castVote: (request: VoteRequest) => Promise<{ ok: InvestorVote } | { err: string }>;
-  updateVote: (reportId: string, request: VoteRequest) => Promise<{ ok: InvestorVote } | { err: string }>;
-  getVoteSummary: (reportId: string) => Promise<{ ok: VoteSummary } | { err: string }>;
+  castVote: (
+    request: VoteRequest
+  ) => Promise<{ ok: InvestorVote } | { err: string }>;
+  updateVote: (
+    reportId: string,
+    request: VoteRequest
+  ) => Promise<{ ok: InvestorVote } | { err: string }>;
+  getVoteSummary: (
+    reportId: string
+  ) => Promise<{ ok: VoteSummary } | { err: string }>;
   getReportVotes: (reportId: string) => Promise<InvestorVote[]>;
   getVotingStats: () => Promise<VotingStats>;
-  canInvestorVote: (reportId: string) => Promise<{ ok: boolean } | { err: string }>;
+  canInvestorVote: (
+    reportId: string
+  ) => Promise<{ ok: boolean } | { err: string }>;
 }
 
 export class BackendService {
@@ -316,8 +352,10 @@ export class BackendService {
     const founders = await this.actor.getFounders();
     const currentPrincipal = await this.actor.whoami();
     const currentPrincipalText = currentPrincipal.toString();
-    
-    const founder = founders.find((f: any) => f.principal.toString() === currentPrincipalText);
+
+    const founder = founders.find(
+      (f: any) => f.principal.toString() === currentPrincipalText
+    );
     return founder || null;
   }
 
@@ -331,8 +369,10 @@ export class BackendService {
     const investors = await this.actor.getInvestors();
     const currentPrincipal = await this.actor.whoami();
     const currentPrincipalText = currentPrincipal.toString();
-    
-    const investor = investors.find((i: any) => i.principal.toString() === currentPrincipalText);
+
+    const investor = investors.find(
+      (i: any) => i.principal.toString() === currentPrincipalText
+    );
     return investor || null;
   }
 
@@ -349,26 +389,27 @@ export class BackendService {
       // Fallback: check by getting all founders and investors
       const [founders, investors] = await Promise.all([
         this.actor.getFounders(),
-        this.actor.getInvestors()
+        this.actor.getInvestors(),
       ]);
-      
+
       const currentPrincipal = await this.actor.whoami();
       const currentPrincipalText = currentPrincipal.toString();
-      
+
       // Check if current user is a founder
-      const isFounder = founders.some((founder: any) => 
-        founder.principal.toString() === currentPrincipalText
+      const isFounder = founders.some(
+        (founder: any) => founder.principal.toString() === currentPrincipalText
       );
-      
+
       if (isFounder) return 'Founder';
-      
+
       // Check if current user is an investor
-      const isInvestor = investors.some((investor: any) => 
-        investor.principal.toString() === currentPrincipalText
+      const isInvestor = investors.some(
+        (investor: any) =>
+          investor.principal.toString() === currentPrincipalText
       );
-      
+
       if (isInvestor) return 'Investor';
-      
+
       return null;
     }
   }
@@ -385,9 +426,9 @@ export class BackendService {
       const founders = await this.actor.getFounders();
       const currentPrincipal = await this.actor.whoami();
       const currentPrincipalText = currentPrincipal.toString();
-      
-      return founders.some((founder: any) => 
-        founder.principal.toString() === currentPrincipalText
+
+      return founders.some(
+        (founder: any) => founder.principal.toString() === currentPrincipalText
       );
     }
   }
@@ -404,9 +445,10 @@ export class BackendService {
       const investors = await this.actor.getInvestors();
       const currentPrincipal = await this.actor.whoami();
       const currentPrincipalText = currentPrincipal.toString();
-      
-      return investors.some((investor: any) => 
-        investor.principal.toString() === currentPrincipalText
+
+      return investors.some(
+        (investor: any) =>
+          investor.principal.toString() === currentPrincipalText
       );
     }
   }
@@ -414,6 +456,16 @@ export class BackendService {
   async getAllStartups() {
     if (!this.actor) throw new Error('Backend not initialized');
     return await this.actor.getAllStartups();
+  }
+
+  async getStartupsPaginated(params: { page: number; limit: number }) {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getStartupsPaginated(params);
+  }
+
+  async getStartupsCount() {
+    if (!this.actor) throw new Error('Backend not initialized');
+    return await this.actor.getStartupsCount();
   }
 
   async getStartupDetails(startupId: string) {
@@ -454,8 +506,12 @@ export class BackendService {
           ['company_type', startup.companyType || 'Startup'],
         ],
       ],
-      image: startup.nftImage && startup.nftImage.length > 0 ? startup.nftImage : 
-             (startup.companyLogo && startup.companyLogo.length > 0 ? startup.companyLogo : []),
+      image:
+        startup.nftImage && startup.nftImage.length > 0
+          ? startup.nftImage
+          : startup.companyLogo && startup.companyLogo.length > 0
+            ? startup.companyLogo
+            : [],
     };
 
     const mintRequest: MintNFTRequest = {

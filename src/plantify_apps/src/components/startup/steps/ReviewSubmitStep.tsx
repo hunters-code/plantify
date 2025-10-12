@@ -1,19 +1,33 @@
 'use client';
 
-import { AlertTriangle, Check } from 'lucide-react';
-import React from 'react';
+import { AlertTriangle, Check, Loader2, Wand2 } from 'lucide-react';
+import Image from 'next/image';
+import React, { useState } from 'react';
+
+import { Button } from '@/components/ui';
+import {
+  generateNFTImage,
+  generateFallbackNFTImage,
+  GeneratedImage,
+} from '@/lib/aiService';
 
 import { StartupFormData } from '../types';
 
 interface ReviewSubmitStepProps {
   formData: StartupFormData;
   onEdit: (step: number) => void;
+  onNFTGenerated?: (isGenerated: boolean) => void;
 }
 
 const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
   formData,
   onEdit,
+  onNFTGenerated,
 }) => {
+  const [isGeneratingNFT, setIsGeneratingNFT] = useState(false);
+  const [generatedNFT, setGeneratedNFT] = useState<GeneratedImage | null>(null);
+  const [nftError, setNftError] = useState<string | null>(null);
+
   const formatCurrency = (amount: string | number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -23,10 +37,53 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
     }).format(Number(amount) || 0);
   };
 
-  const formatFileInfo = (file: File | null | string) => {
-    if (!file) return 'No file uploaded';
-    if (typeof file === 'string') return file;
-    return `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+  const handleGenerateNFT = async () => {
+    setIsGeneratingNFT(true);
+    setNftError(null);
+
+    try {
+      const nftImage = await generateNFTImage(formData);
+      setGeneratedNFT(nftImage);
+      onNFTGenerated?.(true);
+    } catch (error) {
+      console.error('Failed to generate NFT image:', error);
+      setNftError(
+        error instanceof Error ? error.message : 'Failed to generate NFT image'
+      );
+
+      // Generate fallback image
+      const fallbackImage = generateFallbackNFTImage(formData);
+      setGeneratedNFT({
+        imageUrl: fallbackImage,
+        prompt: 'Fallback SVG generated image',
+        metadata: {
+          object: {
+            type: 'plant character',
+            container: 'glass pot',
+            details: {
+              leaves_color: 'green',
+              body_shape: 'round',
+              face_expression: 'smiling',
+            },
+          },
+          environment: {
+            lighting: 'soft',
+            background: { type: 'gradient', colors: ['pink', 'blue'] },
+          },
+          style: {
+            theme: 'kawaii',
+            aesthetic: ['soft', 'cute'],
+            use_case: 'NFT',
+            render_style: '2D',
+          },
+          composition: { focus: 'centered', mood: 'happy' },
+          metadata: { version: '1.0', language: 'en', customizable_fields: [] },
+        },
+      });
+      onNFTGenerated?.(true);
+    } finally {
+      setIsGeneratingNFT(false);
+    }
   };
 
   return (
@@ -39,52 +96,150 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
 
       {/* NFT Image Section */}
       <div className='bg-white border border-gray-200 rounded-lg p-6'>
-        <h3 className='text-lg font-semibold text-gray-900 mb-4'>NFT Image</h3>
-        <div className='flex items-start space-x-4'>
-          <div className='w-40 h-40 bg-gradient-to-br from-orange-300 to-pink-300 rounded-2xl flex items-center justify-center'>
-            {formData.logo ? (
-              <img
-                src={
-                  typeof formData.logo === 'string'
-                    ? formData.logo
-                    : URL.createObjectURL(formData.logo)
-                }
-                alt='NFT Image'
-                className='w-32 h-32 object-cover rounded-xl'
-              />
-            ) : (
-              <div className='w-32 h-32 bg-gradient-to-br from-orange-400 to-pink-400 rounded-xl flex items-center justify-center'>
-                <div className='text-center'>
-                  <div className='w-16 h-16 bg-orange-500 rounded-full mx-auto mb-2 flex items-center justify-center'>
-                    <div className='w-8 h-8 bg-green-400 rounded-full relative'>
-                      <div className='absolute -top-1 left-1 w-3 h-3 bg-green-300 rounded-full'></div>
-                      <div className='absolute -top-1 right-1 w-3 h-3 bg-green-300 rounded-full'></div>
-                      <div className='absolute top-1 -left-1 w-3 h-3 bg-green-300 rounded-full'></div>
-                      <div className='absolute top-1 -right-1 w-3 h-3 bg-green-300 rounded-full'></div>
-                    </div>
+        <div className='flex items-center justify-between mb-6'>
+          <h3 className='text-lg font-semibold text-gray-900'>
+            NFT Information
+          </h3>
+        </div>
+
+        <div className='flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6'>
+          {/* NFT Preview */}
+          <div className='relative'>
+            <div className='w-48 h-48 rounded-3xl overflow-hidden'>
+              {isGeneratingNFT ? (
+                <div className='w-full h-full bg-gray-300 flex items-center justify-center'>
+                  <div className='text-center text-gray-600'>
+                    <Loader2 className='w-8 h-8 animate-spin mx-auto mb-2' />
+                    <p className='text-sm font-medium'>Generating NFT...</p>
                   </div>
-                  <div className='w-12 h-6 bg-orange-600 rounded-full mx-auto'></div>
                 </div>
+              ) : generatedNFT ? (
+                <Image
+                  src={generatedNFT.imageUrl}
+                  alt='Generated NFT Image'
+                  width={192}
+                  height={192}
+                  className='w-full h-full object-cover'
+                />
+              ) : (
+                <div className='w-full h-full bg-gray-300 flex items-center justify-center'>
+                  <div className='text-center text-gray-600'>
+                    <div className='w-20 h-20 bg-gray-400 rounded-full mx-auto mb-3 flex items-center justify-center'>
+                      <svg
+                        className='w-10 h-10 text-gray-600'
+                        fill='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' />
+                      </svg>
+                    </div>
+                    <p className='text-sm font-medium text-gray-600'>
+                      Generate NFT Image
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* NFT Badge */}
+            {generatedNFT && (
+              <div className='absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg'>
+                NFT
               </div>
             )}
           </div>
-          <button className='px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2'>
-            <svg
-              className='w-4 h-4'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
+
+          {/* Action Buttons */}
+          <div className='flex flex-col space-y-3 w-full md:w-auto'>
+            <Button
+              onClick={handleGenerateNFT}
+              disabled={isGeneratingNFT}
+              className='flex items-center space-x-2'
             >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-              />
-            </svg>
-            <span>Generate Image</span>
-          </button>
+              {isGeneratingNFT ? (
+                <>
+                  <Loader2 className='w-4 h-4 animate-spin' />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Wand2 className='w-4 h-4' />
+                  <span>Generate NFT Image</span>
+                </>
+              )}
+            </Button>
+
+            {nftError && (
+              <div className='text-sm text-red-600 bg-red-50 p-2 rounded'>
+                {nftError}
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* NFT Details */}
+        <div className='mt-6 p-4 bg-gray-50 rounded-xl'>
+          <div className='grid grid-cols-2 gap-4 text-sm'>
+            <div>
+              <span className='text-gray-600'>NFT Price:</span>
+              <span className='ml-2 font-semibold text-gray-900'>
+                {formData.nftPrice || '0'} ckUSDC
+              </span>
+            </div>
+            <div>
+              <span className='text-gray-600'>Total Supply:</span>
+              <span className='ml-2 font-semibold text-gray-900'>100 NFTs</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Generated NFT Details */}
+        {generatedNFT && (
+          <div className='mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200'>
+            <h4 className='text-sm font-semibold text-blue-900 mb-3'>
+              Generated NFT Details
+            </h4>
+            <div className='space-y-2 text-sm'>
+              <div>
+                <span className='text-blue-700 font-medium'>
+                  Plant Character:
+                </span>
+                <span className='ml-2 text-blue-900'>
+                  {generatedNFT.metadata.object.details.leaves_color} leaves,{' '}
+                  {generatedNFT.metadata.object.details.body_shape} shape
+                </span>
+              </div>
+              <div>
+                <span className='text-blue-700 font-medium'>Expression:</span>
+                <span className='ml-2 text-blue-900'>
+                  {generatedNFT.metadata.object.details.face_expression}
+                </span>
+              </div>
+              <div>
+                <span className='text-blue-700 font-medium'>Container:</span>
+                <span className='ml-2 text-blue-900'>
+                  {generatedNFT.metadata.object.container}
+                </span>
+              </div>
+              <div>
+                <span className='text-blue-700 font-medium'>Background:</span>
+                <span className='ml-2 text-blue-900'>
+                  {generatedNFT.metadata.environment.background.colors.join(
+                    ' and '
+                  )}{' '}
+                  gradient
+                </span>
+              </div>
+              <div>
+                <span className='text-blue-700 font-medium'>Style:</span>
+                <span className='ml-2 text-blue-900'>
+                  {generatedNFT.metadata.style.theme} theme,{' '}
+                  {generatedNFT.metadata.style.aesthetic.join(', ')}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Startup Information */}
@@ -104,37 +259,37 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
           <div>
             <div className='text-gray-600 text-sm mb-1'>Name</div>
             <div className='text-gray-900 font-semibold'>
-              {formData.startupName || 'EcoTech Solution'}
+              {formData.startupName || '-'}
             </div>
           </div>
           <div>
             <div className='text-gray-600 text-sm mb-1'>Sector</div>
             <div className='text-gray-900 font-semibold'>
-              {formData.sector || 'Technology & Digital'}
+              {formData.sector || '-'}
             </div>
           </div>
           <div>
             <div className='text-gray-600 text-sm mb-1'>Company type</div>
             <div className='text-gray-900 font-semibold'>
-              {formData.companyType || 'LLC'}
+              {formData.companyType || '-'}
             </div>
           </div>
           <div>
             <div className='text-gray-600 text-sm mb-1'>Location</div>
             <div className='text-gray-900 font-semibold'>
-              {formData.location || 'San Francisco, USA'}
+              {formData.location || '-'}
             </div>
           </div>
           <div>
             <div className='text-gray-600 text-sm mb-1'>Founded Year</div>
             <div className='text-gray-900 font-semibold'>
-              {formData.foundedYear || '2023'}
+              {formData.foundedYear || '-'}
             </div>
           </div>
           <div>
             <div className='text-gray-600 text-sm mb-1'>Website</div>
             <div className='text-gray-900 font-semibold'>
-              {formData.website || 'https://ecotechsolutions.com'}
+              {formData.website || '-'}
             </div>
           </div>
         </div>
@@ -157,29 +312,21 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
           <div>
             <span className='text-gray-600'>Problem Statement</span>
             <p className='text-gray-900 mt-1'>
-              {formData.problemStatement ||
-                'Traditional energy systems are inefficient and contribute to environmental degradation.'}
+              {formData.problemStatement || '-'}
             </p>
           </div>
           <div>
             <span className='text-gray-600'>Solution</span>
-            <p className='text-gray-900 mt-1'>
-              {formData.solution ||
-                'AI-powered smart grid technology that optimizes energy distribution and reduces waste by 40%.'}
-            </p>
+            <p className='text-gray-900 mt-1'>{formData.solution || '-'}</p>
           </div>
           <div>
             <span className='text-gray-600'>Target Market</span>
-            <p className='text-gray-900 mt-1'>
-              {formData.targetMarket ||
-                'Smart cities, commercial buildings, and residential communities seeking sustainable energy solutions.'}
-            </p>
+            <p className='text-gray-900 mt-1'>{formData.targetMarket || '-'}</p>
           </div>
           <div>
             <span className='text-gray-600'>Competitive Advantage</span>
             <p className='text-gray-900 mt-1'>
-              {formData.competitiveAdvantage ||
-                'Proprietary AI algorithms and partnerships with major utility companies.'}
+              {formData.competitiveAdvantage || '-'}
             </p>
           </div>
         </div>
@@ -205,26 +352,25 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
               <div>
                 <span className='text-gray-600 text-sm'>Full name</span>
                 <p className='text-gray-900 font-semibold'>
-                  {formData.founderName || 'Sarah Johnson'}
+                  {formData.founderName || '-'}
                 </p>
               </div>
               <div>
                 <span className='text-gray-600 text-sm'>Role</span>
                 <p className='text-gray-900 font-semibold'>
-                  {formData.founderRole || 'CEO & Founder'}
+                  {formData.founderRole || '-'}
                 </p>
               </div>
               <div>
                 <span className='text-gray-600 text-sm'>Email</span>
                 <p className='text-gray-900 font-semibold'>
-                  {formData.founderEmail || 'sarah@ecotechsolutions.com'}
+                  {formData.founderEmail || '-'}
                 </p>
               </div>
               <div>
                 <span className='text-gray-600 text-sm'>LinkedIn</span>
                 <p className='text-gray-900 font-semibold'>
-                  {formData.founderLinkedIn ||
-                    'https://linkedin.com/in/sarahjohnson'}
+                  {formData.founderLinkedIn || '-'}
                 </p>
               </div>
             </div>
@@ -233,8 +379,7 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
                 Professional background
               </span>
               <p className='text-gray-900 font-semibold text-sm mt-1'>
-                {formData.founderBackground ||
-                  'Former Tesla engineer with 8 years experience in renewable energy systems and AI'}
+                {formData.founderBackground || '-'}
               </p>
             </div>
           </div>
@@ -247,25 +392,25 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
                   <div>
                     <span className='text-gray-600 text-sm'>Full name</span>
                     <p className='text-gray-900 font-semibold'>
-                      {member.name || 'Team Member'}
+                      {member.name || '-'}
                     </p>
                   </div>
                   <div>
                     <span className='text-gray-600 text-sm'>Role</span>
                     <p className='text-gray-900 font-semibold'>
-                      {member.role || 'Role'}
+                      {member.role || '-'}
                     </p>
                   </div>
                   <div>
                     <span className='text-gray-600 text-sm'>Email</span>
                     <p className='text-gray-900 font-semibold'>
-                      {member.email || 'email@example.com'}
+                      {member.email || '-'}
                     </p>
                   </div>
                   <div>
                     <span className='text-gray-600 text-sm'>LinkedIn</span>
                     <p className='text-gray-900 font-semibold'>
-                      {member.linkedin || 'https://linkedin.com/in/example'}
+                      {member.linkedin || '-'}
                     </p>
                   </div>
                 </div>
@@ -274,7 +419,7 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
                     Professional background
                   </span>
                   <p className='text-gray-900 font-semibold text-sm mt-1'>
-                    {member.background || 'Professional background'}
+                    {member.background || '-'}
                   </p>
                 </div>
               </div>
@@ -284,8 +429,7 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
           <div className='pt-6 border-t border-gray-200'>
             <span className='text-gray-600 text-sm'>Advisors</span>
             <p className='text-gray-900 font-semibold text-sm mt-1'>
-              {formData.advisors ||
-                'Dr. Lisa Wang (Former VP at Tesla), John Smith (Partner at GreenTech Ventures)'}
+              {formData.advisors || '-'}
             </p>
           </div>
         </div>
@@ -310,13 +454,15 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Funding goal</span>
               <span className='text-gray-900 font-semibold'>
-                {formatCurrency(formData.fundingGoal) || '$5,000 ckUSDC'}
+                {formData.fundingGoal
+                  ? formatCurrency(formData.fundingGoal)
+                  : '-'}
               </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>NFT price</span>
               <span className='text-gray-900 font-semibold'>
-                {formatCurrency(formData.nftPrice) || '$500 ckUSDC'}
+                {formData.nftPrice ? formatCurrency(formData.nftPrice) : '-'}
               </span>
             </div>
             <div className='flex justify-between'>
@@ -326,21 +472,23 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Monthly revenue</span>
               <span className='text-gray-900 font-semibold'>
-                {formatCurrency(formData.expectedMonthlyRevenue) ||
-                  '$15,000 ckUSDC'}
+                {formData.expectedMonthlyRevenue
+                  ? formatCurrency(formData.expectedMonthlyRevenue)
+                  : '-'}
               </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Monthly expenses</span>
               <span className='text-gray-900 font-semibold'>
-                {formatCurrency(formData.expectedMonthlyExpenses) ||
-                  '$10,000 ckUSDC'}
+                {formData.expectedMonthlyExpenses
+                  ? formatCurrency(formData.expectedMonthlyExpenses)
+                  : '-'}
               </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Break-even month</span>
               <span className='text-gray-900 font-semibold'>
-                {formData.breakEvenMonth || '8'}
+                {formData.breakEvenMonth || '-'}
               </span>
             </div>
           </div>
@@ -355,26 +503,50 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Monthly per NFT</span>
               <span className='text-gray-900 font-semibold'>
-                {formatCurrency(formData.monthlyProfitSharing) || '$5 ckUSDC'}
+                {formData.monthlyProfitSharing
+                  ? formatCurrency(formData.monthlyProfitSharing)
+                  : '-'}
               </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Total monthly</span>
-              <span className='text-gray-900 font-semibold'>$500 ckUSDC</span>
+              <span className='text-gray-900 font-semibold'>
+                {formData.monthlyProfitSharing && formData.nftPrice
+                  ? formatCurrency(
+                      parseFloat(formData.monthlyProfitSharing) * 100
+                    )
+                  : '-'}
+              </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Annual total</span>
-              <span className='text-gray-900 font-semibold'>$6,000 ckUSDC</span>
+              <span className='text-gray-900 font-semibold'>
+                {formData.monthlyProfitSharing
+                  ? formatCurrency(
+                      parseFloat(formData.monthlyProfitSharing) * 100 * 12
+                    )
+                  : '-'}
+              </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>3-year total</span>
               <span className='text-gray-900 font-semibold'>
-                $18,000 ckUSDC
+                {formData.monthlyProfitSharing
+                  ? formatCurrency(
+                      parseFloat(formData.monthlyProfitSharing) * 100 * 12 * 3
+                    )
+                  : '-'}
               </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Collateral required</span>
-              <span className='text-gray-900 font-semibold'>$6,000 ckUSDC</span>
+              <span className='text-gray-900 font-semibold'>
+                {formData.monthlyProfitSharing
+                  ? formatCurrency(
+                      parseFloat(formData.monthlyProfitSharing) * 100 * 12
+                    )
+                  : '-'}
+              </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Investment period</span>
@@ -398,7 +570,7 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Available amount</span>
-              <span className='text-gray-900 font-semibold'>3,000 ckUSDC</span>
+              <span className='text-gray-900 font-semibold'>-</span>
             </div>
             <div className='flex justify-between'>
               <span className='text-gray-600 text-sm'>Lock period</span>
@@ -422,22 +594,42 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
           </div>
           <div className='space-y-3 text-sm'>
             <div className='flex items-center space-x-2'>
-              <div className='w-5 h-5 bg-green-500 rounded-full flex items-center justify-center'>
-                <Check className='w-3 h-3 text-white' />
+              <div
+                className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                  formData.businessPlanUrl ? 'bg-green-500' : 'bg-gray-300'
+                }`}
+              >
+                {formData.businessPlanUrl && (
+                  <Check className='w-3 h-3 text-white' />
+                )}
               </div>
               <span className='text-gray-900 font-semibold'>Business Plan</span>
             </div>
             <div className='flex items-center space-x-2'>
-              <div className='w-5 h-5 bg-green-500 rounded-full flex items-center justify-center'>
-                <Check className='w-3 h-3 text-white' />
+              <div
+                className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                  formData.financialProjectionsUrl
+                    ? 'bg-green-500'
+                    : 'bg-gray-300'
+                }`}
+              >
+                {formData.financialProjectionsUrl && (
+                  <Check className='w-3 h-3 text-white' />
+                )}
               </div>
               <span className='text-gray-900 font-semibold'>
                 Financial Projections
               </span>
             </div>
             <div className='flex items-center space-x-2'>
-              <div className='w-5 h-5 bg-green-500 rounded-full flex items-center justify-center'>
-                <Check className='w-3 h-3 text-white' />
+              <div
+                className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                  formData.legalDocumentsUrl ? 'bg-green-500' : 'bg-gray-300'
+                }`}
+              >
+                {formData.legalDocumentsUrl && (
+                  <Check className='w-3 h-3 text-white' />
+                )}
               </div>
               <span className='text-gray-900 font-semibold'>
                 Legal Documents

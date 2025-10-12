@@ -659,6 +659,19 @@ type BalanceResponse =
               tokenType: text;
             };
  };
+type PaginationParams = 
+ record {
+   limit: nat;
+   page: nat;
+ };
+type PaginatedStartups = 
+ record {
+   limit: nat;
+   page: nat;
+   startups: vec Startup;
+   totalCount: nat;
+   totalPages: nat;
+ };
 service : {
   approveMonthlyReport: (reportId: text) -> (Result_1);
   calculateRequiredCollateral: (monthlyProfitSharing: nat, tokenType:
@@ -677,6 +690,8 @@ service : {
   getAllPurchases: () -> (vec NFTPurchaseInfo);
   getAllStartups: () -> (vec Startup);
   getAllVotes: () -> (vec InvestorVote);
+  getStartupsCount: () -> (nat);
+  getStartupsPaginated: (params: PaginationParams) -> (PaginatedStartups);
   getBalance: (account: TransferAccount, tokenType: text) ->
    (BalanceResponse);
   getCkUSDCBalance: (account: TransferAccount) -> (BalanceResponse);

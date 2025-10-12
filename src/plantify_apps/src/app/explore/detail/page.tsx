@@ -13,7 +13,9 @@ import {
   ThumbsUp,
   Users,
 } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 
 import Footer from '@/components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
@@ -24,11 +26,16 @@ import {
   Card,
   ImageGallery,
   InvestmentModal,
+  NFTAnalysisCard,
   ProgressBar,
   Skeleton,
   SkeletonText,
   CardSkeleton,
+  ChatInterface,
 } from '@/components/ui';
+import { InvestorService } from '@/services/investors/InvestorService';
+import { StartupService } from '@/services/marketplace';
+import { getRiskLevel } from '@/utils/riskLevels';
 
 import Documents from './partial/Documents';
 import Financials from './partial/Financials';
@@ -52,9 +59,21 @@ interface Startup {
   fundingGoal: string;
 }
 
-export default function ExploreDetail() {
-  const id = '1'; // dummy ID
-  const isAuthenticated = true;
+interface InvestmentDetails {
+  id: string;
+  name: string;
+  nftPrice: number;
+  monthlyReturns: number;
+  expectedROI: number;
+  availableNFTs: number;
+  totalNFTs: number;
+  soldNFTs: number;
+}
+
+function ExploreDetailContent() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id') || '1'; // Get ID from query parameter
+  console.log('Detail page loaded with ID:', id);
   const authLoading = false;
   const investmentLoading = false;
 
@@ -64,8 +83,11 @@ export default function ExploreDetail() {
   const [error, setError] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const investmentLoadingData = false;
-  const [investmentData, setInvestmentData] = useState<any>(null);
+  const [investmentData, setInvestmentData] =
+    useState<InvestmentDetails | null>(null);
+
+  // Chat interface state
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     setStartup(null);
@@ -73,50 +95,57 @@ export default function ExploreDetail() {
     setLoading(true);
   }, [id]);
 
+  // Fetch startup details from backend
+  const fetchStartupDetails = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log('Fetching startup details for ID:', id);
+      // Use StartupService to fetch details
+      const startupData = await StartupService.getStartupDetails(id);
+      console.log('Startup data received:', startupData);
+
+      if (startupData) {
+        // Transform backend data to match UI requirements
+        const transformedStartup: Startup = {
+          id: startupData.id,
+          startupName: startupData.startupName,
+          description: startupData.description,
+          sector: startupData.sector,
+          status: startupData.status,
+          location: startupData.location,
+          teamMembers:
+            startupData.teamMembers?.map(member => ({
+              name: member.name,
+              role: member.role,
+            })) || [],
+          companyImages: startupData.companyImages || [],
+          companyLogo:
+            startupData.companyLogo && startupData.companyLogo.length > 0
+              ? [startupData.companyLogo[0] as string]
+              : ['/assets/images/icon-startup.png'],
+          periodicProfitSharing: startupData.periodicProfitSharing,
+          monthlyRevenue: startupData.monthlyRevenue,
+          nftPrice: startupData.nftPrice,
+          fundingGoal: startupData.fundingGoal,
+        };
+        setStartup(transformedStartup);
+      } else {
+        setError('Startup not found');
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to load startup details: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     if (authLoading) return;
-
-    const fetchStartupDetails = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // dummy data
-        const mockStartup: Startup = {
-          id,
-          startupName: 'EcoFarm Solutions',
-          description:
-            'Revolutionary hydroponic farming system using IoT technology...',
-          sector: 'Agriculture',
-          status: 'approved',
-          location: 'Bandung, Indonesia',
-          teamMembers: [
-            { name: 'Anya Rodriguez', role: 'CEO & Founder' },
-            { name: 'Marcus Johnson', role: 'CTO' },
-            { name: 'Lisa Chen', role: 'Head of Product' },
-          ],
-          companyImages: [
-            '/assets/images/product.png',
-            '/assets/images/product.png',
-            '/assets/images/product.png',
-            '/assets/images/product.png',
-          ],
-          companyLogo: ['/assets/images/icon-startup.png'],
-          periodicProfitSharing: '15% annually',
-          monthlyRevenue: '25,000',
-          nftPrice: '500',
-          fundingGoal: '100,000',
-        };
-        setTimeout(() => setStartup(mockStartup), 1200); // delay 1.2s
-      } catch (err: any) {
-        setError(`Failed to load startup details: ${err.message}`);
-      } finally {
-        setTimeout(() => setLoading(false), 1200);
-      }
-    };
-
     fetchStartupDetails();
-  }, [id, authLoading]);
+  }, [fetchStartupDetails, authLoading]);
 
   const tabs = [
     { label: 'Overview', icon: <FileText size={16} /> },
@@ -148,18 +177,141 @@ export default function ExploreDetail() {
   };
 
   const handleInvestNow = async () => {
-    const details = {
+    // Use existing startup data for immediate modal opening
+    const fallbackNftPrice = Number(startup?.nftPrice) || 75;
+    const fallbackAvailableNFTs = 10; // Default value
+
+    // Calculate monthly returns using existing data
+    const periodicProfitSharing =
+      Number(startup?.periodicProfitSharing?.replace(/[^0-9.]/g, '')) || 5;
+    const monthlyReturns = Math.round(
+      fallbackNftPrice * (periodicProfitSharing / 100)
+    );
+    const expectedROI = Math.round(
+      ((monthlyReturns * 12) / fallbackNftPrice) * 100
+    );
+
+    // Create initial details with fallback data for immediate modal opening
+    const initialDetails: InvestmentDetails = {
       id,
       name: startup?.startupName || 'Unknown Startup',
-      nftPrice: startup?.nftPrice || 75,
-      monthlyReturns: 50,
-      expectedROI: 192,
-      availableNFTs: 10,
-      totalNFTs: 10,
-      soldNFTs: 0,
+      nftPrice: fallbackNftPrice,
+      monthlyReturns,
+      expectedROI,
+      availableNFTs: fallbackAvailableNFTs,
+      totalNFTs: fallbackAvailableNFTs + 5,
+      soldNFTs: 5,
     };
-    setInvestmentData(details);
+
+    // Open modal immediately with fallback data
+    setInvestmentData(initialDetails);
     setIsModalOpen(true);
+    console.log(
+      'Opening investment modal immediately with data:',
+      initialDetails
+    );
+
+    // Then fetch real data in the background and update if needed
+    try {
+      const [priceResult, nftsResult] = await Promise.all([
+        StartupService.getNFTPrice(id),
+        StartupService.getNFTsByStartup(id),
+      ]);
+
+      const actualNftPrice = priceResult.success
+        ? Number(priceResult.price)
+        : fallbackNftPrice;
+
+      const actualAvailableNFTs = nftsResult.success
+        ? nftsResult.nfts?.length || fallbackAvailableNFTs
+        : fallbackAvailableNFTs;
+
+      // Only update if the data is different from fallback
+      if (
+        actualNftPrice !== fallbackNftPrice ||
+        actualAvailableNFTs !== fallbackAvailableNFTs
+      ) {
+        const actualMonthlyReturns = Math.round(
+          actualNftPrice * (periodicProfitSharing / 100)
+        );
+        const actualExpectedROI = Math.round(
+          ((actualMonthlyReturns * 12) / actualNftPrice) * 100
+        );
+
+        const updatedDetails: InvestmentDetails = {
+          id,
+          name: startup?.startupName || 'Unknown Startup',
+          nftPrice: actualNftPrice,
+          monthlyReturns: actualMonthlyReturns,
+          expectedROI: actualExpectedROI,
+          availableNFTs: actualAvailableNFTs,
+          totalNFTs: actualAvailableNFTs + 5,
+          soldNFTs: 5,
+        };
+
+        setInvestmentData(updatedDetails);
+        console.log('Updated investment modal with real data:', updatedDetails);
+      }
+    } catch (error) {
+      console.error('Error fetching updated investment data:', error);
+      // Modal is already open with fallback data, so no need to show error
+    }
+  };
+
+  // Handle AI analysis
+  const handleAnalyzeStartup = async (_startupId: string) => {
+    if (!startup) return;
+    setIsChatOpen(true);
+  };
+
+  // Handle investment from chat
+  const handleInvestFromChat = () => {
+    handleInvestNow();
+  };
+
+  // Handle actual investment purchase
+  const handleInvestmentPurchase = async (investmentDetails: {
+    startupId: string | number;
+    quantity: number;
+    totalAmount: number;
+  }) => {
+    try {
+      console.log('Processing investment:', investmentDetails);
+      // Get current investor information
+      const investor = await InvestorService.getInvestorByPrincipal();
+      if (!investor) {
+        throw new Error(
+          'Investor not found. Please register as an investor first.'
+        );
+      }
+      // Create NFT purchase request
+      const purchaseRequest = {
+        startupId: investmentDetails.startupId.toString(),
+        investorId: investor.id,
+        amount: BigInt(investmentDetails.totalAmount),
+        memo: [
+          `Purchase of ${investmentDetails.quantity} NFTs for ${startup?.startupName}`,
+        ] as [] | [string],
+      };
+
+      // Call backend service
+      const result = await InvestorService.purchaseNFT(purchaseRequest);
+      if (result.success) {
+        console.log('Investment successful!', result.response);
+        setIsModalOpen(false);
+        // Show success message
+        // Show success message
+        console.log(
+          `🎉 Investment successful! You have purchased ${investmentDetails.quantity} NFTs for ${startup?.startupName}.`
+        );
+      } else {
+        console.error('Investment failed:', result.error);
+        throw new Error(result.error || 'Investment failed');
+      }
+    } catch (error) {
+      console.error('Error processing investment:', error);
+      throw error; // Re-throw to let the modal handle the error state
+    }
   };
 
   if (loading) {
@@ -204,7 +356,7 @@ export default function ExploreDetail() {
       <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
         {/* Left Side */}
         <ImageGallery
-          images={images}
+          images={images.filter(img => img && !img.includes('undefined'))}
           showViewMore={true}
           onViewMore={() => console.log('View more clicked')}
         />
@@ -215,17 +367,25 @@ export default function ExploreDetail() {
             <Badge variant='primary' icon={<ThumbsUp size={16} />}>
               Featured
             </Badge>
-            <Badge variant='success'>Agriculture</Badge>
-            <Badge variant='warning'>Moderate Risk</Badge>
+            <Badge variant='success'>{startup.sector}</Badge>
+            <Badge variant='warning'>{getRiskLevel(startup.sector)}</Badge>
           </div>
 
           <div className='flex gap-3'>
-            <img
+            <Image
               src={
-                startup.companyLogo?.[0] || '/assets/images/icon-startup.png'
+                startup.companyLogo?.[0] &&
+                !startup.companyLogo[0].includes('undefined')
+                  ? startup.companyLogo[0]
+                  : '/assets/images/icon-startup.png'
               }
               className='w-8 h-8 rounded'
               alt='Logo'
+              width={32}
+              height={32}
+              unoptimized={startup.companyLogo?.[0]?.startsWith(
+                'https://gecvpysiaymyyynjhpfz.supabase.co'
+              )}
             />
             <h2 className='text-2xl font-semibold'>{startup.startupName}</h2>
           </div>
@@ -256,7 +416,7 @@ export default function ExploreDetail() {
             <ProgressBar value={45} max={100} color='bg-orange-500' />
           </div>
 
-          <Button onClick={handleInvestNow} disabled={investmentLoadingData}>
+          <Button onClick={handleInvestNow}>
             <Banknote size={20} />
             {investmentLoading ? 'Loading...' : 'Invest Now'}
           </Button>
@@ -264,19 +424,66 @@ export default function ExploreDetail() {
       </div>
 
       <div className='max-w-6xl mx-auto'>
-        <Tabs tabs={tabs} onChange={setActiveTab} />
-        <div>{renderContent()}</div>
+        {/* Tabs and Analysis Card Layout */}
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+          {/* Left side - Tabs and Content */}
+          <div className='lg:col-span-2'>
+            <Tabs tabs={tabs} onChange={setActiveTab} />
+            <div>{renderContent()}</div>
+          </div>
+
+          {/* Right side - Chat Interface */}
+          <div className='lg:col-span-1 flex justify-center lg:justify-start'>
+            <div className='sticky top-8 w-full max-w-sm h-[600px]'>
+              {!isChatOpen ? (
+                <NFTAnalysisCard
+                  startupId={id}
+                  startupName={startup.startupName}
+                  onAnalyze={handleAnalyzeStartup}
+                  className='w-full'
+                />
+              ) : (
+                <ChatInterface
+                  isOpen={isChatOpen}
+                  onClose={() => setIsChatOpen(false)}
+                  startupData={startup as any}
+                  startupName={startup.startupName}
+                  onInvestClick={handleInvestFromChat}
+                />
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <InvestmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        startup={investmentData}
-        onInvest={() => {}}
+        startup={
+          investmentData
+            ? {
+                id: investmentData.id,
+                name: investmentData.name,
+                availableNFTs: investmentData.availableNFTs,
+                nftPrice: investmentData.nftPrice,
+                monthlyReturns: investmentData.monthlyReturns,
+                expectedROI: investmentData.expectedROI,
+              }
+            : undefined
+        }
+        onInvest={handleInvestmentPurchase}
         isLoading={investmentLoading}
       />
 
       <Footer />
     </div>
+  );
+}
+
+export default function ExploreDetail() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ExploreDetailContent />
+    </Suspense>
   );
 }

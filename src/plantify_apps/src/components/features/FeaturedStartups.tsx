@@ -4,7 +4,8 @@ import { CircleDollarSign, Coins, Eye, Globe, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-// import { useFeaturedStartups } from '../../hooks/useFeaturedStartups';
+
+import { useFeaturedStartup } from '@/hooks/useFeaturedStartup';
 
 interface StartupCardProps {
   id: string | number;
@@ -105,46 +106,24 @@ export function StartupCard({
 
 export default function FeaturedStartups() {
   const router = useRouter();
-  // const { featuredStartups, loading, error } = useFeaturedStartups();
+  const { startup, loading, error } = useFeaturedStartup();
 
-  // Dummy data
-  const loading = false;
-  const error = null;
-  const featuredStartups: StartupCardProps[] = [
-    {
-      id: '1',
-      image: '/assets/images/startup-1.jpg',
-      title: 'Organic Farm Co.',
-      category: 'Agriculture',
-      nftPrice: '$100',
-      periodicReturn: '15-25% Annual',
-      fundedText: '65% Funded',
-      fundedPct: 0.65,
-      fundedColor: '#22c55e',
-    },
-    {
-      id: '2',
-      image: '/assets/images/startup-2.jpg',
-      title: 'FreshMeat Poultry',
-      category: 'Livestock',
-      nftPrice: '$150',
-      periodicReturn: '20-30% Annual',
-      fundedText: '80% Funded',
-      fundedPct: 0.8,
-      fundedColor: '#22c55e',
-    },
-    {
-      id: '3',
-      image: '/assets/images/startup-3.jpg',
-      title: 'TechFlow SaaS',
-      category: 'Technology',
-      nftPrice: '$200',
-      periodicReturn: '40-60% Annual',
-      fundedText: '45% Funded',
-      fundedPct: 0.45,
-      fundedColor: '#f59e0b',
-    },
-  ];
+  // Transform backend startup data to match UI requirements
+  const featuredStartups: StartupCardProps[] = startup
+    ? [
+        {
+          id: startup.id,
+          image: startup.companyLogo?.[0] || '/assets/images/icon-startup.png',
+          title: startup.startupName,
+          category: startup.sector,
+          nftPrice: `$${startup.nftPrice}`,
+          periodicReturn: `${startup.periodicProfitSharing} Annual`,
+          fundedText: 'Featured',
+          fundedPct: 1.0,
+          fundedColor: '#22c55e',
+        },
+      ]
+    : [];
 
   const handleExploreAll = () => {
     router.push('/explore');
@@ -163,9 +142,7 @@ export default function FeaturedStartups() {
         {loading && (
           <div className='flex justify-center items-center py-12'>
             <Loader2 size={32} className='animate-spin text-white' />
-            <span className='ml-3 text-white'>
-              Loading featured startups...
-            </span>
+            <span className='ml-3 text-white'>Loading featured startup...</span>
           </div>
         )}
 
@@ -175,7 +152,7 @@ export default function FeaturedStartups() {
               <div className='text-red-600 mr-3'>⚠️</div>
               <div>
                 <h3 className='text-red-800 font-medium'>
-                  Error Loading Startups
+                  Error Loading Featured Startup
                 </h3>
                 <p className='text-red-600 text-sm mt-1'>{error}</p>
               </div>
@@ -197,7 +174,7 @@ export default function FeaturedStartups() {
                   <Globe size={48} className='mx-auto' />
                 </div>
                 <h3 className='text-lg font-medium text-white mb-2'>
-                  No featured startups available
+                  No featured startup available
                 </h3>
                 <p className='text-gray-300'>
                   Check back later for new investment opportunities.

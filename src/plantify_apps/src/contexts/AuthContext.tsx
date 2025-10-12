@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const success = await BaseService.initialize(client);
       if (success) {
-        const serviceActor = BaseService.getActorInstance();
+        const serviceActor = await BaseService.getActorInstance();
         setActor(serviceActor);
         return true;
       }

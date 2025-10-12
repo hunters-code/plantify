@@ -23,3 +23,6 @@ export {
   TableCell,
 } from './Table';
 export { default as Textarea } from './Textarea';
+export { default as NFTAnalysisCard } from './NFTAnalysisCard';
+export { default as StartupAnalysisModal } from './StartupAnalysisModal';
+export { default as ChatInterface } from './ChatInterface';
