@@ -1,22 +1,17 @@
+'use client';
+
 import { FileText, Plus, X, CheckCircle, Clock, Eye, Edit } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Alert, Button, Card, Input } from '@/components/ui';
+import type {
+  MonthlyReport,
+  MonthlyReportRequest,
+  MonthlyReportList,
+  MonthlyReportStatus,
+} from '@/declarations/plantify_backend/plantify_backend.did';
+import { MonthlyReportService } from '@/services/founders/MonthlyReportService';
 import { formatCurrency } from '@/utils/formatCurrency';
-
-type MonthlyReport = {
-  id: number;
-  month: number;
-  year: number;
-  revenue: number;
-  profit: number;
-  profitSharingAmount: number;
-  investorCount: number;
-  newInvestors: number;
-  status: 'Approved' | 'Submitted' | 'Draft' | 'Rejected';
-  submittedAt?: string;
-  approvedAt?: string;
-};
 
 type FormData = {
   monthlyRevenue: string;
@@ -35,47 +30,136 @@ function isErrorWithMessage(err: unknown): err is { message: string } {
   return typeof err === 'object' && err !== null && 'message' in err;
 }
 
-function useMonthlyReports(startupId: string | number) {
-  const dummyReports: MonthlyReport[] = [
-    {
-      id: 1,
-      month: 8,
-      year: 2025,
-      revenue: 5000,
-      profit: 2000,
-      profitSharingAmount: 500,
-      investorCount: 10,
-      newInvestors: 2,
-      status: 'Approved',
-      submittedAt: `${Date.now() * 1000000}`,
-      approvedAt: `${Date.now() * 1000000}`,
-    },
-    {
-      id: 2,
-      month: 7,
-      year: 2025,
-      revenue: 4000,
-      profit: 1500,
-      profitSharingAmount: 400,
-      investorCount: 9,
-      newInvestors: 1,
-      status: 'Submitted',
-      submittedAt: `${Date.now() * 1000000}`,
-    },
-  ];
+function useMonthlyReports(startupId: string) {
+  const [reports, setReports] = useState<MonthlyReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [reports] = useState<MonthlyReport[]>(dummyReports);
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchReports = async () => {
+      if (!startupId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        console.log('Fetching monthly reports for startup:', startupId);
+        const result =
+          await MonthlyReportService.getMonthlyReportsByStartup(startupId);
+
+        if (result.success && result.reportList) {
+          setReports(result.reportList.reports);
+          console.log('Monthly reports loaded:', result.reportList.reports);
+        } else {
+          setError(result.error || 'Failed to load reports');
+        }
+      } catch (err) {
+        console.error('Error fetching monthly reports:', err);
+        setError('Failed to load monthly reports');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, [startupId]);
 
   const submitReport = async (form: FormData): Promise<ApiResult> => {
-    console.log('Submitting...', form);
-    return { success: true };
+    try {
+      console.log('Creating and submitting report...', form);
+
+      // First create the report
+      const reportRequest: MonthlyReportRequest = {
+        startupId,
+        month: BigInt(new Date().getMonth() + 1),
+        year: BigInt(new Date().getFullYear()),
+        revenue: BigInt(Math.round(Number(form.monthlyRevenue) * 100)), // Convert to cents
+        expenses: BigInt(Math.round(Number(form.monthlyExpenses) * 100)),
+        profit: BigInt(Math.round(Number(form.netProfit) * 100)),
+        profitSharingAmount: BigInt(
+          Math.round(Number(form.profitSharingAmount) * 100)
+        ),
+        investorCount: BigInt(Number(form.investorCount)),
+        newInvestors: BigInt(Number(form.newInvestors)),
+      };
+
+      const createResult =
+        await MonthlyReportService.createMonthlyReport(reportRequest);
+
+      if (createResult.success && createResult.report) {
+        // Then submit the created report
+        const submitResult = await MonthlyReportService.submitMonthlyReport(
+          createResult.report.id
+        );
+
+        if (submitResult.success) {
+          // Refresh reports list
+          const refreshResult =
+            await MonthlyReportService.getMonthlyReportsByStartup(startupId);
+          if (refreshResult.success && refreshResult.reportList) {
+            setReports(refreshResult.reportList.reports);
+          }
+          return { success: true };
+        } else {
+          return {
+            success: false,
+            error: submitResult.error || 'Failed to submit report',
+          };
+        }
+      } else {
+        return {
+          success: false,
+          error: createResult.error || 'Failed to create report',
+        };
+      }
+    } catch (err) {
+      console.error('Error submitting report:', err);
+      return { success: false, error: 'Failed to submit report' };
+    }
   };
 
   const saveDraft = async (form: FormData): Promise<ApiResult> => {
-    console.log('Saving draft...', form);
-    return { success: true };
+    try {
+      console.log('Saving draft...', form);
+
+      const reportRequest: MonthlyReportRequest = {
+        startupId,
+        month: BigInt(new Date().getMonth() + 1),
+        year: BigInt(new Date().getFullYear()),
+        revenue: BigInt(Math.round(Number(form.monthlyRevenue) * 100)),
+        expenses: BigInt(Math.round(Number(form.monthlyExpenses) * 100)),
+        profit: BigInt(Math.round(Number(form.netProfit) * 100)),
+        profitSharingAmount: BigInt(
+          Math.round(Number(form.profitSharingAmount) * 100)
+        ),
+        investorCount: BigInt(Number(form.investorCount)),
+        newInvestors: BigInt(Number(form.newInvestors)),
+      };
+
+      const result =
+        await MonthlyReportService.createMonthlyReport(reportRequest);
+
+      if (result.success) {
+        // Refresh reports list
+        const refreshResult =
+          await MonthlyReportService.getMonthlyReportsByStartup(startupId);
+        if (refreshResult.success && refreshResult.reportList) {
+          setReports(refreshResult.reportList.reports);
+        }
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          error: result.error || 'Failed to save draft',
+        };
+      }
+    } catch (err) {
+      console.error('Error saving draft:', err);
+      return { success: false, error: 'Failed to save draft' };
+    }
   };
 
   return { reports, loading, error, submitReport, saveDraft };
@@ -174,34 +258,40 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
     }
   };
 
-  const getStatusIcon = (status: MonthlyReport['status']) => {
-    switch (status) {
-      case 'Approved':
-        return <CheckCircle className='w-4 h-4 text-green-500' />;
-      case 'Submitted':
-        return <Clock className='w-4 h-4 text-yellow-500' />;
-      case 'Draft':
-        return <Edit className='w-4 h-4 text-gray-500' />;
-      case 'Rejected':
-        return <X className='w-4 h-4 text-red-500' />;
-      default:
-        return <Clock className='w-4 h-4 text-gray-500' />;
+  const getStatusIcon = (status: MonthlyReportStatus) => {
+    if ('Approved' in status) {
+      return <CheckCircle className='w-4 h-4 text-green-500' />;
+    } else if ('Submitted' in status) {
+      return <Clock className='w-4 h-4 text-yellow-500' />;
+    } else if ('Draft' in status) {
+      return <Edit className='w-4 h-4 text-gray-500' />;
+    } else if ('Rejected' in status) {
+      return <X className='w-4 h-4 text-red-500' />;
+    } else {
+      return <Clock className='w-4 h-4 text-gray-500' />;
     }
   };
 
-  const getStatusColor = (status: MonthlyReport['status']) => {
-    switch (status) {
-      case 'Approved':
-        return 'bg-green-100 text-green-800';
-      case 'Submitted':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Draft':
-        return 'bg-gray-100 text-gray-800';
-      case 'Rejected':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  const getStatusColor = (status: MonthlyReportStatus) => {
+    if ('Approved' in status) {
+      return 'bg-green-100 text-green-800';
+    } else if ('Submitted' in status) {
+      return 'bg-yellow-100 text-yellow-800';
+    } else if ('Draft' in status) {
+      return 'bg-gray-100 text-gray-800';
+    } else if ('Rejected' in status) {
+      return 'bg-red-100 text-red-800';
+    } else {
+      return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const getStatusText = (status: MonthlyReportStatus) => {
+    if ('Approved' in status) return 'Approved';
+    if ('Submitted' in status) return 'Submitted';
+    if ('Draft' in status) return 'Draft';
+    if ('Rejected' in status) return 'Rejected';
+    return 'Unknown';
   };
 
   const getMonthName = (monthNumber: number) => {
@@ -314,30 +404,82 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
           <div className='space-y-4'>
             {reports.map(r => (
               <Card key={r.id} className='p-6'>
-                <h3>
-                  {getMonthName(r.month)} {r.year}
-                </h3>
-                <p className='flex items-center gap-2'>
-                  Status:{' '}
+                <div className='flex justify-between items-start mb-4'>
+                  <div>
+                    <h3 className='text-lg font-semibold'>
+                      {getMonthName(Number(r.month))} {Number(r.year)}
+                    </h3>
+                    <p className='text-sm text-gray-500'>
+                      Created:{' '}
+                      {new Date(
+                        Number(r.createdAt) / 1000000
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
                   <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                    className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(
                       r.status
                     )}`}
                   >
-                    {getStatusIcon(r.status)} {r.status}
+                    {getStatusIcon(r.status)} {getStatusText(r.status)}
                   </span>
-                </p>
-                <p>Revenue: {formatCurrency(r.revenue)}</p>
-                <p>Profit: {formatCurrency(r.profit)}</p>
-                <Button>
-                  <Eye size={16} /> View
-                </Button>
+                </div>
+
+                <div className='grid grid-cols-2 md:grid-cols-4 gap-4 mb-4'>
+                  <div>
+                    <p className='text-sm text-gray-500'>Revenue</p>
+                    <p className='font-semibold'>
+                      {formatCurrency(Number(r.revenue) / 100)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className='text-sm text-gray-500'>Expenses</p>
+                    <p className='font-semibold'>
+                      {formatCurrency(Number(r.expenses) / 100)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className='text-sm text-gray-500'>Profit</p>
+                    <p className='font-semibold text-green-600'>
+                      {formatCurrency(Number(r.profit) / 100)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className='text-sm text-gray-500'>Profit Sharing</p>
+                    <p className='font-semibold text-purple-600'>
+                      {formatCurrency(Number(r.profitSharingAmount) / 100)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className='flex justify-between items-center'>
+                  <div className='text-sm text-gray-600'>
+                    <span>Investors: {Number(r.investorCount)}</span>
+                    <span className='ml-4'>New: {Number(r.newInvestors)}</span>
+                  </div>
+                  <Button variant='secondary' size='sm'>
+                    <Eye size={16} /> View Details
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
         );
       case 2:
-        return <p>Templates tab (dummy)</p>;
+        return (
+          <Card className='p-6'>
+            <div className='text-center py-12'>
+              <FileText size={48} className='mx-auto text-gray-400 mb-4' />
+              <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                Report Templates
+              </h3>
+              <p className='text-gray-600 mb-4'>
+                Templates feature is coming soon. This will help you create
+                reports faster with pre-filled data.
+              </p>
+            </div>
+          </Card>
+        );
       default:
         return null;
     }

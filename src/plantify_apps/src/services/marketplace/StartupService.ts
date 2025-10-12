@@ -26,7 +26,8 @@ export class StartupService extends BaseService {
         await this.initialize();
       }
 
-      return await this.getActor().getAllStartups();
+      const actor = await this.getActor();
+      return await actor.getAllStartups();
     } catch (error) {
       console.error('Error getting all startups:', error);
       return [];
@@ -48,7 +49,8 @@ export class StartupService extends BaseService {
         await this.initialize();
       }
 
-      const startupOpt = await this.getActor().getStartupDetails(startupId);
+      const actor = await this.getActor();
+      const startupOpt = await actor.getStartupDetails(startupId);
       return startupOpt.length ? startupOpt[0] : null;
     } catch (error) {
       console.error('Error getting startup details:', error);
@@ -65,7 +67,8 @@ export class StartupService extends BaseService {
     startupId: string
   ): Promise<{ success: boolean; price?: bigint; error?: string }> {
     try {
-      const result: Result_14 = await this.getActor().getNFTPrice(startupId);
+      const actor = await this.getActor();
+      const result: Result_14 = await actor.getNFTPrice(startupId);
 
       if ('ok' in result) {
         return { success: true, price: result.ok };
@@ -87,8 +90,8 @@ export class StartupService extends BaseService {
     startupId: string
   ): Promise<{ success: boolean; nfts?: NFTInfo[]; error?: string }> {
     try {
-      const result: Result_13 =
-        await this.getActor().getNFTsByStartup(startupId);
+      const actor = await this.getActor();
+      const result: Result_13 = await actor.getNFTsByStartup(startupId);
 
       if ('ok' in result) {
         return { success: true, nfts: result.ok };
@@ -112,8 +115,9 @@ export class StartupService extends BaseService {
     error?: string;
   }> {
     try {
+      const actor = await this.getActor();
       const result: Result_10 =
-        await this.getActor().getStartupPurchaseHistory(startupId);
+        await actor.getStartupPurchaseHistory(startupId);
 
       if ('ok' in result) {
         return { success: true, history: result.ok };
@@ -132,7 +136,8 @@ export class StartupService extends BaseService {
    */
   public static async getAllPurchases(): Promise<NFTPurchaseInfo[]> {
     try {
-      return await this.getActor().getAllPurchases();
+      const actor = await this.getActor();
+      return await actor.getAllPurchases();
     } catch (error) {
       console.error('Error getting all purchases:', error);
       return [];
@@ -145,7 +150,8 @@ export class StartupService extends BaseService {
    */
   public static async getPurchaseStats(): Promise<NFTPurchaseStats | null> {
     try {
-      return await this.getActor().getPurchaseStats();
+      const actor = await this.getActor();
+      return await actor.getPurchaseStats();
     } catch (error) {
       console.error('Error getting purchase stats:', error);
       return null;
