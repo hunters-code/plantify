@@ -90,8 +90,8 @@ export interface FounderRegistrationRequest {
 }
 export interface Investor {
   id: string;
-  bio: string;
-  occupation: string;
+  bio: [] | [string];
+  occupation: [] | [string];
   principal: Principal;
   country: string;
   riskTolerance: string;
@@ -102,12 +102,12 @@ export interface Investor {
   fullName: string;
   email: string;
   updatedAt: Time;
-  company: string;
+  company: [] | [string];
   investmentGoals: string;
   availableCapital: string;
   phone: string;
   investmentExperience: string;
-  location: string;
+  location: [] | [string];
 }
 export interface InvestorProfileUpdateRequest {
   bio: [] | [string];
@@ -127,8 +127,8 @@ export interface InvestorProfileUpdateRequest {
   location: [] | [string];
 }
 export interface InvestorRegistrationRequest {
-  bio: string;
-  occupation: string;
+  bio: [] | [string];
+  occupation: [] | [string];
   country: string;
   riskTolerance: string;
   monthlyBudget: string;
@@ -136,12 +136,12 @@ export interface InvestorRegistrationRequest {
   profilePhoto: [] | [string];
   fullName: string;
   email: string;
-  company: string;
+  company: [] | [string];
   investmentGoals: string;
   availableCapital: string;
   phone: string;
   investmentExperience: string;
-  location: string;
+  location: [] | [string];
 }
 export interface InvestorVote {
   id: string;

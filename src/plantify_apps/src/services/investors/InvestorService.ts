@@ -8,6 +8,7 @@ import type {
   NFTPurchaseHistory,
   Result_6,
   Result_10,
+  Result_2,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -26,7 +27,7 @@ export class InvestorService extends BaseService {
   ): Promise<{ success: boolean; investor?: Investor; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_4 = await actor.registerInvestor(request);
+      const result: Result_2 = await actor.registerInvestor(request);
 
       if ('ok' in result) {
         return { success: true, investor: result.ok };
@@ -164,7 +165,7 @@ export class InvestorService extends BaseService {
   ): Promise<{ success: boolean; investor?: Investor; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_4 = await actor.updateInvestorProfile(request);
+      const result: Result_2 = await actor.updateInvestorProfile(request);
 
       if ('ok' in result) {
         return { success: true, investor: result.ok };

@@ -279,8 +279,8 @@ export const idlFactory = ({ IDL }) => {
   });
   const Investor = IDL.Record({
     'id' : IDL.Text,
-    'bio' : IDL.Text,
-    'occupation' : IDL.Text,
+    'bio' : IDL.Opt(IDL.Text),
+    'occupation' : IDL.Opt(IDL.Text),
     'principal' : IDL.Principal,
     'country' : IDL.Text,
     'riskTolerance' : IDL.Text,
@@ -291,12 +291,12 @@ export const idlFactory = ({ IDL }) => {
     'fullName' : IDL.Text,
     'email' : IDL.Text,
     'updatedAt' : Time,
-    'company' : IDL.Text,
+    'company' : IDL.Opt(IDL.Text),
     'investmentGoals' : IDL.Text,
     'availableCapital' : IDL.Text,
     'phone' : IDL.Text,
     'investmentExperience' : IDL.Text,
-    'location' : IDL.Text,
+    'location' : IDL.Opt(IDL.Text),
   });
   const NFTPurchaseHistory = IDL.Record({
     'totalNFTs' : IDL.Nat,
@@ -468,8 +468,8 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_5 = IDL.Variant({ 'ok' : Founder, 'err' : IDL.Text });
   const InvestorRegistrationRequest = IDL.Record({
-    'bio' : IDL.Text,
-    'occupation' : IDL.Text,
+    'bio' : IDL.Opt(IDL.Text),
+    'occupation' : IDL.Opt(IDL.Text),
     'country' : IDL.Text,
     'riskTolerance' : IDL.Text,
     'monthlyBudget' : IDL.Text,
@@ -477,12 +477,12 @@ export const idlFactory = ({ IDL }) => {
     'profilePhoto' : IDL.Opt(IDL.Text),
     'fullName' : IDL.Text,
     'email' : IDL.Text,
-    'company' : IDL.Text,
+    'company' : IDL.Opt(IDL.Text),
     'investmentGoals' : IDL.Text,
     'availableCapital' : IDL.Text,
     'phone' : IDL.Text,
     'investmentExperience' : IDL.Text,
-    'location' : IDL.Text,
+    'location' : IDL.Opt(IDL.Text),
   });
   const Result_2 = IDL.Variant({ 'ok' : Investor, 'err' : IDL.Text });
   const TopUpRequest = IDL.Record({

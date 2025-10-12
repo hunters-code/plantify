@@ -547,17 +547,17 @@ type InvestorVote =
 type InvestorRegistrationRequest = 
  record {
    availableCapital: text;
-   bio: text;
+   bio: opt text;
    city: text;
-   company: text;
+   company: opt text;
    country: text;
    email: text;
    fullName: text;
    investmentExperience: text;
    investmentGoals: text;
-   location: text;
+   location: opt text;
    monthlyBudget: text;
-   occupation: text;
+   occupation: opt text;
    phone: text;
    profilePhoto: opt text;
    riskTolerance: text;
@@ -583,9 +583,9 @@ type InvestorProfileUpdateRequest =
 type Investor = 
  record {
    availableCapital: text;
-   bio: text;
+   bio: opt text;
    city: text;
-   company: text;
+   company: opt text;
    country: text;
    createdAt: Time;
    email: text;
@@ -593,9 +593,9 @@ type Investor =
    id: text;
    investmentExperience: text;
    investmentGoals: text;
-   location: text;
+   location: opt text;
    monthlyBudget: text;
-   occupation: text;
+   occupation: opt text;
    phone: text;
    "principal": principal;
    profilePhoto: opt text;

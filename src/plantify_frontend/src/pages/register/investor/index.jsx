@@ -234,6 +234,11 @@ export default function RegisterInvestor() {
         phone: formData.phone,
         country: formData.country,
         city: formData.city,
+        location: null,
+        occupation: null,
+        company: null,
+        bio: '',
+        profilePhoto: null,
         investmentExperience: formData.investmentExperience || 'beginner',
         riskTolerance: formData.riskTolerance || 'medium',
         investmentGoals: formData.investmentGoals || 'growth',
@@ -282,11 +287,7 @@ export default function RegisterInvestor() {
       <div className='max-w-7xl mx-auto mt-8 mb-8'>
         {/* Error Message */}
         {(error || hookError) && (
-          <Alert
-            type='error'
-            message={error || hookError}
-            className='mb-6'
-          />
+          <Alert type='error' message={error || hookError} className='mb-6' />
         )}
 
         {/* Authentication Status - only show if not authenticated */}
@@ -379,10 +380,7 @@ export default function RegisterInvestor() {
         <div className='flex justify-between mt-2 pt-6 border-t border-gray-100'>
           {/* Previous Button */}
           {step > 1 ? (
-            <Button
-              onClick={prevStep}
-              variant='secondary'
-            >
+            <Button onClick={prevStep} variant='secondary'>
               <CircleArrowLeft size={16} /> Previous
             </Button>
           ) : (
@@ -391,11 +389,7 @@ export default function RegisterInvestor() {
 
           {/* Next / Submit Button */}
           {step < tabs.length ? (
-            <Button
-              onClick={nextStep}
-              disabled={loading}
-              variant='primary'
-            >
+            <Button onClick={nextStep} disabled={loading} variant='primary'>
               Next <CircleArrowRight size={16} />
             </Button>
           ) : (
