@@ -574,6 +574,15 @@ export interface _SERVICE {
   'getReportVotes' : ActorMethod<[string], Array<InvestorVote>>,
   'getStartupDetails' : ActorMethod<[string], [] | [Startup]>,
   'getStartupPurchaseHistory' : ActorMethod<[string], Result_10>,
+  'getStartupsByFounderNameAndId' : ActorMethod<
+    [string, string],
+    Array<Startup>
+  >,
+  'getStartupsByFounderPrincipal' : ActorMethod<[], Array<Startup>>,
+  'getStartupsByFounderPrincipalPaginated' : ActorMethod<
+    [PaginationParams],
+    PaginatedStartups
+  >,
   'getStartupsCount' : ActorMethod<[], bigint>,
   'getStartupsPaginated' : ActorMethod<[PaginationParams], PaginatedStartups>,
   'getTokenCanisterId' : ActorMethod<[string], [] | [string]>,
