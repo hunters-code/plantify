@@ -823,4 +823,75 @@ module Types {
     #Error : Text;
   };
 
+  // Dashboard Investor Service Types
+  public type InvestorDashboardOverview = {
+    totalInvestments : Nat;
+    totalAmountInvested : Nat;
+    totalNFTsOwned : Nat;
+    uniqueStartupsInvested : Nat;
+    averageInvestmentPerStartup : Nat;
+    recentInvestments : [InvestorRecentInvestment];
+    investmentPortfolio : [InvestorPortfolioItem];
+    profitSharingEarnings : Nat;
+  };
+
+  public type InvestorDashboardOverviewResponse = {
+    #Success : InvestorDashboardOverview;
+    #Error : Text;
+  };
+
+  public type InvestorRecentInvestment = {
+    startupId : Text;
+    startupName : Text;
+    amount : Nat;
+    nftPrice : Nat;
+    quantity : Nat;
+    date : Time.Time;
+    status : Text;
+  };
+
+  public type InvestorPortfolioItem = {
+    startupId : Text;
+    startupName : Text;
+    totalInvested : Nat;
+    nftCount : Nat;
+    averagePrice : Nat;
+    firstInvestment : Time.Time;
+    lastInvestment : Time.Time;
+    startupStatus : Text;
+  };
+
+  public type InvestorPerformance = {
+    totalInvested : Nat;
+    totalNFTs : Nat;
+    uniqueStartups : Nat;
+    averageInvestmentSize : Nat;
+    diversificationScore : Nat; // 0-100
+    investmentTrend : Text; // "Increasing", "Decreasing", "Stable"
+    riskProfile : Text;
+    profitSharingEarnings : Nat;
+  };
+
+  public type InvestorPerformanceResponse = {
+    #Success : InvestorPerformance;
+    #Error : Text;
+  };
+
+  public type InvestorStartupInvestment = {
+    startupId : Text;
+    startupName : Text;
+    totalInvested : Nat;
+    nftCount : Nat;
+    averagePrice : Nat;
+    firstInvestment : Time.Time;
+    lastInvestment : Time.Time;
+    startupStatus : Text;
+    profitSharingEarnings : Nat;
+  };
+
+  public type InvestorStartupInvestmentResponse = {
+    #Success : InvestorStartupInvestment;
+    #Error : Text;
+  };
+
 };

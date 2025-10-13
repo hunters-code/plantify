@@ -13,6 +13,7 @@ import NFTPurchaseService "./modules/services/nftPurchase";
 import MonthlyReportService "./modules/services/monthlyReport";
 import VotingService "./modules/services/voting";
 import DashboardFounderService "./modules/services/dashboardFounder";
+import DashboardInvestorService "./modules/services/dashboardInvestor";
 import Config "./config";
 persistent actor PlantifyBackend {
   // Stable variables for persistence across canister upgrades
@@ -63,6 +64,7 @@ persistent actor PlantifyBackend {
   private transient let monthlyReportService = MonthlyReportService.MonthlyReportService(storage);
   private transient let votingService = VotingService.VotingService(storage);
   private transient let dashboardFounderService = DashboardFounderService.DashboardFounder(storage, nftPurchaseService, nftService, collateralService);
+  private transient let dashboardInvestorService = DashboardInvestorService.DashboardInvestor(storage, nftPurchaseService, nftService);
 
   public shared (msg) func registerFounder(request : Types.FounderRegistrationRequest) : async Result.Result<Types.Founder, Text> {
     registrationService.registerFounder(msg.caller, request);
@@ -640,6 +642,37 @@ persistent actor PlantifyBackend {
       case null { #Error("Founder not found") };
       case (?founder) {
         dashboardFounderService.getInvestorDashboard(founder.id);
+      };
+    };
+  };
+
+  // ========================================
+  // DASHBOARD INVESTOR SERVICE METHODS
+  // ========================================
+
+  public shared (msg) func getInvestorDashboardOverview() : async Types.InvestorDashboardOverviewResponse {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #Error("Investor not found") };
+      case (?investor) {
+        dashboardInvestorService.getInvestorDashboardOverview(investor.id);
+      };
+    };
+  };
+
+  public shared (msg) func getInvestorPerformance() : async Types.InvestorPerformanceResponse {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #Error("Investor not found") };
+      case (?investor) {
+        dashboardInvestorService.getInvestorPerformance(investor.id);
+      };
+    };
+  };
+
+  public shared (msg) func getInvestorStartupInvestment(startupId : Text) : async Types.InvestorStartupInvestmentResponse {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #Error("Investor not found") };
+      case (?investor) {
+        dashboardInvestorService.getInvestorStartupInvestments(investor.id, startupId);
       };
     };
   };

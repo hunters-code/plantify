@@ -11,7 +11,7 @@ export class BaseService {
   private static actor: _SERVICE | null = null;
   private static agent: HttpAgent | null = null;
   // Fallback canister ID for production
-  private static readonly FALLBACK_CANISTER_ID = 'a5ptu-ryaaa-aaaai-q32cq-cai';
+  private static readonly FALLBACK_CANISTER_ID = 'oncwy-yqaaa-aaaae-qfzja-cai';
   /**
    * Initialize the service with an identity
    * @param authClient - The authentication client
