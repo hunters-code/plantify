@@ -61,7 +61,10 @@ export default function OnboardingPage() {
     return (
       <Layout>
         <div className='flex flex-col items-center justify-center min-h-screen px-6 py-20'>
-          <LoadingSpinner size='xl' text='Checking your registration status...' />
+          <LoadingSpinner
+            size='xl'
+            text='Checking your registration status...'
+          />
         </div>
       </Layout>
     );
@@ -250,9 +253,7 @@ export default function OnboardingPage() {
         <Table striped hover>
           <TableHead>
             <TableRow>
-              <TableHeader className='py-8'>
-                Aspect
-              </TableHeader>
+              <TableHeader className='py-8'>Aspect</TableHeader>
               <TableHeader className='py-8 bg-purple-50 text-gray-900'>
                 Investor
               </TableHeader>
@@ -264,7 +265,9 @@ export default function OnboardingPage() {
           <TableBody>
             <TableRow>
               <TableCell className='py-8'>Investment Required</TableCell>
-              <TableCell className='py-8 bg-purple-50'>$50+ per startup</TableCell>
+              <TableCell className='py-8 bg-purple-50'>
+                $50+ per startup
+              </TableCell>
               <TableCell className='py-8'>Collateral required</TableCell>
             </TableRow>
             <TableRow>
@@ -276,17 +279,23 @@ export default function OnboardingPage() {
             </TableRow>
             <TableRow>
               <TableCell className='py-8'>Risk Level</TableCell>
-              <TableCell className='py-8 bg-purple-50'>Medium (diversified)</TableCell>
+              <TableCell className='py-8 bg-purple-50'>
+                Medium (diversified)
+              </TableCell>
               <TableCell className='py-8'>High (business owner)</TableCell>
             </TableRow>
             <TableRow>
               <TableCell className='py-8'>Potential Returns</TableCell>
-              <TableCell className='py-8 bg-purple-50'>15-60% annually</TableCell>
+              <TableCell className='py-8 bg-purple-50'>
+                15-60% annually
+              </TableCell>
               <TableCell className='py-8'>Unlimited potential</TableCell>
             </TableRow>
             <TableRow>
               <TableCell className='py-8'>Active Management</TableCell>
-              <TableCell className='py-8 bg-purple-50'>Passive income focus</TableCell>
+              <TableCell className='py-8 bg-purple-50'>
+                Passive income focus
+              </TableCell>
               <TableCell className='py-8'>Full business control</TableCell>
             </TableRow>
           </TableBody>

@@ -167,7 +167,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUserType(null);
       setPrincipal(null);
       setActor(null);
-
     } catch (error) {
       console.error('Sign out error:', error);
       throw error;
