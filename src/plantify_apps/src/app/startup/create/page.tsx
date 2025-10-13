@@ -253,6 +253,7 @@ export default function CreateStartupPage() {
       companyLogo: logoFile,
       companyImages: [] as string[],
       nftImage: [] as [] | [string],
+      builtByCaffeineAI: [false] as [] | [boolean],
       problemStatement: formData.problemStatement || '',
       solution: formData.solution || '',
       targetMarket: formData.targetMarket || '',

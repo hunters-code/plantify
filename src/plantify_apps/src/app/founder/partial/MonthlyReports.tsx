@@ -457,7 +457,7 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
                     <span>Investors: {Number(r.investorCount)}</span>
                     <span className='ml-4'>New: {Number(r.newInvestors)}</span>
                   </div>
-                  <Button variant='secondary' size='sm'>
+                  <Button variant='secondary'>
                     <Eye size={16} /> View Details
                   </Button>
                 </div>

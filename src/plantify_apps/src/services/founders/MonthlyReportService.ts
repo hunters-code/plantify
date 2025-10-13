@@ -5,6 +5,7 @@ import type {
   MonthlyReportStats,
   MonthlyReportStatus,
   Result_1,
+  Result_17,
   Result_18,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
@@ -123,7 +124,7 @@ export class MonthlyReportService extends BaseService {
   }> {
     try {
       const actor = await this.getActor();
-      const result: Result_18 =
+      const result: Result_17 =
         await actor.getMonthlyReportsByStartup(startupId);
 
       if ('ok' in result) {
