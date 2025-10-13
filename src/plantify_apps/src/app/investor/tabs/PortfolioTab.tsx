@@ -1,3 +1,5 @@
+'use client';
+
 import { TrendingUp, AlertCircle, Eye, Vote, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -5,12 +7,9 @@ import React, { useEffect, useState } from 'react';
 import { Button, Card, LoadingSpinner } from '@/components/ui';
 import Badge, { type BadgeVariant } from '@/components/ui/Badge';
 import { InvestorService } from '@/services/investors/InvestorService';
-// import { StartupService } from '@/services/startups/StartupService'; // Uncomment if you have this
-import type { NFTPurchaseHistory, NFTPurchaseInfo } from '@/declarations/plantify_backend/plantify_backend.did';
 
-// Types
 interface Investment {
-  id: string | number;
+  id: string;
   startupName: string;
   sector: string;
   riskLevel: 'High Risk' | 'Moderate Risk' | 'Low Risk' | string;
@@ -37,153 +36,105 @@ export default function PortfolioTab({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
   const [investments, setInvestments] = useState<Investment[]>([]);
-  const [investorId, setInvestorId] = useState<string | null>(null);
 
-  // Fetch investor data and purchase history
   const fetchPortfolioData = async () => {
     try {
       setLoading(true);
       setError(undefined);
 
-      // Get current investor
-      const investor = await InvestorService.getInvestorByPrincipal();
-      
-      if (!investor) {
-        setError('Investor not found. Please register as an investor.');
+      const result = await InvestorService.getMyInvestmentPortfolio();
+
+      if (!result.success || !result.portfolio) {
+        setError(result.error || 'Gagal memuat data portofolio');
         setLoading(false);
         return;
       }
 
-      setInvestorId(investor.id);
-
-      // Get purchase history
-      const result = await InvestorService.getInvestorPurchaseHistory(
-        investor.id
-      );
-
-      if (!result.success || !result.history) {
-        setError(result.error || 'Failed to load portfolio data');
-        setLoading(false);
-        return;
-      }
-
-      // Transform purchase history to investments
-      const transformedInvestments = await transformPurchaseHistory(result.history);
-      setInvestments(transformedInvestments);
+      const transformed = transformPortfolio(result.portfolio);
+      setInvestments(transformed);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching portfolio:', err);
-      setError('An unexpected error occurred');
+      setError('Terjadi kesalahan saat memuat portofolio');
       setLoading(false);
     }
   };
 
-  // Transform NFTPurchaseHistory to Investment array
-  const transformPurchaseHistory = async (
-    history: NFTPurchaseHistory
-  ): Promise<Investment[]> => {
-    // Group purchases by startup
-    const startupMap = new Map<string, {
-      id: string;
-      investedAmount: number;
-      nftCount: number;
-      purchases: NFTPurchaseInfo[];
-    }>();
+  const transformPortfolio = (portfolio: any): Investment[] => {
+    if (!portfolio?.investments || !Array.isArray(portfolio.investments)) {
+      return [];
+    }
 
-    history.purchases.forEach(purchase => {
-      const startupId = purchase.startupId;
-      
-      if (!startupMap.has(startupId)) {
-        startupMap.set(startupId, {
-          id: startupId,
-          investedAmount: 0,
-          nftCount: 0,
-          purchases: [],
-        });
-      }
+    return portfolio.investments.map((item: any) => {
+      const totalInvested = Number(item.totalInvested ?? 0);
+      const totalReturns = Number(item.totalReturns ?? 0);
+      const nftCount = Number(item.nftCount ?? 0);
 
-      const startup = startupMap.get(startupId)!;
-      startup.purchases.push(purchase);
-      startup.investedAmount += Number(purchase.amount);
-      startup.nftCount += 1;
+      const roi =
+        totalInvested > 0
+          ? parseFloat(((totalReturns / totalInvested) * 100).toFixed(2))
+          : 0;
+
+      const monthlyReturn = Math.floor(totalReturns / 12);
+      const fundingGoal = 100000; // asumsi
+      const progress = Math.min(Math.floor((totalInvested / fundingGoal) * 100), 100);
+
+      return {
+        id: String(item.startupId ?? crypto.randomUUID()),
+        startupName: item.startupName || `Startup ${String(item.startupId).slice(0, 8)}...`,
+        sector: item.sector || 'Unknown Sector',
+        riskLevel: getRiskLevelFromString(item.riskLevel),
+        investedAmount: totalInvested,
+        nftCount,
+        monthlyReturn,
+        totalReturns: Math.floor(totalReturns),
+        roi,
+        progress,
+      };
     });
-
-    // Fetch startup details for each startup ID
-    const investments = await Promise.all(
-      Array.from(startupMap.values()).map(async (startup) => {
-        // TODO: Fetch startup details using StartupService
-        // const startupDetails = await StartupService.getStartupById(startup.id);
-        
-        // Calculate based on your business logic
-        const monthlyReturnRate = 0.05; // 5% monthly return (example)
-        const monthlyReturn = startup.investedAmount * monthlyReturnRate;
-        
-        // Calculate total returns based on time elapsed (example)
-        const totalReturns = startup.investedAmount * 0.15; // 15% total return (example)
-        const roi = startup.investedAmount > 0 
-          ? ((totalReturns / startup.investedAmount) * 100).toFixed(2)
-          : '0';
-        
-        // Calculate progress based on funding goal (example)
-        const progress = Math.min(
-          Math.floor((startup.investedAmount / 100000) * 100),
-          100
-        );
-
-        return {
-          id: startup.id,
-          startupName: `Startup ${startup.id.slice(0, 8)}...`, // Replace with: startupDetails?.name || 'Unknown Startup'
-          sector: 'Technology', // Replace with: startupDetails?.sector || 'Unknown Sector'
-          riskLevel: 'Moderate Risk' as const, // Replace with: startupDetails?.riskLevel || 'Moderate Risk'
-          investedAmount: startup.investedAmount,
-          nftCount: startup.nftCount,
-          monthlyReturn: Math.floor(monthlyReturn),
-          totalReturns: Math.floor(totalReturns),
-          roi: parseFloat(roi),
-          progress: progress,
-        };
-      })
-    );
-
-    return investments;
   };
 
-  // Load portfolio on mount
+  const getRiskLevelFromString = (riskLevel?: string): string => {
+    if (!riskLevel) return 'Moderate Risk';
+    const level = riskLevel.toLowerCase();
+    if (level.includes('high')) return 'High Risk';
+    if (level.includes('low')) return 'Low Risk';
+    return 'Moderate Risk';
+  };
+
   useEffect(() => {
     fetchPortfolioData();
   }, []);
 
-  // Loading state
   if (loading) {
     return (
       <div className='flex items-center justify-center min-h-[400px]'>
         <div className='text-center'>
           <LoadingSpinner className='mx-auto mb-4' />
-          <p className='text-gray-600'>Loading portfolio...</p>
+          <p className='text-gray-600'>Memuat portofolio...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
       <Card className='p-8'>
         <div className='text-center'>
           <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
           <h3 className='text-lg font-medium text-gray-900 mb-2'>
-            Error Loading Portfolio
+            Gagal Memuat Portofolio
           </h3>
           <p className='text-gray-600 mb-4'>{error}</p>
           <div className='flex gap-2 justify-center'>
             <Button variant='primary' onClick={fetchPortfolioData}>
-              Try Again
+              Coba Lagi
             </Button>
             <Button
               variant='secondary'
               onClick={() => navigate.push('/register/investor')}
             >
-              Register as Investor
+              Daftar Sebagai Investor
             </Button>
           </div>
         </div>
@@ -191,24 +142,23 @@ export default function PortfolioTab({
     );
   }
 
-  // Empty state
   if (investments.length === 0) {
     return (
       <Card className='p-8'>
         <div className='text-center'>
           <TrendingUp className='w-12 h-12 text-gray-400 mx-auto mb-4' />
           <h3 className='text-lg font-medium text-gray-900 mb-2'>
-            No Investments Yet
+            Belum Ada Investasi
           </h3>
           <p className='text-gray-600 mb-4'>
-            Start building your portfolio by investing in startups
+            Mulailah membangun portofolio Anda dengan berinvestasi di startup.
           </p>
           <div className='flex gap-2 justify-center'>
             <Button variant='primary' onClick={() => navigate.push('/explore')}>
-              Explore Startups
+              Jelajahi Startup
             </Button>
             <Button variant='secondary' onClick={fetchPortfolioData}>
-              Refresh Portfolio
+              Muat Ulang
             </Button>
           </div>
         </div>
@@ -216,7 +166,6 @@ export default function PortfolioTab({
     );
   }
 
-  // Helper functions
   const getProgressColor = (progress: number): string => {
     if (progress >= 90) return 'bg-green-500';
     if (progress >= 75) return 'bg-green-400';
@@ -237,23 +186,18 @@ export default function PortfolioTab({
     }
   };
 
+  // ===== UI Main =====
   return (
     <div className='space-y-6'>
-      {/* Header */}
       <div className='flex items-center justify-between'>
         <h2 className='text-xl font-semibold text-gray-900'>My Investments</h2>
-        <Button
-          variant='secondary'
-          onClick={fetchPortfolioData}
-          className='text-sm'
-        >
+        <Button variant='secondary' onClick={fetchPortfolioData} className='text-sm'>
           Refresh Portfolio
         </Button>
       </div>
 
-      {/* Investment Cards */}
       <div className='space-y-6'>
-        {investments.map(investment => (
+        {investments.map((investment) => (
           <Card key={investment.id} className='p-6'>
             <div className='flex items-start justify-between mb-4'>
               <div className='flex items-center gap-3'>
@@ -280,7 +224,6 @@ export default function PortfolioTab({
             </div>
 
             <div className='grid grid-cols-4 gap-6 mb-6'>
-              {/* Invested */}
               <div>
                 <p className='text-sm text-gray-600 mb-1'>Invested</p>
                 <p className='text-xl font-bold text-gray-900'>
@@ -291,7 +234,6 @@ export default function PortfolioTab({
                 </p>
               </div>
 
-              {/* Monthly Return */}
               <div>
                 <p className='text-sm text-gray-600 mb-1'>Monthly return</p>
                 <p className='text-xl font-bold text-green-600'>
@@ -300,7 +242,6 @@ export default function PortfolioTab({
                 <p className='text-xs text-gray-500'>per month</p>
               </div>
 
-              {/* Total Returns */}
               <div>
                 <p className='text-sm text-gray-600 mb-1'>Total returns</p>
                 <p className='text-xl font-bold text-blue-600'>
@@ -309,7 +250,6 @@ export default function PortfolioTab({
                 <p className='text-xs text-blue-600'>{investment.roi}% ROI</p>
               </div>
 
-              {/* Progress */}
               <div>
                 <p className='text-sm text-gray-600 mb-1'>Progress</p>
                 <div className='flex items-center gap-2'>
@@ -319,9 +259,7 @@ export default function PortfolioTab({
                   <div className='flex-1'>
                     <div className='w-full bg-gray-200 rounded-full h-2'>
                       <div
-                        className={`h-2 rounded-full ${getProgressColor(
-                          investment.progress
-                        )}`}
+                        className={`h-2 rounded-full ${getProgressColor(investment.progress)}`}
                         style={{ width: `${investment.progress}%` }}
                       ></div>
                     </div>
@@ -330,7 +268,6 @@ export default function PortfolioTab({
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className='flex gap-3'>
               <Button
                 variant='secondary'
