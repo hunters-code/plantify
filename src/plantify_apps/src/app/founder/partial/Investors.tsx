@@ -19,13 +19,29 @@ import type {
   NFTPurchaseHistory,
   NFTPurchaseInfo,
   InvestorVote,
+  InvestorDashboard,
+  TopInvestor,
+  RecentInvestmentSummary,
+  InvestorGrowthData,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 import { InvestorService } from '@/services/investors/InvestorService';
 import { VotingService } from '@/services/investors/VotingService';
 import { StartupService } from '@/services/marketplace/StartupService';
 import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
 
-interface InvestorWithStats extends Investor {
+interface InvestorWithStats {
+  id: string;
+  fullName: string;
+  email: string;
+  city: string;
+  country: string;
+  principal: { toText: () => string };
+  bio?: string;
+  occupation?: string;
+  riskTolerance?: string;
+  monthlyBudget?: number;
+  investmentGoals?: string[];
+  preferredSectors?: string[];
   totalInvestment: number;
   nftsOwned: number;
   profitReceived: number;
@@ -36,98 +52,82 @@ interface InvestorWithStats extends Investor {
 
 function useInvestors(startupId?: string) {
   const [investors, setInvestors] = useState<InvestorWithStats[]>([]);
+  const [topInvestors, setTopInvestors] = useState<TopInvestor[]>([]);
+  const [recentInvestments, setRecentInvestments] = useState<
+    RecentInvestmentSummary[]
+  >([]);
+  const [investorGrowth, setInvestorGrowth] = useState<InvestorGrowthData[]>(
+    []
+  );
+  const [dashboard, setDashboard] = useState<InvestorDashboard | null>(null);
   const [purchaseHistory, setPurchaseHistory] =
     useState<NFTPurchaseHistory | null>(null);
-  const [allPurchases, setAllPurchases] = useState<NFTPurchaseInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchInvestorData = async () => {
-      if (!startupId) {
-        setLoading(false);
-        return;
-      }
-
       try {
         setLoading(true);
         setError(null);
 
-        // Fetch all required data in parallel
-        const [allInvestorsResult, purchaseHistoryResult, allPurchasesResult] =
-          await Promise.all([
-            InvestorService.getAllInvestors(),
-            StartupService.getStartupPurchaseHistory(startupId),
-            StartupService.getAllPurchases(),
-          ]);
+        // Fetch investor dashboard data
+        const dashboardResult = await InvestorService.getInvestorDashboard();
 
-        // Process purchase history to get startup-specific investors
-        let startupInvestors: InvestorWithStats[] = [];
+        if (dashboardResult.success && dashboardResult.dashboard) {
+          const dashboardData = dashboardResult.dashboard;
+          setDashboard(dashboardData);
+          setTopInvestors(dashboardData.topInvestors || []);
+          setRecentInvestments(dashboardData.recentInvestments || []);
+          setInvestorGrowth(dashboardData.investorGrowth || []);
 
-        if (purchaseHistoryResult.success && purchaseHistoryResult.history) {
-          setPurchaseHistory(purchaseHistoryResult.history);
-
-          // Get unique investor IDs from purchase history
-          const investorIds = new Set(
-            purchaseHistoryResult.history.purchases.map(p => p.investorId)
-          );
-
-          // Filter investors who have invested in this startup
-          startupInvestors = allInvestorsResult
-            .filter(investor => investorIds.has(investor.id))
-            .map(investor => {
-              // Calculate stats for this investor in this startup
-              const investorPurchases =
-                purchaseHistoryResult.history!.purchases.filter(
-                  p => p.investorId === investor.id
-                );
-              const totalInvestment =
-                investorPurchases.reduce(
-                  (sum, p) => sum + Number(p.amount),
-                  0
-                ) / 100;
-              const nftsOwned = investorPurchases.length;
-
-              // Calculate participation based on investment amount vs total raised
-              const totalRaised =
-                Number(purchaseHistoryResult.history!.totalSpent) / 100;
-              const participation =
-                totalRaised > 0 ? (totalInvestment / totalRaised) * 100 : 0;
-
-              // Determine badges
+          // Convert TopInvestor to InvestorWithStats for compatibility with existing UI
+          const mappedInvestors: InvestorWithStats[] =
+            dashboardData.topInvestors.map(investor => {
+              // Determine badges based on investment amount
+              const totalInvestment = Number(investor.totalInvested) / 100;
               const badges: string[] = [];
               if (totalInvestment > 5000) badges.push('VIP');
+
+              // Calculate participation (this is an estimate since we don't have total raised in the dashboard)
+              const participation = 10; // Default value since we can't calculate it accurately
+
               if (participation > 10) badges.push('Active');
               if (participation < 5) badges.push('Inactive');
 
-              // Get last activity
-              const lastPurchase = investorPurchases.sort(
-                (a, b) => Number(b.timestamp) - Number(a.timestamp)
-              )[0];
-              const lastActivity = lastPurchase
-                ? new Date(Number(lastPurchase.timestamp) / 1000000)
-                : undefined;
-
               return {
-                ...investor,
+                id: investor.investorId,
+                fullName: investor.investorName,
+                email: '', // Not available in TopInvestor
+                city: '', // Not available in TopInvestor
+                country: '', // Not available in TopInvestor
+                principal: { toText: () => '' }, // Not available in TopInvestor
                 totalInvestment,
-                nftsOwned,
-                profitReceived: 0, // TODO: Calculate from profit sharing data
-                participation: Math.round(participation),
+                nftsOwned: Number(investor.numberOfInvestments),
+                profitReceived: 0, // Not available in TopInvestor
+                participation,
                 badges,
-                lastActivity,
+                lastActivity: new Date(
+                  Number(investor.lastInvestmentDate) / 1000000
+                ),
               };
             });
+
+          setInvestors(mappedInvestors);
+        } else {
+          setError(
+            dashboardResult.error || 'Failed to load investor dashboard'
+          );
         }
 
-        if (allPurchasesResult) {
-          setAllPurchases(allPurchasesResult);
+        // If startupId is provided, fetch startup-specific purchase history
+        if (startupId) {
+          const purchaseHistoryResult =
+            await StartupService.getStartupPurchaseHistory(startupId);
+          if (purchaseHistoryResult.success && purchaseHistoryResult.history) {
+            setPurchaseHistory(purchaseHistoryResult.history);
+          }
         }
-
-        // Sort investors by total investment (descending)
-        startupInvestors.sort((a, b) => b.totalInvestment - a.totalInvestment);
-
-        setInvestors(startupInvestors);
       } catch (err) {
         console.error('Error fetching investor data:', err);
         setError('Failed to load investor data');
@@ -139,14 +139,31 @@ function useInvestors(startupId?: string) {
     fetchInvestorData();
   }, [startupId]);
 
-  // Calculate summary statistics
-  const totalInvestment = investors.reduce(
-    (sum, investor) => sum + investor.totalInvestment,
-    0
-  );
-  const totalInvestors = investors.length;
-  const activeInvestors = investors.filter(i => i.participation > 10).length;
+  // Get metrics from dashboard or calculate from investors
+  const totalInvestment = dashboard
+    ? Number(dashboard.totalInvestmentAmount) / 100
+    : investors.reduce((sum, investor) => sum + investor.totalInvestment, 0);
+
+  const totalInvestors = dashboard
+    ? Number(dashboard.totalInvestors)
+    : investors.length;
+
+  const activeInvestors = dashboard
+    ? Number(dashboard.activeInvestors)
+    : investors.filter(i => i.participation > 10).length;
+
+  const newInvestorsThisMonth = dashboard
+    ? Number(dashboard.newInvestorsThisMonth)
+    : 0;
+
+  const averageInvestmentPerInvestor = dashboard
+    ? Number(dashboard.averageInvestmentPerInvestor) / 100
+    : totalInvestors > 0
+      ? totalInvestment / totalInvestors
+      : 0;
+
   const vipInvestors = investors.filter(i => i.totalInvestment > 5000).length;
+
   const averageParticipation =
     totalInvestors > 0
       ? investors.reduce((sum, investor) => sum + investor.participation, 0) /
@@ -155,13 +172,17 @@ function useInvestors(startupId?: string) {
 
   return {
     investors,
+    topInvestors,
+    recentInvestments,
+    investorGrowth,
     totalInvestment,
     totalInvestors,
     activeInvestors,
     vipInvestors,
+    newInvestorsThisMonth,
+    averageInvestmentPerInvestor,
     averageParticipation,
     purchaseHistory,
-    allPurchases,
     loading,
     error,
   };
@@ -174,10 +195,15 @@ interface InvestorsProps {
 export default function Investors({ startupId }: InvestorsProps) {
   const {
     investors,
+    topInvestors,
+    recentInvestments,
+    investorGrowth,
     totalInvestment,
     totalInvestors,
     activeInvestors,
     vipInvestors,
+    newInvestorsThisMonth,
+    averageInvestmentPerInvestor,
     averageParticipation,
     purchaseHistory,
     loading,
@@ -300,18 +326,18 @@ export default function Investors({ startupId }: InvestorsProps) {
             <Award className='w-5 h-5 text-orange-500 mr-2' />
           </div>
           <div className='text-2xl font-bold text-gray-900 mb-1'>
-            {vipInvestors}
+            {newInvestorsThisMonth}
           </div>
-          <div className='text-sm text-gray-500'>VIP investors</div>
+          <div className='text-sm text-gray-500'>New this month</div>
         </Card>
         <Card className='text-center p-4'>
           <div className='flex items-center justify-center mb-2'>
             <TrendingUp className='w-5 h-5 text-indigo-500 mr-2' />
           </div>
           <div className='text-2xl font-bold text-gray-900 mb-1'>
-            {formatNumber(averageParticipation, 1)}%
+            {formatCurrency(averageInvestmentPerInvestor)}
           </div>
-          <div className='text-sm text-gray-500'>Avg Participation</div>
+          <div className='text-sm text-gray-500'>Avg Investment</div>
         </Card>
       </div>
 
@@ -555,46 +581,45 @@ export default function Investors({ startupId }: InvestorsProps) {
           </Card>
 
           {/* Investment Timeline */}
-          {purchaseHistory && (
-            <Card className='p-4'>
-              <h5 className='font-medium mb-3'>Recent Investments</h5>
-              <div className='space-y-2'>
-                {purchaseHistory.purchases
-                  .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
-                  .slice(0, 10)
-                  .map((purchase, index) => {
-                    const investor = investors.find(
-                      i => i.id === purchase.investorId
-                    );
-                    return (
-                      <div
-                        key={index}
-                        className='flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0'
-                      >
-                        <div>
-                          <span className='text-sm font-medium'>
-                            {investor?.fullName || 'Unknown Investor'}
-                          </span>
-                          <div className='text-xs text-gray-500'>
-                            {new Date(
-                              Number(purchase.timestamp) / 1000000
-                            ).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <div className='text-right'>
-                          <div className='text-sm font-medium text-green-600'>
-                            {formatCurrency(Number(purchase.amount) / 100)}
-                          </div>
-                          <div className='text-xs text-gray-500'>
-                            NFT #{Number(purchase.tokenId)}
-                          </div>
-                        </div>
+          <Card className='p-4'>
+            <h5 className='font-medium mb-3'>Recent Investments</h5>
+            <div className='space-y-2'>
+              {recentInvestments.length > 0 ? (
+                recentInvestments.slice(0, 10).map((investment, index) => (
+                  <div
+                    key={index}
+                    className='flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0'
+                  >
+                    <div>
+                      <span className='text-sm font-medium'>
+                        {investment.investorName}
+                      </span>
+                      <div className='text-xs text-gray-500'>
+                        {new Date(
+                          Number(investment.date) / 1000000
+                        ).toLocaleDateString()}
                       </div>
-                    );
-                  })}
-              </div>
-            </Card>
-          )}
+                      <div className='text-xs text-gray-400'>
+                        {investment.startupName}
+                      </div>
+                    </div>
+                    <div className='text-right'>
+                      <div className='text-sm font-medium text-green-600'>
+                        {formatCurrency(Number(investment.amount) / 100)}
+                      </div>
+                      <div className='text-xs text-gray-500 uppercase'>
+                        {investment.tokenType}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className='text-sm text-gray-500 text-center py-4'>
+                  No recent investment data available
+                </p>
+              )}
+            </div>
+          </Card>
         </div>
       )}
 
@@ -617,11 +642,13 @@ export default function Investors({ startupId }: InvestorsProps) {
                   </span>
                 </div>
                 <div className='flex justify-between'>
-                  <span className='text-sm text-gray-500'>
-                    Avg Participation:
-                  </span>
+                  <span className='text-sm text-gray-500'>New This Month:</span>
+                  <span className='font-medium'>{newInvestorsThisMonth}</span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-sm text-gray-500'>Avg Investment:</span>
                   <span className='font-medium'>
-                    {formatNumber(averageParticipation, 1)}%
+                    {formatCurrency(averageInvestmentPerInvestor)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -682,6 +709,55 @@ export default function Investors({ startupId }: InvestorsProps) {
               </div>
             </Card>
           </div>
+
+          {/* Investor Growth */}
+          {investorGrowth.length > 0 && (
+            <Card className='p-4 mt-6'>
+              <h5 className='font-medium mb-3'>Investor Growth</h5>
+              <div className='space-y-4'>
+                {investorGrowth.map((data, index) => (
+                  <div
+                    key={index}
+                    className='flex justify-between items-center'
+                  >
+                    <div className='text-sm'>
+                      {new Date(
+                        Number(data.year),
+                        Number(data.month) - 1
+                      ).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                      })}
+                    </div>
+                    <div className='flex items-center gap-4'>
+                      <div className='flex items-center'>
+                        <span className='text-sm text-gray-500 mr-2'>New:</span>
+                        <span className='text-sm font-medium'>
+                          {Number(data.newInvestors)}
+                        </span>
+                      </div>
+                      <div className='flex items-center'>
+                        <span className='text-sm text-gray-500 mr-2'>
+                          Total:
+                        </span>
+                        <span className='text-sm font-medium'>
+                          {Number(data.totalInvestors)}
+                        </span>
+                      </div>
+                      <div className='w-24 bg-gray-200 rounded-full h-2'>
+                        <div
+                          className='bg-blue-500 h-2 rounded-full'
+                          style={{
+                            width: `${Math.min(100, (Number(data.totalInvestors) / Math.max(...investorGrowth.map(g => Number(g.totalInvestors)))) * 100)}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
       )}
     </Card>

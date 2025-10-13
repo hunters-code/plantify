@@ -2,6 +2,8 @@ import type {
   CollateralInfo,
   CollateralProgress,
   CollateralProgressResponse,
+  CollateralDashboard,
+  CollateralDashboardResponse,
   Result_21,
   Result_22,
 } from '@/declarations/plantify_backend/plantify_backend.did';
@@ -101,6 +103,32 @@ export class CollateralService extends BaseService {
     } catch (error) {
       console.error('Error getting all collateral info:', error);
       return [];
+    }
+  }
+
+  /**
+   * Get collateral dashboard for a startup
+   * @param startupId - The ID of the startup
+   * @returns The collateral dashboard data or error message
+   */
+  public static async getCollateralDashboard(startupId: string): Promise<{
+    success: boolean;
+    dashboard?: CollateralDashboard;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result: CollateralDashboardResponse =
+        await actor.getCollateralDashboard(startupId);
+
+      if ('Success' in result) {
+        return { success: true, dashboard: result.Success };
+      } else {
+        return { success: false, error: result.Error };
+      }
+    } catch (error) {
+      console.error('Error getting collateral dashboard:', error);
+      return { success: false, error: 'Failed to get collateral dashboard' };
     }
   }
 }

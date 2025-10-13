@@ -5,6 +5,11 @@ import type {
   Startup,
   StartupCreationRequest,
   Result_23,
+  StartupSummary,
+  DashboardOverview,
+  DashboardOverviewResponse,
+  StartupOverview,
+  StartupOverviewResponse,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -61,7 +66,7 @@ export class FounderService extends BaseService {
   ): Promise<{ success: boolean; startup?: Startup; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_23 = await actor.createStartup(request);
+      const result = await actor.createStartup(request);
 
       if ('ok' in result) {
         return { success: true, startup: result.ok };
@@ -81,7 +86,8 @@ export class FounderService extends BaseService {
   public static async getFounderStartups(): Promise<Startup[]> {
     try {
       const actor = await this.getActor();
-      return await actor.getStartupsByFounderPrincipal();
+      const startups = await actor.getStartupsByFounderPrincipal();
+      return startups;
     } catch (error) {
       console.error('Error getting founder startups:', error);
       return [];
@@ -104,6 +110,61 @@ export class FounderService extends BaseService {
     } catch (error) {
       console.error('Error updating startup status:', error);
       return false;
+    }
+  }
+
+  /**
+   * Get dashboard overview statistics for the current founder
+   * @returns Dashboard overview data or error message
+   */
+  public static async getFounderDashboardOverview(): Promise<{
+    success: boolean;
+    data?: DashboardOverview;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result = await actor.getFounderDashboardOverview();
+
+      if ('Success' in result) {
+        return { success: true, data: result.Success };
+      } else if ('Error' in result) {
+        return { success: false, error: result.Error };
+      }
+
+      // Default fallback
+      return { success: false, error: 'Unknown response format' };
+    } catch (error) {
+      console.error('Error getting founder dashboard overview:', error);
+      return { success: false, error: 'Failed to fetch dashboard overview' };
+    }
+  }
+
+  /**
+   * Get overview data for a specific startup
+   * @param startupId - The ID of the startup
+   * @returns Startup overview data or error message
+   */
+  public static async getFounderStartupOverview(startupId: string): Promise<{
+    success: boolean;
+    data?: StartupOverview;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result = await actor.getFounderStartupOverview(startupId);
+
+      if ('Success' in result) {
+        return { success: true, data: result.Success };
+      } else if ('Error' in result) {
+        return { success: false, error: result.Error };
+      }
+
+      // Default fallback
+      return { success: false, error: 'Unknown response format' };
+    } catch (error) {
+      console.error('Error getting founder startup overview:', error);
+      return { success: false, error: 'Failed to fetch startup overview' };
     }
   }
 }

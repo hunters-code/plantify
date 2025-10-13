@@ -31,6 +31,7 @@ type ProductCardProps = {
   fundingProgress: number;
   fundedAmount: number;
   targetAmount: number;
+  builtByCaffeineAI?: boolean;
 };
 
 export default function ProductCard({
@@ -49,6 +50,7 @@ export default function ProductCard({
   fundingProgress,
   fundedAmount,
   targetAmount,
+  builtByCaffeineAI,
 }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [investmentData, setInvestmentData] = useState<any>(null);
@@ -132,6 +134,24 @@ export default function ProductCard({
       {/* Image */}
       <div className='relative h-60 w-full'>
         <img src={image} alt={title} className='h-full w-full object-cover' />
+
+        {/* Caffeine.AI badge */}
+        {builtByCaffeineAI && (
+          <div className='absolute top-2 left-2'>
+            <span
+              className='bg-blue-600 text-white text-sm px-3 py-1 rounded-lg shadow font-semibold'
+              style={{
+                fontFamily: '"Test Söhne Breit", sans-serif',
+                fontWeight: 600,
+                fontSize: '14px',
+                lineHeight: '140%',
+                letterSpacing: '-1%',
+              }}
+            >
+              Caffeine.AI
+            </span>
+          </div>
+        )}
 
         {/* Category & Risk badges */}
         <div className='absolute top-2 right-2 flex gap-2'>

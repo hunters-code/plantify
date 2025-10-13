@@ -281,6 +281,7 @@ function ExploreDetailContent() {
         startupId: investmentDetails.startupId.toString(),
         investorId: investor.id,
         amount: BigInt(investmentDetails.totalAmount),
+        quantity: BigInt(investmentDetails.quantity),
         memo: [
           `Purchase of ${investmentDetails.quantity} NFTs for ${startup?.startupName}`,
         ] as [] | [string],
@@ -366,13 +367,14 @@ function ExploreDetailContent() {
                     ? startup.companyLogo[0]
                     : '/assets/images/icon-startup.png'
                 }
-                className='w-8 h-8 rounded'
+                className='w-8 h-8 rounded !m-0'
                 alt='Logo'
                 width={32}
                 height={32}
                 unoptimized={startup.companyLogo?.[0]?.startsWith(
                   'https://gecvpysiaymyyynjhpfz.supabase.co'
                 )}
+                style={{ margin: 0 }}
               />
               <h2 className='text-2xl font-semibold'>{startup.startupName}</h2>
             </div>

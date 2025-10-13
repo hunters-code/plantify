@@ -7,13 +7,14 @@ import { useState, useEffect } from 'react';
 import { Button, Card } from '@/components/ui';
 import type {
   TeamMember,
+  TeamMemberOverview,
   Startup,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 import { StartupService } from '@/services/marketplace/StartupService';
 
 export default function TeamSection({ startupId }: { startupId: string }) {
   const [startup, setStartup] = useState<Startup | null>(null);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMemberOverview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,12 +30,29 @@ export default function TeamSection({ startupId }: { startupId: string }) {
         setLoading(true);
         setError(null);
 
-        const startupData = await StartupService.getStartupDetails(startupId);
-        if (startupData) {
-          setStartup(startupData);
-          setTeamMembers(startupData.teamMembers || []);
+        // Fetch startup details and team members in parallel
+        const [startupResult, teamMembersResult] = await Promise.all([
+          StartupService.getStartupDetails(startupId),
+          StartupService.getStartupTeamMembers(startupId),
+        ]);
+
+        if (startupResult) {
+          setStartup(startupResult);
         } else {
           setError('Startup not found');
+        }
+
+        if (teamMembersResult.success && teamMembersResult.members) {
+          setTeamMembers(teamMembersResult.members);
+        } else if (teamMembersResult.error) {
+          console.error(
+            'Error fetching team members:',
+            teamMembersResult.error
+          );
+          // Fallback to team members from startup data if available
+          if (startupResult && startupResult.teamMembers) {
+            setTeamMembers(startupResult.teamMembers);
+          }
         }
       } catch (err) {
         console.error('Error fetching startup data:', err);
@@ -131,7 +149,13 @@ export default function TeamSection({ startupId }: { startupId: string }) {
               return null;
             };
 
-            const photoUrl = getPhotoUrl(member.photo);
+            // Handle both TeamMember and TeamMemberOverview types
+            const photoUrl =
+              'photo' in member ? getPhotoUrl(member.photo) : null;
+            const isFounder = 'isFounder' in member ? member.isFounder : false;
+            const email = 'email' in member ? member.email : '';
+            const linkedin = 'linkedin' in member ? member.linkedin : '';
+            const background = 'background' in member ? member.background : '';
 
             return (
               <Card key={member.id.toString()} className='overflow-hidden'>
@@ -156,14 +180,23 @@ export default function TeamSection({ startupId }: { startupId: string }) {
                       {member.name}
                     </p>
                     <p className='text-gray-500 text-sm'>{member.role}</p>
-                    {member.isFounder && (
+                    {isFounder && (
                       <span className='inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1'>
                         Founder
                       </span>
                     )}
-                    {member.email && (
-                      <p className='text-gray-400 text-xs mt-1'>
-                        {member.email}
+                    {email && (
+                      <p className='text-gray-400 text-xs mt-1'>{email}</p>
+                    )}
+                    {linkedin && (
+                      <p className='text-blue-500 text-xs mt-1 hover:underline'>
+                        <a
+                          href={linkedin}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                        >
+                          LinkedIn Profile
+                        </a>
                       </p>
                     )}
                   </div>

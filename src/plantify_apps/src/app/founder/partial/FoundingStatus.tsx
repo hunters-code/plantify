@@ -10,6 +10,9 @@ import type {
   NFTPurchaseHistory,
   CollateralInfo,
   CollateralProgress,
+  FundingStatus,
+  RecentInvestment,
+  FundingMilestone,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 import { CollateralService } from '@/services/founders/CollateralService';
 import { StartupService } from '@/services/marketplace/StartupService';
@@ -17,11 +20,18 @@ import { formatCurrency } from '@/utils/formatCurrency';
 
 function useFundingStatus(startupId: string) {
   const [startup, setStartup] = useState<Startup | null>(null);
-  const [purchaseHistory, setPurchaseHistory] =
-    useState<NFTPurchaseHistory | null>(null);
+  const [fundingStatus, setFundingStatus] = useState<FundingStatus | null>(
+    null
+  );
   const [collateralInfo, setCollateralInfo] = useState<CollateralInfo | null>(
     null
   );
+  const [recentInvestments, setRecentInvestments] = useState<
+    RecentInvestment[]
+  >([]);
+  const [fundingMilestones, setFundingMilestones] = useState<
+    FundingMilestone[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,11 +46,11 @@ function useFundingStatus(startupId: string) {
         setLoading(true);
         setError(null);
 
-        // Fetch startup details, purchase history, and collateral info in parallel
-        const [startupResult, purchaseResult, collateralResult] =
+        // Fetch startup details, funding status, and collateral info in parallel
+        const [startupResult, fundingResult, collateralResult] =
           await Promise.all([
             StartupService.getStartupDetails(startupId),
-            StartupService.getStartupPurchaseHistory(startupId),
+            StartupService.getFundingStatus(startupId),
             CollateralService.getCollateralStatus(startupId),
           ]);
 
@@ -48,8 +58,10 @@ function useFundingStatus(startupId: string) {
           setStartup(startupResult);
         }
 
-        if (purchaseResult.success && purchaseResult.history) {
-          setPurchaseHistory(purchaseResult.history);
+        if (fundingResult.success && fundingResult.data) {
+          setFundingStatus(fundingResult.data);
+          setRecentInvestments(fundingResult.data.recentInvestments || []);
+          setFundingMilestones(fundingResult.data.fundingMilestones || []);
         }
 
         if (collateralResult.success && collateralResult.collateral) {
@@ -66,25 +78,41 @@ function useFundingStatus(startupId: string) {
     fetchFundingData();
   }, [startupId]);
 
-  // Calculate funding metrics
-  const fundingGoal = startup
-    ? Number(startup.fundingGoal.replace(/[^0-9.]/g, '')) || 0
-    : 0;
-  const totalRaised = purchaseHistory ? Number(purchaseHistory.totalSpent) : 0;
-  const fundingProgress =
-    fundingGoal > 0 ? (totalRaised / fundingGoal) * 100 : 0;
+  // Get funding metrics from the new API or fall back to calculations
+  const fundingGoal = fundingStatus
+    ? Number(fundingStatus.fundingGoal)
+    : startup
+      ? Number(startup.fundingGoal?.replace(/[^0-9.]/g, '')) || 0
+      : 0;
+
+  const totalRaised = fundingStatus ? Number(fundingStatus.totalRaised) : 0;
+
+  const fundingProgress = fundingStatus
+    ? Number(fundingStatus.progressPercentage)
+    : fundingGoal > 0
+      ? (totalRaised / fundingGoal) * 100
+      : 0;
+
   const availableFunds = totalRaised * 0.8; // 80% available to founder
   const platformReserve = totalRaised * 0.2; // 20% platform reserve
+  const isFullyFunded = fundingStatus ? fundingStatus.isFullyFunded : false;
+  const remainingAmount = fundingStatus
+    ? Number(fundingStatus.remainingAmount)
+    : fundingGoal - totalRaised;
 
   return {
     startup,
+    fundingStatus,
     totalRaised,
     fundingGoal,
     fundingProgress,
     availableFunds,
     platformReserve,
+    isFullyFunded,
+    remainingAmount,
+    recentInvestments,
+    fundingMilestones,
     collateralInfo,
-    purchaseHistory,
     loading,
     error,
   };
@@ -97,11 +125,16 @@ interface FundingStatusProps {
 export default function FundingStatus({ startupId }: FundingStatusProps) {
   const {
     startup,
+    fundingStatus,
     totalRaised,
     fundingGoal,
     fundingProgress,
     availableFunds,
     platformReserve,
+    isFullyFunded,
+    remainingAmount,
+    recentInvestments,
+    fundingMilestones,
     collateralInfo,
     loading,
     error,
@@ -192,6 +225,75 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
           </div>
         </Card>
       </div>
+
+      {/* Recent Investments */}
+      {recentInvestments && recentInvestments.length > 0 && (
+        <div className='mt-6'>
+          <Card className='p-4'>
+            <h3 className='text-lg font-semibold mb-3'>Recent Investments</h3>
+            <div className='overflow-x-auto'>
+              <table className='w-full text-sm'>
+                <thead>
+                  <tr className='border-b'>
+                    <th className='text-left py-2 px-2'>Investor</th>
+                    <th className='text-left py-2 px-2'>Amount</th>
+                    <th className='text-left py-2 px-2'>Date</th>
+                    <th className='text-left py-2 px-2'>Token</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentInvestments.map((investment, index) => (
+                    <tr key={index} className='border-b hover:bg-gray-50'>
+                      <td className='py-2 px-2'>{investment.investorName}</td>
+                      <td className='py-2 px-2'>
+                        {formatCurrency(Number(investment.amount))}
+                      </td>
+                      <td className='py-2 px-2'>
+                        {new Date(
+                          Number(investment.date) / 1000000
+                        ).toLocaleDateString()}
+                      </td>
+                      <td className='py-2 px-2 uppercase'>
+                        {investment.tokenType}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Funding Milestones */}
+      {fundingMilestones && fundingMilestones.length > 0 && (
+        <div className='mt-6'>
+          <Card className='p-4'>
+            <h3 className='text-lg font-semibold mb-3'>Funding Milestones</h3>
+            <div className='space-y-4'>
+              {fundingMilestones.map((milestone, index) => (
+                <div
+                  key={index}
+                  className='border-l-4 border-blue-500 pl-4 py-1'
+                >
+                  <p className='font-medium'>{milestone.milestone}</p>
+                  <p className='text-sm text-gray-500'>
+                    Target: {formatCurrency(Number(milestone.targetAmount))}
+                  </p>
+                  <div className='w-full bg-gray-200 rounded-full h-2 mt-2'>
+                    <div
+                      className='bg-blue-500 h-2 rounded-full transition-all duration-300'
+                      style={{
+                        width: `${Math.min(100, (totalRaised / Number(milestone.targetAmount)) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Collateral Information */}
       {collateralInfo && (

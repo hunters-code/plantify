@@ -1,6 +1,15 @@
 /* globals.css (Tailwind v4) */
 @import 'tailwindcss';
 
+/* Custom fonts */
+@font-face {
+  font-family: 'Test Söhne Breit';
+  src: url('/fonts/TestSöhneBreit-Halbfett.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Custom styles */
 body {
   font-family: 'Geist', sans-serif;

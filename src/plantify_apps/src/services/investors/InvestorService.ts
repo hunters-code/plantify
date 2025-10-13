@@ -6,6 +6,11 @@ import type {
   NFTPurchaseRequest,
   NFTPurchaseResponse,
   NFTPurchaseHistory,
+  InvestorDashboard,
+  InvestorDashboardResponse,
+  TopInvestor,
+  RecentInvestmentSummary,
+  InvestorGrowthData,
   Result_6,
   Result_10,
   Result_2,
@@ -175,6 +180,31 @@ export class InvestorService extends BaseService {
     } catch (error) {
       console.error('Error updating investor profile:', error);
       return { success: false, error: 'Failed to update investor profile' };
+    }
+  }
+
+  /**
+   * Get investor dashboard data
+   * @returns Dashboard data for investors
+   */
+  public static async getInvestorDashboard(): Promise<{
+    success: boolean;
+    dashboard?: InvestorDashboard;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result: InvestorDashboardResponse =
+        await actor.getInvestorDashboard();
+
+      if ('Success' in result) {
+        return { success: true, dashboard: result.Success };
+      } else {
+        return { success: false, error: result.Error };
+      }
+    } catch (error) {
+      console.error('Error getting investor dashboard:', error);
+      return { success: false, error: 'Failed to get investor dashboard' };
     }
   }
 }
