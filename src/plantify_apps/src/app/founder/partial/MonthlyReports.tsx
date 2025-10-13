@@ -46,11 +46,13 @@ function useMonthlyReports(startupId: string) {
         setLoading(true);
         setError(null);
 
+        console.log('Fetching monthly reports for startup:', startupId);
         const result =
           await MonthlyReportService.getMonthlyReportsByStartup(startupId);
 
         if (result.success && result.reportList) {
           setReports(result.reportList.reports);
+          console.log('Monthly reports loaded:', result.reportList.reports);
         } else {
           setError(result.error || 'Failed to load reports');
         }
@@ -67,6 +69,8 @@ function useMonthlyReports(startupId: string) {
 
   const submitReport = async (form: FormData): Promise<ApiResult> => {
     try {
+      console.log('Creating and submitting report...', form);
+
       // First create the report
       const reportRequest: MonthlyReportRequest = {
         startupId,
@@ -119,6 +123,8 @@ function useMonthlyReports(startupId: string) {
 
   const saveDraft = async (form: FormData): Promise<ApiResult> => {
     try {
+      console.log('Saving draft...', form);
+
       const reportRequest: MonthlyReportRequest = {
         startupId,
         month: BigInt(new Date().getMonth() + 1),
@@ -451,7 +457,7 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
                     <span>Investors: {Number(r.investorCount)}</span>
                     <span className='ml-4'>New: {Number(r.newInvestors)}</span>
                   </div>
-                  <Button variant='secondary' className='text-xs px-3 py-2'>
+                  <Button variant='secondary' size='sm'>
                     <Eye size={16} /> View Details
                   </Button>
                 </div>

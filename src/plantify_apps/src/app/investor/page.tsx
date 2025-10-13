@@ -6,12 +6,11 @@ import {
   CreditCard,
   TrendingUp,
   ArrowUpRight,
-  AlertCircle,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 import { Layout } from '@/components';
-import { Button, Card, LoadingSpinner } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
 
 import { InvestorService } from '@/services/investors/InvestorService';
@@ -41,11 +40,16 @@ interface DashboardData {
   totalNFTsOwned: number;
 }
 
-export default function InvestorDashboard() {
-  const [activeTab, setActiveTab] = useState<
-    'overview' | 'portfolio' | 'voting' | 'transactions'
-  >('overview');
+type TabType = 'overview' | 'portfolio' | 'voting' | 'transactions';
 
+interface TabConfig {
+  id: TabType;
+  label: string;
+  icon: React.ComponentType<{ size?: number }>;
+}
+
+export default function InvestorDashboard() {
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     totalInvested: 0,
     totalReturns: 0,
@@ -59,8 +63,7 @@ export default function InvestorDashboard() {
     averageInvestmentPerStartup: 0,
     totalNFTsOwned: 0,
   });
-
-  const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
+  const [purchaseHistory, setPurchaseHistory] = useState<NFTPurchaseInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [investor, setInvestor] = useState<{ fullName?: string } | null>(null);
 
@@ -87,28 +90,11 @@ export default function InvestorDashboard() {
 
         // Fetch investor profile
         const investorData = await InvestorService.getInvestorByPrincipal();
-        setInvestor(investorData);
 
-        const investorId =
-          (investorData as any)?.investor_id ||
-          (investorData as any)?.id ||
-          (investorData as any)?.investorId ||
-          null;
-
-        if (investorId) {
-          const historyRes =
-            await InvestorService.getInvestorPurchaseHistory(investorId);
-
-          if (historyRes.success) {
-            const history = Array.isArray(historyRes.history)
-              ? historyRes.history
-              : historyRes.history
-                ? [historyRes.history]
-                : [];
-            setPurchaseHistory(history as any[]);
-          } else {
-            setError(historyRes.error || 'Gagal memuat riwayat pembelian');
-          }
+        if (!investorData) {
+          setError('Investor not found. Please register as an investor.');
+          setLoading(false);
+          return;
         }
 
         // Fetch portfolio data using getMyInvestmentPortfolio
@@ -211,7 +197,42 @@ export default function InvestorDashboard() {
     fetchData();
   }, []);
 
-  const refetch = () => window.location.reload();
+  const calculateDashboardMetrics = (
+    history: NFTPurchaseHistory
+  ): DashboardData => {
+    let totalInvested = 0;
+    const startupSet = new Set<string>();
+
+    history.purchases.forEach(purchase => {
+      totalInvested += Number(purchase.amount);
+      startupSet.add(purchase.startupId);
+    });
+
+    const returnPercentage = 25;
+    const totalReturns = Math.floor(totalInvested * (returnPercentage / 100));
+    const monthlyCommitments = Math.floor(totalInvested / 12);
+
+    return {
+      totalInvested,
+      totalReturns,
+      returnPercentage,
+      monthlyCommitments,
+      activeInvestments: startupSet.size,
+      upcomingVotes: 0, 
+      votingPending: 0, 
+    };
+  };
+
+  const refetch = () => {
+    window.location.reload();
+  };
+
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: Eye },
+    { id: 'portfolio', label: 'My Portfolio', icon: TrendingUp },
+    { id: 'voting', label: 'Voting', icon: Vote },
+    { id: 'transactions', label: 'Transactions', icon: CreditCard },
+  ];
 
   return (
     <Layout>
@@ -241,22 +262,16 @@ export default function InvestorDashboard() {
 
           {/* Tabs */}
           <div className='flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit mt-4'>
-            {[
-              { id: 'overview', label: 'Overview', icon: Eye },
-              { id: 'portfolio', label: 'My Portfolio', icon: TrendingUp },
-              { id: 'voting', label: 'Voting', icon: Vote },
-              { id: 'transactions', label: 'Transactions', icon: CreditCard },
-            ].map(tab => {
+            {tabs.map(tab => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeTab === tab.id
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.id
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                    }`}
                 >
                   <Icon size={16} />
                   {tab.label}
@@ -266,7 +281,14 @@ export default function InvestorDashboard() {
           </div>
         </div>
 
-        {/* === Tab Content === */}
+        {/* Error State */}
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-6'>
+            <p className='text-red-800 text-sm'>{error}</p>
+          </div>
+        )}
+
+        {/* Tab Content */}
         {activeTab === 'overview' && (
           <OverviewTab
             dashboardData={dashboardData}

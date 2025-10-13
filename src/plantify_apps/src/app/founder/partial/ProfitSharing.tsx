@@ -58,6 +58,8 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
         setLoading(true);
         setError(null);
 
+        console.log('Fetching profit sharing data for startup:', startupId);
+
         // Fetch all required data in parallel
         const [reportsResult, statsResult, votingStatsResult, investorsResult] =
           await Promise.all([
@@ -69,6 +71,7 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
 
         if (reportsResult.success && reportsResult.reportList) {
           setReports(reportsResult.reportList.reports);
+          console.log('Reports loaded:', reportsResult.reportList.reports);
 
           // Get votes for the most recent submitted report
           const submittedReports = reportsResult.reportList.reports.filter(
@@ -87,14 +90,17 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
 
         if (statsResult) {
           setReportStats(statsResult);
+          console.log('Report stats loaded:', statsResult);
         }
 
         if (votingStatsResult) {
           setVotingStats(votingStatsResult);
+          console.log('Voting stats loaded:', votingStatsResult);
         }
 
-        if (investorsResult && investorsResult.length > 0) {
-          setInvestors(investorsResult);
+        if (investorsResult.success && investorsResult.investors) {
+          setInvestors(investorsResult.investors);
+          console.log('Investors loaded:', investorsResult.investors);
         }
       } catch (err) {
         console.error('Error fetching profit sharing data:', err);

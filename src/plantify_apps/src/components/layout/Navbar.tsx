@@ -80,10 +80,8 @@ export default function Navbar(): JSX.Element {
   const handleConnectClick = async () => {
     if (isAuthenticated) {
       setDropdownOpen(!dropdownOpen);
-      // Only fetch balances if not already fetched
-      if (!balancesFetched) {
-        fetchBalances();
-      }
+      // Always fetch balances when dropdown is opened to ensure fresh data
+      fetchBalances();
     } else {
       // Redirect to auth page instead of calling signIn directly
       router.push('/auth');
@@ -99,9 +97,13 @@ export default function Navbar(): JSX.Element {
 
       const { Principal } = await import('@dfinity/principal');
 
+      console.log('Original principal string:', principal);
+
       let principalObj;
       try {
         principalObj = Principal.fromText(principal);
+        console.log('Created Principal object:', principalObj.toString());
+        console.log('Principal toUint8Array:', principalObj.toUint8Array());
       } catch (error) {
         console.error('Error creating Principal from text:', error);
         throw new Error(`Invalid principal format: ${principal}`);
@@ -112,7 +114,11 @@ export default function Navbar(): JSX.Element {
         subaccount: [],
       };
 
+      console.log('Fetching balances for account:', account);
+
       const balances = await BalanceService.getAllBalances(account);
+
+      console.log('Balance results:', balances);
 
       if (balances.icp.success && balances.icp.balance !== undefined) {
         setIcpBalance(balances.icp.balance.toFixed(4));
