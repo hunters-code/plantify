@@ -152,27 +152,29 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
       const existingVote =
         await VotingService.getInvestorVoteForReport(reportId);
 
-      const voteTypeVariant: NormalizedVoteType =
+      const voteTypeVariant =
         voteType === 'approve'
-          ? { approved: null }
+          ? { Approve: null }
           : voteType === 'reject'
-            ? { rejected: null }
-            : { abstained: null };
+            ? { Reject: null }
+            : { Abstain: null };
 
       let result;
       if (existingVote) {
         result = await VotingService.updateVote(reportId, {
           reportId,
-          investorId,
-          voteType: voteTypeVariant,
-          comments: [],
+          vote: voteTypeVariant,
+          feedback: [],
+          feedbackType: [],
+          confidence: BigInt(100),
         });
       } else {
         result = await VotingService.castVote({
           reportId,
-          investorId,
-          voteType: voteTypeVariant,
-          comments: [],
+          vote: voteTypeVariant,
+          feedback: [],
+          feedbackType: [],
+          confidence: BigInt(100),
         });
       }
 
@@ -431,12 +433,8 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                       Full Report
                     </Button>
                     <Button
-                      variant={
-                        report.existingVote === 'reject'
-                          ? 'destructive'
-                          : 'secondary'
-                      }
-                      className='flex items-center gap-2'
+                      variant='secondary'
+                      className={`flex items-center gap-2 ${report.existingVote === 'reject' ? 'bg-red-100 text-red-700' : ''}`}
                       onClick={() => handleVote(report.id, 'reject')}
                       disabled={isVoting || isVotingClosed}
                     >

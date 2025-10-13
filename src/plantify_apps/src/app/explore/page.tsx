@@ -1,7 +1,7 @@
 'use client';
 
 import { Funnel, ListFilter, Search } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import {
@@ -39,7 +39,7 @@ interface Startup {
 
 type FilterType = 'all' | 'available' | 'featured' | 'caffeineai';
 
-export default function Explores() {
+function ExploreContent() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -401,5 +401,13 @@ export default function Explores() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function ExplorePage() {
+  return (
+    <Suspense fallback={<div className='p-8'>Loading explore page...</div>}>
+      <ExploreContent />
+    </Suspense>
   );
 }

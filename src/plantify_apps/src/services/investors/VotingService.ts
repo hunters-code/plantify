@@ -6,11 +6,11 @@ import type {
   InvestorVoteHistory,
   ReportVoteDetails,
   Result,
-  Result_9,
-  Result_11,
+  Result_8,
+  Result_10,
+  Result_18,
   Result_19,
-  Result_20,
-  Result_24,
+  Result_23,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -75,7 +75,7 @@ export class VotingService extends BaseService {
   public static async canInvestorVote(reportId: string): Promise<boolean> {
     try {
       const actor = await this.getActor();
-      const result: Result_24 = await actor.canInvestorVote(reportId);
+      const result: Result_23 = await actor.canInvestorVote(reportId);
       return 'ok' in result ? result.ok : false;
     } catch (error) {
       console.error('Error checking if investor can vote:', error);
@@ -93,7 +93,7 @@ export class VotingService extends BaseService {
   ): Promise<InvestorVote | null> {
     try {
       const actor = await this.getActor();
-      const result: Result_20 = await actor.getInvestorVoteForReport(reportId);
+      const result: Result_19 = await actor.getInvestorVoteForReport(reportId);
 
       if ('ok' in result) {
         return result.ok.length ? result.ok[0] : null;
@@ -119,7 +119,7 @@ export class VotingService extends BaseService {
   }> {
     try {
       const actor = await this.getActor();
-      const result: Result_19 = await actor.getInvestorVoteHistory(investorId);
+      const result: Result_18 = await actor.getInvestorVoteHistory(investorId);
 
       if ('ok' in result) {
         return { success: true, history: result.ok };
@@ -142,7 +142,7 @@ export class VotingService extends BaseService {
   ): Promise<{ success: boolean; summary?: VoteSummary; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_9 = await actor.getVoteSummary(reportId);
+      const result: Result_8 = await actor.getVoteSummary(reportId);
 
       if ('ok' in result) {
         return { success: true, summary: result.ok };
@@ -167,7 +167,7 @@ export class VotingService extends BaseService {
   }> {
     try {
       const actor = await this.getActor();
-      const result: Result_11 = await actor.getReportVoteDetails(reportId);
+      const result: Result_10 = await actor.getReportVoteDetails(reportId);
 
       if ('ok' in result) {
         return { success: true, details: result.ok };

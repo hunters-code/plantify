@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Eye,
-  Vote,
-  CreditCard,
-  TrendingUp,
-  ArrowUpRight,
-} from 'lucide-react';
+import { Eye, Vote, CreditCard, TrendingUp, ArrowUpRight } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 import { Layout } from '@/components';
@@ -16,6 +10,7 @@ import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
 import { InvestorService } from '@/services/investors/InvestorService';
 import type {
   MyInvestmentPortfolio,
+  NFTPurchaseInfo,
   PortfolioItem,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
@@ -198,12 +193,12 @@ export default function InvestorDashboard() {
   }, []);
 
   const calculateDashboardMetrics = (
-    history: NFTPurchaseHistory
+    history: NFTPurchaseInfo[]
   ): DashboardData => {
     let totalInvested = 0;
     const startupSet = new Set<string>();
 
-    history.purchases.forEach(purchase => {
+    history.forEach((purchase: NFTPurchaseInfo) => {
       totalInvested += Number(purchase.amount);
       startupSet.add(purchase.startupId);
     });
@@ -218,8 +213,12 @@ export default function InvestorDashboard() {
       returnPercentage,
       monthlyCommitments,
       activeInvestments: startupSet.size,
-      upcomingVotes: 0, 
-      votingPending: 0, 
+      upcomingVotes: 0,
+      votingPending: 0,
+      recentInvestments: [],
+      uniqueStartupsInvested: 0,
+      averageInvestmentPerStartup: 0,
+      totalNFTsOwned: 0,
     };
   };
 
@@ -268,10 +267,11 @@ export default function InvestorDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.id
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === tab.id
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  }`}
                 >
                   <Icon size={16} />
                   {tab.label}

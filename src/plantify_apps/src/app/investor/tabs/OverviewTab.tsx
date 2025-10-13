@@ -30,6 +30,13 @@ interface DashboardData {
   uniqueStartupsInvested: number;
   averageInvestmentPerStartup: number;
   totalNFTsOwned: number;
+  error?: string;
+}
+
+interface OverviewTabProps {
+  dashboardData: DashboardData;
+  matchingStartups: Startup[];
+  recentActivity: any[];
 }
 
 interface Startup {
@@ -56,16 +63,26 @@ interface ActivityItem {
   date: string;
 }
 
-export default function OverviewTab() {
+export default function OverviewTab({
+  dashboardData: propsDashboardData,
+  matchingStartups: propsMatchingStartups,
+  recentActivity: propsRecentActivity,
+}: OverviewTabProps) {
   const navigate = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
+    propsDashboardData || null
   );
-  const [matchingStartups, setMatchingStartups] = useState<Startup[]>([]);
-  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [matchingStartups, setMatchingStartups] = useState<Startup[]>(
+    propsMatchingStartups || []
+  );
+  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>(
+    propsRecentActivity || []
+  );
+  const [error, setError] = useState<string | null>(
+    propsDashboardData?.error || null
+  );
 
   const fetchDashboardData = async () => {
     try {
@@ -74,20 +91,20 @@ export default function OverviewTab() {
 
       const response = await InvestorService.getInvestorDashboardOverview();
 
-      if (!response.success || !response.dashboard) {
+      if (!response.success || !response.overview) {
         setError(response.error || 'Error to load data');
         setLoading(false);
         return;
       }
 
-      const data = response.dashboard;
+      const data = response.overview;
 
       setDashboardData({
-        totalInvested: Number(data.totalInvested ?? 0),
-        totalReturns: Number(data.totalReturns ?? 0),
-        returnPercentage: Number(data.returnPercentage ?? 0),
-        monthlyCommitments: Number(data.monthlyCommitments ?? 0),
-        activeInvestments: Number(data.activeInvestments ?? 0),
+        totalInvested: Number(data.totalAmountInvested ?? 0),
+        totalReturns: Number(data.profitSharingEarnings ?? 0),
+        returnPercentage: 0, // Calculate this if needed
+        monthlyCommitments: Number(data.monthlyCommitment ?? 0),
+        activeInvestments: Number(data.totalInvestments ?? 0),
         votingPending: Number(data.votingPending ?? 0),
         uniqueStartupsInvested: Number(data.uniqueStartupsInvested ?? 0),
         averageInvestmentPerStartup: Number(
@@ -96,43 +113,44 @@ export default function OverviewTab() {
         totalNFTsOwned: Number(data.totalNFTsOwned ?? 0),
         recentInvestments: Array.isArray(data.recentInvestments)
           ? data.recentInvestments.map((item: any) => ({
-            type: item.type === 'profit' ? 'profit' : 'investment',
-            company: item.company || 'Unknown Company',
-            amount: Number(item.amount ?? 0),
-            date: item.date || '-',
-          }))
+              type: 'investment',
+              company: item.startupName || 'Unknown Company',
+              amount: Number(item.amount ?? 0),
+              date: new Date(Number(item.date) / 1000000).toLocaleDateString(),
+            }))
           : [],
       });
 
+      // Use investment portfolio as matching startups
       setMatchingStartups(
-        Array.isArray(data.matchingStartups)
-          ? data.matchingStartups.map((s: any) => ({
-            id: s.id ?? crypto.randomUUID(),
-            image: s.image ?? '/placeholder.png',
-            name: s.name ?? 'Unnamed Startup',
-            sector: s.sector ?? 'General',
-            risk: s.risk ?? 'Moderate',
-            description: s.description ?? 'No description',
-            nftPrice: Number(s.nftPrice ?? 0),
-            employees: Number(s.employees ?? 0),
-            periodicReturns: Number(s.periodicReturns ?? 0),
-            annualROI: Number(s.annualROI ?? 0),
-            available: Number(s.available ?? 0),
-            fundingProgress: Number(s.fundingProgress ?? 0),
-            fundedAmount: Number(s.fundedAmount ?? 0),
-            targetAmount: Number(s.targetAmount ?? 0),
-          }))
+        Array.isArray(data.investmentPortfolio)
+          ? data.investmentPortfolio.slice(0, 3).map((s: any) => ({
+              id: s.startupId ?? crypto.randomUUID(),
+              image: s.startupLogo ?? '/assets/images/icon-startup.png',
+              name: s.startupName ?? 'Unnamed Startup',
+              sector: s.sector ?? 'General',
+              risk: 'Moderate',
+              description: 'Investment in your portfolio',
+              nftPrice: Number(s.averagePrice ?? 0) / 100,
+              employees: 5,
+              periodicReturns: Number(s.monthlyCommitment ?? 0) / 100,
+              annualROI: 10,
+              available: 10,
+              fundingProgress: 75,
+              fundedAmount: Number(s.totalInvested ?? 0) / 100,
+              targetAmount: (Number(s.totalInvested ?? 0) / 100) * 1.5,
+            }))
           : []
       );
 
       setRecentActivity(
         Array.isArray(data.recentInvestments)
           ? data.recentInvestments.map((a: any) => ({
-            type: a.type === 'profit' ? 'profit' : 'investment',
-            company: a.company || 'Unknown',
-            amount: Number(a.amount ?? 0),
-            date: a.date || '-',
-          }))
+              type: 'investment',
+              company: a.startupName || 'Unknown',
+              amount: Number(a.amount ?? 0) / 100,
+              date: new Date(Number(a.date) / 1000000).toLocaleDateString(),
+            }))
           : []
       );
 
@@ -145,8 +163,14 @@ export default function OverviewTab() {
   };
 
   useEffect(() => {
+    // If props are provided, use them and skip fetching
+    if (propsDashboardData && Object.keys(propsDashboardData).length > 0) {
+      setLoading(false);
+      return;
+    }
+
     fetchDashboardData();
-  }, []);
+  }, [propsDashboardData]);
 
   if (loading) {
     return (
@@ -163,7 +187,11 @@ export default function OverviewTab() {
       <Card className='p-8 text-center flex flex-col justify-center items-center'>
         <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
         <p className='text-gray-600 mb-4'>{error}</p>
-        <Button variant='primary' className='w-fit' onClick={fetchDashboardData}>
+        <Button
+          variant='primary'
+          className='w-fit'
+          onClick={fetchDashboardData}
+        >
           Try Again
         </Button>
       </Card>
@@ -219,10 +247,11 @@ export default function OverviewTab() {
                 <p className='text-sm text-gray-600 mb-1'>{stat.label}</p>
                 <p className='text-2xl font-bold text-gray-900'>{stat.value}</p>
                 <p
-                  className={`text-xs ${stat.label === 'Total Returns'
+                  className={`text-xs ${
+                    stat.label === 'Total Returns'
                       ? 'text-green-600'
                       : 'text-gray-500'
-                    }`}
+                  }`}
                 >
                   {stat.sub}
                 </p>
@@ -258,7 +287,7 @@ export default function OverviewTab() {
           </Card>
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {matchingStartups.map((startup) => (
+            {matchingStartups.map(startup => (
               <ProductCard
                 key={startup.id}
                 id={startup.id}
@@ -276,8 +305,7 @@ export default function OverviewTab() {
                 fundingProgress={startup.fundingProgress || 0}
                 fundedAmount={startup.fundedAmount || 0}
                 targetAmount={
-                  startup.targetAmount ||
-                  startup.nftPrice * startup.available
+                  startup.targetAmount || startup.nftPrice * startup.available
                 }
               />
             ))}
@@ -304,10 +332,11 @@ export default function OverviewTab() {
               >
                 <div className='flex items-center gap-3'>
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.type === 'profit'
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      activity.type === 'profit'
                         ? 'bg-green-100'
                         : 'bg-blue-100'
-                      }`}
+                    }`}
                   >
                     {activity.type === 'profit' ? (
                       <TrendingUp className='w-4 h-4 text-green-600' />
@@ -326,10 +355,11 @@ export default function OverviewTab() {
                 </div>
                 <div className='text-right'>
                   <p
-                    className={`font-medium ${activity.type === 'profit'
+                    className={`font-medium ${
+                      activity.type === 'profit'
                         ? 'text-green-600'
                         : 'text-blue-600'
-                      }`}
+                    }`}
                   >
                     {activity.type === 'profit' ? '+' : ''}${activity.amount}
                   </p>

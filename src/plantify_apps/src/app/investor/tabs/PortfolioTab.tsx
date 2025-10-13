@@ -22,89 +22,26 @@ interface Investment {
 }
 
 interface PortfolioTabProps {
+  portfolioData: {
+    loading: boolean;
+    investments: any[];
+    error?: string;
+  };
   onViewDetails: (investment: Investment) => void;
   onVoteReport: (investment: Investment) => void;
   onAddInvestment: (investment: Investment) => void;
+  onRefresh?: () => void;
 }
 
 export default function PortfolioTab({
+  portfolioData,
   onViewDetails,
   onVoteReport,
   onAddInvestment,
+  onRefresh,
 }: PortfolioTabProps) {
   const navigate = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | undefined>();
-  const [investments, setInvestments] = useState<Investment[]>([]);
-
-  const fetchPortfolioData = async () => {
-    try {
-      setLoading(true);
-      setError(undefined);
-
-      const result = await InvestorService.getMyInvestmentPortfolio();
-
-      if (!result.success || !result.portfolio) {
-        setError(result.error || 'Gagal memuat data portofolio');
-        setLoading(false);
-        return;
-      }
-
-      const transformed = transformPortfolio(result.portfolio);
-      setInvestments(transformed);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching portfolio:', err);
-      setError('Terjadi kesalahan saat memuat portofolio');
-      setLoading(false);
-    }
-  };
-
-  const transformPortfolio = (portfolio: any): Investment[] => {
-    if (!portfolio?.investments || !Array.isArray(portfolio.investments)) {
-      return [];
-    }
-
-    return portfolio.investments.map((item: any) => {
-      const totalInvested = Number(item.totalInvested ?? 0);
-      const totalReturns = Number(item.totalReturns ?? 0);
-      const nftCount = Number(item.nftCount ?? 0);
-
-      const roi =
-        totalInvested > 0
-          ? parseFloat(((totalReturns / totalInvested) * 100).toFixed(2))
-          : 0;
-
-      const monthlyReturn = Math.floor(totalReturns / 12);
-      const fundingGoal = 100000; // asumsi
-      const progress = Math.min(Math.floor((totalInvested / fundingGoal) * 100), 100);
-
-      return {
-        id: String(item.startupId ?? crypto.randomUUID()),
-        startupName: item.startupName || `Startup ${String(item.startupId).slice(0, 8)}...`,
-        sector: item.sector || 'Unknown Sector',
-        riskLevel: getRiskLevelFromString(item.riskLevel),
-        investedAmount: totalInvested,
-        nftCount,
-        monthlyReturn,
-        totalReturns: Math.floor(totalReturns),
-        roi,
-        progress,
-      };
-    });
-  };
-
-  const getRiskLevelFromString = (riskLevel?: string): string => {
-    if (!riskLevel) return 'Moderate Risk';
-    const level = riskLevel.toLowerCase();
-    if (level.includes('high')) return 'High Risk';
-    if (level.includes('low')) return 'Low Risk';
-    return 'Moderate Risk';
-  };
-
-  useEffect(() => {
-    fetchPortfolioData();
-  }, []);
+  const { loading, investments, error } = portfolioData;
 
   if (loading) {
     return (
@@ -127,7 +64,7 @@ export default function PortfolioTab({
           </h3>
           <p className='text-gray-600 mb-4'>{error}</p>
           <div className='flex gap-2 justify-center'>
-            <Button variant='primary' onClick={fetchPortfolioData}>
+            <Button variant='primary' onClick={onRefresh}>
               Coba Lagi
             </Button>
             <Button
@@ -157,7 +94,7 @@ export default function PortfolioTab({
             <Button variant='primary' onClick={() => navigate.push('/explore')}>
               Jelajahi Startup
             </Button>
-            <Button variant='secondary' onClick={fetchPortfolioData}>
+            <Button variant='secondary' onClick={onRefresh}>
               Muat Ulang
             </Button>
           </div>
@@ -191,13 +128,13 @@ export default function PortfolioTab({
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
         <h2 className='text-xl font-semibold text-gray-900'>My Investments</h2>
-        <Button variant='secondary' onClick={fetchPortfolioData} className='text-sm'>
+        <Button variant='secondary' onClick={onRefresh} className='text-sm'>
           Refresh Portfolio
         </Button>
       </div>
 
       <div className='space-y-6'>
-        {investments.map((investment) => (
+        {investments.map(investment => (
           <Card key={investment.id} className='p-6'>
             <div className='flex items-start justify-between mb-4'>
               <div className='flex items-center gap-3'>

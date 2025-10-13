@@ -44,10 +44,10 @@ export default function ProfileInvestor() {
           fullName: profile.fullName || '',
           email: profile.email || '',
           phone: profile.phone || '',
-          location: profile.location || '',
-          occupation: profile.occupation || '',
-          company: profile.company || '',
-          bio: profile.bio || '',
+          location: profile.location?.[0] || '',
+          occupation: profile.occupation?.[0] || '',
+          company: profile.company?.[0] || '',
+          bio: profile.bio?.[0] || '',
           profilePhoto: profile.profilePhoto?.[0] || null,
         });
       }
@@ -70,10 +70,10 @@ export default function ProfileInvestor() {
         fullName: investor.fullName || '',
         email: investor.email || '',
         phone: investor.phone || '',
-        location: investor.location || '',
-        occupation: investor.occupation || '',
-        company: investor.company || '',
-        bio: investor.bio || '',
+        location: investor.location?.[0] || '',
+        occupation: investor.occupation?.[0] || '',
+        company: investor.company?.[0] || '',
+        bio: investor.bio?.[0] || '',
         profilePhoto: investor.profilePhoto?.[0] || null,
       });
     }

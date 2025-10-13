@@ -4,8 +4,8 @@ import type {
   CollateralProgressResponse,
   CollateralDashboard,
   CollateralDashboardResponse,
+  Result_20,
   Result_21,
-  Result_22,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -26,7 +26,7 @@ export class CollateralService extends BaseService {
   }> {
     try {
       const actor = await this.getActor();
-      const result: Result_22 = await actor.getCollateralStatus(startupId);
+      const result: Result_21 = await actor.getCollateralStatus(startupId);
 
       if ('ok' in result) {
         return { success: true, collateral: result.ok };
@@ -75,7 +75,7 @@ export class CollateralService extends BaseService {
   ): Promise<{ success: boolean; history?: any; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_21 =
+      const result: Result_20 =
         await actor.getCollateralTopUpHistory(startupId);
 
       if ('ok' in result) {

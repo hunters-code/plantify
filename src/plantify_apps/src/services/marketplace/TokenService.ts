@@ -7,12 +7,12 @@ import type {
   TokenInfoResponse,
   TopUpRequest,
   TopUpResponse,
-  Result_3,
+  Result_4,
   CollateralInfo,
   CollateralProgressResponse,
   CollateralTopUp,
+  Result_20,
   Result_21,
-  Result_22,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -188,7 +188,7 @@ export class TokenService extends BaseService {
   ): Promise<{ success: boolean; response?: TopUpResponse; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_3 = await actor.topUpCollateral(request);
+      const result: Result_4 = await actor.topUpCollateral(request);
 
       if ('ok' in result) {
         return { success: true, response: result.ok };
@@ -211,7 +211,7 @@ export class TokenService extends BaseService {
   ): Promise<{ success: boolean; info?: CollateralInfo; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_22 = await actor.getCollateralStatus(startupId);
+      const result: Result_21 = await actor.getCollateralStatus(startupId);
 
       if ('ok' in result) {
         return { success: true, info: result.ok };
@@ -253,7 +253,7 @@ export class TokenService extends BaseService {
   }> {
     try {
       const actor = await this.getActor();
-      const result: Result_21 =
+      const result: Result_20 =
         await actor.getCollateralTopUpHistory(startupId);
 
       if ('ok' in result) {
