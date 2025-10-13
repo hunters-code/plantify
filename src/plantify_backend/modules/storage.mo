@@ -360,6 +360,7 @@ module Storage {
             // Status and Metadata
             status = startupRequest.status;
             builtByCaffeineAI = startupRequest.builtByCaffeineAI;
+            totalFunded = 0; // Always initialize to 0, only incremented by NFT purchases
             createdAt = now;
             updatedAt = now;
           };
@@ -679,6 +680,55 @@ module Storage {
             legalDocuments = startup.legalDocuments;
             status = newStatus;
             builtByCaffeineAI = startup.builtByCaffeineAI;
+            totalFunded = startup.totalFunded;
+            createdAt = startup.createdAt;
+            updatedAt = Time.now();
+          };
+          startups.put(startupId, updatedStartup);
+          true;
+        };
+      };
+    };
+
+    public func updateStartupTotalFunded(startupId : Text, amount : Nat) : Bool {
+      switch (startups.get(startupId)) {
+        case null { false };
+        case (?startup) {
+          let updatedStartup : Types.Startup = {
+            id = startup.id;
+            founderId = startup.founderId;
+            startupName = startup.startupName;
+            sector = startup.sector;
+            foundedYear = startup.foundedYear;
+            description = startup.description;
+            website = startup.website;
+            location = startup.location;
+            companyType = startup.companyType;
+            companyLogo = startup.companyLogo;
+            companyImages = startup.companyImages;
+            nftImage = startup.nftImage;
+            problemStatement = startup.problemStatement;
+            solution = startup.solution;
+            targetMarket = startup.targetMarket;
+            competitiveAdvantage = startup.competitiveAdvantage;
+            marketingStrategy = startup.marketingStrategy;
+            operationalProcess = startup.operationalProcess;
+            founderBackground = startup.founderBackground;
+            teamMembers = startup.teamMembers;
+            advisors = startup.advisors;
+            fundingGoal = startup.fundingGoal;
+            nftPrice = startup.nftPrice;
+            periodicProfitSharing = startup.periodicProfitSharing;
+            revenueModel = startup.revenueModel;
+            monthlyRevenue = startup.monthlyRevenue;
+            monthlyExpenses = startup.monthlyExpenses;
+            useOfFunds = startup.useOfFunds;
+            businessPlan = startup.businessPlan;
+            financialProjections = startup.financialProjections;
+            legalDocuments = startup.legalDocuments;
+            status = startup.status;
+            builtByCaffeineAI = startup.builtByCaffeineAI;
+            totalFunded = startup.totalFunded + amount;
             createdAt = startup.createdAt;
             updatedAt = Time.now();
           };

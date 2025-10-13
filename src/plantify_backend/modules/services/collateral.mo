@@ -28,7 +28,7 @@ module Collateral {
     private var nextTopUpId : Nat = 1;
 
     private let transferService = TransferService.TransferService(config);
-    private let nftService = NFTService.NFTService(config, storage);
+    private let nftService = NFTService.NFTService(storage);
 
     public func initializeCollateral(
       startupId : Text, 

@@ -141,6 +141,7 @@ module Types {
     legalDocuments : ?Text;
     status : Text;
     builtByCaffeineAI : ?Bool;
+    totalFunded : Nat;
     createdAt : Time.Time;
     updatedAt : Time.Time;
   };
@@ -234,7 +235,7 @@ module Types {
   // Transfer Service Types
   public type TransferAccount = {
     owner : Principal;
-    subaccount : ?Blob;
+    subaccount : ?[Nat8];
   };
 
   public type TransferArgs = {
@@ -412,19 +413,19 @@ module Types {
   public type NFTPurchaseRequest = {
     startupId : Text;
     investorId : Text;
-    amount : Nat; // Amount in ckUSDC
+    quantity : Nat; // Number of NFTs to purchase
     memo : ?Text;
   };
 
   public type NFTPurchaseResponse = {
     #Success : {
-      tokenId : Nat;
+      tokenIds : [Nat]; // List of purchased NFT token IDs
       transactionId : Text;
       startupId : Text;
       investorId : Text;
-      amount : Nat;
+      totalAmount : Nat; // Total amount charged (nftPrice * quantity)
       nftPrice : Nat;
-      change : Nat; // Amount returned to investor if overpaid
+      quantity : Nat; // Number of NFTs purchased
     };
     #Error : Text;
   };

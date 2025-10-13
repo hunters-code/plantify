@@ -2,6 +2,8 @@ import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
+import Nat8 "mo:base/Nat8";
+import Array "mo:base/Array";
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
 import Error "mo:base/Error";
@@ -13,12 +15,12 @@ module Transfer {
     // ICRC-1 Ledger Interface Types
     public type Account = {
       owner : Principal;
-      subaccount : ?Blob;
+      subaccount : ?[Nat8];
     };
 
-    public type Subaccount = Blob;
+    public type Subaccount = [Nat8];
     public type Tokens = Nat;
-    public type Memo = Blob;
+    public type Memo = [Nat8];
     public type Timestamp = Nat64;
     public type BlockIndex = Nat;
     public type TransferArg = {
@@ -39,7 +41,10 @@ module Transfer {
       #Duplicate : { duplicate_of : BlockIndex };
       #GenericError : { error_code : Nat; message : Text };
     };
-    public type TransferResult = Result.Result<BlockIndex, TransferError>;
+    public type TransferResult = {
+      #Ok : BlockIndex;
+      #Err : TransferError;
+    };
 
     // Transfer Arguments
     public type TransferArgs = {
@@ -95,11 +100,15 @@ module Transfer {
       #ok(());
     };
 
-    // Convert text memo to blob
+    // Convert text memo to vec nat8
     private func textToMemo(memo : ?Text) : ?Memo {
       switch (memo) {
         case null { null };
-        case (?text) { ?Text.encodeUtf8(text) };
+        case (?text) { 
+          let blob = Text.encodeUtf8(text);
+          let array = Array.tabulate<Nat8>(blob.size(), func(i) = blob.get(i));
+          ?array;
+        };
       };
     };
 
@@ -148,11 +157,11 @@ module Transfer {
 
         // Check if the transfer was successful
         switch (transferResult) {
-          case (#err(transferError)) {
+          case (#Err(transferError)) {
             let errorMessage = "Transfer failed: " # debug_show(transferError);
             return #Error(errorMessage);
           };
-          case (#ok(blockIndex)) {
+          case (#Ok(blockIndex)) {
             let transactionId = Nat.toText(blockIndex);
             return #Success({
               blockIndex = blockIndex;

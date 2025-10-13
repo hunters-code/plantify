@@ -57,7 +57,7 @@ persistent actor PlantifyBackend {
   private transient let startupCreationService = StartupCreation.StartupCreationService(storage);
   private transient let transferService = TransferService.TransferService(config);
   private transient let collateralService = CollateralService.CollateralService(config, storage);
-  private transient let nftService = NFTService.NFTService(config, storage);
+  private transient let nftService = NFTService.NFTService(storage);
   private transient let nftPurchaseService = NFTPurchaseService.NFTPurchaseService(config, storage, transferService, nftService);
   private transient let monthlyReportService = MonthlyReportService.MonthlyReportService(storage);
   private transient let votingService = VotingService.VotingService(storage);
@@ -408,10 +408,6 @@ persistent actor PlantifyBackend {
     nftService.getNFTInfo(tokenId);
   };
 
-  public shared (_msg) func getNFTsByStartup(startupId : Text) : async Result.Result<[Types.NFTInfo], Text> {
-    nftService.getNFTsByStartup(startupId);
-  };
-
   public shared (_msg) func getNFTBalance(account : Types.NFTAccount) : async Result.Result<Types.NFTBalanceResponse, Text> {
     nftService.getNFTBalance(account);
   };
@@ -424,8 +420,8 @@ persistent actor PlantifyBackend {
     nftService.getAllNFTs();
   };
 
-  public shared (_msg) func getCollectionInfo() : async Types.NFTConfig {
-    nftService.getCollectionInfo();
+  public shared (_msg) func getNFTsByStartup(startupId : Text) : async Result.Result<[Types.NFTInfo], Text> {
+    nftService.getNFTsByStartup(startupId);
   };
 
   public shared (_msg) func canMintNFT(startupId : Text) : async Result.Result<Bool, Text> {
@@ -444,7 +440,7 @@ persistent actor PlantifyBackend {
   // NFT PURCHASE SERVICE METHODS
   // ========================================
 
-  public shared (msg) func purchaseNFT(request : Types.NFTPurchaseRequest) : async Result.Result<Types.NFTPurchaseResponse, Text> {
+  public shared (msg) func purchaseNFT(request : Types.NFTPurchaseRequest) : async Types.NFTPurchaseResponse {
     await nftPurchaseService.purchaseNFT(msg.caller, request);
   };
 
