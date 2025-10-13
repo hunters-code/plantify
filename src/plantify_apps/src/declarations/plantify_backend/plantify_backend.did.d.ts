@@ -11,6 +11,23 @@ export type BalanceResponse =
         tokenType: string;
       };
     };
+export interface CollateralDashboard {
+  status: string;
+  topUpHistory: Array<CollateralTopUpSummary>;
+  remainingAmount: bigint;
+  startupId: string;
+  nextPaymentDue: [] | [Time];
+  progressPercentage: bigint;
+  lockEndTime: [] | [Time];
+  isFullyPaid: boolean;
+  tokenType: string;
+  currentAmount: bigint;
+  requiredAmount: bigint;
+  lockStartTime: [] | [Time];
+}
+export type CollateralDashboardResponse =
+  | { Error: string }
+  | { Success: CollateralDashboard };
 export interface CollateralInfo {
   status: CollateralStatus;
   topUpHistory: Array<CollateralTopUp>;
@@ -48,6 +65,24 @@ export interface CollateralTopUp {
   amount: bigint;
   transactionId: [] | [string];
 }
+export interface CollateralTopUpSummary {
+  id: string;
+  status: string;
+  timestamp: Time;
+  amount: bigint;
+  transactionId: [] | [string];
+}
+export interface DashboardOverview {
+  pendingStartups: bigint;
+  totalFundingRaised: bigint;
+  activeStartups: bigint;
+  totalNFTHolders: bigint;
+  draftStartups: bigint;
+  totalMonthlyCommitments: bigint;
+}
+export type DashboardOverviewResponse =
+  | { Error: string }
+  | { Success: DashboardOverview };
 export interface EnvironmentConfig {
   nftToken: NFTConfig;
   ckUSDCToken: TokenConfig;
@@ -88,6 +123,25 @@ export interface FounderRegistrationRequest {
   phone: string;
   previousBusinesses: string;
 }
+export interface FundingMilestone {
+  achievedDate: [] | [Time];
+  isAchieved: boolean;
+  targetAmount: bigint;
+  milestone: string;
+}
+export interface FundingStatus {
+  remainingAmount: bigint;
+  progressPercentage: bigint;
+  recentInvestments: Array<RecentInvestment>;
+  fundingStatus: string;
+  totalRaised: bigint;
+  isFullyFunded: boolean;
+  fundingGoal: bigint;
+  fundingMilestones: Array<FundingMilestone>;
+}
+export type FundingStatusResponse =
+  | { Error: string }
+  | { Success: FundingStatus };
 export interface Investor {
   id: string;
   bio: [] | [string];
@@ -108,6 +162,25 @@ export interface Investor {
   phone: string;
   investmentExperience: string;
   location: [] | [string];
+}
+export interface InvestorDashboard {
+  averageInvestmentPerInvestor: bigint;
+  recentInvestments: Array<RecentInvestmentSummary>;
+  activeInvestors: bigint;
+  investorGrowth: Array<InvestorGrowthData>;
+  topInvestors: Array<TopInvestor>;
+  newInvestorsThisMonth: bigint;
+  totalInvestmentAmount: bigint;
+  totalInvestors: bigint;
+}
+export type InvestorDashboardResponse =
+  | { Error: string }
+  | { Success: InvestorDashboard };
+export interface InvestorGrowthData {
+  month: bigint;
+  newInvestors: bigint;
+  year: bigint;
+  totalInvestors: bigint;
 }
 export interface InvestorProfileUpdateRequest {
   bio: [] | [string];
@@ -289,17 +362,17 @@ export interface NFTPurchaseRequest {
   startupId: string;
   memo: [] | [string];
   investorId: string;
-  amount: bigint;
+  quantity: bigint;
 }
 export type NFTPurchaseResponse =
   | { Error: string }
   | {
       Success: {
-        tokenId: bigint;
         startupId: string;
+        tokenIds: Array<bigint>;
         investorId: string;
-        change: bigint;
-        amount: bigint;
+        totalAmount: bigint;
+        quantity: bigint;
         nftPrice: bigint;
         transactionId: string;
       };
@@ -312,7 +385,7 @@ export interface NFTPurchaseStats {
   totalRevenue: bigint;
 }
 export interface PaginatedStartups {
-  startups: Array<Startup>;
+  startups: Array<StartupSummary>;
   page: bigint;
   totalCount: bigint;
   limit: bigint;
@@ -322,6 +395,21 @@ export interface PaginationParams {
   page: bigint;
   limit: bigint;
 }
+export interface RecentInvestment {
+  date: Time;
+  tokenType: string;
+  amount: bigint;
+  investorName: string;
+}
+export interface RecentInvestmentSummary {
+  startupId: string;
+  date: Time;
+  investorId: string;
+  tokenType: string;
+  startupName: string;
+  amount: bigint;
+  investorName: string;
+}
 export interface ReportVoteDetails {
   summary: VoteSummary;
   individualVotes: Array<InvestorVote>;
@@ -329,35 +417,35 @@ export interface ReportVoteDetails {
 }
 export type Result = { ok: InvestorVote } | { err: string };
 export type Result_1 = { ok: MonthlyReport } | { err: string };
-export type Result_10 = { ok: NFTPurchaseHistory } | { err: string };
-export type Result_11 = { ok: ReportVoteDetails } | { err: string };
-export type Result_12 = { ok: NFTPurchaseInfo } | { err: string };
-export type Result_13 = { ok: Array<NFTInfo> } | { err: string };
-export type Result_14 = { ok: bigint } | { err: string };
-export type Result_15 = { ok: NFTOwnerResponse } | { err: string };
-export type Result_16 = { ok: NFTInfo } | { err: string };
-export type Result_17 = { ok: NFTBalanceResponse } | { err: string };
-export type Result_18 = { ok: MonthlyReportList } | { err: string };
-export type Result_19 = { ok: InvestorVoteHistory } | { err: string };
+export type Result_10 = { ok: ReportVoteDetails } | { err: string };
+export type Result_11 = { ok: NFTPurchaseInfo } | { err: string };
+export type Result_12 = { ok: Array<NFTInfo> } | { err: string };
+export type Result_13 = { ok: bigint } | { err: string };
+export type Result_14 = { ok: NFTOwnerResponse } | { err: string };
+export type Result_15 = { ok: NFTInfo } | { err: string };
+export type Result_16 = { ok: NFTBalanceResponse } | { err: string };
+export type Result_17 = { ok: MonthlyReportList } | { err: string };
+export type Result_18 = { ok: InvestorVoteHistory } | { err: string };
+export type Result_19 = { ok: [] | [InvestorVote] } | { err: string };
 export type Result_2 = { ok: Investor } | { err: string };
-export type Result_20 = { ok: [] | [InvestorVote] } | { err: string };
-export type Result_21 = { ok: Array<CollateralTopUp> } | { err: string };
-export type Result_22 = { ok: CollateralInfo } | { err: string };
-export type Result_23 = { ok: Startup } | { err: string };
-export type Result_24 = { ok: boolean } | { err: string };
+export type Result_20 = { ok: Array<CollateralTopUp> } | { err: string };
+export type Result_21 = { ok: CollateralInfo } | { err: string };
+export type Result_22 = { ok: Startup } | { err: string };
+export type Result_23 = { ok: boolean } | { err: string };
 export type Result_3 = { ok: TransferNFTResponse } | { err: string };
 export type Result_4 = { ok: TopUpResponse } | { err: string };
 export type Result_5 = { ok: Founder } | { err: string };
-export type Result_6 = { ok: NFTPurchaseResponse } | { err: string };
-export type Result_7 = { ok: string } | { err: string };
-export type Result_8 = { ok: MintNFTResponse } | { err: string };
-export type Result_9 = { ok: VoteSummary } | { err: string };
+export type Result_6 = { ok: string } | { err: string };
+export type Result_7 = { ok: MintNFTResponse } | { err: string };
+export type Result_8 = { ok: VoteSummary } | { err: string };
+export type Result_9 = { ok: NFTPurchaseHistory } | { err: string };
 export interface Startup {
   id: string;
   status: string;
   periodicProfitSharing: string;
   foundedYear: string;
   competitiveAdvantage: string;
+  totalFunded: bigint;
   createdAt: Time;
   businessPlan: [] | [string];
   description: string;
@@ -369,6 +457,7 @@ export interface Startup {
   updatedAt: Time;
   revenueModel: string;
   solution: string;
+  builtByCaffeineAI: [] | [boolean];
   companyLogo: [] | [string];
   founderId: string;
   companyType: string;
@@ -402,6 +491,7 @@ export interface StartupCreationRequest {
   targetMarket: string;
   revenueModel: string;
   solution: string;
+  builtByCaffeineAI: [] | [boolean];
   companyLogo: [] | [string];
   companyType: string;
   financialProjections: [] | [string];
@@ -420,6 +510,32 @@ export interface StartupCreationRequest {
   problemStatement: string;
   founderBackground: string;
 }
+export interface StartupOverview {
+  totalNFTSale: bigint;
+  totalFunded: bigint;
+  name: string;
+  description: string;
+  totalNFT: bigint;
+  totalTeamMembers: bigint;
+  fundTarget: bigint;
+  companyType: string;
+  location: string;
+}
+export type StartupOverviewResponse =
+  | { Error: string }
+  | { Success: StartupOverview };
+export interface StartupSummary {
+  id: string;
+  totalFunded: bigint;
+  description: string;
+  availableNFTs: bigint;
+  totalFunding: string;
+  builtByCaffeineAI: [] | [boolean];
+  companyType: string;
+  startupName: string;
+  companyImages: Array<string>;
+  nftPrice: string;
+}
 export interface TeamMember {
   id: bigint;
   linkedin: string;
@@ -430,6 +546,19 @@ export interface TeamMember {
   isFounder: boolean;
   photo: [] | [string];
 }
+export interface TeamMemberOverview {
+  id: bigint;
+  linkedin: string;
+  background: string;
+  name: string;
+  role: string;
+  email: string;
+  isFounder: boolean;
+  photo: [] | [string];
+}
+export type TeamMembersResponse =
+  | { Error: string }
+  | { Success: Array<TeamMemberOverview> };
 export type Time = bigint;
 export interface TokenConfig {
   fee: bigint;
@@ -450,6 +579,14 @@ export type TokenInfoResponse =
         symbol: string;
       };
     };
+export interface TopInvestor {
+  numberOfInvestments: bigint;
+  totalInvested: bigint;
+  profilePhoto: [] | [string];
+  investorId: string;
+  lastInvestmentDate: Time;
+  investorName: string;
+}
 export interface TopUpRequest {
   startupId: string;
   memo: [] | [string];
@@ -530,15 +667,15 @@ export interface VotingStats {
 export interface _SERVICE {
   approveMonthlyReport: ActorMethod<[string], Result_1>;
   calculateRequiredCollateral: ActorMethod<[bigint, string], bigint>;
-  canInvestorVote: ActorMethod<[string], Result_24>;
-  canMintNFT: ActorMethod<[string], Result_24>;
-  canPurchaseNFT: ActorMethod<[string, string], Result_24>;
+  canInvestorVote: ActorMethod<[string], Result_23>;
+  canMintNFT: ActorMethod<[string], Result_23>;
+  canPurchaseNFT: ActorMethod<[string, string], Result_23>;
   castVote: ActorMethod<[VoteRequest], Result>;
   createMonthlyReport: ActorMethod<[MonthlyReportRequest], Result_1>;
-  createStartup: ActorMethod<[StartupCreationRequest], Result_23>;
+  createStartup: ActorMethod<[StartupCreationRequest], Result_22>;
   createStartupForFounder: ActorMethod<
     [string, StartupCreationRequest],
-    Result_23
+    Result_22
   >;
   getAllCollateralInfo: ActorMethod<[], Array<CollateralInfo>>;
   getAllMonthlyReports: ActorMethod<[], Array<MonthlyReport>>;
@@ -550,65 +687,71 @@ export interface _SERVICE {
   getCanisterVersion: ActorMethod<[], bigint>;
   getCkUSDCBalance: ActorMethod<[TransferAccount], BalanceResponse>;
   getCkUSDCTokenConfig: ActorMethod<[], TokenConfig>;
+  getCollateralDashboard: ActorMethod<[string], CollateralDashboardResponse>;
   getCollateralProgress: ActorMethod<[string], CollateralProgressResponse>;
-  getCollateralStatus: ActorMethod<[string], Result_22>;
-  getCollateralTopUpHistory: ActorMethod<[string], Result_21>;
-  getCollectionInfo: ActorMethod<[], NFTConfig>;
+  getCollateralStatus: ActorMethod<[string], Result_21>;
+  getCollateralTopUpHistory: ActorMethod<[string], Result_20>;
   getEnvironment: ActorMethod<[], string>;
   getEnvironmentConfig: ActorMethod<[], EnvironmentConfig>;
   getFeaturedStartup: ActorMethod<[], [] | [Startup]>;
   getFounderByPrincipal: ActorMethod<[], [] | [Founder]>;
+  getFounderDashboardOverview: ActorMethod<[], DashboardOverviewResponse>;
+  getFounderStartupOverview: ActorMethod<[string], StartupOverviewResponse>;
   getFounders: ActorMethod<[], Array<Founder>>;
+  getFundingStatus: ActorMethod<[string], FundingStatusResponse>;
   getICPBalance: ActorMethod<[TransferAccount], BalanceResponse>;
   getICPTokenConfig: ActorMethod<[], TokenConfig>;
   getInvestorByPrincipal: ActorMethod<[], [] | [Investor]>;
+  getInvestorDashboard: ActorMethod<[], InvestorDashboardResponse>;
   getInvestorProfile: ActorMethod<[], [] | [Investor]>;
-  getInvestorPurchaseHistory: ActorMethod<[string], Result_10>;
-  getInvestorVoteForReport: ActorMethod<[string], Result_20>;
-  getInvestorVoteHistory: ActorMethod<[string], Result_19>;
+  getInvestorPurchaseHistory: ActorMethod<[string], Result_9>;
+  getInvestorVoteForReport: ActorMethod<[string], Result_19>;
+  getInvestorVoteHistory: ActorMethod<[string], Result_18>;
   getInvestors: ActorMethod<[], Array<Investor>>;
   getMonthlyReport: ActorMethod<[string], Result_1>;
   getMonthlyReportStats: ActorMethod<[], MonthlyReportStats>;
-  getMonthlyReportsByStartup: ActorMethod<[string], Result_18>;
+  getMonthlyReportsByStartup: ActorMethod<[string], Result_17>;
   getMonthlyReportsByStatus: ActorMethod<
     [MonthlyReportStatus],
     Array<MonthlyReport>
   >;
-  getNFTBalance: ActorMethod<[NFTAccount], Result_17>;
-  getNFTInfo: ActorMethod<[bigint], Result_16>;
-  getNFTOwner: ActorMethod<[bigint], Result_15>;
-  getNFTPrice: ActorMethod<[string], Result_14>;
+  getNFTBalance: ActorMethod<[NFTAccount], Result_16>;
+  getNFTInfo: ActorMethod<[bigint], Result_15>;
+  getNFTOwner: ActorMethod<[bigint], Result_14>;
+  getNFTPrice: ActorMethod<[string], Result_13>;
   getNFTStats: ActorMethod<
     [],
     { totalSupply: bigint; totalStartups: bigint; nextTokenId: bigint }
   >;
-  getNFTsByStartup: ActorMethod<[string], Result_13>;
+  getNFTsByStartup: ActorMethod<[string], Result_12>;
   getPlantifyAccount: ActorMethod<[], string>;
-  getPurchaseInfo: ActorMethod<[string], Result_12>;
+  getPurchaseInfo: ActorMethod<[string], Result_11>;
   getPurchaseStats: ActorMethod<[], NFTPurchaseStats>;
-  getReportVoteDetails: ActorMethod<[string], Result_11>;
+  getReportVoteDetails: ActorMethod<[string], Result_10>;
   getReportVotes: ActorMethod<[string], Array<InvestorVote>>;
   getStartupDetails: ActorMethod<[string], [] | [Startup]>;
-  getStartupPurchaseHistory: ActorMethod<[string], Result_10>;
-  getStartupsCount: ActorMethod<[], bigint>;
-  getStartupsPaginated: ActorMethod<[PaginationParams], PaginatedStartups>;
+  getStartupPurchaseHistory: ActorMethod<[string], Result_9>;
+  getStartupTeamMembers: ActorMethod<[string], TeamMembersResponse>;
+  getStartupsByFounderNameAndId: ActorMethod<[string, string], Array<Startup>>;
   getStartupsByFounderPrincipal: ActorMethod<[], Array<Startup>>;
   getStartupsByFounderPrincipalPaginated: ActorMethod<
     [PaginationParams],
     PaginatedStartups
   >;
+  getStartupsCount: ActorMethod<[], bigint>;
+  getStartupsPaginated: ActorMethod<[PaginationParams], PaginatedStartups>;
   getTokenCanisterId: ActorMethod<[string], [] | [string]>;
   getTokenInfo: ActorMethod<[string], TokenInfoResponse>;
   getUserType: ActorMethod<[], [] | [UserType]>;
-  getVoteSummary: ActorMethod<[string], Result_9>;
+  getVoteSummary: ActorMethod<[string], Result_8>;
   getVotingStats: ActorMethod<[], VotingStats>;
-  initializeCollateral: ActorMethod<[string, bigint, string], Result_7>;
+  initializeCollateral: ActorMethod<[string, bigint, string], Result_6>;
   isUserFounder: ActorMethod<[], boolean>;
   isUserInvestor: ActorMethod<[], boolean>;
   isUsingTestTokens: ActorMethod<[], boolean>;
-  mintNFT: ActorMethod<[MintNFTRequest], Result_8>;
-  mintNFTForStartup: ActorMethod<[string], Result_7>;
-  purchaseNFT: ActorMethod<[NFTPurchaseRequest], Result_6>;
+  mintNFT: ActorMethod<[MintNFTRequest], Result_7>;
+  mintNFTForStartup: ActorMethod<[string], Result_6>;
+  purchaseNFT: ActorMethod<[NFTPurchaseRequest], NFTPurchaseResponse>;
   registerFounder: ActorMethod<[FounderRegistrationRequest], Result_5>;
   registerInvestor: ActorMethod<[InvestorRegistrationRequest], Result_2>;
   rejectMonthlyReport: ActorMethod<[string], Result_1>;
