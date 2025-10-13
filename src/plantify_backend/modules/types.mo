@@ -670,4 +670,157 @@ module Types {
     totalPages : Nat;
   };
 
+  // Dashboard Founder Service Types
+  public type DashboardOverview = {
+    totalFundingRaised : Nat;
+    activeStartups : Nat;
+    pendingStartups : Nat;
+    draftStartups : Nat;
+    totalNFTHolders : Nat;
+    totalMonthlyCommitments : Nat;
+  };
+
+  public type DashboardOverviewResponse = {
+    #Success : DashboardOverview;
+    #Error : Text;
+  };
+
+  // Dashboard Startup Overview Types
+  public type StartupOverview = {
+    name : Text;
+    companyType : Text;
+    location : Text;
+    description : Text;
+    totalFunded : Nat;
+    fundTarget : Nat;
+    totalNFTSale : Nat;
+    totalNFT : Nat;
+    totalTeamMembers : Nat;
+  };
+
+  public type StartupOverviewResponse = {
+    #Success : StartupOverview;
+    #Error : Text;
+  };
+
+  // Dashboard Team Members Types
+  public type TeamMemberOverview = {
+    id : Nat;
+    name : Text;
+    role : Text;
+    background : Text;
+    photo : ?Text;
+    linkedin : Text;
+    email : Text;
+    isFounder : Bool;
+  };
+
+  public type TeamMembersResponse = {
+    #Success : [TeamMemberOverview];
+    #Error : Text;
+  };
+
+  // Dashboard Funding Status Types
+  public type FundingStatus = {
+    totalRaised : Nat;
+    fundingGoal : Nat;
+    progressPercentage : Nat;
+    remainingAmount : Nat;
+    isFullyFunded : Bool;
+    fundingStatus : Text; // "Not Started", "In Progress", "Fully Funded", "Over Funded"
+    recentInvestments : [RecentInvestment];
+    fundingMilestones : [FundingMilestone];
+  };
+
+  public type RecentInvestment = {
+    investorName : Text;
+    amount : Nat;
+    date : Time.Time;
+    tokenType : Text;
+  };
+
+  public type FundingMilestone = {
+    milestone : Text;
+    targetAmount : Nat;
+    isAchieved : Bool;
+    achievedDate : ?Time.Time;
+  };
+
+  public type FundingStatusResponse = {
+    #Success : FundingStatus;
+    #Error : Text;
+  };
+
+  // Dashboard Collateral Status Types
+  public type CollateralDashboard = {
+    startupId : Text;
+    requiredAmount : Nat;
+    currentAmount : Nat;
+    progressPercentage : Nat;
+    status : Text; // "Pending", "Active", "Locked", "Released"
+    tokenType : Text;
+    isFullyPaid : Bool;
+    remainingAmount : Nat;
+    lockStartTime : ?Time.Time;
+    lockEndTime : ?Time.Time;
+    topUpHistory : [CollateralTopUpSummary];
+    nextPaymentDue : ?Time.Time;
+  };
+
+  public type CollateralTopUpSummary = {
+    id : Text;
+    amount : Nat;
+    timestamp : Time.Time;
+    status : Text;
+    transactionId : ?Text;
+  };
+
+  public type CollateralDashboardResponse = {
+    #Success : CollateralDashboard;
+    #Error : Text;
+  };
+
+  // Dashboard Investor Types
+  public type InvestorDashboard = {
+    totalInvestors : Nat;
+    activeInvestors : Nat;
+    newInvestorsThisMonth : Nat;
+    totalInvestmentAmount : Nat;
+    averageInvestmentPerInvestor : Nat;
+    topInvestors : [TopInvestor];
+    recentInvestments : [RecentInvestmentSummary];
+    investorGrowth : [InvestorGrowthData];
+  };
+
+  public type TopInvestor = {
+    investorId : Text;
+    investorName : Text;
+    totalInvested : Nat;
+    numberOfInvestments : Nat;
+    lastInvestmentDate : Time.Time;
+    profilePhoto : ?Text;
+  };
+
+  public type RecentInvestmentSummary = {
+    investorId : Text;
+    investorName : Text;
+    startupId : Text;
+    startupName : Text;
+    amount : Nat;
+    date : Time.Time;
+    tokenType : Text;
+  };
+
+  public type InvestorGrowthData = {
+    month : Nat;
+    year : Nat;
+    newInvestors : Nat;
+    totalInvestors : Nat;
+  };
+
+  public type InvestorDashboardResponse = {
+    #Success : InvestorDashboard;
+    #Error : Text;
+  };
+
 };

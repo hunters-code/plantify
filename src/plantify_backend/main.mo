@@ -12,6 +12,7 @@ import NFTService "./modules/services/nft";
 import NFTPurchaseService "./modules/services/nftPurchase";
 import MonthlyReportService "./modules/services/monthlyReport";
 import VotingService "./modules/services/voting";
+import DashboardFounderService "./modules/services/dashboardFounder";
 import Config "./config";
 persistent actor PlantifyBackend {
   // Stable variables for persistence across canister upgrades
@@ -61,6 +62,7 @@ persistent actor PlantifyBackend {
   private transient let nftPurchaseService = NFTPurchaseService.NFTPurchaseService(config, storage, transferService, nftService);
   private transient let monthlyReportService = MonthlyReportService.MonthlyReportService(storage);
   private transient let votingService = VotingService.VotingService(storage);
+  private transient let dashboardFounderService = DashboardFounderService.DashboardFounder(storage, nftPurchaseService, nftService, collateralService);
 
   public shared (msg) func registerFounder(request : Types.FounderRegistrationRequest) : async Result.Result<Types.Founder, Text> {
     registrationService.registerFounder(msg.caller, request);
@@ -558,6 +560,88 @@ persistent actor PlantifyBackend {
 
   public shared (msg) func canInvestorVote(reportId : Text) : async Result.Result<Bool, Text> {
     votingService.canInvestorVote(msg.caller, reportId);
+  };
+
+  // ========================================
+  // DASHBOARD FOUNDER SERVICE METHODS
+  // ========================================
+
+  public shared (msg) func getFounderDashboardOverview() : async Types.DashboardOverviewResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        dashboardFounderService.getFounderDashboardOverview(founder.id);
+      };
+    };
+  };
+
+  public shared (msg) func getFounderStartupOverview(startupId : Text) : async Types.StartupOverviewResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        // Verify that the startup belongs to this founder
+        let founderStartups = storage.getStartupsByFounder(founder.id);
+        let startupExists = Array.find<Types.Startup>(founderStartups, func(startup) = startup.id == startupId);
+        switch (startupExists) {
+          case null { #Error("Startup not found or not owned by this founder") };
+          case (?_) { dashboardFounderService.getFounderStartupOverview(startupId) };
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getStartupTeamMembers(startupId : Text) : async Types.TeamMembersResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        // Verify that the startup belongs to this founder
+        let founderStartups = storage.getStartupsByFounder(founder.id);
+        let startupExists = Array.find<Types.Startup>(founderStartups, func(startup) = startup.id == startupId);
+        switch (startupExists) {
+          case null { #Error("Startup not found or not owned by this founder") };
+          case (?_) { dashboardFounderService.getStartupTeamMembers(startupId) };
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getFundingStatus(startupId : Text) : async Types.FundingStatusResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        // Verify that the startup belongs to this founder
+        let founderStartups = storage.getStartupsByFounder(founder.id);
+        let startupExists = Array.find<Types.Startup>(founderStartups, func(startup) = startup.id == startupId);
+        switch (startupExists) {
+          case null { #Error("Startup not found or not owned by this founder") };
+          case (?_) { dashboardFounderService.getFundingStatus(startupId) };
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getCollateralDashboard(startupId : Text) : async Types.CollateralDashboardResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        // Verify that the startup belongs to this founder
+        let founderStartups = storage.getStartupsByFounder(founder.id);
+        let startupExists = Array.find<Types.Startup>(founderStartups, func(startup) = startup.id == startupId);
+        switch (startupExists) {
+          case null { #Error("Startup not found or not owned by this founder") };
+          case (?_) { dashboardFounderService.getCollateralStatus(startupId) };
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getInvestorDashboard() : async Types.InvestorDashboardResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        dashboardFounderService.getInvestorDashboard(founder.id);
+      };
+    };
   };
 
   // ========================================
