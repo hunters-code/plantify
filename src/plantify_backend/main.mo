@@ -236,30 +236,6 @@ persistent actor PlantifyBackend {
   };
 
   // ========================================
-  // DATA SYNCHRONIZATION METHODS
-  // ========================================
-
-  // Sync data from storage to stable variables (called before upgrade)
-  private func syncToStable() {
-    foundersEntries := Iter.toArray(storage.founders.entries());
-    founderPrincipalsEntries := Iter.toArray(storage.founderPrincipals.entries());
-    investorsEntries := Iter.toArray(storage.investors.entries());
-    investorPrincipalsEntries := Iter.toArray(storage.investorPrincipals.entries());
-    startupsEntries := Iter.toArray(storage.startups.entries());
-    founderStartupsEntries := Iter.toArray(storage.founderStartups.entries());
-    monthlyReportsEntries := Iter.toArray(storage.monthlyReports.entries());
-    startupReportsEntries := Iter.toArray(storage.startupReports.entries());
-    votesEntries := Iter.toArray(storage.votes.entries());
-    reportVotesEntries := Iter.toArray(storage.reportVotes.entries());
-    investorVotesEntries := Iter.toArray(storage.investorVotes.entries());
-    nextFounderId := storage.nextFounderId;
-    nextInvestorId := storage.nextInvestorId;
-    nextStartupId := storage.nextStartupId;
-    nextReportId := storage.nextReportId;
-    nextVoteId := storage.nextVoteId;
-  };
-
-  // ========================================
   // TRANSFER SERVICE METHODS
   // ========================================
 
@@ -677,17 +653,20 @@ persistent actor PlantifyBackend {
     };
   };
 
+  public shared (msg) func getMyInvestmentPortfolio() : async Types.MyInvestmentPortfolioResponse {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #Error("Investor not found") };
+      case (?investor) {
+        dashboardInvestorService.getMyInvestmentPortfolio(investor.id);
+      };
+    };
+  };
+
   // ========================================
   // PERSISTENCE METHODS
   // ========================================
 
-
-  system func preupgrade() {
-    syncToStable();
-  };
-
   system func postupgrade() {
-    // Update config to use current configuration
     config := Config.getCurrentConfig();
   };
 };

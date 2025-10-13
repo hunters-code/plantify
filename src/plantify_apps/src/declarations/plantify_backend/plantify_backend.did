@@ -402,6 +402,43 @@ type RecentInvestment =
    investorName: text;
    tokenType: text;
  };
+type PortfolioSummary = 
+ record {
+   activeInvestments: nat;
+   averageReturn: nat;
+   bestPerformer: opt text;
+   completedInvestments: nat;
+   totalMonthlyCommitments: nat;
+   totalProfitSharingEarnings: nat;
+   totalStartups: nat;
+   worstPerformer: opt text;
+ };
+type PortfolioItem = 
+ record {
+   currentValue: nat;
+   investedAmount: nat;
+   investmentDate: Time;
+   lastUpdateDate: Time;
+   monthlyCommitment: nat;
+   nftCount: nat;
+   profitSharingEarnings: nat;
+   returnAmount: nat;
+   returnPercentage: nat;
+   sector: text;
+   startupId: text;
+   startupLogo: opt text;
+   startupName: text;
+   status: text;
+ };
+type PerformanceMetrics = 
+ record {
+   diversificationScore: nat;
+   investmentTrend: text;
+   monthlyCommitmentTrend: text;
+   portfolioGrowth: nat;
+   profitSharingTrend: text;
+   riskScore: nat;
+ };
 type PaginationParams = 
  record {
    limit: nat;
@@ -520,6 +557,21 @@ type NFTAccount =
  record {
    owner: principal;
    subaccount: opt blob;
+ };
+type MyInvestmentPortfolioResponse = 
+ variant {
+   Error: text;
+   Success: MyInvestmentPortfolio;
+ };
+type MyInvestmentPortfolio = 
+ record {
+   performanceMetrics: PerformanceMetrics;
+   portfolioItems: vec PortfolioItem;
+   portfolioSummary: PortfolioSummary;
+   returnPercentage: nat;
+   totalInvested: nat;
+   totalPortfolioValue: nat;
+   totalReturns: nat;
  };
 type MonthlyReportStatus = 
  variant {
@@ -983,6 +1035,7 @@ service : {
   getMonthlyReportsByStartup: (startupId: text) -> (Result_17);
   getMonthlyReportsByStatus: (status: MonthlyReportStatus) ->
    (vec MonthlyReport);
+  getMyInvestmentPortfolio: () -> (MyInvestmentPortfolioResponse);
   getNFTBalance: (account: NFTAccount) -> (Result_16);
   getNFTInfo: (tokenId: nat) -> (Result_15);
   getNFTOwner: (tokenId: nat) -> (Result_14);

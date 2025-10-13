@@ -348,6 +348,17 @@ export type MonthlyReportStatus = { 'Approved' : null } |
   { 'Draft' : null } |
   { 'Rejected' : null } |
   { 'Submitted' : null };
+export interface MyInvestmentPortfolio {
+  'portfolioItems' : Array<PortfolioItem>,
+  'totalPortfolioValue' : bigint,
+  'returnPercentage' : bigint,
+  'totalInvested' : bigint,
+  'totalReturns' : bigint,
+  'performanceMetrics' : PerformanceMetrics,
+  'portfolioSummary' : PortfolioSummary,
+}
+export type MyInvestmentPortfolioResponse = { 'Error' : string } |
+  { 'Success' : MyInvestmentPortfolio };
 export interface NFTAccount {
   'owner' : Principal,
   'subaccount' : [] | [Uint8Array | number[]],
@@ -437,6 +448,40 @@ export interface PaginatedStartups {
   'totalPages' : bigint,
 }
 export interface PaginationParams { 'page' : bigint, 'limit' : bigint }
+export interface PerformanceMetrics {
+  'monthlyCommitmentTrend' : string,
+  'investmentTrend' : string,
+  'profitSharingTrend' : string,
+  'diversificationScore' : bigint,
+  'riskScore' : bigint,
+  'portfolioGrowth' : bigint,
+}
+export interface PortfolioItem {
+  'status' : string,
+  'returnAmount' : bigint,
+  'startupId' : string,
+  'returnPercentage' : bigint,
+  'monthlyCommitment' : bigint,
+  'nftCount' : bigint,
+  'sector' : string,
+  'lastUpdateDate' : Time,
+  'currentValue' : bigint,
+  'profitSharingEarnings' : bigint,
+  'investmentDate' : Time,
+  'startupLogo' : [] | [string],
+  'startupName' : string,
+  'investedAmount' : bigint,
+}
+export interface PortfolioSummary {
+  'worstPerformer' : [] | [string],
+  'totalProfitSharingEarnings' : bigint,
+  'activeInvestments' : bigint,
+  'completedInvestments' : bigint,
+  'totalStartups' : bigint,
+  'bestPerformer' : [] | [string],
+  'averageReturn' : bigint,
+  'totalMonthlyCommitments' : bigint,
+}
 export interface RecentInvestment {
   'date' : Time,
   'tokenType' : string,
@@ -787,6 +832,7 @@ export interface _SERVICE {
     [MonthlyReportStatus],
     Array<MonthlyReport>
   >,
+  'getMyInvestmentPortfolio' : ActorMethod<[], MyInvestmentPortfolioResponse>,
   'getNFTBalance' : ActorMethod<[NFTAccount], Result_16>,
   'getNFTInfo' : ActorMethod<[bigint], Result_15>,
   'getNFTOwner' : ActorMethod<[bigint], Result_14>,

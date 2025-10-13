@@ -10,19 +10,40 @@ import Nat32 "mo:base/Nat32";
 import Types "./types";
 
 module Storage {
-  // Helper function to convert text to natural number
+  // Safe textToNat function with overflow protection
   private func textToNat(txt : Text) : Nat {
-    assert (txt.size() > 0);
-    let chars = txt.chars();
-
-    var num : Nat = 0;
-    for (v in chars) {
-      let charToNum = Nat32.toNat(Char.toNat32(v) -48);
-      assert (charToNum >= 0 and charToNum <= 9);
-      num := num * 10 + charToNum;
+    if (txt.size() == 0) { 0 }
+    else if (txt.size() > 10) { 
+      // If text is too long, return a safe maximum to prevent overflow
+      1000000; 
+    }
+    else {
+      let chars = txt.chars();
+      var num : Nat = 0;
+      var maxSafeValue : Nat = 1000000; // 1 million - safe maximum
+      
+      for (v in chars) {
+        let charToNum = Nat32.toNat(Char.toNat32(v) - 48);
+        if (charToNum >= 0 and charToNum <= 9) {
+          // Check for overflow before multiplication
+          if (num > maxSafeValue / 10) {
+            return maxSafeValue; // Return max safe value to prevent overflow
+          };
+          
+          let newNum = num * 10 + charToNum;
+          if (newNum < num or newNum > maxSafeValue) {
+            // Overflow detected, return max safe value
+            return maxSafeValue;
+          };
+          num := newNum;
+        } else {
+          // Non-numeric character found, return 0
+          return 0;
+        };
+      };
+      
+      num;
     };
-
-    num;
   };
 
   public class UserStorage(
@@ -434,34 +455,73 @@ module Storage {
         case (?founderId) {
           let founderStartups = getStartupsByFounder(founderId);
           let totalCount = founderStartups.size();
-          let offset = params.page * params.limit;
+          
+          // Safe offset calculation to prevent arithmetic overflow
+          let offset = if (params.page == 0) {
+            0;
+          } else if (params.limit == 0) {
+            0;
+          } else {
+            // Check for potential overflow before multiplication
+            let maxSafePage = if (params.limit > 0) {
+              // Use a safe maximum to prevent overflow
+              let maxPage = 1000000; // Reasonable maximum page number
+              if (params.page > maxPage) {
+                maxPage;
+              } else {
+                params.page;
+              };
+            } else {
+              0;
+            };
+            maxSafePage * params.limit;
+          };
 
           let paginatedStartups = if (offset >= totalCount or params.limit == 0) {
             [];
           } else {
-            let endIndex = Nat.min(offset + params.limit, totalCount);
+            // Safe endIndex calculation to prevent overflow
+            let endIndex = if (offset + params.limit > totalCount) {
+              totalCount;
+            } else {
+              offset + params.limit;
+            };
             let takeCount = if (endIndex > offset) {
-              if (endIndex >= offset) {
-                if (endIndex > offset) { endIndex - offset } else { 0 };
-              } else { 0 };
+              // Use a loop to safely calculate the difference
+              var count : Nat = 0;
+              var current : Nat = offset;
+              while (current < endIndex) {
+                count := count + 1;
+                current := current + 1;
+              };
+              count;
             } else { 0 };
 
             if (takeCount == 0) {
               [];
             } else {
-              Array.tabulate<Types.Startup>(
-                takeCount,
-                func(i : Nat) : Types.Startup {
-                  founderStartups[offset + i];
-                },
-              );
+              // Safe array creation with overflow protection
+              var safeStartups : [Types.Startup] = [];
+              var i : Nat = 0;
+              while (i < takeCount and i < 1000) { // Limit to 1000 items max
+                if (offset + i < founderStartups.size()) {
+                  let startup = founderStartups[offset + i];
+                  safeStartups := Array.append(safeStartups, [startup]);
+                };
+                i := i + 1;
+              };
+              safeStartups;
             };
           };
 
-          // Convert to lightweight startup summaries
-          let startupSummaries = Array.map<Types.Startup, Types.StartupSummary>(
-            paginatedStartups,
-            func(startup : Types.Startup) : Types.StartupSummary {
+          // Convert to lightweight startup summaries with overflow protection
+          let startupSummaries = if (paginatedStartups.size() > 1000) {
+            // If too many startups, return empty array to prevent overflow
+            [];
+          } else {
+            Array.map<Types.Startup, Types.StartupSummary>(
+              paginatedStartups,
+              func(startup : Types.Startup) : Types.StartupSummary {
               // Get first company image or empty array if none
               let firstImage = if (startup.companyImages.size() > 0) {
                 [startup.companyImages[0]];
@@ -469,11 +529,12 @@ module Storage {
                 [];
               };
 
-              // Parse funding goal to calculate available NFTs
+              // Parse funding goal to calculate available NFTs with safe textToNat
               let fundingGoal = textToNat(startup.fundingGoal);
               let nftPrice = textToNat(startup.nftPrice);
-              let availableNFTs = if (nftPrice > 0 and fundingGoal > 0) {
-                fundingGoal / nftPrice;
+              let availableNFTs = if (nftPrice > 0 and fundingGoal > 0 and nftPrice <= fundingGoal) {
+                let result = fundingGoal / nftPrice;
+                if (result > 1000000) { 1000000 } else { result }; // Cap at 1 million NFTs
               } else {
                 0;
               };
@@ -494,13 +555,28 @@ module Storage {
                 builtByCaffeineAI = startup.builtByCaffeineAI;
               };
             },
-          );
+            );
+          };
 
           let totalPages = if (totalCount == 0 or params.limit == 0) {
             0;
           } else {
-            let pages = totalCount / params.limit;
-            if (totalCount % params.limit == 0) { pages } else { pages + 1 };
+            // Safe division with overflow protection
+            let pages = if (params.limit > 0) {
+              let result = totalCount / params.limit;
+              if (result > 1000000) { 1000000 } else { result }; // Cap at 1 million pages
+            } else {
+              0;
+            };
+            let remainder = if (params.limit > 0) {
+              totalCount % params.limit;
+            } else {
+              0;
+            };
+            if (remainder == 0) { pages } else { 
+              let finalPages = pages + 1;
+              if (finalPages > 1000000) { 1000000 } else { finalPages };
+            };
           };
 
           {
@@ -539,6 +615,12 @@ module Storage {
     };
 
     public func getStartupsPaginated(params : Types.PaginationParams) : Types.PaginatedStartups {
+      // Input validation to prevent overflow
+      let safeParams = {
+        page = if (params.page > 1000000) { 1000000 } else { params.page };
+        limit = if (params.limit > 1000) { 1000 } else { params.limit };
+      };
+      
       let allStartups = Array.map<(Text, Types.Startup), Types.Startup>(
         Iter.toArray(startups.entries()),
         func(entry : (Text, Types.Startup)) : Types.Startup {
@@ -548,34 +630,61 @@ module Storage {
       );
 
       let totalCount = allStartups.size();
-      let offset = params.page * params.limit;
+      
+      // Safe offset calculation to prevent arithmetic overflow
+      let offset = if (safeParams.page == 0) {
+        0;
+      } else if (safeParams.limit == 0) {
+        0;
+      } else {
+        safeParams.page * safeParams.limit;
+      };
 
-      let paginatedStartups = if (offset >= totalCount or params.limit == 0) {
+      let paginatedStartups = if (offset >= totalCount or safeParams.limit == 0) {
         [];
       } else {
-        let endIndex = Nat.min(offset + params.limit, totalCount);
+        // Safe endIndex calculation to prevent overflow
+        let endIndex = if (offset + safeParams.limit > totalCount) {
+          totalCount;
+        } else {
+          offset + safeParams.limit;
+        };
         let takeCount = if (endIndex > offset) {
-          if (endIndex >= offset) {
-            if (endIndex > offset) { endIndex - offset } else { 0 };
-          } else { 0 };
+          // Use a loop to safely calculate the difference
+          var count : Nat = 0;
+          var current : Nat = offset;
+          while (current < endIndex) {
+            count := count + 1;
+            current := current + 1;
+          };
+          count;
         } else { 0 };
 
         if (takeCount == 0) {
           [];
         } else {
-          Array.tabulate<Types.Startup>(
-            takeCount,
-            func(i : Nat) : Types.Startup {
-              allStartups[offset + i];
-            },
-          );
+          // Safe array creation with overflow protection
+          var safeStartups : [Types.Startup] = [];
+          var i : Nat = 0;
+          while (i < takeCount and i < 1000) { // Limit to 1000 items max
+            if (offset + i < allStartups.size()) {
+              let startup = allStartups[offset + i];
+              safeStartups := Array.append(safeStartups, [startup]);
+            };
+            i := i + 1;
+          };
+          safeStartups;
         };
       };
 
-      // Convert to lightweight startup summaries
-      let startupSummaries = Array.map<Types.Startup, Types.StartupSummary>(
-        paginatedStartups,
-        func(startup : Types.Startup) : Types.StartupSummary {
+      // Convert to lightweight startup summaries with overflow protection
+      let startupSummaries = if (paginatedStartups.size() > 1000) {
+        // If too many startups, return empty array to prevent overflow
+        [];
+      } else {
+        Array.map<Types.Startup, Types.StartupSummary>(
+          paginatedStartups,
+          func(startup : Types.Startup) : Types.StartupSummary {
           // Get first company image or empty array if none
           let firstImage = if (startup.companyImages.size() > 0) {
             [startup.companyImages[0]];
@@ -583,11 +692,12 @@ module Storage {
             [];
           };
 
-          // Parse funding goal to calculate available NFTs
+          // Parse funding goal to calculate available NFTs with safe textToNat
           let fundingGoal = textToNat(startup.fundingGoal);
           let nftPrice = textToNat(startup.nftPrice);
-          let availableNFTs = if (nftPrice > 0 and fundingGoal > 0) {
-            fundingGoal / nftPrice;
+          let availableNFTs = if (nftPrice > 0 and fundingGoal > 0 and nftPrice <= fundingGoal) {
+            let result = fundingGoal / nftPrice;
+            if (result > 1000000) { 1000000 } else { result }; // Cap at 1 million NFTs
           } else {
             0;
           };
@@ -609,20 +719,35 @@ module Storage {
             builtByCaffeineAI = startup.builtByCaffeineAI;
           };
         },
-      );
+        );
+      };
 
-      let totalPages = if (totalCount == 0 or params.limit == 0) {
+      let totalPages = if (totalCount == 0 or safeParams.limit == 0) {
         0;
       } else {
-        let pages = totalCount / params.limit;
-        if (totalCount % params.limit == 0) { pages } else { pages + 1 };
+        // Safe division with overflow protection
+        let pages = if (safeParams.limit > 0) {
+          let result = totalCount / safeParams.limit;
+          if (result > 1000000) { 1000000 } else { result }; // Cap at 1 million pages
+        } else {
+          0;
+        };
+        let remainder = if (safeParams.limit > 0) {
+          totalCount % safeParams.limit;
+        } else {
+          0;
+        };
+        if (remainder == 0) { pages } else { 
+          let finalPages = pages + 1;
+          if (finalPages > 1000000) { 1000000 } else { finalPages };
+        };
       };
 
       {
         startups = startupSummaries;
         totalCount = totalCount;
-        page = params.page;
-        limit = params.limit;
+        page = safeParams.page;
+        limit = safeParams.limit;
         totalPages = totalPages;
       };
     };

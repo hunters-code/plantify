@@ -123,18 +123,31 @@ module DashboardFounderService {
       };
     };
     
-    // Helper function to convert text to natural number
+    // Helper function to convert text to natural number with overflow protection
     private func textToNat(txt : Text) : Nat {
       if (txt.size() == 0) { 0 }
       else {
         let chars = txt.chars();
         var num : Nat = 0;
+        var maxSafeValue : Nat = 1000000000; // 1 billion - reasonable maximum
+        
         for (v in chars) {
           let charToNum = Nat32.toNat(Char.toNat32(v) -48);
           if (charToNum >= 0 and charToNum <= 9) {
-            num := num * 10 + charToNum;
+            // Check for overflow before multiplication
+            if (num > maxSafeValue) {
+              return maxSafeValue; // Return max safe value to prevent overflow
+            };
+            
+            let newNum = num * 10 + charToNum;
+            if (newNum < num) {
+              // Overflow detected, return max safe value
+              return maxSafeValue;
+            };
+            num := newNum;
           };
         };
+        
         num;
       };
     };

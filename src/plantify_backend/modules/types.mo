@@ -896,4 +896,57 @@ module Types {
     #Error : Text;
   };
 
+  // My Investment Portfolio Types
+  public type MyInvestmentPortfolio = {
+    totalPortfolioValue : Nat;
+    totalInvested : Nat;
+    totalReturns : Nat;
+    returnPercentage : Nat; // Percentage as integer (e.g., 15 for 15%)
+    portfolioItems : [PortfolioItem];
+    portfolioSummary : PortfolioSummary;
+    performanceMetrics : PerformanceMetrics;
+  };
+
+  public type PortfolioItem = {
+    startupId : Text;
+    startupName : Text;
+    startupLogo : ?Text;
+    sector : Text;
+    investedAmount : Nat;
+    currentValue : Nat;
+    nftCount : Nat;
+    returnAmount : Nat;
+    returnPercentage : Nat;
+    investmentDate : Time.Time;
+    lastUpdateDate : Time.Time;
+    status : Text; // "Active", "Completed", "Pending"
+    profitSharingEarnings : Nat;
+    monthlyCommitment : Nat;
+  };
+
+  public type PortfolioSummary = {
+    totalStartups : Nat;
+    activeInvestments : Nat;
+    completedInvestments : Nat;
+    averageReturn : Nat;
+    bestPerformer : ?Text;
+    worstPerformer : ?Text;
+    totalMonthlyCommitments : Nat;
+    totalProfitSharingEarnings : Nat;
+  };
+
+  public type PerformanceMetrics = {
+    portfolioGrowth : Nat; // Percentage growth
+    riskScore : Nat; // 1-10 scale
+    diversificationScore : Nat; // 1-10 scale
+    investmentTrend : Text; // "Growing", "Stable", "Declining"
+    monthlyCommitmentTrend : Text;
+    profitSharingTrend : Text;
+  };
+
+  public type MyInvestmentPortfolioResponse = {
+    #Success : MyInvestmentPortfolio;
+    #Error : Text;
+  };
+
 };

@@ -522,6 +522,53 @@ export const idlFactory = ({ IDL }) => {
     totalRevenue: IDL.Nat,
   });
   const Result_17 = IDL.Variant({ ok: MonthlyReportList, err: IDL.Text });
+  const PortfolioItem = IDL.Record({
+    status: IDL.Text,
+    returnAmount: IDL.Nat,
+    startupId: IDL.Text,
+    returnPercentage: IDL.Nat,
+    monthlyCommitment: IDL.Nat,
+    nftCount: IDL.Nat,
+    sector: IDL.Text,
+    lastUpdateDate: Time,
+    currentValue: IDL.Nat,
+    profitSharingEarnings: IDL.Nat,
+    investmentDate: Time,
+    startupLogo: IDL.Opt(IDL.Text),
+    startupName: IDL.Text,
+    investedAmount: IDL.Nat,
+  });
+  const PerformanceMetrics = IDL.Record({
+    monthlyCommitmentTrend: IDL.Text,
+    investmentTrend: IDL.Text,
+    profitSharingTrend: IDL.Text,
+    diversificationScore: IDL.Nat,
+    riskScore: IDL.Nat,
+    portfolioGrowth: IDL.Nat,
+  });
+  const PortfolioSummary = IDL.Record({
+    worstPerformer: IDL.Opt(IDL.Text),
+    totalProfitSharingEarnings: IDL.Nat,
+    activeInvestments: IDL.Nat,
+    completedInvestments: IDL.Nat,
+    totalStartups: IDL.Nat,
+    bestPerformer: IDL.Opt(IDL.Text),
+    averageReturn: IDL.Nat,
+    totalMonthlyCommitments: IDL.Nat,
+  });
+  const MyInvestmentPortfolio = IDL.Record({
+    portfolioItems: IDL.Vec(PortfolioItem),
+    totalPortfolioValue: IDL.Nat,
+    returnPercentage: IDL.Nat,
+    totalInvested: IDL.Nat,
+    totalReturns: IDL.Nat,
+    performanceMetrics: PerformanceMetrics,
+    portfolioSummary: PortfolioSummary,
+  });
+  const MyInvestmentPortfolioResponse = IDL.Variant({
+    Error: IDL.Text,
+    Success: MyInvestmentPortfolio,
+  });
   const NFTBalanceResponse = IDL.Variant({
     Error: IDL.Text,
     Success: IDL.Record({ balance: IDL.Nat, account: NFTAccount }),
@@ -830,6 +877,7 @@ export const idlFactory = ({ IDL }) => {
       [IDL.Vec(MonthlyReport)],
       []
     ),
+    getMyInvestmentPortfolio: IDL.Func([], [MyInvestmentPortfolioResponse], []),
     getNFTBalance: IDL.Func([NFTAccount], [Result_16], []),
     getNFTInfo: IDL.Func([IDL.Nat], [Result_15], []),
     getNFTOwner: IDL.Func([IDL.Nat], [Result_14], []),
