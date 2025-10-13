@@ -39,80 +39,56 @@ export function useDashboardStats() {
       try {
         setStats(prev => ({ ...prev, loading: true, error: null }));
 
-        const [founder, startupsData] = await Promise.all([
-          FounderService.getFounderByPrincipal(),
-          FounderService.getFounderStartups(),
-        ]);
+        // Use the new getFounderDashboardOverview API endpoint
+        const result = await FounderService.getFounderDashboardOverview();
 
-        if (!founder) {
+        if (result.success && result.data) {
+          const data = result.data;
+
+          // Get data for reports and votes (these are not in the dashboard overview)
+          const startupsData = await FounderService.getFounderStartups();
+          const startups = startupsData as ExtendedStartup[];
+
+          const totalReports = startups.reduce(
+            (sum, s) => sum + Number(s.reportCount || 0),
+            0
+          );
+
+          const totalVotes = startups.reduce(
+            (sum, s) => sum + Number(s.totalVotes || 0),
+            0
+          );
+
+          const approvalRates = startups
+            .map(s => Number(s.approvalRate || 0))
+            .filter(r => r > 0);
+
+          const averageApprovalRate =
+            approvalRates.length > 0
+              ? approvalRates.reduce((sum, r) => sum + r, 0) /
+                approvalRates.length
+              : 0;
+
+          setStats({
+            totalFundingRaised: Number(data.totalFundingRaised),
+            nftHolders: Number(data.totalNFTHolders),
+            monthlyCommitments: Number(data.totalMonthlyCommitments),
+            activeStartups: Number(data.activeStartups),
+            pendingStartups: Number(data.pendingStartups),
+            draftStartups: Number(data.draftStartups),
+            totalReports,
+            totalVotes,
+            averageApprovalRate: Math.round(averageApprovalRate),
+            loading: false,
+            error: null,
+          });
+        } else {
           setStats(prev => ({
             ...prev,
             loading: false,
-            error: 'Founder not found',
+            error: result.error || 'Failed to fetch dashboard statistics',
           }));
-          return;
         }
-
-        const startups = startupsData as ExtendedStartup[];
-
-        const activeStartups = startups.filter(
-          s => s.status?.toLowerCase() === 'active'
-        ).length;
-        const pendingStartups = startups.filter(
-          s => s.status?.toLowerCase() === 'pending'
-        ).length;
-        const draftStartups = startups.filter(
-          s => s.status?.toLowerCase() === 'draft'
-        ).length;
-
-        const totalFundingRaised = startups.reduce(
-          (sum, s) => sum + Number(s.currentFunding || 0),
-          0
-        );
-
-        const nftHolders = startups.reduce(
-          (sum, s) => sum + Number(s.investorCount || 0),
-          0
-        );
-
-        const monthlyCommitments = startups.reduce(
-          (sum, s) => sum + Number(s.monthlyCommitment || 0),
-          0
-        );
-
-        const totalReports = startups.reduce(
-          (sum, s) => sum + Number(s.reportCount || 0),
-          0
-        );
-
-        const totalVotes = startups.reduce(
-          (sum, s) => sum + Number(s.totalVotes || 0),
-          0
-        );
-
-        const approvalRates = startups
-          .map(s => Number(s.approvalRate || 0))
-          .filter(r => r > 0);
-
-        const averageApprovalRate =
-          approvalRates.length > 0
-            ? approvalRates.reduce((sum, r) => sum + r, 0) /
-              approvalRates.length
-            : 0;
-
-        setStats({
-          totalFundingRaised,
-          nftHolders,
-          monthlyCommitments,
-          activeStartups,
-          pendingStartups,
-          draftStartups,
-          totalReports,
-          totalVotes,
-          averageApprovalRate: Math.round(averageApprovalRate),
-          loading: false,
-          error: null,
-        });
       } catch (err: any) {
         console.error('Error fetching dashboard stats:', err);
         setStats(prev => ({

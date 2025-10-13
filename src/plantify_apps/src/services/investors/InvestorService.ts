@@ -6,9 +6,19 @@ import type {
   NFTPurchaseRequest,
   NFTPurchaseResponse,
   NFTPurchaseHistory,
-  Result_6,
-  Result_10,
+  InvestorDashboard,
+  InvestorDashboardResponse,
+  InvestorDashboardOverview,
+  InvestorDashboardOverviewResponse,
+  InvestorStartupInvestment,
+  InvestorStartupInvestmentResponse,
+  MyInvestmentPortfolio,
+  MyInvestmentPortfolioResponse,
+  TopInvestor,
+  RecentInvestmentSummary,
+  InvestorGrowthData,
   Result_2,
+  Result_9,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -67,12 +77,14 @@ export class InvestorService extends BaseService {
   }> {
     try {
       const actor = await this.getActor();
-      const result: Result_6 = await actor.purchaseNFT(request);
+      const result = await actor.purchaseNFT(request);
 
       if ('ok' in result) {
-        return { success: true, response: result.ok };
+        return { success: true, response: result.ok as NFTPurchaseResponse };
+      } else if ('err' in result) {
+        return { success: false, error: String(result.err) };
       } else {
-        return { success: false, error: result.err };
+        return { success: false, error: 'Unknown response format' };
       }
     } catch (error) {
       console.error('Error purchasing NFT:', error);
@@ -112,7 +124,7 @@ export class InvestorService extends BaseService {
   }> {
     try {
       const actor = await this.getActor();
-      const result: Result_10 =
+      const result: Result_9 =
         await actor.getInvestorPurchaseHistory(investorId);
 
       if ('ok' in result) {
@@ -175,6 +187,113 @@ export class InvestorService extends BaseService {
     } catch (error) {
       console.error('Error updating investor profile:', error);
       return { success: false, error: 'Failed to update investor profile' };
+    }
+  }
+
+  /**
+   * Get investor dashboard data
+   * @returns Dashboard data for investors
+   */
+  public static async getInvestorDashboard(): Promise<{
+    success: boolean;
+    dashboard?: InvestorDashboard;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result: InvestorDashboardResponse =
+        await actor.getInvestorDashboard();
+
+      if ('Success' in result) {
+        return { success: true, dashboard: result.Success };
+      } else {
+        return { success: false, error: result.Error };
+      }
+    } catch (error) {
+      console.error('Error getting investor dashboard:', error);
+      return { success: false, error: 'Failed to get investor dashboard' };
+    }
+  }
+
+  /**
+   * Get investor dashboard overview
+   * @returns Dashboard overview data for investors
+   */
+  public static async getInvestorDashboardOverview(): Promise<{
+    success: boolean;
+    overview?: InvestorDashboardOverview;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result: InvestorDashboardOverviewResponse =
+        await actor.getInvestorDashboardOverview();
+
+      if ('Success' in result) {
+        return { success: true, overview: result.Success };
+      } else {
+        return { success: false, error: result.Error };
+      }
+    } catch (error) {
+      console.error('Error getting investor dashboard overview:', error);
+      return {
+        success: false,
+        error: 'Failed to get investor dashboard overview',
+      };
+    }
+  }
+
+  /**
+   * Get investor startup investment details
+   * @param startupId - The ID of the startup
+   * @returns Investment details for the specific startup
+   */
+  public static async getInvestorStartupInvestment(startupId: string): Promise<{
+    success: boolean;
+    investment?: InvestorStartupInvestment;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result: InvestorStartupInvestmentResponse =
+        await actor.getInvestorStartupInvestment(startupId);
+
+      if ('Success' in result) {
+        return { success: true, investment: result.Success };
+      } else {
+        return { success: false, error: result.Error };
+      }
+    } catch (error) {
+      console.error('Error getting investor startup investment:', error);
+      return {
+        success: false,
+        error: 'Failed to get startup investment details',
+      };
+    }
+  }
+
+  /**
+   * Get investor's complete investment portfolio
+   * @returns Complete investment portfolio data
+   */
+  public static async getMyInvestmentPortfolio(): Promise<{
+    success: boolean;
+    portfolio?: MyInvestmentPortfolio;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result: MyInvestmentPortfolioResponse =
+        await actor.getMyInvestmentPortfolio();
+
+      if ('Success' in result) {
+        return { success: true, portfolio: result.Success };
+      } else {
+        return { success: false, error: result.Error };
+      }
+    } catch (error) {
+      console.error('Error getting investment portfolio:', error);
+      return { success: false, error: 'Failed to get investment portfolio' };
     }
   }
 }
