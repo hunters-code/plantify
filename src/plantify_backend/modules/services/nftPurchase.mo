@@ -59,40 +59,43 @@ module NFTPurchase {
     public func purchaseNFT(
       _principal : Principal,
       request : Types.NFTPurchaseRequest
-    ) : async Result.Result<Types.NFTPurchaseResponse, Text> {
+    ) : async Types.NFTPurchaseResponse {
       Debug.print("NFT Purchase request: " # debug_show(request));
 
       // Validate request
       if (Text.size(request.startupId) == 0) {
-        return #err("Startup ID is required");
+        return #Error("Startup ID is required");
       };
       if (Text.size(request.investorId) == 0) {
-        return #err("Investor ID is required");
+        return #Error("Investor ID is required");
       };
-      if (request.amount == 0) {
-        return #err("Purchase amount must be greater than 0");
+      if (request.quantity == 0) {
+        return #Error("Quantity must be greater than 0");
       };
 
       // Check if startup exists and is active
       switch (storage.getStartup(request.startupId)) {
         case null {
-          return #err("Startup not found");
+          return #Error("Startup not found");
         };
         case (?startup) {
           if (startup.status != "Active") {
-            return #err("Startup must be active to purchase NFTs");
+            return #Error("Startup must be active to purchase NFTs");
           };
 
           // Parse NFT price from startup
           if (Text.size(startup.nftPrice) == 0) {
-            return #err("NFT price cannot be empty");
+            return #Error("NFT price cannot be empty");
           };
           
           let nftPrice = textToNat(startup.nftPrice);
           
           if (nftPrice == 0) {
-            return #err("NFT price cannot be zero");
+            return #Error("NFT price cannot be zero");
           };
+
+          // Calculate total required amount for all NFTs
+          let totalRequiredAmount = nftPrice * request.quantity;
 
           // Check if investor has sufficient balance
           let investorAccount : Types.TransferAccount = {
@@ -102,22 +105,14 @@ module NFTPurchase {
 
           switch (await transferService.getCkUSDCBalance(investorAccount)) {
             case (#err(error)) {
-              return #err("Failed to check investor balance: " # error);
+              return #Error("Failed to check investor balance: " # error);
             };
             case (#ok(balance)) {
-              if (balance < request.amount) {
-                return #err("Insufficient ckUSDC balance");
+              if (balance < totalRequiredAmount) {
+                return #Error("Insufficient ckUSDC balance. Required: " # Nat.toText(totalRequiredAmount) # ", Available: " # Nat.toText(balance));
               };
             };
           };
-
-          // Check if amount is sufficient for NFT price
-          if (request.amount < nftPrice) {
-            return #err("Insufficient amount for NFT purchase. Required: " # Nat.toText(nftPrice) # ", Provided: " # Nat.toText(request.amount));
-          };
-
-          // Calculate change if overpaid
-          let change = if (request.amount >= nftPrice) { request.amount - nftPrice } else { 0 };
 
           // Create purchase record
           let purchaseId = "purchase_" # Nat.toText(nextPurchaseId);
@@ -128,10 +123,10 @@ module NFTPurchase {
             id = purchaseId;
             startupId = request.startupId;
             investorId = request.investorId;
-            tokenId = 0; // Will be set after NFT minting
-            amount = request.amount;
+            tokenId = 0; // Will be set after NFT minting (for single NFT compatibility)
+            amount = totalRequiredAmount;
             nftPrice = nftPrice;
-            change = change;
+            change = 0; // No change since amount is calculated exactly
             transactionId = "";
             timestamp = now;
             status = "Pending";
@@ -147,7 +142,7 @@ module NFTPurchase {
           };
 
           let transferArgs : Types.TransferArgs = {
-            amount = nftPrice;
+            amount = totalRequiredAmount;
             toAccount = plantifyAccount;
             tokenType = "ckUSDC";
             memo = request.memo;
@@ -169,7 +164,7 @@ module NFTPurchase {
                 status = "Failed";
               };
               purchases.put(purchaseId, failedPurchase);
-              return #err("Transfer failed: " # error);
+              return #Error("Transfer failed: " # error);
             };
             case (#Success(transferResult)) {
               // Find existing NFT for the startup (minted when startup became active)
@@ -189,7 +184,7 @@ module NFTPurchase {
                     status = "Failed";
                   };
                   purchases.put(purchaseId, failedPurchase);
-                  return #err("Failed to find NFT for startup: " # error);
+                  return #Error("Failed to find NFT for startup: " # error);
                 };
                 case (#ok(nftList)) {
                   if (nftList.size() == 0) {
@@ -207,133 +202,139 @@ module NFTPurchase {
                       status = "Failed";
                     };
                     purchases.put(purchaseId, failedPurchase);
-                    return #err("No NFT found for startup. Startup may not be active yet.");
+                    return #Error("No NFT found for startup. Startup may not be active yet.");
                   };
 
-                  // Get the first NFT (there should only be one per startup)
-                  let existingNFT = nftList[0];
+                  // Check if there are enough NFTs available
+                  if (nftList.size() < request.quantity) {
+                    let failedPurchase = {
+                      id = purchaseInfo.id;
+                      startupId = purchaseInfo.startupId;
+                      investorId = purchaseInfo.investorId;
+                      tokenId = 0;
+                      amount = purchaseInfo.amount;
+                      nftPrice = purchaseInfo.nftPrice;
+                      change = purchaseInfo.change;
+                      transactionId = transferResult.transactionId;
+                      timestamp = purchaseInfo.timestamp;
+                      status = "Failed";
+                    };
+                    purchases.put(purchaseId, failedPurchase);
+                    return #Error("Insufficient NFTs available. Requested: " # Nat.toText(request.quantity) # ", Available: " # Nat.toText(nftList.size()));
+                  };
 
-                  // Transfer NFT to investor
+                  // Get the required number of NFTs
+                  let nftsToTransfer = Array.tabulate<{tokenId: Nat; owner: Types.NFTAccount; metadata: Types.NFTMetadata}>(
+                    request.quantity,
+                    func(i) = nftList[i]
+                  );
+
+                  // Transfer NFTs to investor
                   let investorNFTAccount : Types.NFTAccount = {
                     owner = _principal;
                     subaccount = null;
                   };
 
-                  let transferRequest : Types.TransferNFTRequest = {
-                    tokenId = existingNFT.tokenId;
-                    toAccount = investorNFTAccount;
-                    memo = ?("NFT purchase: " # purchaseId);
-                  };
+                  // Transfer each NFT
+                  var transferredTokenIds : [Nat] = [];
+                  var transferSuccess = true;
+                  var lastTransactionId = "";
 
-                  switch (await nftService.transferNFT(_principal, transferRequest)) {
-                    case (#err(error)) {
-                      // Update purchase status to failed
-                      let failedPurchase = {
-                        id = purchaseInfo.id;
-                        startupId = purchaseInfo.startupId;
-                        investorId = purchaseInfo.investorId;
-                        tokenId = 0;
-                        amount = purchaseInfo.amount;
-                        nftPrice = purchaseInfo.nftPrice;
-                        change = purchaseInfo.change;
-                        transactionId = transferResult.transactionId;
-                        timestamp = purchaseInfo.timestamp;
-                        status = "Failed";
-                      };
-                      purchases.put(purchaseId, failedPurchase);
-                      return #err("NFT transfer failed: " # error);
+                  // Transfer NFTs one by one
+                  var i = 0;
+                  while (i < nftsToTransfer.size() and transferSuccess) {
+                    let nft = nftsToTransfer[i];
+                    let transferRequest : Types.TransferNFTRequest = {
+                      tokenId = nft.tokenId;
+                      toAccount = investorNFTAccount;
+                      memo = ?("NFT purchase: " # purchaseId);
                     };
-                    case (#ok(transferResult)) {
-                      // Handle the variant type properly
-                      switch (transferResult) {
-                        case (#Success(successResult)) {
-                          // Update purchase info with NFT details
-                          let completedPurchase = {
-                            id = purchaseInfo.id;
-                            startupId = purchaseInfo.startupId;
-                            investorId = purchaseInfo.investorId;
-                            tokenId = existingNFT.tokenId;
-                            amount = purchaseInfo.amount;
-                            nftPrice = purchaseInfo.nftPrice;
-                            change = purchaseInfo.change;
-                            transactionId = switch (successResult.transactionId) {
+
+                    switch (await nftService.transferNFT(_principal, transferRequest)) {
+                      case (#err(_error)) {
+                        transferSuccess := false;
+                      };
+                      case (#ok(transferResult)) {
+                        switch (transferResult) {
+                          case (#Success(successResult)) {
+                            transferredTokenIds := Array.append(transferredTokenIds, [nft.tokenId]);
+                            lastTransactionId := switch (successResult.transactionId) {
                               case null { "" };
                               case (?txId) { txId };
                             };
-                            timestamp = purchaseInfo.timestamp;
-                            status = "Completed";
                           };
-                              purchases.put(purchaseId, completedPurchase);
-
-                          // Update investor purchases
-                          switch (investorPurchases.get(request.investorId)) {
-                            case null { investorPurchases.put(request.investorId, [purchaseId]) };
-                            case (?existingPurchases) {
-                              let updatedPurchases = Array.append(existingPurchases, [purchaseId]);
-                              investorPurchases.put(request.investorId, updatedPurchases);
-                            };
+                          case (#Error(_error)) {
+                            transferSuccess := false;
                           };
-
-                          // Update startup purchases
-                          switch (startupPurchases.get(request.startupId)) {
-                            case null { startupPurchases.put(request.startupId, [purchaseId]) };
-                            case (?existingPurchases) {
-                              let updatedPurchases = Array.append(existingPurchases, [purchaseId]);
-                              startupPurchases.put(request.startupId, updatedPurchases);
-                            };
-                          };
-
-                          // Return change to investor if overpaid
-                          if (change > 0) {
-                            let changeTransferArgs : Types.TransferArgs = {
-                              amount = change;
-                              toAccount = investorAccount;
-                              tokenType = "ckUSDC";
-                              memo = ?("Change from NFT purchase: " # purchaseId);
-                            };
-                            switch (await transferService.transfer(changeTransferArgs)) {
-                              case (#Error(error)) {
-                                Debug.print("Failed to return change: " # error);
-                              };
-                              case (#Success(_)) {
-                                Debug.print("Change returned successfully");
-                              };
-                            };
-                          };
-
-                          return #ok(#Success({
-                            tokenId = existingNFT.tokenId;
-                            transactionId = switch (successResult.transactionId) {
-                              case null { "" };
-                              case (?txId) { txId };
-                            };
-                            startupId = request.startupId;
-                            investorId = request.investorId;
-                            amount = request.amount;
-                            nftPrice = nftPrice;
-                            change = change;
-                          }));
-                        };
-                        case (#Error(error)) {
-                          // Update purchase status to failed
-                          let failedPurchase = {
-                            id = purchaseInfo.id;
-                            startupId = purchaseInfo.startupId;
-                            investorId = purchaseInfo.investorId;
-                            tokenId = 0;
-                            amount = purchaseInfo.amount;
-                            nftPrice = purchaseInfo.nftPrice;
-                            change = purchaseInfo.change;
-                            transactionId = "";
-                            timestamp = purchaseInfo.timestamp;
-                            status = "Failed";
-                          };
-                          purchases.put(purchaseId, failedPurchase);
-                          return #err("NFT transfer failed: " # error);
                         };
                       };
                     };
+                    i += 1;
                   };
+
+                  if (not transferSuccess) {
+                    // Update purchase status to failed
+                    let failedPurchase = {
+                      id = purchaseInfo.id;
+                      startupId = purchaseInfo.startupId;
+                      investorId = purchaseInfo.investorId;
+                      tokenId = 0;
+                      amount = purchaseInfo.amount;
+                      nftPrice = purchaseInfo.nftPrice;
+                      change = purchaseInfo.change;
+                      transactionId = transferResult.transactionId;
+                      timestamp = purchaseInfo.timestamp;
+                      status = "Failed";
+                    };
+                    purchases.put(purchaseId, failedPurchase);
+                    return #Error("NFT transfer failed for one or more NFTs");
+                  };
+
+                  // Update purchase info with NFT details
+                  let completedPurchase = {
+                    id = purchaseInfo.id;
+                    startupId = purchaseInfo.startupId;
+                    investorId = purchaseInfo.investorId;
+                    tokenId = if (transferredTokenIds.size() > 0) { transferredTokenIds[0] } else { 0 }; // First token ID for compatibility
+                    amount = purchaseInfo.amount;
+                    nftPrice = purchaseInfo.nftPrice;
+                    change = purchaseInfo.change;
+                    transactionId = lastTransactionId;
+                    timestamp = purchaseInfo.timestamp;
+                    status = "Completed";
+                  };
+                  purchases.put(purchaseId, completedPurchase);
+
+                  // Update investor purchases
+                  switch (investorPurchases.get(request.investorId)) {
+                    case null { investorPurchases.put(request.investorId, [purchaseId]) };
+                    case (?existingPurchases) {
+                      let updatedPurchases = Array.append(existingPurchases, [purchaseId]);
+                      investorPurchases.put(request.investorId, updatedPurchases);
+                    };
+                  };
+
+                  // Update startup purchases
+                  switch (startupPurchases.get(request.startupId)) {
+                    case null { startupPurchases.put(request.startupId, [purchaseId]) };
+                    case (?existingPurchases) {
+                      let updatedPurchases = Array.append(existingPurchases, [purchaseId]);
+                      startupPurchases.put(request.startupId, updatedPurchases);
+                    };
+                  };
+
+                  // Update startup totalFunded with total amount for all NFTs
+                  ignore storage.updateStartupTotalFunded(request.startupId, totalRequiredAmount);
+
+                  return #Success({
+                    tokenIds = transferredTokenIds;
+                    transactionId = lastTransactionId;
+                    startupId = request.startupId;
+                    investorId = request.investorId;
+                    totalAmount = totalRequiredAmount;
+                    nftPrice = nftPrice;
+                    quantity = request.quantity;
+                  });
                 };
               };
             };

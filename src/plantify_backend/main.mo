@@ -12,8 +12,9 @@ import NFTService "./modules/services/nft";
 import NFTPurchaseService "./modules/services/nftPurchase";
 import MonthlyReportService "./modules/services/monthlyReport";
 import VotingService "./modules/services/voting";
+import DashboardFounderService "./modules/services/dashboardFounder";
+import DashboardInvestorService "./modules/services/dashboardInvestor";
 import Config "./config";
-
 persistent actor PlantifyBackend {
   // Stable variables for persistence across canister upgrades
   private var config : Types.EnvironmentConfig = Config.getCurrentConfig();
@@ -33,12 +34,7 @@ persistent actor PlantifyBackend {
   private var nextStartupId : Nat = 1;
   private var nextReportId : Nat = 1;
   private var nextVoteId : Nat = 1;
-  // Legacy stable variables for migration compatibility
-  private var featuredStartupsEntries : [(Text, Types.FeaturedStartup)] = [];
-  private var nextFeaturedStartupId : Nat = 1;
   
-  // Version tracking for migrations
-  private transient var canisterVersion : Nat = 1;
   
   // Initialize storage from stable variables (transient - rebuilt on each upgrade)
   private transient let storage = Storage.UserStorage(
@@ -63,10 +59,12 @@ persistent actor PlantifyBackend {
   private transient let startupCreationService = StartupCreation.StartupCreationService(storage);
   private transient let transferService = TransferService.TransferService(config);
   private transient let collateralService = CollateralService.CollateralService(config, storage);
-  private transient let nftService = NFTService.NFTService(config, storage);
+  private transient let nftService = NFTService.NFTService(storage);
   private transient let nftPurchaseService = NFTPurchaseService.NFTPurchaseService(config, storage, transferService, nftService);
   private transient let monthlyReportService = MonthlyReportService.MonthlyReportService(storage);
   private transient let votingService = VotingService.VotingService(storage);
+  private transient let dashboardFounderService = DashboardFounderService.DashboardFounder(storage, nftPurchaseService, nftService, collateralService);
+  private transient let dashboardInvestorService = DashboardInvestorService.DashboardInvestor(storage, nftPurchaseService, nftService, votingService);
 
   public shared (msg) func registerFounder(request : Types.FounderRegistrationRequest) : async Result.Result<Types.Founder, Text> {
     registrationService.registerFounder(msg.caller, request);
@@ -98,6 +96,26 @@ persistent actor PlantifyBackend {
   };
 
   public shared (msg) func getInvestorByPrincipal() : async ?Types.Investor {
+    storage.getInvestorByPrincipal(msg.caller);
+  };
+
+  public shared (msg) func updateInvestorProfile(request : Types.InvestorProfileUpdateRequest) : async Result.Result<Types.Investor, Text> {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #err("Investor not found") };
+      case (?investor) {
+        if (storage.updateInvestorProfile(investor.id, request)) {
+          switch (storage.getInvestor(investor.id)) {
+            case null { #err("Failed to retrieve updated investor") };
+            case (?updatedInvestor) { #ok(updatedInvestor) };
+          };
+        } else {
+          #err("Failed to update investor profile");
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getInvestorProfile() : async ?Types.Investor {
     storage.getInvestorByPrincipal(msg.caller);
   };
 
@@ -214,31 +232,7 @@ persistent actor PlantifyBackend {
   };
 
   public shared func getCanisterVersion() : async Nat {
-    canisterVersion;
-  };
-
-  // ========================================
-  // DATA SYNCHRONIZATION METHODS
-  // ========================================
-
-  // Sync data from storage to stable variables (called before upgrade)
-  private func syncToStable() {
-    foundersEntries := Iter.toArray(storage.founders.entries());
-    founderPrincipalsEntries := Iter.toArray(storage.founderPrincipals.entries());
-    investorsEntries := Iter.toArray(storage.investors.entries());
-    investorPrincipalsEntries := Iter.toArray(storage.investorPrincipals.entries());
-    startupsEntries := Iter.toArray(storage.startups.entries());
-    founderStartupsEntries := Iter.toArray(storage.founderStartups.entries());
-    monthlyReportsEntries := Iter.toArray(storage.monthlyReports.entries());
-    startupReportsEntries := Iter.toArray(storage.startupReports.entries());
-    votesEntries := Iter.toArray(storage.votes.entries());
-    reportVotesEntries := Iter.toArray(storage.reportVotes.entries());
-    investorVotesEntries := Iter.toArray(storage.investorVotes.entries());
-    nextFounderId := storage.nextFounderId;
-    nextInvestorId := storage.nextInvestorId;
-    nextStartupId := storage.nextStartupId;
-    nextReportId := storage.nextReportId;
-    nextVoteId := storage.nextVoteId;
+    1;
   };
 
   // ========================================
@@ -394,10 +388,6 @@ persistent actor PlantifyBackend {
     nftService.getNFTInfo(tokenId);
   };
 
-  public shared (_msg) func getNFTsByStartup(startupId : Text) : async Result.Result<[Types.NFTInfo], Text> {
-    nftService.getNFTsByStartup(startupId);
-  };
-
   public shared (_msg) func getNFTBalance(account : Types.NFTAccount) : async Result.Result<Types.NFTBalanceResponse, Text> {
     nftService.getNFTBalance(account);
   };
@@ -410,8 +400,8 @@ persistent actor PlantifyBackend {
     nftService.getAllNFTs();
   };
 
-  public shared (_msg) func getCollectionInfo() : async Types.NFTConfig {
-    nftService.getCollectionInfo();
+  public shared (_msg) func getNFTsByStartup(startupId : Text) : async Result.Result<[Types.NFTInfo], Text> {
+    nftService.getNFTsByStartup(startupId);
   };
 
   public shared (_msg) func canMintNFT(startupId : Text) : async Result.Result<Bool, Text> {
@@ -430,7 +420,7 @@ persistent actor PlantifyBackend {
   // NFT PURCHASE SERVICE METHODS
   // ========================================
 
-  public shared (msg) func purchaseNFT(request : Types.NFTPurchaseRequest) : async Result.Result<Types.NFTPurchaseResponse, Text> {
+  public shared (msg) func purchaseNFT(request : Types.NFTPurchaseRequest) : async Types.NFTPurchaseResponse {
     await nftPurchaseService.purchaseNFT(msg.caller, request);
   };
 
@@ -551,84 +541,132 @@ persistent actor PlantifyBackend {
   };
 
   // ========================================
+  // DASHBOARD FOUNDER SERVICE METHODS
+  // ========================================
+
+  public shared (msg) func getFounderDashboardOverview() : async Types.DashboardOverviewResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        dashboardFounderService.getFounderDashboardOverview(founder.id);
+      };
+    };
+  };
+
+  public shared (msg) func getFounderStartupOverview(startupId : Text) : async Types.StartupOverviewResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        // Verify that the startup belongs to this founder
+        let founderStartups = storage.getStartupsByFounder(founder.id);
+        let startupExists = Array.find<Types.Startup>(founderStartups, func(startup) = startup.id == startupId);
+        switch (startupExists) {
+          case null { #Error("Startup not found or not owned by this founder") };
+          case (?_) { dashboardFounderService.getFounderStartupOverview(startupId) };
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getStartupTeamMembers(startupId : Text) : async Types.TeamMembersResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        // Verify that the startup belongs to this founder
+        let founderStartups = storage.getStartupsByFounder(founder.id);
+        let startupExists = Array.find<Types.Startup>(founderStartups, func(startup) = startup.id == startupId);
+        switch (startupExists) {
+          case null { #Error("Startup not found or not owned by this founder") };
+          case (?_) { dashboardFounderService.getStartupTeamMembers(startupId) };
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getFundingStatus(startupId : Text) : async Types.FundingStatusResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        // Verify that the startup belongs to this founder
+        let founderStartups = storage.getStartupsByFounder(founder.id);
+        let startupExists = Array.find<Types.Startup>(founderStartups, func(startup) = startup.id == startupId);
+        switch (startupExists) {
+          case null { #Error("Startup not found or not owned by this founder") };
+          case (?_) { dashboardFounderService.getFundingStatus(startupId) };
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getCollateralDashboard(startupId : Text) : async Types.CollateralDashboardResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        // Verify that the startup belongs to this founder
+        let founderStartups = storage.getStartupsByFounder(founder.id);
+        let startupExists = Array.find<Types.Startup>(founderStartups, func(startup) = startup.id == startupId);
+        switch (startupExists) {
+          case null { #Error("Startup not found or not owned by this founder") };
+          case (?_) { dashboardFounderService.getCollateralStatus(startupId) };
+        };
+      };
+    };
+  };
+
+  public shared (msg) func getInvestorDashboard() : async Types.InvestorDashboardResponse {
+    switch (storage.getFounderByPrincipal(msg.caller)) {
+      case null { #Error("Founder not found") };
+      case (?founder) {
+        dashboardFounderService.getInvestorDashboard(founder.id);
+      };
+    };
+  };
+
+  // ========================================
+  // DASHBOARD INVESTOR SERVICE METHODS
+  // ========================================
+
+  public shared (msg) func getInvestorDashboardOverview() : async Types.InvestorDashboardOverviewResponse {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #Error("Investor not found") };
+      case (?investor) {
+        dashboardInvestorService.getInvestorDashboardOverview(investor.id);
+      };
+    };
+  };
+
+  public shared (msg) func getInvestorPerformance() : async Types.InvestorPerformanceResponse {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #Error("Investor not found") };
+      case (?investor) {
+        dashboardInvestorService.getInvestorPerformance(investor.id);
+      };
+    };
+  };
+
+  public shared (msg) func getInvestorStartupInvestment(startupId : Text) : async Types.InvestorStartupInvestmentResponse {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #Error("Investor not found") };
+      case (?investor) {
+        dashboardInvestorService.getInvestorStartupInvestments(investor.id, startupId);
+      };
+    };
+  };
+
+  public shared (msg) func getMyInvestmentPortfolio() : async Types.MyInvestmentPortfolioResponse {
+    switch (storage.getInvestorByPrincipal(msg.caller)) {
+      case null { #Error("Investor not found") };
+      case (?investor) {
+        dashboardInvestorService.getMyInvestmentPortfolio(investor.id);
+      };
+    };
+  };
+
+  // ========================================
   // PERSISTENCE METHODS
   // ========================================
 
-  // Migration function to handle stable variable compatibility
-  private func migrateStableVariables() {
-    // This function handles migration from old stable variables to new ones
-    // If this is a fresh deployment, the stable variables will be empty arrays
-    // If this is an upgrade, the stable variables will contain the previous data
-    // No explicit migration needed as we're keeping the same structure
-  };
-
-  // Migration function to handle featured startups variable type change
-  private func migrateFeaturedStartups() {
-    // Clear the old featured startups entries since we're no longer using them
-    // The new system just returns the newest startup directly
-    featuredStartupsEntries := [];
-    nextFeaturedStartupId := 1;
-  };
-
-  system func preupgrade() {
-    syncToStable();
-  };
-
   system func postupgrade() {
-    // Call migration function to handle stable variable compatibility
-    migrateStableVariables();
-    
-    // Migrate featured startups variables
-    migrateFeaturedStartups();
-    
-    // Update config to use current configuration
     config := Config.getCurrentConfig();
-    
-    if (canisterVersion < Config.CURRENT_CANISTER_VERSION) {
-      let migratedStartups = Array.map<(Text, Types.Startup), (Text, Types.Startup)>(
-        startupsEntries,
-        func((id, startup) : (Text, Types.Startup)) : (Text, Types.Startup) {
-          let migratedStartup : Types.Startup = {
-            id = startup.id;
-            founderId = startup.founderId;
-            startupName = startup.startupName;
-            sector = startup.sector;
-            foundedYear = startup.foundedYear;
-            description = startup.description;
-            website = startup.website;
-            location = startup.location;
-            companyType = startup.companyType;
-            companyLogo = startup.companyLogo;
-            companyImages = []; // Initialize new field as empty array for existing startups
-            nftImage = startup.nftImage;
-            problemStatement = startup.problemStatement;
-            solution = startup.solution;
-            targetMarket = startup.targetMarket;
-            competitiveAdvantage = startup.competitiveAdvantage;
-            marketingStrategy = startup.marketingStrategy;
-            operationalProcess = startup.operationalProcess;
-            founderBackground = startup.founderBackground;
-            teamMembers = startup.teamMembers;
-            advisors = startup.advisors;
-            fundingGoal = startup.fundingGoal;
-            nftPrice = startup.nftPrice;
-            periodicProfitSharing = startup.periodicProfitSharing;
-            revenueModel = startup.revenueModel;
-            monthlyRevenue = startup.monthlyRevenue;
-            monthlyExpenses = startup.monthlyExpenses;
-            useOfFunds = startup.useOfFunds;
-            businessPlan = startup.businessPlan;
-            financialProjections = startup.financialProjections;
-            legalDocuments = startup.legalDocuments;
-            status = startup.status;
-            createdAt = startup.createdAt;
-            updatedAt = startup.updatedAt;
-          };
-          (id, migratedStartup);
-        }
-      );
-      startupsEntries := migratedStartups;
-      canisterVersion := Config.CURRENT_CANISTER_VERSION;
-    };
   };
 };

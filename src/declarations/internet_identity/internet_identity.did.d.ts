@@ -410,11 +410,41 @@ export type GetDefaultAccountError = {
   { 'NoSuchAnchor' : null } |
   { 'InternalCanisterError' : string } |
   { 'Unauthorized' : Principal };
-export type GetDelegationResponse = { 'no_such_delegation' : null } |
-  { 'signed_delegation' : SignedDelegation };
-export type GetIdAliasError = { 'InternalCanisterError' : string } |
-  { 'Unauthorized' : Principal } |
-  { 'NoSuchCredentials' : string };
+export type GetDelegationResponse = {
+    /**
+     * The signature is not ready. Maybe retry by calling `prepare_delegation`
+     */
+    'no_such_delegation' : null
+  } |
+  {
+    /**
+     * The signed delegation was successfully retrieved.
+     */
+    'signed_delegation' : SignedDelegation
+  };
+export type GetIdAliasError = {
+    /**
+     * Internal canister error. See the error message for details.
+     */
+    'InternalCanisterError' : string
+  } |
+  {
+    /**
+     * The principal is not authorized to call this method with the given arguments.
+     */
+    'Unauthorized' : Principal
+  } |
+  {
+    /**
+     * The credential(s) are not available: may be expired or not prepared yet (call prepare_id_alias to prepare).
+     */
+    'NoSuchCredentials' : string
+  };
+/**
+ * The request to retrieve the actual signed id alias credentials.
+ * The field values should be equal to the values of corresponding
+ * fields from the preceding `PrepareIdAliasRequest` and `PrepareIdAliasResponse`.
+ */
 export interface GetIdAliasRequest {
   'rp_id_alias_jwt' : string,
   'issuer' : FrontendHostname,
@@ -512,7 +542,13 @@ export interface IdentityAnchorInfo {
    * The name of the Internet Identity
    */
   'name' : [] | [string],
+  /**
+   * The timestamp at which the anchor was created
+   */
   'created_at' : [] | [Timestamp],
+  /**
+   * All devices that can authenticate to this anchor
+   */
   'devices' : Array<DeviceWithUsage>,
   /**
    * OpenID accounts linked to this anchor
@@ -640,6 +676,10 @@ export interface InternetIdentityInit {
    * Configuration for Web Analytics
    */
   'analytics_config' : [] | [[] | [AnalyticsConfig]],
+  /**
+   * Configuration for Related Origins Requests.
+   * If present, list of origins from where registration is allowed.
+   */
   'related_origins' : [] | [Array<string>],
   /**
    * Feature flags

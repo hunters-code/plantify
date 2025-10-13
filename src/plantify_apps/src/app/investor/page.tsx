@@ -60,7 +60,8 @@ export default function InvestorDashboard() {
           null;
 
         if (investorId) {
-          const historyRes = await InvestorService.getInvestorPurchaseHistory(investorId);
+          const historyRes =
+            await InvestorService.getInvestorPurchaseHistory(investorId);
 
           if (historyRes.success) {
             const history = Array.isArray(historyRes.history)
@@ -141,10 +142,11 @@ export default function InvestorDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.id
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
                   <Icon size={16} />
                   {tab.label}
@@ -166,13 +168,13 @@ export default function InvestorDashboard() {
         {activeTab === 'portfolio' && (
           <PortfolioTab
             portfolioData={{
-              loading: false,   
-              investments: [],  
-              error: undefined, 
+              loading: false,
+              investments: [],
+              error: undefined,
             }}
-            onViewDetails={() => { }}
-            onVoteReport={() => { }}
-            onAddInvestment={() => { }}
+            onViewDetails={() => {}}
+            onVoteReport={() => {}}
+            onAddInvestment={() => {}}
             onRefresh={refetch}
           />
         )}

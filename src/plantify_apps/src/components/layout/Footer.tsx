@@ -44,7 +44,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className='relative isolate bg-neutral-100'>
+    <footer className='relative z-[5] isolate bg-neutral-100'>
       <div className='mx-auto px-4 sm:px-6 lg:px-8 py-12'>
         <div className='max-w-7xl mx-auto'>
           <div className='grid grid-cols-1 gap-8 sm:grid-cols-12'>

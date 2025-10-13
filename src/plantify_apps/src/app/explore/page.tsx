@@ -43,12 +43,11 @@ export default function Explores() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Get URL parameters with defaults
   const pageParam = searchParams.get('page');
   const filterParam = searchParams.get('filter') as FilterType | null;
   const searchParam = searchParams.get('search');
 
-  const ITEMS_PER_PAGE = 3; // Adjust based on the API response
+  const ITEMS_PER_PAGE = 6;
 
   const [startups, setStartups] = useState<Startup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,17 +64,14 @@ export default function Explores() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  // Function to map backend startup data to ProductCard props
   const mapStartupData = useCallback((startup: BackendStartup): Startup => {
-    // Calculate some derived values
     const fundingGoal = parseFloat(startup.fundingGoal) || 50000;
     const nftPrice = parseFloat(startup.nftPrice) || 100;
     const totalNFTs = Math.floor(fundingGoal / nftPrice);
-    const fundedAmount = Math.floor(fundingGoal * 0.6); // Mock funded amount (60%)
+    const fundedAmount = Math.floor(fundingGoal * 0.6);
     const fundingProgress = Math.floor((fundedAmount / fundingGoal) * 100);
-    const available = Math.floor(totalNFTs * 0.4); // Mock available NFTs (40%)
+    const available = Math.floor(totalNFTs * 0.4);
 
-    // Calculate periodic returns and ROI
     const monthlyProfitSharing = parseFloat(startup.periodicProfitSharing) || 5;
     const annualReturns = monthlyProfitSharing * 12;
     const annualROI = ((annualReturns / nftPrice) * 100).toFixed(1);
@@ -100,20 +96,17 @@ export default function Explores() {
     };
   }, []);
 
-  // Fetch startups from backend with pagination
   const fetchStartups = useCallback(
     async (page: number) => {
       try {
         setLoading(true);
         setError(null);
 
-        // Use the StartupService to fetch startups with pagination - no authentication required
         const result = await StartupService.getStartupsPaginated({
           page,
           limit: ITEMS_PER_PAGE,
         });
 
-        // Map the backend data to the UI format
         const mappedStartups = result.startups.map(mapStartupData);
         setStartups(mappedStartups);
         setTotalPages(result.totalPages);
@@ -129,8 +122,6 @@ export default function Explores() {
     [mapStartupData, ITEMS_PER_PAGE]
   );
 
-  // Filter startups - only apply client-side filtering for search
-  // For real filter changes, we should fetch from the server with the new filters
   const filteredStartups = startups.filter(startup => {
     const matchesSearch =
       searchTerm === '' ||
@@ -138,8 +129,6 @@ export default function Explores() {
       startup.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // For demo purposes, we'll still filter on the client side
-    // In a real app, we would pass these filters to the API
     let matchesFilter = true;
     if (filter === 'available') {
       matchesFilter = startup.status === 'active' && startup.available > 0;
@@ -150,24 +139,20 @@ export default function Explores() {
     return matchesSearch && matchesFilter;
   });
 
-  // Update URL parameters and state
   const updateURLParams = useCallback(
     (page: number, currentFilter: FilterType, currentSearch: string) => {
       const params = new URLSearchParams();
 
-      // Only add parameters that are not default values
       if (page > 1) params.set('page', page.toString());
       if (currentFilter !== 'all') params.set('filter', currentFilter);
       if (currentSearch) params.set('search', currentSearch);
 
-      // Update URL without refreshing the page
       const url = params.toString() ? `?${params.toString()}` : '';
       router.push(`/explore${url}`, { scroll: false });
     },
     [router]
   );
 
-  // Handle page change
   const handlePageChange = useCallback(
     (page: number) => {
       updateURLParams(page, filter, searchTerm);
@@ -176,7 +161,6 @@ export default function Explores() {
     [fetchStartups, updateURLParams, filter, searchTerm]
   );
 
-  // Handle filter change
   const handleFilterChange = useCallback(
     (newFilter: FilterType) => {
       setFilter(newFilter);
@@ -186,7 +170,6 @@ export default function Explores() {
     [fetchStartups, updateURLParams, searchTerm]
   );
 
-  // Handle search change - only update the state
   const handleSearchChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const newSearchTerm = event.target.value;
@@ -206,7 +189,6 @@ export default function Explores() {
     return () => clearTimeout(timer);
   }, [searchTerm, filter, updateURLParams, fetchStartups]);
 
-  // Load startups on component mount
   useEffect(() => {
     fetchStartups(currentPage);
   }, [fetchStartups, currentPage]);
