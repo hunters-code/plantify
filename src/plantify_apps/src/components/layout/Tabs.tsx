@@ -10,7 +10,7 @@ interface Tab {
 interface TabsProps {
   tabs: Tab[];
   onChange: (index: number) => void;
-  activeTab?: number; // 👈 tambahkan ini
+  activeTab?: number;
 }
 
 export default function Tabs({ tabs, onChange, activeTab }: TabsProps) {

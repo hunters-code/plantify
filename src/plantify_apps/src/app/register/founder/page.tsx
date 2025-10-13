@@ -1,38 +1,24 @@
 'use client';
 
-import {
-  User,
-  Briefcase,
-  CheckCircle,
-  FileText,
-  Loader2,
-  Banknote,
-  Brain,
-} from 'lucide-react';
+import { User, Briefcase, CheckCircle, FileText, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 import { Navbar, Footer } from '@/components';
 import FormMultiStep from '@/components/layout/FormMultiStep';
 import { Alert, Button } from '@/components/ui';
+import { FounderService } from '@/services/founders';
 
 import PersonalInformationForm from './partial/PersonalInformationForm';
 import ProfessionalBackgroundForm from './partial/ProfessionalBackgroundForm';
 import TermsAgreementForm from './partial/TermsAgreementForm';
 import VerificationDocumentsForm from './partial/VerificationDocumentsForm';
 
-// Dummy hooks/context
 const useAuth = () => ({
   isAuthenticated: true,
   isLoading: false,
   getIdentity: () => ({ userId: 'dummy-user' }),
 });
-
-// Dummy backend service
-const backendService = {
-  initialize: async (_identity: any) => Promise.resolve({ ok: true }), // dummy
-  registerFounder: async (_data: any) => Promise.resolve({ ok: true }), // dummy always success
-};
 
 interface FormData {
   fullName: string;
@@ -48,14 +34,16 @@ interface FormData {
   terms: boolean;
   risks: boolean;
   transparency: boolean;
+  governmentIdFile?: File;
+  taxIdFile?: File;
 }
 
 export default function RegisterFounder() {
   const navigate = useRouter();
-  const { isAuthenticated, isLoading: authLoading, getIdentity } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null); // hanya string/null
+  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -75,25 +63,6 @@ export default function RegisterFounder() {
     transparency: false,
   });
 
-  const tabs = [
-    {
-      id: 1,
-      label: 'Personal Information',
-      icon: <User className='w-4 h-4' />,
-    },
-    {
-      id: 2,
-      label: 'Professional Background',
-      icon: <Briefcase className='w-4 h-4' />,
-    },
-    { id: 3, label: 'Verification', icon: <CheckCircle className='w-4 h-4' /> },
-    {
-      id: 4,
-      label: 'Terms & Agreement',
-      icon: <FileText className='w-4 h-4' />,
-    },
-  ];
-
   useEffect(() => {
     if (success) navigate.push('/founder');
   }, [success, navigate]);
@@ -107,6 +76,23 @@ export default function RegisterFounder() {
       navigate.push('/auth');
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  useEffect(() => {
+    const checkExistingFounder = async () => {
+      if (isAuthenticated) {
+        try {
+          const existingFounder = await FounderService.getFounderByPrincipal();
+          if (existingFounder) {
+            navigate.push('/founder');
+          }
+        } catch (err) {
+          console.error('Error checking existing founder:', err);
+        }
+      }
+    };
+
+    checkExistingFounder();
+  }, [isAuthenticated, navigate]);
 
   const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -131,6 +117,11 @@ export default function RegisterFounder() {
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.push('Please enter a valid email address');
     }
+    if (!formData.terms)
+      errors.push('You must accept the terms and conditions');
+    if (!formData.risks) errors.push('You must acknowledge the risks');
+    if (!formData.transparency)
+      errors.push('You must agree to transparency requirements');
     return errors;
   };
 
@@ -138,12 +129,6 @@ export default function RegisterFounder() {
     try {
       if (!isAuthenticated) {
         setError('Please authenticate first before registering.');
-        return;
-      }
-
-      const identity = getIdentity();
-      if (!identity) {
-        setError('Identity not available. Please sign in again.');
         return;
       }
 
@@ -157,8 +142,7 @@ export default function RegisterFounder() {
       setError(null);
       setSuccess(false);
 
-      await backendService.initialize(identity);
-
+      // Prepare founder registration request
       const founderRequest = {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
@@ -172,17 +156,17 @@ export default function RegisterFounder() {
         taxNumber: formData.taxNumber.trim(),
       };
 
-      // call dummy backend
-      const result = await backendService.registerFounder(founderRequest);
+      // Call FounderService to register founder
+      const result = await FounderService.registerFounder(founderRequest);
 
-      if ('ok' in result && result.ok) {
+      if (result.success) {
         setSuccess(true);
-      } else if ('err' in result && typeof result.err === 'string') {
-        setError(result.err);
+        // Will redirect via useEffect
       } else {
-        setError('Unexpected response format from backend');
+        setError(result.error || 'Registration failed. Please try again.');
       }
     } catch (err: any) {
+      console.error('Registration error:', err);
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -204,7 +188,7 @@ export default function RegisterFounder() {
     <div className='bg-gray-50 text-gray-900 min-h-screen'>
       <Navbar />
 
-      <div className='max-w-7xl mx-auto mt-8 mb-8'>
+      <div className='max-w-7xl mx-auto mt-8 mb-8 px-4'>
         {error && (
           <Alert type='error' message={error} className='mb-6'>
             <div className='flex gap-3 mt-3'>
@@ -234,6 +218,14 @@ export default function RegisterFounder() {
                 .
               </>
             }
+            className='mb-6'
+          />
+        )}
+
+        {success && (
+          <Alert
+            type='success'
+            message='Registration successful! Redirecting to your founder dashboard...'
             className='mb-6'
           />
         )}

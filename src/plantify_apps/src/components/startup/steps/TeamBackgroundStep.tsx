@@ -5,20 +5,27 @@ import React, { useState } from 'react';
 
 import { Input, Textarea, Button } from '@/components/ui';
 import FileUpload from '@/components/ui/FileUpload';
+import { JOB_ROLE_OPTIONS } from '@/constants/jobRoles';
 import { uploadFile } from '@/lib/fileUpload';
 
 import { StartupFormData } from '../types';
 
 interface TeamBackgroundStepProps {
   formData: StartupFormData;
-  setFormData: React.Dispatch<React.SetStateAction<StartupFormData>>;
+  setFormData: (
+    field: string,
+    value: string | File | null | Array<any>,
+    shouldValidate?: boolean
+  ) => void;
   errors: Record<string, string>;
+  touched: Record<string, boolean>;
 }
 
 const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
   formData,
   setFormData,
   errors = {},
+  touched = {},
 }) => {
   const [isUploadingFounder, setIsUploadingFounder] = useState(false);
   const [isUploadingTeamMember, setIsUploadingTeamMember] = useState<
@@ -26,13 +33,12 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
   >(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(name, value);
   };
 
   const handleFounderPhotoUpload = async (files: File[]) => {
@@ -40,15 +46,11 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
       const file = files[0];
 
       // Set the file in form data
-      setFormData(prev => ({
-        ...prev,
-        founderPhoto: file,
-      }));
+      setFormData('founderPhoto', file);
 
       // Upload the file and get the preview URL
       setIsUploadingFounder(true);
       try {
-        console.log('Uploading founder photo for preview...');
         const fileUrl = await uploadFile(
           file,
           'plantify-uploads',
@@ -56,13 +58,8 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
         );
 
         if (fileUrl) {
-          console.log('Founder photo uploaded successfully:', fileUrl);
-
           // Store the URL in the form data
-          setFormData(prev => ({
-            ...prev,
-            founderPhotoUrl: fileUrl,
-          }));
+          setFormData('founderPhotoUrl', fileUrl);
         } else {
           console.error('Failed to upload founder photo');
         }
@@ -74,17 +71,26 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
     }
   };
 
-  const handleTeamMemberChange = (index: number, field: string, value: any) => {
+  const handleTeamMemberChange = (
+    index: number,
+    field: string,
+    value: string | File
+  ) => {
     const updatedTeamMembers = [...(formData.teamMembers || [])];
     if (!updatedTeamMembers[index]) {
-      updatedTeamMembers[index] = {};
+      updatedTeamMembers[index] = {
+        name: '',
+        role: '',
+        email: '',
+        linkedin: '',
+        background: '',
+        photo: null,
+        isFounder: false,
+      };
     }
-    updatedTeamMembers[index][field] = value;
+    (updatedTeamMembers[index] as any)[field] = value;
 
-    setFormData(prev => ({
-      ...prev,
-      teamMembers: updatedTeamMembers,
-    }));
+    setFormData('teamMembers', updatedTeamMembers);
   };
 
   const handleTeamMemberPhotoUpload = async (index: number, files: File[]) => {
@@ -97,15 +103,9 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
       // Upload the file and get the preview URL
       setIsUploadingTeamMember(index);
       try {
-        console.log(`Uploading team member ${index} photo for preview...`);
         const fileUrl = await uploadFile(file, 'plantify-uploads', 'teamPhoto');
 
         if (fileUrl) {
-          console.log(
-            `Team member ${index} photo uploaded successfully:`,
-            fileUrl
-          );
-
           // Store the URL in the team member data
           handleTeamMemberChange(index, 'photoUrl', fileUrl);
 
@@ -113,10 +113,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
           const updatedUrls = [...(formData.teamMemberPhotosUrls || [])];
           updatedUrls[index] = fileUrl;
 
-          setFormData(prev => ({
-            ...prev,
-            teamMemberPhotosUrls: updatedUrls,
-          }));
+          setFormData('teamMemberPhotosUrls', updatedUrls);
         } else {
           console.error(`Failed to upload team member ${index} photo`);
         }
@@ -130,20 +127,14 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
 
   const addTeamMember = () => {
     const newTeamMembers = [...(formData.teamMembers || []), {}];
-    setFormData(prev => ({
-      ...prev,
-      teamMembers: newTeamMembers,
-    }));
+    setFormData('teamMembers', newTeamMembers);
   };
 
   const removeTeamMember = (index: number) => {
     const updatedTeamMembers = formData.teamMembers.filter(
       (_, i) => i !== index
     );
-    setFormData(prev => ({
-      ...prev,
-      teamMembers: updatedTeamMembers,
-    }));
+    setFormData('teamMembers', updatedTeamMembers);
   };
 
   return (
@@ -172,16 +163,30 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
               error={errors.founderName}
             />
 
-            <Input
-              type='text'
-              name='founderRole'
-              label='Role'
-              value={formData.founderRole || ''}
-              onChange={handleChange}
-              placeholder='CEO, CTO, CFO, etc.'
-              required
-              error={errors.founderRole}
-            />
+            <div>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                Role <span className='text-red-500'>*</span>
+              </label>
+              <select
+                name='founderRole'
+                value={formData.founderRole || ''}
+                onChange={handleChange}
+                className={`w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px] ${errors.founderRole ? 'border-red-500' : ''}`}
+                required
+              >
+                <option value=''>Select role</option>
+                {JOB_ROLE_OPTIONS.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              {errors.founderRole && (
+                <p className='mt-1 text-sm text-red-600'>
+                  {errors.founderRole}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Founder Email and LinkedIn */}
@@ -309,16 +314,26 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
                     required
                   />
 
-                  <Input
-                    type='text'
-                    label='Role'
-                    value={member.role || ''}
-                    onChange={e =>
-                      handleTeamMemberChange(index, 'role', e.target.value)
-                    }
-                    placeholder='CEO, CTO, CFO, etc.'
-                    required
-                  />
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                      Role <span className='text-red-500'>*</span>
+                    </label>
+                    <select
+                      value={member.role || ''}
+                      onChange={e =>
+                        handleTeamMemberChange(index, 'role', e.target.value)
+                      }
+                      className='w-full flex items-center gap-[6px] px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.16)] text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-[16px]'
+                      required
+                    >
+                      <option value=''>Select role</option>
+                      {JOB_ROLE_OPTIONS.map(({ value, label }) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* Team Member Email and LinkedIn */}

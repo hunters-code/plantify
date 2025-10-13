@@ -28,7 +28,8 @@ export class NFTService extends BaseService {
    */
   public static async getAllNFTs(): Promise<NFTInfo[]> {
     try {
-      return await this.getActor().getAllNFTs();
+      const actor = await this.getActor();
+      return await actor.getAllNFTs();
     } catch (error) {
       console.error('Error getting all NFTs:', error);
       return [];
@@ -44,7 +45,8 @@ export class NFTService extends BaseService {
     tokenId: bigint
   ): Promise<{ success: boolean; nft?: NFTInfo; error?: string }> {
     try {
-      const result: Result_16 = await this.getActor().getNFTInfo(tokenId);
+      const actor = await this.getActor();
+      const result: Result_16 = await actor.getNFTInfo(tokenId);
 
       if ('ok' in result) {
         return { success: true, nft: result.ok };
@@ -66,7 +68,8 @@ export class NFTService extends BaseService {
     tokenId: bigint
   ): Promise<{ success: boolean; owner?: NFTOwnerResponse; error?: string }> {
     try {
-      const result: Result_15 = await this.getActor().getNFTOwner(tokenId);
+      const actor = await this.getActor();
+      const result: Result_15 = await actor.getNFTOwner(tokenId);
 
       if ('ok' in result) {
         return { success: true, owner: result.ok };
@@ -90,7 +93,8 @@ export class NFTService extends BaseService {
     error?: string;
   }> {
     try {
-      const result: Result_17 = await this.getActor().getNFTBalance(account);
+      const actor = await this.getActor();
+      const result: Result_17 = await actor.getNFTBalance(account);
 
       if ('ok' in result) {
         return { success: true, balance: result.ok };
@@ -112,7 +116,8 @@ export class NFTService extends BaseService {
     request: MintNFTRequest
   ): Promise<{ success: boolean; response?: MintNFTResponse; error?: string }> {
     try {
-      const result: Result_8 = await this.getActor().mintNFT(request);
+      const actor = await this.getActor();
+      const result: Result_8 = await actor.mintNFT(request);
 
       if ('ok' in result) {
         return { success: true, response: result.ok };
@@ -132,7 +137,8 @@ export class NFTService extends BaseService {
    */
   public static async canMintNFT(startupId: string): Promise<boolean> {
     try {
-      const result: Result_24 = await this.getActor().canMintNFT(startupId);
+      const actor = await this.getActor();
+      const result: Result_24 = await actor.canMintNFT(startupId);
       return 'ok' in result ? result.ok : false;
     } catch (error) {
       console.error('Error checking if NFT can be minted:', error);
@@ -151,7 +157,8 @@ export class NFTService extends BaseService {
     error?: string;
   }> {
     try {
-      const result: Result_2 = await this.getActor().transferNFT(request);
+      const actor = await this.getActor();
+      const result: Result_2 = await actor.transferNFT(request);
 
       if ('ok' in result) {
         return { success: true, response: result.ok };
@@ -170,7 +177,8 @@ export class NFTService extends BaseService {
    */
   public static async getCollectionInfo(): Promise<NFTConfig | null> {
     try {
-      return await this.getActor().getCollectionInfo();
+      const actor = await this.getActor();
+      return await actor.getCollectionInfo();
     } catch (error) {
       console.error('Error getting collection info:', error);
       return null;
@@ -187,7 +195,8 @@ export class NFTService extends BaseService {
     nextTokenId: bigint;
   } | null> {
     try {
-      return await this.getActor().getNFTStats();
+      const actor = await this.getActor();
+      return await actor.getNFTStats();
     } catch (error) {
       console.error('Error getting NFT stats:', error);
       return null;

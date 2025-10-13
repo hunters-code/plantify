@@ -36,16 +36,12 @@ export const uploadFile = async (
   fileType: string = 'general'
 ): Promise<string | null> => {
   try {
-    console.log(`Starting upload for file: ${file.name}`);
-
     // Generate a unique filename to prevent collisions
     const fileExt = file.name.split('.').pop();
     const fileName = `${uuidv4()}.${fileExt}`;
 
     // Create path based on file type
     const filePath = `${fileType}/${fileName}`;
-
-    console.log(`Uploading file to path: ${filePath}`);
 
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
@@ -60,14 +56,10 @@ export const uploadFile = async (
       return null;
     }
 
-    console.log('File uploaded successfully, getting public URL');
-
     // Get public URL for the uploaded file
     const {
       data: { publicUrl },
     } = supabase.storage.from(bucket).getPublicUrl(data.path);
-
-    console.log(`Public URL: ${publicUrl}`);
 
     return publicUrl;
   } catch (error) {

@@ -10,11 +10,12 @@
     "pretest": "npm run prebuild --workspaces --if-present",
     "start": "npm start --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
     "prepare": "husky"
   },
   "type": "module",
   "workspaces": [
-    "src/plantify_frontend"
+    "src/plantify_apps"
   ],
   "devDependencies": {
     "husky": "^9.1.7",
@@ -27,20 +28,6 @@
     ],
     "src/plantify_apps/**/*.{json,css,scss,md}": [
       "cd src/plantify_apps && prettier --write"
-    ],
-    "src/plantify_admin/**/*.{js,jsx,ts,tsx}": [
-      "cd src/plantify_admin && eslint --fix --max-warnings=0",
-      "cd src/plantify_admin && prettier --write"
-    ],
-    "src/plantify_admin/**/*.{json,css,scss,md}": [
-      "cd src/plantify_admin && prettier --write"
-    ],
-    "src/plantify_frontend/**/*.{js,jsx,ts,tsx}": [
-      "cd src/plantify_frontend && eslint --fix --max-warnings=0",
-      "cd src/plantify_frontend && prettier --write"
-    ],
-    "src/plantify_frontend/**/*.{json,css,scss,md}": [
-      "cd src/plantify_frontend && prettier --write"
     ]
   }
 }

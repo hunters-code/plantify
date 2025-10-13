@@ -2,7 +2,6 @@ import { Actor, HttpAgent } from '@dfinity/agent';
 
 // Imports and re-exports candid interface
 import { idlFactory } from './plantify_backend.did.js';
-
 export { idlFactory } from './plantify_backend.did.js';
 
 /* CANISTER_ID is replaced by webpack based on node environment

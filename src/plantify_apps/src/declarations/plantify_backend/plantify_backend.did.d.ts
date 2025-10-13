@@ -1,6 +1,6 @@
+import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
-import type { Principal } from '@dfinity/principal';
 
 export type BalanceResponse =
   | { Error: string }
@@ -284,6 +284,17 @@ export interface NFTPurchaseStats {
   averagePurchaseAmount: bigint;
   totalRevenue: bigint;
 }
+export interface PaginatedStartups {
+  startups: Array<Startup>;
+  page: bigint;
+  totalCount: bigint;
+  limit: bigint;
+  totalPages: bigint;
+}
+export interface PaginationParams {
+  page: bigint;
+  limit: bigint;
+}
 export interface ReportVoteDetails {
   summary: VoteSummary;
   individualVotes: Array<InvestorVote>;
@@ -509,6 +520,7 @@ export interface _SERVICE {
   getAllStartups: ActorMethod<[], Array<Startup>>;
   getAllVotes: ActorMethod<[], Array<InvestorVote>>;
   getBalance: ActorMethod<[TransferAccount, string], BalanceResponse>;
+  getCanisterVersion: ActorMethod<[], bigint>;
   getCkUSDCBalance: ActorMethod<[TransferAccount], BalanceResponse>;
   getCkUSDCTokenConfig: ActorMethod<[], TokenConfig>;
   getCollateralProgress: ActorMethod<[string], CollateralProgressResponse>;
@@ -517,6 +529,7 @@ export interface _SERVICE {
   getCollectionInfo: ActorMethod<[], NFTConfig>;
   getEnvironment: ActorMethod<[], string>;
   getEnvironmentConfig: ActorMethod<[], EnvironmentConfig>;
+  getFeaturedStartup: ActorMethod<[], [] | [Startup]>;
   getFounderByPrincipal: ActorMethod<[], [] | [Founder]>;
   getFounders: ActorMethod<[], Array<Founder>>;
   getICPBalance: ActorMethod<[TransferAccount], BalanceResponse>;
@@ -549,6 +562,13 @@ export interface _SERVICE {
   getReportVotes: ActorMethod<[string], Array<InvestorVote>>;
   getStartupDetails: ActorMethod<[string], [] | [Startup]>;
   getStartupPurchaseHistory: ActorMethod<[string], Result_10>;
+  getStartupsCount: ActorMethod<[], bigint>;
+  getStartupsPaginated: ActorMethod<[PaginationParams], PaginatedStartups>;
+  getStartupsByFounderPrincipal: ActorMethod<[], Array<Startup>>;
+  getStartupsByFounderPrincipalPaginated: ActorMethod<
+    [PaginationParams],
+    PaginatedStartups
+  >;
   getTokenCanisterId: ActorMethod<[string], [] | [string]>;
   getTokenInfo: ActorMethod<[string], TokenInfoResponse>;
   getUserType: ActorMethod<[], [] | [UserType]>;

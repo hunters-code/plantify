@@ -2,22 +2,22 @@ import Types "./modules/types";
 
 module Config {
   // Version constants for canister upgrades
-  public let CURRENT_CANISTER_VERSION : Nat = 2;
+  public let CURRENT_CANISTER_VERSION : Nat = 3;
   // Development/Testing Configuration
   public func getDevelopmentConfig() : Types.EnvironmentConfig {
     {
       environment = "development";
       icpToken = {
-        canisterId = "rdmx6-jaaaa-aaaah-qcaiq-cai"; // ICP Ledger on local replica
-        ledgerId = "rdmx6-jaaaa-aaaah-qcaiq-cai";
+        canisterId = "72oxd-oyaaa-aaaam-qd5na-cai";
+        ledgerId = "72oxd-oyaaa-aaaam-qd5na-cai";
         name = "Internet Computer";
         symbol = "ICP";
         decimals = 8;
         fee = 10000;
       };
       ckUSDCToken = {
-        canisterId = "be2us-64aaa-aaaah-qzcya-cai"; // Local ckUSDC canister (will be set after deployment)
-        ledgerId = "be2us-64aaa-aaaah-qzcya-cai";
+        canisterId = "hbxhn-uiaaa-aaaak-qumlq-cai";
+        ledgerId = "hbxhn-uiaaa-aaaak-qumlq-cai";
         name = "CkUSDC Token";
         symbol = "ckUSDC";
         decimals = 8;
@@ -49,16 +49,16 @@ module Config {
     {
       environment = "production";
       icpToken = {
-        canisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai"; // ICP Ledger on mainnet
-        ledgerId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+        canisterId = "72oxd-oyaaa-aaaam-qd5na-cai"; // ICP Ledger on mainnet
+        ledgerId = "72oxd-oyaaa-aaaam-qd5na-cai";
         name = "Internet Computer";
         symbol = "ICP";
         decimals = 8;
         fee = 10000;
       };
       ckUSDCToken = {
-        canisterId = "mxzaz-hqaaa-aaaar-qaada-cai"; // ckUSDC on mainnet
-        ledgerId = "mxzaz-hqaaa-aaaar-qaada-cai";
+        canisterId = "hbxhn-uiaaa-aaaak-qumlq-cai"; // ckUSDC on mainnet
+        ledgerId = "hbxhn-uiaaa-aaaak-qumlq-cai";
         name = "CkUSDC";
         symbol = "ckUSDC";
         decimals = 8;
@@ -90,8 +90,8 @@ module Config {
     {
       environment = "testnet";
       icpToken = {
-        canisterId = "rdmx6-jaaaa-aaaah-qcaiq-cai"; // ICP Ledger on testnet
-        ledgerId = "rdmx6-jaaaa-aaaah-qcaiq-cai";
+        canisterId = "72oxd-oyaaa-aaaam-qd5na-cai"; // ICP Ledger on testnet
+        ledgerId = "72oxd-oyaaa-aaaam-qd5na-cai";
         name = "Internet Computer";
         symbol = "ICP";
         decimals = 8;
@@ -138,7 +138,7 @@ module Config {
 
   // Helper function to get current environment (can be modified based on your needs)
   public func getCurrentEnvironment() : Text {
-    "production"; // Default to production for mainnet deployment
+    "development"; // Using development environment for testnet ckUSDC
   };
 
   // Get the current configuration

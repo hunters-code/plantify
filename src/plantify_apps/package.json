@@ -7,7 +7,6 @@
     "setup": "npm i && dfx canister create plantify_backend && dfx generate plantify_backend && dfx deploy",
     "dev": "next dev --turbopack",
     "start": "next start",
-    "prebuild": "dfx generate",
     "build": "next build --turbopack",
     "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss,md}\"",
     "format:check": "prettier --check \"src/**/*.{json,js,jsx,ts,tsx,css,scss,md}\"",
@@ -22,15 +21,19 @@
     "@dfinity/candid": "^3.0.0",
     "@dfinity/identity": "^3.0.0",
     "@dfinity/principal": "^3.0.0",
+    "@supabase/supabase-js": "^2.74.0",
     "@types/uuid": "^10.0.0",
     "clsx": "^2.1.1",
+    "formik": "^2.4.6",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.543.0",
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-router-dom": "^7.8.2",
-    "uuid": "^13.0.0"
+    "supabase": "^2.48.3",
+    "uuid": "^13.0.0",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -10,8 +10,7 @@ import {
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
-import Footer from '@/components/layout/Footer';
-import Navbar from '@/components/layout/Navbar';
+import { Layout } from '@/components';
 import { Button, Card, LoadingSpinner } from '@/components/ui';
 import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
 
@@ -104,9 +103,7 @@ export default function InvestorDashboard() {
   const refetch = () => window.location.reload();
 
   return (
-    <div className='min-h-screen bg-gray-50'>
-      <Navbar />
-
+    <Layout>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {/* Header */}
         <div className='mb-8'>
@@ -188,8 +185,6 @@ export default function InvestorDashboard() {
           <TransactionsTab onBackToOverview={() => setActiveTab('overview')} />
         )}
       </div>
-
-      <Footer />
-    </div>
+    </Layout>
   );
 }

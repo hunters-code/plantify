@@ -12,7 +12,8 @@ export class AuthService extends BaseService {
    */
   public static async isUserFounder(): Promise<boolean> {
     try {
-      return await this.getActor().isUserFounder();
+      const actor = await this.getActor();
+      return await actor.isUserFounder();
     } catch (error) {
       console.error('Error checking if user is founder:', error);
       return false;
@@ -25,7 +26,8 @@ export class AuthService extends BaseService {
    */
   public static async isUserInvestor(): Promise<boolean> {
     try {
-      return await this.getActor().isUserInvestor();
+      const actor = await this.getActor();
+      return await actor.isUserInvestor();
     } catch (error) {
       console.error('Error checking if user is investor:', error);
       return false;
@@ -38,7 +40,8 @@ export class AuthService extends BaseService {
    */
   public static async getUserType(): Promise<'founder' | 'investor' | null> {
     try {
-      const userTypeOpt = await this.getActor().getUserType();
+      const actor = await this.getActor();
+      const userTypeOpt = await actor.getUserType();
 
       if (!userTypeOpt.length) {
         return null;

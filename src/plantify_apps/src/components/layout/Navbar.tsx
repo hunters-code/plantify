@@ -14,6 +14,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import React, { useState, useEffect, useRef, JSX } from 'react';
 
 import { useAuth } from '@/contexts/AuthContext';
+import type { TransferAccount } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { Logo } from '../icons';
 
@@ -31,18 +32,13 @@ export default function Navbar(): JSX.Element {
   const [ckUSDCBalance, setCkUSDCBalance] = useState<string>('0');
   const [balanceLoading, setBalanceLoading] = useState<boolean>(false);
   const [signOutLoading, setSignOutLoading] = useState<boolean>(false);
+  const [balancesFetched, setBalancesFetched] = useState<boolean>(false);
 
   const router = useRouter();
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const {
-    isAuthenticated,
-    isLoading,
-    isRegistered,
-    userType,
-    principal,
-    signOut,
-  } = useAuth();
+  const { isAuthenticated, isLoading, userType, principal, signOut } =
+    useAuth();
 
   const getNavigationItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
@@ -50,44 +46,6 @@ export default function Navbar(): JSX.Element {
       { label: 'How it Works', path: '/', onClick: () => router.push('/') },
       { label: 'About', path: '/', onClick: () => router.push('/') },
     ];
-
-    if (isAuthenticated && isRegistered) {
-      if (userType === 'founder') {
-        baseItems.push(
-          {
-            label: 'Dashboard',
-            path: '/founder',
-            onClick: () => router.push('/founder'),
-            isDashboard: true,
-          },
-          {
-            label: 'Create Startup',
-            path: '/founder/create',
-            onClick: () => router.push('/founder/create'),
-          }
-        );
-      } else if (userType === 'investor') {
-        baseItems.push(
-          {
-            label: 'Dashboard',
-            path: '/investor',
-            onClick: () => router.push('/investor'),
-            isDashboard: true,
-          },
-          {
-            label: 'Portfolio',
-            path: '/investor/portfolio',
-            onClick: () => router.push('/investor/portfolio'),
-          }
-        );
-      }
-    } else {
-      baseItems.push({
-        label: 'For Founders',
-        path: '/',
-        onClick: () => router.push('/'),
-      });
-    }
 
     return baseItems;
   };
@@ -110,10 +68,20 @@ export default function Navbar(): JSX.Element {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Reset balances when user signs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setBalancesFetched(false);
+      setIcpBalance('0');
+      setCkUSDCBalance('0');
+    }
+  }, [isAuthenticated]);
+
   const handleConnectClick = async () => {
     if (isAuthenticated) {
       setDropdownOpen(!dropdownOpen);
-      if (icpBalance === '0' && ckUSDCBalance === '0') {
+      // Only fetch balances if not already fetched
+      if (!balancesFetched) {
         fetchBalances();
       }
     } else {
@@ -123,18 +91,49 @@ export default function Navbar(): JSX.Element {
   };
 
   const fetchBalances = async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !principal) return;
 
     setBalanceLoading(true);
     try {
-      setTimeout(() => {
-        setIcpBalance('1.2345');
-        setCkUSDCBalance('100.50');
-        setBalanceLoading(false);
-      }, 1000);
+      const { BalanceService } = await import('@/services');
+
+      const { Principal } = await import('@dfinity/principal');
+
+      let principalObj;
+      try {
+        principalObj = Principal.fromText(principal);
+      } catch (error) {
+        console.error('Error creating Principal from text:', error);
+        throw new Error(`Invalid principal format: ${principal}`);
+      }
+
+      const account: TransferAccount = {
+        owner: principalObj,
+        subaccount: [],
+      };
+
+      const balances = await BalanceService.getAllBalances(account);
+
+      if (balances.icp.success && balances.icp.balance !== undefined) {
+        setIcpBalance(balances.icp.balance.toFixed(4));
+      } else {
+        console.error('Failed to get ICP balance:', balances.icp.error);
+        setIcpBalance('0.0000');
+      }
+
+      if (balances.ckUSDC.success && balances.ckUSDC.balance !== undefined) {
+        setCkUSDCBalance(balances.ckUSDC.balance.toFixed(2));
+      } else {
+        console.error('Failed to get ckUSDC balance:', balances.ckUSDC.error);
+        setCkUSDCBalance('0.00');
+      }
     } catch (error) {
       console.error('Failed to fetch balances:', error);
+      setIcpBalance('0.0000');
+      setCkUSDCBalance('0.00');
+    } finally {
       setBalanceLoading(false);
+      setBalancesFetched(true);
     }
   };
 
@@ -227,7 +226,7 @@ export default function Navbar(): JSX.Element {
                   </button>
 
                   {dropdownOpen && (
-                    <div className='absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50'>
+                    <div className='absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50'>
                       <div className='p-4'>
                         {userType && (
                           <div className='mb-4'>
@@ -259,12 +258,12 @@ export default function Navbar(): JSX.Element {
                             Principal ID
                           </label>
                           <div className='flex items-center gap-2 mt-1'>
-                            <code className='flex-1 text-sm font-mono bg-gray-100 px-2 py-1 rounded text-gray-800 break-all'>
+                            <code className='flex-1 text-sm font-mono bg-gray-100 px-2 py-1 rounded text-gray-800 break-all overflow-hidden'>
                               {principal || 'Not available'}
                             </code>
                             <button
                               onClick={copyPrincipal}
-                              className='p-1 hover:bg-gray-200 rounded transition'
+                              className='p-1 hover:bg-gray-200 rounded transition flex-shrink-0'
                               title='Copy Principal ID'
                             >
                               <Copy size={16} className='text-gray-600' />
