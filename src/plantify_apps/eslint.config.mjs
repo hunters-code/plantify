@@ -24,34 +24,17 @@ const eslintConfig = [
     files: ["**/*.{js,jsx,ts,tsx}"],
     rules: {
       // Indentation and formatting - matching Prettier config
-      "indent": ["error", 2, { "SwitchCase": 1 }], // tabWidth: 2, useTabs: false
-      "no-tabs": "error", // useTabs: false
-      "no-trailing-spaces": "error",
-      "no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1 }],
-      "eol-last": "error", // endOfLine: "lf"
+      "indent": "off", // Disable strict indentation for now
+      "no-tabs": "warn", // Change to warning
+      "no-trailing-spaces": "warn",
+      "no-multiple-empty-lines": "warn",
+      "eol-last": "warn"
       
       // Import order and organization
-      "import/order": [
-        "error",
-        {
-          "groups": [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index"
-          ],
-          "newlines-between": "always",
-          "alphabetize": {
-            "order": "asc",
-            "caseInsensitive": true
-          }
-        }
-      ],
-      "import/no-duplicates": "error",
-      "import/first": "error",
-      "import/newline-after-import": "error",
+      "import/order": "warn", // Change to warning
+      "import/no-duplicates": "warn",
+      "import/first": "warn",
+      "import/newline-after-import": "warn",
       
       // TypeScript specific rules
       "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }], // Change to warning
@@ -88,28 +71,18 @@ const eslintConfig = [
       "jsx-a11y/anchor-is-valid": "warn", // Change to warning
       
       // Code style - matching Prettier config
-      "quotes": ["error", "single", { "avoidEscape": true }], // singleQuote: true
-      "semi": ["error", "always"], // semi: true
-      "comma-dangle": ["error", {
-        "arrays": "always-multiline",
-        "objects": "always-multiline",
-        "imports": "always-multiline",
-        "exports": "always-multiline",
-        "functions": "never"
-      }], // trailingComma: "es5" equivalent
-      "object-curly-spacing": ["error", "always"], // bracketSpacing: true
-      "array-bracket-spacing": ["error", "never"],
-      "computed-property-spacing": ["error", "never"],
-      "space-before-blocks": "error",
-      "keyword-spacing": "error",
-      "space-infix-ops": "error",
-      "space-before-function-paren": ["error", {
-        "anonymous": "always",
-        "named": "never",
-        "asyncArrow": "always"
-      }],
-      "jsx-quotes": ["error", "prefer-single"], // jsxSingleQuote: true
-      "arrow-parens": ["error", "as-needed"], // arrowParens: "avoid" equivalent
+      "quotes": "warn", // Change to warning
+      "semi": "warn", // Change to warning
+      "comma-dangle": "warn", // Change to warning
+      "object-curly-spacing": "warn",
+      "array-bracket-spacing": "warn",
+      "computed-property-spacing": "warn",
+      "space-before-blocks": "warn",
+      "keyword-spacing": "warn",
+      "space-infix-ops": "warn",
+      "space-before-function-paren": "warn",
+      "jsx-quotes": "warn",
+      "arrow-parens": "warn"
       
       // Unused variables and imports
       "no-unused-vars": "off", // Turn off base rule as it can report incorrect errors

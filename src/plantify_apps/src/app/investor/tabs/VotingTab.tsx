@@ -1,7 +1,25 @@
-import { Eye, FileText, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { Eye, FileText, ThumbsDown, ThumbsUp, AlertCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
-import { Button, Badge } from '@/components/ui';
+import { Button, Badge, Card, LoadingSpinner } from '@/components/ui';
+import { VotingService } from '@/services/investors/VotingService';
+import { InvestorService } from '@/services/investors/InvestorService';
+
+type VoteTypeVariant = 'approve' | 'reject' | 'abstain';
+
+interface NormalizedVoteType {
+  approved?: null;
+  rejected?: null;
+  abstained?: null;
+}
+
+interface NormalizedInvestorVote {
+  id: string;
+  reportId: string;
+  investorId: string;
+  voteType: NormalizedVoteType;
+  timestamp: bigint;
+}
 
 interface Report {
   id: string;
@@ -13,8 +31,8 @@ interface Report {
   profitSharingAmount: number;
   status: 'Submitted' | 'Approved' | 'Pending';
   investorCount: number;
-  createdAt: number; // nanoseconds (dummy)
-  existingVote?: 'approve' | 'reject' | 'abstain' | null;
+  createdAt: bigint;
+  existingVote?: VoteTypeVariant | null;
 }
 
 interface VotingTabProps {
@@ -22,19 +40,49 @@ interface VotingTabProps {
 }
 
 export default function VotingTab({ onBackToOverview }: VotingTabProps) {
-  const [votes, setVotes] = useState<
-    Record<string, 'approve' | 'reject' | 'abstain'>
-  >({});
-  const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [isVoting, setIsVoting] = useState(false);
+  const [voteHistory, setVoteHistory] = useState<NormalizedInvestorVote[]>([]);
+  const [investorId, setInvestorId] = useState<string | null>(null);
+  const [pendingReports, setPendingReports] = useState<Report[]>([]);
 
-  // Dummy fetch reports
-  useEffect(() => {
-    setLoading(true);
+  const fetchVotingData = async () => {
+    try {
+      setLoading(true);
+      setError(undefined);
 
-    setTimeout(() => {
-      const dummyReports: Report[] = [
+      const investor = await InvestorService.getInvestorByPrincipal();
+
+      if (!investor) {
+        setError('Investor not found. Please register as an investor.');
+        setLoading(false);
+        return;
+      }
+
+      setInvestorId(investor.id);
+
+      const result = await VotingService.getInvestorVoteHistory(investor.id);
+
+      if (!result.success || !result.history) {
+        setError(result.error || 'Failed to load voting history');
+        setLoading(false);
+        return;
+      }
+
+      // Normalize DFINITY data into JS-friendly objects
+      const normalizedVotes: NormalizedInvestorVote[] =
+        result.history.votes.map((v: any) => ({
+          id: v.id ?? crypto.randomUUID(),
+          reportId: v.reportId ?? '',
+          investorId: v.investorId ?? '',
+          voteType: v.voteType as NormalizedVoteType,
+          timestamp: v.timestamp ?? BigInt(Date.now() * 1000000),
+        }));
+
+      setVoteHistory(normalizedVotes);
+
+      const mockPendingReports: Report[] = [
         {
           id: 'RPT-2024-001',
           month: 9,
@@ -45,7 +93,8 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
           profitSharingAmount: 1200,
           status: 'Submitted',
           investorCount: 45,
-          createdAt: Date.now() * 1000000, // dummy nanoseconds
+          createdAt: BigInt(Date.now() * 1000000),
+          existingVote: getExistingVote('RPT-2024-001', normalizedVotes),
         },
         {
           id: 'RPT-2024-002',
@@ -57,85 +106,219 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
           profitSharingAmount: 2000,
           status: 'Approved',
           investorCount: 60,
-          createdAt: Date.now() * 1000000,
+          createdAt: BigInt(Date.now() * 1000000),
+          existingVote: getExistingVote('RPT-2024-002', normalizedVotes),
         },
       ];
 
-      setReports(dummyReports);
+      setPendingReports(mockPendingReports);
       setLoading(false);
-    }, 1000);
-  }, []);
-
-  const handleVote = async (
-    reportId: string,
-    voteType: 'approve' | 'reject' | 'abstain'
-  ) => {
-    try {
-      setIsLoading(true);
-
-      // dummy "API delay"
-      await new Promise(res => setTimeout(res, 500));
-
-      setVotes(prev => ({
-        ...prev,
-        [reportId]: voteType,
-      }));
-
-      alert(`Vote submitted: ${voteType} for report ${reportId}`);
-    } catch (error) {
-      console.error('Vote error:', error);
-      alert('Vote failed');
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      console.error('Error fetching voting data:', err);
+      setError('An unexpected error occurred while loading voting data');
+      setLoading(false);
     }
   };
 
+  const getExistingVote = (
+    reportId: string,
+    votes: NormalizedInvestorVote[]
+  ): VoteTypeVariant | null => {
+    const vote = votes.find(v => v.reportId === reportId);
+    if (!vote) return null;
+
+    if (vote.voteType.approved !== undefined) return 'approve';
+    if (vote.voteType.rejected !== undefined) return 'reject';
+    if (vote.voteType.abstained !== undefined) return 'abstain';
+    return null;
+  };
+
+  const handleVote = async (reportId: string, voteType: VoteTypeVariant) => {
+    if (!investorId) {
+      alert('Investor ID not found');
+      return;
+    }
+
+    try {
+      setIsVoting(true);
+
+      const canVote = await VotingService.canInvestorVote(reportId);
+      if (!canVote) {
+        alert('You are not eligible to vote on this report');
+        setIsVoting(false);
+        return;
+      }
+
+      const existingVote =
+        await VotingService.getInvestorVoteForReport(reportId);
+
+      const voteTypeVariant: NormalizedVoteType =
+        voteType === 'approve'
+          ? { approved: null }
+          : voteType === 'reject'
+            ? { rejected: null }
+            : { abstained: null };
+
+      let result;
+      if (existingVote) {
+        result = await VotingService.updateVote(reportId, {
+          reportId,
+          investorId,
+          voteType: voteTypeVariant,
+          comments: [],
+        });
+      } else {
+        result = await VotingService.castVote({
+          reportId,
+          investorId,
+          voteType: voteTypeVariant,
+          comments: [],
+        });
+      }
+
+      if (result.success) {
+        alert(`Vote ${existingVote ? 'updated' : 'submitted'} successfully!`);
+        await fetchVotingData();
+      } else {
+        alert(
+          `Failed to ${existingVote ? 'update' : 'submit'} vote: ${result.error}`
+        );
+      }
+    } catch (error) {
+      console.error('Vote error:', error);
+      alert('An error occurred while voting');
+    } finally {
+      setIsVoting(false);
+    }
+  };
+
+  const formatDate = (timestamp: bigint): string => {
+    try {
+      const date = new Date(Number(timestamp) / 1000000);
+      return date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  const getDaysLeft = (createdAt: bigint): number => {
+    try {
+      const reportDate = new Date(Number(createdAt) / 1000000);
+      const dueDate = new Date(reportDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+      return Math.ceil(
+        (dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      );
+    } catch {
+      return 0;
+    }
+  };
+
+  useEffect(() => {
+    fetchVotingData();
+  }, []);
+
   if (loading) {
     return (
-      <div className='space-y-8'>
-        <h2 className='text-2xl font-bold text-gray-900'>
-          Loading Voting Items...
-        </h2>
-        <div className='flex items-center justify-center py-12'>
-          <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600'></div>
+      <div className='flex items-center justify-center min-h-[400px]'>
+        <div className='text-center'>
+          <LoadingSpinner className='mx-auto mb-4' />
+          <p className='text-gray-600'>Loading voting data...</p>
         </div>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <Card className='p-8'>
+        <div className='text-center flex flex-col items-center justify-center'>
+          <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
+          <h3 className='text-lg font-medium text-gray-900 mb-2'>
+            Error Loading Voting Data
+          </h3>
+          <p className='text-gray-600 mb-4'>{error}</p>
+          <Button variant='primary' onClick={fetchVotingData}>
+            Try Again
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <div className='space-y-8'>
-      {/* Header */}
-      <h2 className='text-2xl font-bold text-gray-900'>
-        Pending Votes -{' '}
-        {new Date().toLocaleDateString('en-US', {
-          month: 'long',
-          year: 'numeric',
-        })}
-      </h2>
+      <div className='flex items-center justify-between'>
+        <h2 className='text-2xl font-bold text-gray-900'>
+          Pending Votes -{' '}
+          {new Date().toLocaleDateString('en-US', {
+            month: 'long',
+            year: 'numeric',
+          })}
+        </h2>
+        <Button
+          variant='secondary'
+          onClick={fetchVotingData}
+          className='text-sm'
+        >
+          Refresh
+        </Button>
+      </div>
 
-      {/* Voting Items */}
-      {reports.length === 0 ? (
-        <div className='bg-white rounded-lg border border-gray-200 p-8 text-center'>
-          <FileText className='w-12 h-12 text-gray-400 mx-auto mb-4' />
-          <h3 className='text-lg font-medium text-gray-900 mb-2'>
-            No Reports Available for Voting
+      {voteHistory.length > 0 && (
+        <Card className='p-6'>
+          <h3 className='text-lg font-semibold text-gray-900 mb-4'>
+            Your Voting History
           </h3>
-          <p className='text-gray-600'>
-            There are currently no monthly reports that require your vote.
-          </p>
-        </div>
+          <div className='grid grid-cols-3 gap-6'>
+            <div>
+              <p className='text-sm text-gray-600 mb-1'>Total Votes</p>
+              <p className='text-2xl font-bold text-gray-900'>
+                {voteHistory.length}
+              </p>
+            </div>
+            <div>
+              <p className='text-sm text-gray-600 mb-1'>Approved</p>
+              <p className='text-2xl font-bold text-green-600'>
+                {
+                  voteHistory.filter(v => v.voteType.approved !== undefined)
+                    .length
+                }
+              </p>
+            </div>
+            <div>
+              <p className='text-sm text-gray-600 mb-1'>Rejected</p>
+              <p className='text-2xl font-bold text-red-600'>
+                {
+                  voteHistory.filter(v => v.voteType.rejected !== undefined)
+                    .length
+                }
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {pendingReports.length === 0 ? (
+        <Card className='p-8'>
+          <div className='text-center'>
+            <FileText className='w-12 h-12 text-gray-400 mx-auto mb-4' />
+            <h3 className='text-lg font-medium text-gray-900 mb-2'>
+              No Reports Available for Voting
+            </h3>
+            <p className='text-gray-600'>
+              There are currently no monthly reports that require your vote.
+            </p>
+          </div>
+        </Card>
       ) : (
         <div className='space-y-6'>
-          {reports.map(report => {
-            const userVote = votes[report.id];
-            const reportDate = new Date(Number(report.createdAt) / 1000000);
-            const dueDate = new Date(
-              reportDate.getTime() + 7 * 24 * 60 * 60 * 1000
-            );
-            const daysLeft = Math.ceil(
-              (dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-            );
+          {pendingReports.map(report => {
+            const daysLeft = getDaysLeft(report.createdAt);
+            const isVotingClosed = daysLeft <= 0;
 
             return (
               <div
@@ -143,7 +326,6 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                 className='bg-white rounded-lg border border-gray-200 p-6'
               >
                 <div className='bg-gray-50 rounded-lg p-6'>
-                  {/* Header */}
                   <div className='flex items-center justify-between mb-8'>
                     <div className='flex items-center gap-3'>
                       <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
@@ -153,20 +335,34 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                         Monthly Report - {report.month}/{report.year}
                       </h3>
                     </div>
-                    <span
-                      className={`text-sm font-medium px-3 py-1 rounded-full ${
-                        daysLeft > 0
-                          ? 'text-red-600 bg-red-50'
-                          : 'text-gray-600 bg-gray-50'
-                      }`}
-                    >
-                      {daysLeft > 0
-                        ? `Due in ${daysLeft} days`
-                        : 'Voting closed'}
-                    </span>
+                    <div className='flex items-center gap-3'>
+                      {report.existingVote && (
+                        <Badge
+                          variant={
+                            report.existingVote === 'approve'
+                              ? 'success'
+                              : report.existingVote === 'reject'
+                                ? 'destructive'
+                                : 'secondary'
+                          }
+                        >
+                          You {report.existingVote}d
+                        </Badge>
+                      )}
+                      <span
+                        className={`text-sm font-medium px-3 py-1 rounded-full ${
+                          !isVotingClosed
+                            ? 'text-red-600 bg-red-50'
+                            : 'text-gray-600 bg-gray-50'
+                        }`}
+                      >
+                        {!isVotingClosed
+                          ? `Due in ${daysLeft} days`
+                          : 'Voting closed'}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Metrics Grid */}
                   <div className='grid grid-cols-3 gap-12 mb-8'>
                     <div>
                       <p className='text-sm text-gray-500 mb-2'>Revenue</p>
@@ -219,7 +415,6 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
                   <div className='flex gap-3'>
                     <Button
                       variant='secondary'
@@ -236,28 +431,77 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                       Full Report
                     </Button>
                     <Button
-                      variant={userVote === 'reject' ? 'primary' : 'secondary'}
+                      variant={
+                        report.existingVote === 'reject'
+                          ? 'destructive'
+                          : 'secondary'
+                      }
                       className='flex items-center gap-2'
                       onClick={() => handleVote(report.id, 'reject')}
-                      disabled={isLoading || daysLeft <= 0}
+                      disabled={isVoting || isVotingClosed}
                     >
                       <ThumbsDown className='w-4 h-4' />
-                      {userVote === 'reject' ? 'Rejected' : 'Reject'}
+                      {report.existingVote === 'reject' ? 'Rejected' : 'Reject'}
                     </Button>
                     <Button
-                      variant={userVote === 'approve' ? 'primary' : 'primary'}
+                      variant={
+                        report.existingVote === 'approve'
+                          ? 'primary'
+                          : 'primary'
+                      }
                       className='flex items-center gap-2'
                       onClick={() => handleVote(report.id, 'approve')}
-                      disabled={isLoading || daysLeft <= 0}
+                      disabled={isVoting || isVotingClosed}
                     >
                       <ThumbsUp className='w-4 h-4' />
-                      {userVote === 'approve' ? 'Approved' : 'Approve'}
+                      {report.existingVote === 'approve'
+                        ? 'Approved'
+                        : 'Approve'}
                     </Button>
                   </div>
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {voteHistory.length > 0 && (
+        <div>
+          <h3 className='text-xl font-semibold text-gray-900 mb-6'>
+            Recent Voting Activity
+          </h3>
+          <div className='space-y-3'>
+            {voteHistory.slice(0, 5).map(vote => (
+              <Card key={vote.id} className='p-4'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='font-medium text-gray-900'>
+                      Report {vote.reportId.slice(0, 12)}...
+                    </p>
+                    <p className='text-sm text-gray-600'>
+                      {formatDate(vote.timestamp)}
+                    </p>
+                  </div>
+                  <Badge
+                    variant={
+                      vote.voteType.approved
+                        ? 'success'
+                        : vote.voteType.rejected
+                          ? 'destructive'
+                          : 'secondary'
+                    }
+                  >
+                    {vote.voteType.approved
+                      ? 'Approved'
+                      : vote.voteType.rejected
+                        ? 'Rejected'
+                        : 'Abstained'}
+                  </Badge>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
     </div>

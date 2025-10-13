@@ -219,8 +219,8 @@ function TermsAgreementForm({
                 Terms Accepted
               </h4>
               <p className='text-green-800 text-sm'>
-                You have accepted all terms and conditions. Click "Submit" to
-                complete your registration.
+                You have accepted all terms and conditions. Click
+                &quot;Submit&quot; to complete your registration.
               </p>
             </div>
           </div>

@@ -73,6 +73,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setPrincipal(principalId);
 
           await createBackendActor(client);
+        } else {
+          // Initialize BaseService for anonymous users
+          try {
+            await BaseService.initialize();
+          } catch (error) {
+            console.error(
+              'Error initializing BaseService for anonymous user:',
+              error
+            );
+          }
         }
       } catch (error) {
         console.error('Auth initialization error:', error);

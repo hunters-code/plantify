@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 
 import Footer from '@/components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
@@ -70,10 +70,9 @@ interface InvestmentDetails {
   soldNFTs: number;
 }
 
-export default function ExploreDetail() {
+function ExploreDetailContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id') || '1'; // Get ID from query parameter
-  console.log('Detail page loaded with ID:', id);
   const authLoading = false;
   const investmentLoading = false;
 
@@ -101,10 +100,8 @@ export default function ExploreDetail() {
       setLoading(true);
       setError(null);
 
-      console.log('Fetching startup details for ID:', id);
       // Use StartupService to fetch details
       const startupData = await StartupService.getStartupDetails(id);
-      console.log('Startup data received:', startupData);
 
       if (startupData) {
         // Transform backend data to match UI requirements
@@ -206,10 +203,6 @@ export default function ExploreDetail() {
     // Open modal immediately with fallback data
     setInvestmentData(initialDetails);
     setIsModalOpen(true);
-    console.log(
-      'Opening investment modal immediately with data:',
-      initialDetails
-    );
 
     // Then fetch real data in the background and update if needed
     try {
@@ -250,7 +243,6 @@ export default function ExploreDetail() {
         };
 
         setInvestmentData(updatedDetails);
-        console.log('Updated investment modal with real data:', updatedDetails);
       }
     } catch (error) {
       console.error('Error fetching updated investment data:', error);
@@ -276,7 +268,6 @@ export default function ExploreDetail() {
     totalAmount: number;
   }) => {
     try {
-      console.log('Processing investment:', investmentDetails);
       // Get current investor information
       const investor = await InvestorService.getInvestorByPrincipal();
       if (!investor) {
@@ -297,13 +288,9 @@ export default function ExploreDetail() {
       // Call backend service
       const result = await InvestorService.purchaseNFT(purchaseRequest);
       if (result.success) {
-        console.log('Investment successful!', result.response);
         setIsModalOpen(false);
         // Show success message
         // Show success message
-        console.log(
-          `🎉 Investment successful! You have purchased ${investmentDetails.quantity} NFTs for ${startup?.startupName}.`
-        );
       } else {
         console.error('Investment failed:', result.error);
         throw new Error(result.error || 'Investment failed');
@@ -358,7 +345,7 @@ export default function ExploreDetail() {
         <ImageGallery
           images={images.filter(img => img && !img.includes('undefined'))}
           showViewMore={true}
-          onViewMore={() => console.log('View more clicked')}
+          onViewMore={() => {}}
         />
 
         {/* Right Side */}
@@ -477,5 +464,13 @@ export default function ExploreDetail() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function ExploreDetail() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ExploreDetailContent />
+    </Suspense>
   );
 }

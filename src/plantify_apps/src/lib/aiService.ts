@@ -248,8 +248,6 @@ export async function generateNFTImage(
 
     const textPrompt = generateTextPrompt(nftPrompt);
 
-    console.log('Generating NFT image with prompt:', textPrompt);
-
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
@@ -411,8 +409,6 @@ Please provide a detailed analysis in the following JSON format:
 
 Base your analysis on startup fundamentals, market conditions, financial metrics, and industry trends. Be objective and provide actionable insights.
 `;
-
-    console.log('Analyzing startup with AI...');
 
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',

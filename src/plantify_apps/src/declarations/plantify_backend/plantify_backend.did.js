@@ -384,6 +384,14 @@ export const idlFactory = ({ IDL }) => {
     reportId: IDL.Text,
   });
   const Result_11 = IDL.Variant({ ok: ReportVoteDetails, err: IDL.Text });
+  const PaginationParams = IDL.Record({ page: IDL.Nat, limit: IDL.Nat });
+  const PaginatedStartups = IDL.Record({
+    startups: IDL.Vec(Startup),
+    page: IDL.Nat,
+    totalCount: IDL.Nat,
+    limit: IDL.Nat,
+    totalPages: IDL.Nat,
+  });
   const TokenInfoResponse = IDL.Variant({
     Error: IDL.Text,
     Success: IDL.Record({
@@ -539,6 +547,7 @@ export const idlFactory = ({ IDL }) => {
     getAllStartups: IDL.Func([], [IDL.Vec(Startup)], []),
     getAllVotes: IDL.Func([], [IDL.Vec(InvestorVote)], []),
     getBalance: IDL.Func([TransferAccount, IDL.Text], [BalanceResponse], []),
+    getCanisterVersion: IDL.Func([], [IDL.Nat], []),
     getCkUSDCBalance: IDL.Func([TransferAccount], [BalanceResponse], []),
     getCkUSDCTokenConfig: IDL.Func([], [TokenConfig], []),
     getCollateralProgress: IDL.Func(
@@ -551,6 +560,7 @@ export const idlFactory = ({ IDL }) => {
     getCollectionInfo: IDL.Func([], [NFTConfig], []),
     getEnvironment: IDL.Func([], [IDL.Text], []),
     getEnvironmentConfig: IDL.Func([], [EnvironmentConfig], []),
+    getFeaturedStartup: IDL.Func([], [IDL.Opt(Startup)], []),
     getFounderByPrincipal: IDL.Func([], [IDL.Opt(Founder)], []),
     getFounders: IDL.Func([], [IDL.Vec(Founder)], []),
     getICPBalance: IDL.Func([TransferAccount], [BalanceResponse], []),
@@ -591,6 +601,14 @@ export const idlFactory = ({ IDL }) => {
     getReportVotes: IDL.Func([IDL.Text], [IDL.Vec(InvestorVote)], []),
     getStartupDetails: IDL.Func([IDL.Text], [IDL.Opt(Startup)], []),
     getStartupPurchaseHistory: IDL.Func([IDL.Text], [Result_10], []),
+    getStartupsCount: IDL.Func([], [IDL.Nat], []),
+    getStartupsPaginated: IDL.Func([PaginationParams], [PaginatedStartups], []),
+    getStartupsByFounderPrincipal: IDL.Func([], [IDL.Vec(Startup)], []),
+    getStartupsByFounderPrincipalPaginated: IDL.Func(
+      [PaginationParams],
+      [PaginatedStartups],
+      []
+    ),
     getTokenCanisterId: IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], []),
     getTokenInfo: IDL.Func([IDL.Text], [TokenInfoResponse], []),
     getUserType: IDL.Func([], [IDL.Opt(UserType)], []),

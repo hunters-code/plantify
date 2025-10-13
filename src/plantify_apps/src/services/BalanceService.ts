@@ -20,22 +20,13 @@ export class BalanceService extends BaseService {
     error?: string;
   }> {
     try {
-      console.log('Getting ICP balance for account:', account);
-      console.log('Account owner type:', typeof account.owner);
-      console.log('Account owner toString:', account.owner.toString());
-      console.log('Account subaccount:', account.subaccount);
-
       const actor = await this.getActor();
-      console.log('Actor obtained, calling getICPBalance...');
       const result: BalanceResponse = await actor.getICPBalance(account);
-
-      console.log('ICP balance result:', result);
 
       if ('Success' in result) {
         // Convert from smallest unit (e8s) to ICP (divide by 100,000,000)
         const rawBalance = Number(result.Success.balance);
         const balance = rawBalance / 100000000;
-        console.log(`ICP raw balance: ${rawBalance}, converted: ${balance}`);
         return { success: true, balance };
       } else {
         console.error('ICP balance error:', result.Error);
@@ -58,17 +49,13 @@ export class BalanceService extends BaseService {
     error?: string;
   }> {
     try {
-      console.log('Getting ckUSDC balance for account:', account);
       const actor = await this.getActor();
       const result: BalanceResponse = await actor.getCkUSDCBalance(account);
-
-      console.log('ckUSDC balance result:', result);
 
       if ('Success' in result) {
         // Convert from smallest unit (cents) to dollars (divide by 100)
         const rawBalance = Number(result.Success.balance);
         const balance = rawBalance / 100;
-        console.log(`ckUSDC raw balance: ${rawBalance}, converted: ${balance}`);
         return { success: true, balance };
       } else {
         console.error('ckUSDC balance error:', result.Error);
@@ -137,21 +124,16 @@ export class BalanceService extends BaseService {
     ckUSDC: { success: boolean; balance?: number; error?: string };
   }> {
     try {
-      console.log('Getting all balances for account:', account);
-
       // Ensure the service is initialized with authentication
       if (!this.isInitialized()) {
-        console.log('Service not initialized, initializing with auth...');
         // Import AuthClient to get the authenticated client
         const { AuthClient } = await import('@dfinity/auth-client');
         const authClient = await AuthClient.create();
         const isAuth = await authClient.isAuthenticated();
 
         if (isAuth) {
-          console.log('User is authenticated, initializing with auth client');
           await this.initialize(authClient);
         } else {
-          console.log('User not authenticated, using anonymous actor');
           await this.initialize();
         }
       }
@@ -160,11 +142,6 @@ export class BalanceService extends BaseService {
         this.getICPBalance(account),
         this.getCkUSDCBalance(account),
       ]);
-
-      console.log('All balance results:', {
-        icp: icpResult,
-        ckUSDC: ckUSDCResult,
-      });
 
       return {
         icp: icpResult,

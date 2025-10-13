@@ -7,7 +7,6 @@
     "setup": "npm i && dfx canister create plantify_backend && dfx generate plantify_backend && dfx deploy",
     "dev": "next dev --turbopack",
     "start": "next start",
-    "prebuild": "dfx generate",
     "build": "next build --turbopack",
     "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss,md}\"",
     "format:check": "prettier --check \"src/**/*.{json,js,jsx,ts,tsx,css,scss,md}\"",

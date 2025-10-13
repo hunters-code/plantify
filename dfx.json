@@ -14,21 +14,15 @@
     "plantify_backend": {
       "main": "src/plantify_backend/main.mo",
       "type": "motoko",
-      "ic": "a5ptu-ryaaa-aaaai-q32cq-cai"
-    },
-    "ckUSDC": {
-      "main": "src/ckUSDC/ckUSDC.mo",
-      "type": "motoko"
+      "ic": "a5ptu-ryaaa-aaaai-q32cq-cai",
+      "args": "--enhanced-orthogonal-persistence"
     },
     "plantify_frontend": {
-      "dependencies": [
-        "plantify_backend"
-      ],
       "source": [
-        "src/plantify_frontend/dist"
+        "src/plantify_apps/dist"
       ],
       "type": "assets",
-      "workspace": "plantify_frontend",
+      "workspace": "src/plantify_apps",
       "ic": "ueifo-jqaaa-aaaah-qqewa-cai"
     }
   },

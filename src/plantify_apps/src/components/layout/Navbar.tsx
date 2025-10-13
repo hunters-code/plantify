@@ -32,6 +32,7 @@ export default function Navbar(): JSX.Element {
   const [ckUSDCBalance, setCkUSDCBalance] = useState<string>('0');
   const [balanceLoading, setBalanceLoading] = useState<boolean>(false);
   const [signOutLoading, setSignOutLoading] = useState<boolean>(false);
+  const [balancesFetched, setBalancesFetched] = useState<boolean>(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -66,6 +67,15 @@ export default function Navbar(): JSX.Element {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Reset balances when user signs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setBalancesFetched(false);
+      setIcpBalance('0');
+      setCkUSDCBalance('0');
+    }
+  }, [isAuthenticated]);
 
   const handleConnectClick = async () => {
     if (isAuthenticated) {
@@ -129,6 +139,7 @@ export default function Navbar(): JSX.Element {
       setCkUSDCBalance('0.00');
     } finally {
       setBalanceLoading(false);
+      setBalancesFetched(true);
     }
   };
 
@@ -221,7 +232,7 @@ export default function Navbar(): JSX.Element {
                   </button>
 
                   {dropdownOpen && (
-                    <div className='absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50'>
+                    <div className='absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50'>
                       <div className='p-4'>
                         {userType && (
                           <div className='mb-4'>
@@ -253,12 +264,12 @@ export default function Navbar(): JSX.Element {
                             Principal ID
                           </label>
                           <div className='flex items-center gap-2 mt-1'>
-                            <code className='flex-1 text-sm font-mono bg-gray-100 px-2 py-1 rounded text-gray-800 break-all'>
+                            <code className='flex-1 text-sm font-mono bg-gray-100 px-2 py-1 rounded text-gray-800 break-all overflow-hidden'>
                               {principal || 'Not available'}
                             </code>
                             <button
                               onClick={copyPrincipal}
-                              className='p-1 hover:bg-gray-200 rounded transition'
+                              className='p-1 hover:bg-gray-200 rounded transition flex-shrink-0'
                               title='Copy Principal ID'
                             >
                               <Copy size={16} className='text-gray-600' />

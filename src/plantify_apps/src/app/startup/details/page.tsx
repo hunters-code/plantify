@@ -1,14 +1,10 @@
+'use client';
+
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 import Layout from '@/components/layout/Layout';
-import {
-  Button,
-  Card,
-  Skeleton,
-  SkeletonText,
-  CardSkeleton,
-} from '@/components/ui';
+import { Button, Card, Skeleton, CardSkeleton } from '@/components/ui';
 
 type TeamMember = {
   name: string;
