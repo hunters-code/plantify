@@ -13,9 +13,7 @@ import NFTPurchaseService "./modules/services/nftPurchase";
 import MonthlyReportService "./modules/services/monthlyReport";
 import VotingService "./modules/services/voting";
 import Config "./config";
-import {migration} "./modules/migration";
-
-(with migration) persistent actor PlantifyBackend {
+persistent actor PlantifyBackend {
   // Stable variables for persistence across canister upgrades
   private var config : Types.EnvironmentConfig = Config.getCurrentConfig();
   private var foundersEntries : [(Text, Types.Founder)] = [];
@@ -34,12 +32,7 @@ import {migration} "./modules/migration";
   private var nextStartupId : Nat = 1;
   private var nextReportId : Nat = 1;
   private var nextVoteId : Nat = 1;
-  // Legacy stable variables for migration compatibility
-  private var featuredStartupsEntries : [(Text, Types.FeaturedStartup)] = [];
-  private var nextFeaturedStartupId : Nat = 1;
   
-  // Version tracking for migrations
-  private transient var canisterVersion : Nat = 1;
   
   // Initialize storage from stable variables (transient - rebuilt on each upgrade)
   private transient let storage = Storage.UserStorage(
@@ -235,7 +228,7 @@ import {migration} "./modules/migration";
   };
 
   public shared func getCanisterVersion() : async Nat {
-    canisterVersion;
+    1;
   };
 
   // ========================================
@@ -575,82 +568,13 @@ import {migration} "./modules/migration";
   // PERSISTENCE METHODS
   // ========================================
 
-  // Migration function to handle stable variable compatibility
-  private func migrateStableVariables() {
-    // This function handles migration from old stable variables to new ones
-    // If this is a fresh deployment, the stable variables will be empty arrays
-    // If this is an upgrade, the stable variables will contain the previous data
-    // No explicit migration needed as we're keeping the same structure
-  };
-
-
-  // Migration function to handle featured startups variable type change
-  private func migrateFeaturedStartups() {
-    // Clear the old featured startups entries since we're no longer using them
-    // The new system just returns the newest startup directly
-    featuredStartupsEntries := [];
-    nextFeaturedStartupId := 1;
-  };
 
   system func preupgrade() {
     syncToStable();
   };
 
   system func postupgrade() {
-    // Call migration function to handle stable variable compatibility
-    migrateStableVariables();
-    
-    // Migrate featured startups variables
-    migrateFeaturedStartups();
-    
     // Update config to use current configuration
     config := Config.getCurrentConfig();
-    
-    if (canisterVersion < Config.CURRENT_CANISTER_VERSION) {
-      let migratedStartups = Array.map<(Text, Types.Startup), (Text, Types.Startup)>(
-        startupsEntries,
-        func((id, startup) : (Text, Types.Startup)) : (Text, Types.Startup) {
-          let migratedStartup : Types.Startup = {
-            id = startup.id;
-            founderId = startup.founderId;
-            startupName = startup.startupName;
-            sector = startup.sector;
-            foundedYear = startup.foundedYear;
-            description = startup.description;
-            website = startup.website;
-            location = startup.location;
-            companyType = startup.companyType;
-            companyLogo = startup.companyLogo;
-            companyImages = []; // Initialize new field as empty array for existing startups
-            nftImage = startup.nftImage;
-            problemStatement = startup.problemStatement;
-            solution = startup.solution;
-            targetMarket = startup.targetMarket;
-            competitiveAdvantage = startup.competitiveAdvantage;
-            marketingStrategy = startup.marketingStrategy;
-            operationalProcess = startup.operationalProcess;
-            founderBackground = startup.founderBackground;
-            teamMembers = startup.teamMembers;
-            advisors = startup.advisors;
-            fundingGoal = startup.fundingGoal;
-            nftPrice = startup.nftPrice;
-            periodicProfitSharing = startup.periodicProfitSharing;
-            revenueModel = startup.revenueModel;
-            monthlyRevenue = startup.monthlyRevenue;
-            monthlyExpenses = startup.monthlyExpenses;
-            useOfFunds = startup.useOfFunds;
-            businessPlan = startup.businessPlan;
-            financialProjections = startup.financialProjections;
-            legalDocuments = startup.legalDocuments;
-            status = startup.status;
-            createdAt = startup.createdAt;
-            updatedAt = startup.updatedAt;
-          };
-          (id, migratedStartup);
-        }
-      );
-      startupsEntries := migratedStartups;
-      canisterVersion := Config.CURRENT_CANISTER_VERSION;
-    };
   };
 };

@@ -140,6 +140,7 @@ module Types {
     financialProjections : ?Text;
     legalDocuments : ?Text;
     status : Text;
+    builtByCaffeineAI : ?Bool;
     createdAt : Time.Time;
     updatedAt : Time.Time;
   };
@@ -175,19 +176,9 @@ module Types {
     financialProjections : ?Text;
     legalDocuments : ?Text;
     status : Text;
+    builtByCaffeineAI : ?Bool;
   };
 
-  // Legacy FeaturedStartup type for migration compatibility
-  public type FeaturedStartup = {
-    id : Text;
-    startupId : Text;
-    featuredAt : Time.Time;
-    featuredBy : Principal;
-    isActive : Bool;
-    priority : Nat;
-    featuredUntil : ?Time.Time;
-    description : ?Text;
-  };
 
   // Enhanced startup details with related information
   public type EnhancedStartupDetails = {
@@ -667,6 +658,7 @@ module Types {
     totalFunding : Text;
     availableNFTs : Nat;
     totalFunded : Nat;
+    builtByCaffeineAI : ?Bool;
   };
 
   public type PaginatedStartups = {

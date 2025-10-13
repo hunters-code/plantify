@@ -359,6 +359,7 @@ module Storage {
 
             // Status and Metadata
             status = startupRequest.status;
+            builtByCaffeineAI = startupRequest.builtByCaffeineAI;
             createdAt = now;
             updatedAt = now;
           };
@@ -489,6 +490,7 @@ module Storage {
                 totalFunding = startup.fundingGoal;
                 availableNFTs = availableNFTs;
                 totalFunded = totalFunded;
+                builtByCaffeineAI = startup.builtByCaffeineAI;
               };
             },
           );
@@ -603,6 +605,7 @@ module Storage {
             totalFunding = startup.fundingGoal;
             availableNFTs = availableNFTs;
             totalFunded = totalFunded;
+            builtByCaffeineAI = startup.builtByCaffeineAI;
           };
         },
       );
@@ -675,6 +678,7 @@ module Storage {
             financialProjections = startup.financialProjections;
             legalDocuments = startup.legalDocuments;
             status = newStatus;
+            builtByCaffeineAI = startup.builtByCaffeineAI;
             createdAt = startup.createdAt;
             updatedAt = Time.now();
           };
