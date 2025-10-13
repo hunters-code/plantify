@@ -7,7 +7,9 @@ import { Badge, Button, Card, ProgressBar } from '@/components/ui';
 import type {
   Startup,
   NFTPurchaseHistory,
+  StartupOverview as StartupOverviewType,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+import { FounderService } from '@/services/founders/FounderService';
 import { StartupService } from '@/services/marketplace/StartupService';
 import { formatCurrency } from '@/utils/formatCurrency';
 
@@ -20,6 +22,8 @@ interface StartupOverviewProps {
 
 export default function StartupOverview({ startupId }: StartupOverviewProps) {
   const [startup, setStartup] = useState<Startup | null>(null);
+  const [startupOverview, setStartupOverview] =
+    useState<StartupOverviewType | null>(null);
   const [purchaseHistory, setPurchaseHistory] =
     useState<NFTPurchaseHistory | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,14 +40,20 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
         setLoading(true);
         setError(null);
 
-        // Fetch startup details and purchase history in parallel
-        const [startupResult, purchaseResult] = await Promise.all([
-          StartupService.getStartupDetails(startupId),
-          StartupService.getStartupPurchaseHistory(startupId),
-        ]);
+        // Fetch startup details, overview, and purchase history in parallel
+        const [startupResult, overviewResult, purchaseResult] =
+          await Promise.all([
+            StartupService.getStartupDetails(startupId),
+            FounderService.getFounderStartupOverview(startupId),
+            StartupService.getStartupPurchaseHistory(startupId),
+          ]);
 
         if (startupResult) {
           setStartup(startupResult);
+        }
+
+        if (overviewResult.success && overviewResult.data) {
+          setStartupOverview(overviewResult.data);
         }
 
         if (purchaseResult.success && purchaseResult.history) {
@@ -101,15 +111,27 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
     );
   }
 
-  // Calculate metrics from real data
-  const fundingGoal = Number(startup.fundingGoal.replace(/[^0-9.]/g, '')) || 0;
-  const totalRaised = purchaseHistory ? Number(purchaseHistory.totalSpent) : 0;
+  // Use data from startupOverview if available, otherwise calculate from startup and purchaseHistory
+  let fundingGoal = Number(startup.fundingGoal?.replace(/[^0-9.]/g, '')) || 0;
+  let totalRaised = purchaseHistory ? Number(purchaseHistory.totalSpent) : 0;
+  let totalNFTs = 0;
+  let nftSales = purchaseHistory ? Number(purchaseHistory.totalNFTs) : 0;
+  let teamSize = startup.teamMembers ? startup.teamMembers.length : 0;
+
+  // Override with startupOverview data if available
+  if (startupOverview) {
+    fundingGoal = Number(startupOverview.fundTarget);
+    totalRaised = Number(startupOverview.totalFunded);
+    totalNFTs = Number(startupOverview.totalNFT);
+    nftSales = Number(startupOverview.totalNFTSale);
+    teamSize = Number(startupOverview.totalTeamMembers);
+  } else {
+    // Fallback if startupOverview is not available
+    totalNFTs = nftSales + 50; // Estimate total available NFTs
+  }
+
   const fundingProgress =
     fundingGoal > 0 ? (totalRaised / fundingGoal) * 100 : 0;
-  const nftSales = purchaseHistory ? Number(purchaseHistory.totalNFTs) : 0;
-  const totalNFTs = nftSales + 50; // Estimate total available NFTs
-
-  const teamSize = startup.teamMembers ? startup.teamMembers.length : 0;
   const fundingRaised = (fundingProgress / 100) * fundingGoal;
   const nftSalesPercentage = totalNFTs > 0 ? (nftSales / totalNFTs) * 100 : 0;
 
@@ -119,12 +141,16 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
         <div className='flex flex-col gap-2'>
           <div className='flex gap-3 items-center'>
             <h2 className='text-xl font-semibold'>
-              {startup.startupName || 'Unnamed Startup'}
+              {startupOverview?.name ||
+                startup.startupName ||
+                'Unnamed Startup'}
             </h2>
             <p className='text-sm text-gray-500 border border-neutral-200 px-2 py-1 rounded-lg flex gap-2'>
               <MapPin size={16} />
-              {startup.location || 'Location not specified'} · {teamSize}{' '}
-              employees
+              {startupOverview?.location ||
+                startup.location ||
+                'Location not specified'}{' '}
+              · {teamSize} employees
             </p>
           </div>
           <div className='flex gap-2'>
@@ -134,7 +160,9 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
             <Badge variant='success'>
               {startup.sector || 'Unknown Sector'}
             </Badge>
-            <Badge variant='warning'>{startup.companyType || 'Startup'}</Badge>
+            <Badge variant='warning'>
+              {startupOverview?.companyType || startup.companyType || 'Startup'}
+            </Badge>
           </div>
         </div>
         <Button variant='secondary'>
@@ -147,7 +175,8 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
         <div className='flex flex-col gap-2 text-[16px]'>
           <span className='text-black font-ibm'>Description</span>
           <span className='text-neutral-500'>
-            {startup.description ||
+            {startupOverview?.description ||
+              startup.description ||
               'No description available for this startup.'}
           </span>
         </div>
