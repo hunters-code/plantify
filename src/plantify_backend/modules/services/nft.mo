@@ -13,7 +13,7 @@ import Types "../types";
 import Storage "../storage";
 
 module NFT {
-  public class NFTService(config : Types.EnvironmentConfig, storage : Storage.UserStorage) {
+  public class NFTService(storage : Storage.UserStorage) {
     
     // Storage for NFT information
     private var nftInfo = HashMap.HashMap<Nat, Types.NFTInfo>(
@@ -136,40 +136,6 @@ module NFT {
       };
     };
 
-    // Get NFTs by startup
-    public func getNFTsByStartup(startupId : Text) : Result.Result<[Types.NFTInfo], Text> {
-      switch (startupNFTs.get(startupId)) {
-        case null {
-          #ok([]);
-        };
-        case (?tokenIds) {
-          let nftArray = Array.map<Nat, ?Types.NFTInfo>(
-            tokenIds,
-            func(id : Nat) : ?Types.NFTInfo { nftInfo.get(id) },
-          );
-          let validNFTs = Array.filter<?Types.NFTInfo>(
-            nftArray,
-            func(nft : ?Types.NFTInfo) : Bool {
-              switch (nft) {
-                case null { false };
-                case (?_) { true };
-              };
-            },
-          );
-          let result = Array.map<?Types.NFTInfo, Types.NFTInfo>(
-            validNFTs,
-            func(nft : ?Types.NFTInfo) : Types.NFTInfo {
-              switch (nft) {
-                case null { assert false; loop {} };
-                case (?n) { n };
-              };
-            },
-          );
-          #ok(result);
-        };
-      };
-    };
-
     // Get NFT balance for an account
     public func getNFTBalance(account : Types.NFTAccount) : Result.Result<Types.NFTBalanceResponse, Text> {
       var balance : Nat = 0;
@@ -209,9 +175,23 @@ module NFT {
       Buffer.toArray(nftArray);
     };
 
-    // Get NFT collection info
-    public func getCollectionInfo() : Types.NFTConfig {
-      config.nftToken;
+    // Get NFTs by startup ID
+    public func getNFTsByStartup(startupId : Text) : Result.Result<[Types.NFTInfo], Text> {
+      switch (startupNFTs.get(startupId)) {
+        case null {
+          #ok([]);
+        };
+        case (?tokenIds) {
+          let nftArray = Buffer.Buffer<Types.NFTInfo>(tokenIds.size());
+          for (tokenId in tokenIds.vals()) {
+            switch (nftInfo.get(tokenId)) {
+              case null { };
+              case (?info) { nftArray.add(info) };
+            };
+          };
+          #ok(Buffer.toArray(nftArray));
+        };
+      };
     };
 
     // Check if NFT can be minted for startup

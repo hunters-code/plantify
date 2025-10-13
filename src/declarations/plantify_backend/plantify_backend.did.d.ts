@@ -86,31 +86,58 @@ export interface FounderRegistrationRequest {
 }
 export interface Investor {
   'id' : string,
+  'bio' : [] | [string],
+  'occupation' : [] | [string],
   'principal' : Principal,
   'country' : string,
   'riskTolerance' : string,
   'monthlyBudget' : string,
   'city' : string,
   'createdAt' : Time,
+  'profilePhoto' : [] | [string],
   'fullName' : string,
   'email' : string,
   'updatedAt' : Time,
+  'company' : [] | [string],
   'investmentGoals' : string,
   'availableCapital' : string,
   'phone' : string,
   'investmentExperience' : string,
+  'location' : [] | [string],
+}
+export interface InvestorProfileUpdateRequest {
+  'bio' : [] | [string],
+  'occupation' : [] | [string],
+  'country' : [] | [string],
+  'riskTolerance' : [] | [string],
+  'monthlyBudget' : [] | [string],
+  'city' : [] | [string],
+  'profilePhoto' : [] | [string],
+  'fullName' : [] | [string],
+  'email' : [] | [string],
+  'company' : [] | [string],
+  'investmentGoals' : [] | [string],
+  'availableCapital' : [] | [string],
+  'phone' : [] | [string],
+  'investmentExperience' : [] | [string],
+  'location' : [] | [string],
 }
 export interface InvestorRegistrationRequest {
+  'bio' : [] | [string],
+  'occupation' : [] | [string],
   'country' : string,
   'riskTolerance' : string,
   'monthlyBudget' : string,
   'city' : string,
+  'profilePhoto' : [] | [string],
   'fullName' : string,
   'email' : string,
+  'company' : [] | [string],
   'investmentGoals' : string,
   'availableCapital' : string,
   'phone' : string,
   'investmentExperience' : string,
+  'location' : [] | [string],
 }
 export interface InvestorVote {
   'id' : string,
@@ -312,7 +339,7 @@ export type Result_18 = { 'ok' : MonthlyReportList } |
   { 'err' : string };
 export type Result_19 = { 'ok' : InvestorVoteHistory } |
   { 'err' : string };
-export type Result_2 = { 'ok' : TransferNFTResponse } |
+export type Result_2 = { 'ok' : Investor } |
   { 'err' : string };
 export type Result_20 = { 'ok' : [] | [InvestorVote] } |
   { 'err' : string };
@@ -324,9 +351,9 @@ export type Result_23 = { 'ok' : Startup } |
   { 'err' : string };
 export type Result_24 = { 'ok' : boolean } |
   { 'err' : string };
-export type Result_3 = { 'ok' : TopUpResponse } |
+export type Result_3 = { 'ok' : TransferNFTResponse } |
   { 'err' : string };
-export type Result_4 = { 'ok' : Investor } |
+export type Result_4 = { 'ok' : TopUpResponse } |
   { 'err' : string };
 export type Result_5 = { 'ok' : Founder } |
   { 'err' : string };
@@ -547,6 +574,7 @@ export interface _SERVICE {
   'getICPBalance' : ActorMethod<[TransferAccount], BalanceResponse>,
   'getICPTokenConfig' : ActorMethod<[], TokenConfig>,
   'getInvestorByPrincipal' : ActorMethod<[], [] | [Investor]>,
+  'getInvestorProfile' : ActorMethod<[], [] | [Investor]>,
   'getInvestorPurchaseHistory' : ActorMethod<[string], Result_10>,
   'getInvestorVoteForReport' : ActorMethod<[string], Result_20>,
   'getInvestorVoteHistory' : ActorMethod<[string], Result_19>,
@@ -598,10 +626,10 @@ export interface _SERVICE {
   'mintNFTForStartup' : ActorMethod<[string], Result_7>,
   'purchaseNFT' : ActorMethod<[NFTPurchaseRequest], Result_6>,
   'registerFounder' : ActorMethod<[FounderRegistrationRequest], Result_5>,
-  'registerInvestor' : ActorMethod<[InvestorRegistrationRequest], Result_4>,
+  'registerInvestor' : ActorMethod<[InvestorRegistrationRequest], Result_2>,
   'rejectMonthlyReport' : ActorMethod<[string], Result_1>,
   'submitMonthlyReport' : ActorMethod<[string], Result_1>,
-  'topUpCollateral' : ActorMethod<[TopUpRequest], Result_3>,
+  'topUpCollateral' : ActorMethod<[TopUpRequest], Result_4>,
   'transferCkUSDC' : ActorMethod<
     [TransferAccount, bigint, [] | [string]],
     TransferResponse
@@ -610,8 +638,12 @@ export interface _SERVICE {
     [TransferAccount, bigint, [] | [string]],
     TransferResponse
   >,
-  'transferNFT' : ActorMethod<[TransferNFTRequest], Result_2>,
+  'transferNFT' : ActorMethod<[TransferNFTRequest], Result_3>,
   'transferTokens' : ActorMethod<[TransferArgs], TransferResponse>,
+  'updateInvestorProfile' : ActorMethod<
+    [InvestorProfileUpdateRequest],
+    Result_2
+  >,
   'updateMonthlyReport' : ActorMethod<[string, MonthlyReportRequest], Result_1>,
   'updateStartupStatus' : ActorMethod<[string, string], boolean>,
   'updateVote' : ActorMethod<[string, VoteRequest], Result>,

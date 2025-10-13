@@ -24,7 +24,7 @@ module Config {
         fee = 10000;
       };
       nftToken = {
-        canisterId = "NFT_CANISTER_ID_HERE"; // Replace with actual NFT canister ID
+        canisterId = "oncwy-yqaaa-aaaae-qfzja-cai"; // Use Plantify backend canister ID
         name = "Plantify Startup NFTs";
         symbol = "PLANT";
         description = "NFTs representing ownership shares in Plantify startups";
@@ -39,7 +39,7 @@ module Config {
         maxTakeValue = ?100;
         atomicBatchTransfers = ?true;
       };
-      plantifyAccount = "rrkah-fqaaa-aaaah-qcvmq-cai";
+      plantifyAccount = "cix4d-vquwk-gyhx2-gncl3-kkd5l-nqx35-27fa4-kndmx-nk7fp-msvxz-xae";
       useTestTokens = true;
     };
   };
@@ -65,7 +65,7 @@ module Config {
         fee = 10000;
       };
       nftToken = {
-        canisterId = "NFT_PRODUCTION_CANISTER_ID_HERE"; // Replace with production NFT canister ID
+        canisterId = "oncwy-yqaaa-aaaae-qfzja-cai"; // Use Plantify backend canister ID
         name = "Plantify Startup NFTs";
         symbol = "PLANT";
         description = "NFTs representing ownership shares in Plantify startups";
@@ -106,7 +106,7 @@ module Config {
         fee = 10000;
       };
       nftToken = {
-        canisterId = "NFT_TESTNET_CANISTER_ID_HERE"; // Replace with testnet NFT canister ID
+        canisterId = "oncwy-yqaaa-aaaae-qfzja-cai"; // Use Plantify backend canister ID
         name = "Plantify Startup NFTs";
         symbol = "PLANT";
         description = "NFTs representing ownership shares in Plantify startups";
