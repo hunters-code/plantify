@@ -374,7 +374,6 @@ function ExploreDetailContent() {
                 unoptimized={startup.companyLogo?.[0]?.startsWith(
                   'https://gecvpysiaymyyynjhpfz.supabase.co'
                 )}
-                style={{ margin: 0 }}
               />
               <h2 className='text-2xl font-semibold'>{startup.startupName}</h2>
             </div>
