@@ -7,8 +7,10 @@ import { Card, Button, Alert } from '@/components/ui';
 import type {
   CollateralInfo,
   CollateralTopUp,
+  CollateralTopUpSummary,
   CollateralProgress,
   CollateralStatus,
+  CollateralDashboard,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 import { CollateralService } from '@/services/founders/CollateralService';
 import { formatCurrency } from '@/utils/formatCurrency';
@@ -18,12 +20,11 @@ interface CollateralProps {
 }
 
 const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
-  const [collateralInfo, setCollateralInfo] = useState<CollateralInfo | null>(
-    null
+  const [collateralDashboard, setCollateralDashboard] =
+    useState<CollateralDashboard | null>(null);
+  const [topUpHistory, setTopUpHistory] = useState<CollateralTopUpSummary[]>(
+    []
   );
-  const [collateralProgress, setCollateralProgress] =
-    useState<CollateralProgress | null>(null);
-  const [topUpHistory, setTopUpHistory] = useState<CollateralTopUp[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,30 +39,15 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
         setLoading(true);
         setError(null);
 
-        console.log('Fetching collateral data for startup:', startupId);
+        // Fetch collateral dashboard data
+        const dashboardResult =
+          await CollateralService.getCollateralDashboard(startupId);
 
-        // Fetch all collateral data in parallel
-        const [statusResult, progressResult, historyResult] = await Promise.all(
-          [
-            CollateralService.getCollateralStatus(startupId),
-            CollateralService.getCollateralProgress(startupId),
-            CollateralService.getCollateralTopUpHistory(startupId),
-          ]
-        );
-
-        if (statusResult.success && statusResult.collateral) {
-          setCollateralInfo(statusResult.collateral);
-          console.log('Collateral status loaded:', statusResult.collateral);
-        }
-
-        if (progressResult.success && progressResult.progress) {
-          setCollateralProgress(progressResult.progress);
-          console.log('Collateral progress loaded:', progressResult.progress);
-        }
-
-        if (historyResult.success && historyResult.history) {
-          setTopUpHistory(historyResult.history);
-          console.log('Top-up history loaded:', historyResult.history);
+        if (dashboardResult.success && dashboardResult.dashboard) {
+          setCollateralDashboard(dashboardResult.dashboard);
+          setTopUpHistory(dashboardResult.dashboard.topUpHistory || []);
+        } else {
+          setError(dashboardResult.error || 'Failed to load collateral data');
         }
       } catch (err) {
         console.error('Error fetching collateral data:', err);
@@ -74,18 +60,24 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
     fetchCollateralData();
   }, [startupId]);
 
-  // Calculate metrics from real data
-  const requiredAmount = collateralInfo
-    ? Number(collateralInfo.requiredAmount) / 100
+  // Get metrics from dashboard data
+  const requiredAmount = collateralDashboard
+    ? Number(collateralDashboard.requiredAmount) / 100
     : 0;
-  const currentAmount = collateralInfo
-    ? Number(collateralInfo.currentAmount) / 100
+  const currentAmount = collateralDashboard
+    ? Number(collateralDashboard.currentAmount) / 100
     : 0;
-  const progressPercentage =
-    requiredAmount > 0 ? (currentAmount / requiredAmount) * 100 : 0;
-  const remainingAmount = Math.max(0, requiredAmount - currentAmount);
-  const isFullyFunded =
-    collateralProgress?.isFullyPaid || progressPercentage >= 100;
+  const progressPercentage = collateralDashboard
+    ? Number(collateralDashboard.progressPercentage)
+    : requiredAmount > 0
+      ? (currentAmount / requiredAmount) * 100
+      : 0;
+  const remainingAmount = collateralDashboard
+    ? Number(collateralDashboard.remainingAmount) / 100
+    : Math.max(0, requiredAmount - currentAmount);
+  const isFullyFunded = collateralDashboard
+    ? collateralDashboard.isFullyPaid
+    : progressPercentage >= 100;
 
   if (loading) {
     return (
@@ -133,7 +125,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
     );
   }
 
-  if (!collateralInfo) {
+  if (!collateralDashboard) {
     return (
       <Card className='bg-neutral-100'>
         <div className='text-center py-12'>
@@ -176,7 +168,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
           </div>
           <div className='text-sm text-gray-500'>Required Amount</div>
           <div className='text-xs text-gray-400 mt-1'>
-            Total collateral needed ({collateralInfo.tokenType})
+            Total collateral needed ({collateralDashboard.tokenType})
           </div>
         </Card>
 
@@ -189,7 +181,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
           </div>
           <div className='text-sm text-gray-500'>Deposited Amount</div>
           <div className='text-xs text-gray-400 mt-1'>
-            Current deposits ({collateralInfo.tokenType})
+            Current deposits ({collateralDashboard.tokenType})
           </div>
         </Card>
 
@@ -204,7 +196,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
           </div>
           <div className='text-sm text-gray-500'>Progress</div>
           <div className='text-xs text-gray-400 mt-1'>
-            {getStatusText(collateralInfo.status)}
+            {collateralDashboard.status}
           </div>
         </Card>
       </div>
@@ -270,7 +262,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
                         ).toLocaleDateString()}
                       </div>
                       <div className='text-xs text-gray-500 capitalize'>
-                        {topUp.tokenType}
+                        {collateralDashboard.tokenType}
                       </div>
                       {topUp.transactionId && topUp.transactionId[0] && (
                         <div className='text-xs text-gray-400 mt-1'>
@@ -283,7 +275,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
                         +{formatCurrency(Number(topUp.amount) / 100)}
                       </div>
                       <div className='text-xs text-gray-500'>
-                        {getTopUpStatusText(topUp.status)}
+                        {topUp.status}
                       </div>
                     </div>
                   </div>
@@ -307,27 +299,5 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
     </Card>
   );
 };
-
-// Helper functions
-function getStatusText(status: CollateralStatus): string {
-  if (typeof status === 'object') {
-    if ('Active' in status) return 'Active';
-    if ('Locked' in status) return 'Locked';
-    if ('Completed' in status) return 'Completed';
-    if ('Insufficient' in status) return 'Insufficient';
-    return 'Unknown';
-  }
-  return String(status);
-}
-
-function getTopUpStatusText(status: any): string {
-  if (typeof status === 'object') {
-    if ('Completed' in status) return 'Completed';
-    if ('Pending' in status) return 'Pending';
-    if ('Failed' in status) return 'Failed';
-    return 'Processing';
-  }
-  return String(status);
-}
 
 export default Collateral;

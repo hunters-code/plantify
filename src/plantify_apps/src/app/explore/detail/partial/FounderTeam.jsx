@@ -91,10 +91,43 @@ export default function FounderTeam({ startup }) {
         </div>
       )}
 
-      {/* Other Team Members (if any) */}
-      {otherMembers.length > 0 && (
+      {/* Founder Profiles */}
+      {founders.length > 0 && (
         <div>
           <h2 className='text-2xl font-semibold mb-6'>Founder Profile</h2>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+            {founders.map((member, i) => (
+              <div
+                key={i}
+                className='bg-white rounded-lg overflow-hidden shadow-sm'
+              >
+                <div className='w-full aspect-square overflow-hidden relative'>
+                  <Image
+                    src={
+                      member.photo && !member.photo.includes('undefined')
+                        ? member.photo
+                        : '/assets/images/user.png'
+                    }
+                    alt={member.name}
+                    className='object-cover'
+                    fill
+                    sizes='(max-width: 768px) 100vw, 25vw'
+                  />
+                </div>
+                <div className='p-3'>
+                  <h3 className='text-base font-medium'>{member.name}</h3>
+                  <p className='text-xs text-gray-500'>{member.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Other Team Members */}
+      {otherMembers.length > 0 && (
+        <div className='mt-8'>
+          <h2 className='text-2xl font-semibold mb-6'>Team Members</h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
             {otherMembers.map((member, i) => (
               <div
@@ -103,7 +136,11 @@ export default function FounderTeam({ startup }) {
               >
                 <div className='w-full aspect-square overflow-hidden relative'>
                   <Image
-                    src={member.photo || '/assets/images/user.png'}
+                    src={
+                      member.photo && !member.photo.includes('undefined')
+                        ? member.photo
+                        : '/assets/images/user.png'
+                    }
                     alt={member.name}
                     className='object-cover'
                     fill

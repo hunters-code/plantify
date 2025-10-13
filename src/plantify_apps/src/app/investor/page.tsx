@@ -15,10 +15,16 @@ import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
 
 import { InvestorService } from '@/services/investors/InvestorService';
 import type {
-  Investor,
-  NFTPurchaseHistory,
-  NFTPurchaseInfo
+  MyInvestmentPortfolio,
+  PortfolioItem,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+
+interface ActivityItem {
+  type: 'profit' | 'investment';
+  company: string;
+  amount: number;
+  date: string;
+}
 
 interface DashboardData {
   totalInvested: number;
@@ -28,6 +34,10 @@ interface DashboardData {
   activeInvestments: number;
   upcomingVotes: number;
   votingPending: number;
+  recentInvestments: ActivityItem[];
+  uniqueStartupsInvested: number;
+  averageInvestmentPerStartup: number;
+  totalNFTsOwned: number;
 }
 
 type TabType = 'overview' | 'portfolio' | 'voting' | 'transactions';
@@ -48,18 +58,37 @@ export default function InvestorDashboard() {
     activeInvestments: 0,
     upcomingVotes: 0,
     votingPending: 0,
+    recentInvestments: [],
+    uniqueStartupsInvested: 0,
+    averageInvestmentPerStartup: 0,
+    totalNFTsOwned: 0,
   });
   const [purchaseHistory, setPurchaseHistory] = useState<NFTPurchaseInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [investor, setInvestor] = useState<Investor | null>(null);
+  const [investor, setInvestor] = useState<{ fullName?: string } | null>(null);
+
+  // Portfolio state
+  const [portfolioData, setPortfolioData] = useState<{
+    loading: boolean;
+    investments: any[];
+    error?: string;
+  }>({
+    loading: true,
+    investments: [],
+  });
+  const [portfolio, setPortfolio] = useState<MyInvestmentPortfolio | null>(
+    null
+  );
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);
+        setPortfolioData(prev => ({ ...prev, loading: true }));
 
+        // Fetch investor profile
         const investorData = await InvestorService.getInvestorByPrincipal();
 
         if (!investorData) {
@@ -68,27 +97,99 @@ export default function InvestorDashboard() {
           return;
         }
 
-        setInvestor(investorData);
+        // Fetch portfolio data using getMyInvestmentPortfolio
+        const portfolioResult =
+          await InvestorService.getMyInvestmentPortfolio();
 
-        const historyResult = await InvestorService.getInvestorPurchaseHistory(
-          investorData.id
-        );
+        if (portfolioResult.success && portfolioResult.portfolio) {
+          setPortfolio(portfolioResult.portfolio);
 
-        if (historyResult.success && historyResult.history) {
-          const purchases = historyResult.history.purchases;
-          setPurchaseHistory(purchases);
+          // Map portfolio items to investments for PortfolioTab
+          const mappedInvestments =
+            portfolioResult.portfolio.portfolioItems.map(item => {
+              // Calculate monthly return as a percentage of current value
+              const monthlyReturn = Number(item.monthlyCommitment) / 100;
 
-          // Calculate dashboard metrics from purchase history
-          const metrics = calculateDashboardMetrics(historyResult.history);
-          setDashboardData(metrics);
+              // Calculate total returns from profit sharing earnings
+              const totalReturns = Number(item.profitSharingEarnings) / 100;
+
+              // Calculate ROI as percentage of return amount to current value
+              const roi = Number(item.returnPercentage);
+
+              // Calculate invested amount from current value
+              const investedAmount = Number(item.currentValue) / 100;
+
+              return {
+                id: item.startupId,
+                startupName: item.startupName,
+                sector: item.sector || 'Unknown',
+                riskLevel: 'Moderate Risk', // Default risk level
+                investedAmount,
+                nftCount: Number(item.nftCount),
+                monthlyReturn,
+                totalReturns,
+                roi,
+                progress: 100, // Default progress value
+              };
+            });
+
+          setPortfolioData({
+            loading: false,
+            investments: mappedInvestments,
+          });
+
+          // Use portfolio data for dashboard stats
+          const totalInvested =
+            Number(portfolioResult.portfolio.totalInvested) / 100;
+          const totalReturns =
+            Number(portfolioResult.portfolio.totalReturns) / 100;
+          const returnPercentage = Number(
+            portfolioResult.portfolio.returnPercentage
+          );
+
+          setDashboardData(prev => ({
+            ...prev,
+            totalInvested,
+            totalReturns,
+            returnPercentage,
+            monthlyCommitments: mappedInvestments.reduce(
+              (sum, inv) => sum + inv.monthlyReturn,
+              0
+            ),
+            activeInvestments: mappedInvestments.length,
+            upcomingVotes: 2, // Default value
+            votingPending: 1, // Default value
+          }));
         } else {
-          setError(historyResult.error || 'Failed to load purchase history');
-        }
+          setPortfolioData({
+            loading: false,
+            investments: [],
+            error: portfolioResult.error || 'Failed to load portfolio data',
+          });
 
-        setLoading(false);
+          setDashboardData(prev => ({
+            ...prev,
+            totalInvested: 0,
+            totalReturns: 0,
+            returnPercentage: 0,
+            monthlyCommitments: 0,
+            activeInvestments: 0,
+            upcomingVotes: 0,
+            votingPending: 0,
+          }));
+        }
       } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        setError('Failed to load investor data');
+        console.error(err);
+        setDashboardData(prev => ({
+          ...prev,
+          error: 'Gagal memuat data investor',
+        }));
+        setPortfolioData({
+          loading: false,
+          investments: [],
+          error: 'Failed to load portfolio data',
+        });
+      } finally {
         setLoading(false);
       }
     };
@@ -198,15 +299,20 @@ export default function InvestorDashboard() {
 
         {activeTab === 'portfolio' && (
           <PortfolioTab
-            onViewDetails={(investment) => {
-              console.log('View details:', investment);
+            portfolioData={portfolioData}
+            onViewDetails={investment => {
+              // Navigate to detail page
+              window.location.href = `/explore/detail?id=${investment.id}`;
             }}
-            onVoteReport={(investment) => {
-              console.log('Vote on report:', investment);
+            onVoteReport={investment => {
+              // Navigate to voting page
+              window.location.href = `/investor/voting?startupId=${investment.id}`;
             }}
-            onAddInvestment={(investment) => {
-              console.log('Add investment:', investment);
+            onAddInvestment={investment => {
+              // Navigate to investment page
+              window.location.href = `/explore/detail?id=${investment.id}`;
             }}
+            onRefresh={refetch}
           />
         )}
 

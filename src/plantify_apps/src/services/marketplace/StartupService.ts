@@ -1,12 +1,18 @@
 import type {
   Startup,
+  StartupSummary,
   NFTInfo,
   NFTPurchaseInfo,
   NFTPurchaseHistory,
   NFTPurchaseStats,
-  Result_10,
+  PaginatedStartups,
+  Result_9,
+  Result_12,
   Result_13,
-  Result_14,
+  TeamMembersResponse,
+  TeamMemberOverview,
+  FundingStatus,
+  FundingStatusResponse,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -20,7 +26,7 @@ export class StartupService extends BaseService {
    * @deprecated Use getStartupsPaginated instead to avoid payload size errors
    * @returns Array of startups
    */
-  public static async getAllStartups(): Promise<Startup[]> {
+  public static async getAllStartups(): Promise<StartupSummary[]> {
     try {
       // Use the paginated method with a large limit instead
       const result = await this.getStartupsPaginated({
@@ -43,7 +49,7 @@ export class StartupService extends BaseService {
     page: number;
     limit: number;
   }): Promise<{
-    startups: Startup[];
+    startups: StartupSummary[];
     totalCount: number;
     page: number;
     limit: number;
@@ -51,8 +57,9 @@ export class StartupService extends BaseService {
   }> {
     try {
       const actor = await this.getActor();
+      // Backend uses 0-based pagination, but frontend uses 1-based pagination
       const result = await actor.getStartupsPaginated({
-        page: BigInt(params.page),
+        page: BigInt(params.page - 1), // Convert from 1-based to 0-based
         limit: BigInt(params.limit),
       });
 
@@ -60,7 +67,7 @@ export class StartupService extends BaseService {
       return {
         startups: result.startups,
         totalCount: Number(result.totalCount),
-        page: Number(result.page),
+        page: Number(result.page) + 1, // Convert from 0-based to 1-based
         limit: Number(result.limit),
         totalPages: Number(result.totalPages),
       };
@@ -113,11 +120,11 @@ export class StartupService extends BaseService {
    * Get the featured startup (newest startup)
    * @returns The featured startup or null if not found
    */
-  public static async getFeaturedStartup(): Promise<Startup | null> {
+  public static async getFeaturedStartup(): Promise<StartupSummary | null> {
     try {
       const actor = await this.getActor();
       const result = await actor.getStartupsPaginated({
-        page: BigInt(1),
+        page: BigInt(0), // Backend uses 0-based pagination
         limit: BigInt(1),
       });
       return result.startups.length > 0 ? result.startups[0] : null;
@@ -137,7 +144,7 @@ export class StartupService extends BaseService {
   ): Promise<{ success: boolean; price?: bigint; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_14 = await actor.getNFTPrice(startupId);
+      const result: Result_13 = await actor.getNFTPrice(startupId);
 
       if ('ok' in result) {
         return { success: true, price: result.ok };
@@ -160,7 +167,7 @@ export class StartupService extends BaseService {
   ): Promise<{ success: boolean; nfts?: NFTInfo[]; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_13 = await actor.getNFTsByStartup(startupId);
+      const result: Result_12 = await actor.getNFTsByStartup(startupId);
 
       if ('ok' in result) {
         return { success: true, nfts: result.ok };
@@ -185,8 +192,7 @@ export class StartupService extends BaseService {
   }> {
     try {
       const actor = await this.getActor();
-      const result: Result_10 =
-        await actor.getStartupPurchaseHistory(startupId);
+      const result: Result_9 = await actor.getStartupPurchaseHistory(startupId);
 
       if ('ok' in result) {
         return { success: true, history: result.ok };
@@ -224,6 +230,62 @@ export class StartupService extends BaseService {
     } catch (error) {
       console.error('Error getting purchase stats:', error);
       return null;
+    }
+  }
+
+  /**
+   * Get team members for a specific startup
+   * @param startupId - The ID of the startup
+   * @returns Array of team members or error message
+   */
+  public static async getStartupTeamMembers(
+    startupId: string
+  ): Promise<{
+    success: boolean;
+    members?: TeamMemberOverview[];
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result = await actor.getStartupTeamMembers(startupId);
+
+      if ('Success' in result) {
+        return { success: true, members: result.Success };
+      } else if ('Error' in result) {
+        return { success: false, error: result.Error };
+      }
+
+      // Default fallback
+      return { success: false, error: 'Unknown response format' };
+    } catch (error) {
+      console.error('Error getting startup team members:', error);
+      return { success: false, error: 'Failed to fetch team members' };
+    }
+  }
+
+  /**
+   * Get funding status for a specific startup
+   * @param startupId - The ID of the startup
+   * @returns Funding status data or error message
+   */
+  public static async getFundingStatus(
+    startupId: string
+  ): Promise<{ success: boolean; data?: FundingStatus; error?: string }> {
+    try {
+      const actor = await this.getActor();
+      const result = await actor.getFundingStatus(startupId);
+
+      if ('Success' in result) {
+        return { success: true, data: result.Success };
+      } else if ('Error' in result) {
+        return { success: false, error: result.Error };
+      }
+
+      // Default fallback
+      return { success: false, error: 'Unknown response format' };
+    } catch (error) {
+      console.error('Error getting funding status:', error);
+      return { success: false, error: 'Failed to fetch funding status' };
     }
   }
 }

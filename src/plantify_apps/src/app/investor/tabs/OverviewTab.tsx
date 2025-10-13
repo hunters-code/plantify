@@ -14,6 +14,15 @@ interface DashboardData {
   monthlyCommitments: number;
   activeInvestments: number;
   votingPending: number;
+  recentInvestments: Array<{
+    type: 'profit' | 'investment';
+    company: string;
+    amount: number;
+    date: string;
+  }>;
+  uniqueStartupsInvested: number;
+  averageInvestmentPerStartup: number;
+  totalNFTsOwned: number;
 }
 
 interface Startup {
@@ -40,121 +49,37 @@ interface ActivityItem {
   date: string;
 }
 
-export default function OverviewTab() {
+interface OverviewTabProps {
+  dashboardData: DashboardData;
+  matchingStartups: Startup[];
+  recentActivity: ActivityItem[];
+}
+
+export default function OverviewTab({
+  dashboardData,
+  matchingStartups,
+  recentActivity,
+}: OverviewTabProps) {
   const navigate = useRouter();
 
   const [loading, setLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
+  const [localDashboardData, setLocalDashboardData] =
+    useState<DashboardData | null>(null);
+  const [localMatchingStartups, setLocalMatchingStartups] = useState<Startup[]>(
+    []
   );
-  const [matchingStartups, setMatchingStartups] = useState<Startup[]>([]);
-  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
+  const [localRecentActivity, setLocalRecentActivity] = useState<
+    ActivityItem[]
+  >([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const investor = await InvestorService.getInvestorByPrincipal();
-
-        if (!investor) {
-          setError('Investor not registered or not found.');
-          setLoading(false);
-          return;
-        }
-
-        const investorId = investor.id?.toString() ?? investor.id?.toString();
-
-        const historyRes =
-          await InvestorService.getInvestorPurchaseHistory(investorId);
-        const purchaseHistory = historyRes.success ? historyRes.history : [];
-
-        const totalInvested = Array.isArray(purchaseHistory)
-          ? purchaseHistory.reduce(
-              (sum, item: any) => sum + Number(item.amount || 0),
-              0
-            )
-          : 0;
-
-        const totalReturns = totalInvested * 0.15;
-        const activeInvestments = Array.isArray(purchaseHistory)
-          ? purchaseHistory.length
-          : 0;
-
-        const data: DashboardData = {
-          totalInvested,
-          totalReturns,
-          returnPercentage: 15,
-          monthlyCommitments: Math.round(totalInvested / 12),
-          activeInvestments,
-          votingPending: Math.floor(Math.random() * 3),
-        };
-
-        setDashboardData(data);
-
-        const mockStartups: Startup[] = [
-          {
-            id: 1,
-            image: '/images/startup1.jpg',
-            name: 'EcoGrow',
-            sector: 'Agritech',
-            risk: 'Moderate Risk',
-            description: 'Sustainable farming with AI integration.',
-            nftPrice: 150,
-            employees: 20,
-            periodicReturns: 8,
-            annualROI: 12,
-            available: 100,
-            fundingProgress: 70,
-            fundedAmount: 7000,
-            targetAmount: 10000,
-          },
-          {
-            id: 2,
-            image: '/images/startup2.jpg',
-            name: 'SolarEase',
-            sector: 'Renewable Energy',
-            risk: 'Low Risk',
-            description: 'Affordable solar energy for rural areas.',
-            nftPrice: 200,
-            employees: 40,
-            periodicReturns: 10,
-            annualROI: 18,
-            available: 150,
-            fundingProgress: 80,
-            fundedAmount: 12000,
-            targetAmount: 15000,
-          },
-        ];
-        setMatchingStartups(mockStartups);
-
-        const mockActivity: ActivityItem[] = [
-          {
-            type: 'investment',
-            company: 'EcoGrow',
-            amount: 300,
-            date: 'Oct 2, 2025',
-          },
-          {
-            type: 'profit',
-            company: 'SolarEase',
-            amount: 45,
-            date: 'Oct 7, 2025',
-          },
-        ];
-        setRecentActivity(mockActivity);
-
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to fetch investor data.');
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+    // Use props instead of fetching data
+    setLocalDashboardData(dashboardData);
+    setLocalMatchingStartups(matchingStartups);
+    setLocalRecentActivity(recentActivity);
+    setLoading(false);
+  }, [dashboardData, matchingStartups, recentActivity]);
 
   if (loading) {
     return (
@@ -167,7 +92,7 @@ export default function OverviewTab() {
     );
   }
 
-  if (error || !dashboardData) {
+  if (error) {
     return (
       <Card className='p-8 text-center flex flex-col justify-center items-center'>
         <div className='text-center flex flex-col items-center justify-center'>
@@ -208,16 +133,16 @@ export default function OverviewTab() {
             color: 'bg-green-100',
           },
           {
-            label: 'Monthly Commitments',
-            value: `$${dashboardData.monthlyCommitments.toLocaleString()}`,
-            sub: 'this month',
+            label: 'NFTs Owned',
+            value: dashboardData.totalNFTsOwned,
+            sub: 'total tokens',
             icon: <Calendar className='w-6 h-6 text-purple-600' />,
             color: 'bg-purple-100',
           },
           {
-            label: 'Active Investments',
-            value: dashboardData.activeInvestments,
-            sub: 'startups',
+            label: 'Startups Invested',
+            value: dashboardData.uniqueStartupsInvested,
+            sub: 'companies',
             icon: <Activity className='w-6 h-6 text-orange-600' />,
             color: 'bg-orange-100',
           },

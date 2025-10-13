@@ -13,7 +13,7 @@ import {
 } from '@/components';
 import { Button, CardSkeleton, Input } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
-import type { Startup as BackendStartup } from '@/declarations/plantify_backend/plantify_backend.did';
+import type { StartupSummary } from '@/declarations/plantify_backend/plantify_backend.did';
 import { StartupService } from '@/services/marketplace';
 import { getRiskLevel } from '@/utils/riskLevels';
 
@@ -34,9 +34,10 @@ interface Startup {
   fundedAmount: number;
   targetAmount: number;
   status: string;
+  builtByCaffeineAI: boolean;
 }
 
-type FilterType = 'all' | 'available' | 'featured';
+type FilterType = 'all' | 'available' | 'featured' | 'caffeineai';
 
 export default function Explores() {
   const { isAuthenticated } = useAuth();
@@ -54,7 +55,8 @@ export default function Explores() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState(searchParam || '');
   const [filter, setFilter] = useState<FilterType>(
-    filterParam && ['all', 'available', 'featured'].includes(filterParam)
+    filterParam &&
+      ['all', 'available', 'featured', 'caffeineai'].includes(filterParam)
       ? filterParam
       : 'all'
   );
@@ -64,26 +66,29 @@ export default function Explores() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  const mapStartupData = useCallback((startup: BackendStartup): Startup => {
-    const fundingGoal = parseFloat(startup.fundingGoal) || 50000;
+  const mapStartupData = useCallback((startup: StartupSummary): Startup => {
+    const fundingGoal = parseFloat(startup.totalFunding) || 50000;
     const nftPrice = parseFloat(startup.nftPrice) || 100;
     const totalNFTs = Math.floor(fundingGoal / nftPrice);
-    const fundedAmount = Math.floor(fundingGoal * 0.6);
+    const fundedAmount =
+      Number(startup.totalFunded) || Math.floor(fundingGoal * 0.6);
     const fundingProgress = Math.floor((fundedAmount / fundingGoal) * 100);
-    const available = Math.floor(totalNFTs * 0.4);
+    const available =
+      Number(startup.availableNFTs) || Math.floor(totalNFTs * 0.4);
 
-    const monthlyProfitSharing = parseFloat(startup.periodicProfitSharing) || 5;
+    // Default values since StartupSummary doesn't have these fields
+    const monthlyProfitSharing = 5;
     const annualReturns = monthlyProfitSharing * 12;
     const annualROI = ((annualReturns / nftPrice) * 100).toFixed(1);
 
     return {
       id: startup.id,
-      image: startup.companyLogo?.[0] || '/assets/images/product.png',
+      image: startup.companyImages?.[0] || '/assets/images/product.png',
       title: startup.startupName,
-      location: startup.location,
-      employees: startup.teamMembers?.length || 5,
-      category: startup.sector,
-      risk: getRiskLevel(startup.sector),
+      location: startup.companyType || 'Unknown',
+      employees: 5,
+      category: startup.companyType || 'Technology',
+      risk: getRiskLevel(startup.companyType || 'Technology'),
       description: startup.description,
       nftPrice,
       periodicReturns: `$${monthlyProfitSharing}`,
@@ -92,7 +97,8 @@ export default function Explores() {
       fundingProgress,
       fundedAmount,
       targetAmount: fundingGoal,
-      status: startup.status,
+      status: 'active',
+      builtByCaffeineAI: startup.builtByCaffeineAI?.[0] || false,
     };
   }, []);
 
@@ -134,6 +140,8 @@ export default function Explores() {
       matchesFilter = startup.status === 'active' && startup.available > 0;
     } else if (filter === 'featured') {
       matchesFilter = startup.fundingProgress > 50;
+    } else if (filter === 'caffeineai') {
+      matchesFilter = startup.builtByCaffeineAI === true;
     }
 
     return matchesSearch && matchesFilter;
@@ -262,6 +270,23 @@ export default function Explores() {
               {startups.filter(s => s.fundingProgress > 50).length}
             </span>
           </Button>
+          <Button
+            onClick={() => handleFilterChange('caffeineai')}
+            variant={filter === 'caffeineai' ? 'primary' : 'secondary'}
+            className='flex items-center gap-1'
+            style={{
+              fontFamily: '"Test Söhne Breit", sans-serif',
+              fontWeight: 600,
+              fontSize: '14px',
+              lineHeight: '140%',
+              letterSpacing: '-1%',
+            }}
+          >
+            Caffeine.AI
+            <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
+              {startups.filter(s => s.builtByCaffeineAI === true).length}
+            </span>
+          </Button>
         </div>
 
         {/* ✅ Loading Skeleton Grid */}
@@ -297,80 +322,57 @@ export default function Explores() {
         {/* Startups Grid */}
         {!loading && !error && (
           <>
-            {!isAuthenticated ? (
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+              {filteredStartups.map(startup => (
+                <ProductCard key={startup.id} {...startup} />
+              ))}
+            </div>
+
+            {/* No Results */}
+            {filteredStartups.length === 0 && startups.length > 0 && (
               <div className='text-center py-12'>
                 <div className='text-gray-400 mb-4'>
                   <Search size={48} className='mx-auto' />
                 </div>
                 <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  Sign in to explore startups
+                  No startups found
                 </h3>
-                <p className='text-gray-600 mb-4'>
-                  Please sign in to view and explore available startup
-                  investment opportunities.
+                <p className='text-gray-600'>
+                  Try adjusting your search terms or filters to find what
+                  you&apos;re looking for.
                 </p>
                 <button
-                  onClick={() => (window.location.href = '/auth')}
-                  className='inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-purple-700'
+                  onClick={() => {
+                    setSearchTerm('');
+                    handleFilterChange('all');
+                    router.push('/explore');
+                  }}
+                  className='mt-4 text-purple-600 hover:text-purple-800 underline'
                 >
-                  Sign In
+                  Clear filters
                 </button>
               </div>
-            ) : (
-              <>
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-                  {filteredStartups.map(startup => (
-                    <ProductCard key={startup.id} {...startup} />
-                  ))}
+            )}
+
+            {/* No startups available */}
+            {filteredStartups.length === 0 && startups.length === 0 && (
+              <div className='text-center py-12'>
+                <div className='text-gray-400 mb-4'>
+                  <Search size={48} className='mx-auto' />
                 </div>
-
-                {/* No Results */}
-                {filteredStartups.length === 0 && startups.length > 0 && (
-                  <div className='text-center py-12'>
-                    <div className='text-gray-400 mb-4'>
-                      <Search size={48} className='mx-auto' />
-                    </div>
-                    <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                      No startups found
-                    </h3>
-                    <p className='text-gray-600'>
-                      Try adjusting your search terms or filters to find what
-                      you&apos;re looking for.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setSearchTerm('');
-                        handleFilterChange('all');
-                        router.push('/explore');
-                      }}
-                      className='mt-4 text-purple-600 hover:text-purple-800 underline'
-                    >
-                      Clear filters
-                    </button>
-                  </div>
-                )}
-
-                {/* No startups available */}
-                {filteredStartups.length === 0 && startups.length === 0 && (
-                  <div className='text-center py-12'>
-                    <div className='text-gray-400 mb-4'>
-                      <Search size={48} className='mx-auto' />
-                    </div>
-                    <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                      No startups available
-                    </h3>
-                    <p className='text-gray-600'>
-                      There are currently no startups available for investment.
-                      Check back later for new opportunities.
-                    </p>
-                  </div>
-                )}
-              </>
+                <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                  No startups available
+                </h3>
+                <p className='text-gray-600'>
+                  There are currently no startups available for investment.
+                  Check back later for new opportunities.
+                </p>
+              </div>
             )}
           </>
         )}
 
-        {!loading && !error && isAuthenticated && (
+        {!loading && !error && (
           <div className='mt-10'>
             {filteredStartups.length > 0 ? (
               <div className='text-center text-sm text-gray-600 mb-4'>
