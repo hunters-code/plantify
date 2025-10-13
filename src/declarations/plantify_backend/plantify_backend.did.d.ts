@@ -166,6 +166,20 @@ export interface InvestorDashboard {
   'totalInvestmentAmount' : bigint,
   'totalInvestors' : bigint,
 }
+export interface InvestorDashboardOverview {
+  'averageInvestmentPerStartup' : bigint,
+  'uniqueStartupsInvested' : bigint,
+  'monthlyCommitment' : bigint,
+  'recentInvestments' : Array<InvestorRecentInvestment>,
+  'totalAmountInvested' : bigint,
+  'totalInvestments' : bigint,
+  'totalNFTsOwned' : bigint,
+  'votingPending' : bigint,
+  'profitSharingEarnings' : bigint,
+  'investmentPortfolio' : Array<InvestorPortfolioItem>,
+}
+export type InvestorDashboardOverviewResponse = { 'Error' : string } |
+  { 'Success' : InvestorDashboardOverview };
 export type InvestorDashboardResponse = { 'Error' : string } |
   { 'Success' : InvestorDashboard };
 export interface InvestorGrowthData {
@@ -173,6 +187,28 @@ export interface InvestorGrowthData {
   'newInvestors' : bigint,
   'year' : bigint,
   'totalInvestors' : bigint,
+}
+export interface InvestorPerformance {
+  'uniqueStartups' : bigint,
+  'averageInvestmentSize' : bigint,
+  'investmentTrend' : string,
+  'totalInvested' : bigint,
+  'diversificationScore' : bigint,
+  'totalNFTs' : bigint,
+  'profitSharingEarnings' : bigint,
+  'riskProfile' : string,
+}
+export type InvestorPerformanceResponse = { 'Error' : string } |
+  { 'Success' : InvestorPerformance };
+export interface InvestorPortfolioItem {
+  'startupId' : string,
+  'totalInvested' : bigint,
+  'averagePrice' : bigint,
+  'nftCount' : bigint,
+  'firstInvestment' : Time,
+  'startupStatus' : string,
+  'startupName' : string,
+  'lastInvestment' : Time,
 }
 export interface InvestorProfileUpdateRequest {
   'bio' : [] | [string],
@@ -191,6 +227,15 @@ export interface InvestorProfileUpdateRequest {
   'investmentExperience' : [] | [string],
   'location' : [] | [string],
 }
+export interface InvestorRecentInvestment {
+  'status' : string,
+  'startupId' : string,
+  'date' : Time,
+  'quantity' : bigint,
+  'startupName' : string,
+  'amount' : bigint,
+  'nftPrice' : bigint,
+}
 export interface InvestorRegistrationRequest {
   'bio' : [] | [string],
   'occupation' : [] | [string],
@@ -208,6 +253,19 @@ export interface InvestorRegistrationRequest {
   'investmentExperience' : string,
   'location' : [] | [string],
 }
+export interface InvestorStartupInvestment {
+  'startupId' : string,
+  'totalInvested' : bigint,
+  'averagePrice' : bigint,
+  'nftCount' : bigint,
+  'firstInvestment' : Time,
+  'profitSharingEarnings' : bigint,
+  'startupStatus' : string,
+  'startupName' : string,
+  'lastInvestment' : Time,
+}
+export type InvestorStartupInvestmentResponse = { 'Error' : string } |
+  { 'Success' : InvestorStartupInvestment };
 export interface InvestorVote {
   'id' : string,
   'vote' : VoteType,
@@ -708,8 +766,17 @@ export interface _SERVICE {
   'getICPTokenConfig' : ActorMethod<[], TokenConfig>,
   'getInvestorByPrincipal' : ActorMethod<[], [] | [Investor]>,
   'getInvestorDashboard' : ActorMethod<[], InvestorDashboardResponse>,
+  'getInvestorDashboardOverview' : ActorMethod<
+    [],
+    InvestorDashboardOverviewResponse
+  >,
+  'getInvestorPerformance' : ActorMethod<[], InvestorPerformanceResponse>,
   'getInvestorProfile' : ActorMethod<[], [] | [Investor]>,
   'getInvestorPurchaseHistory' : ActorMethod<[string], Result_9>,
+  'getInvestorStartupInvestment' : ActorMethod<
+    [string],
+    InvestorStartupInvestmentResponse
+  >,
   'getInvestorVoteForReport' : ActorMethod<[string], Result_19>,
   'getInvestorVoteHistory' : ActorMethod<[string], Result_18>,
   'getInvestors' : ActorMethod<[], Array<Investor>>,

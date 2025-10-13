@@ -416,6 +416,55 @@ export const idlFactory = ({ IDL }) => {
     Error: IDL.Text,
     Success: InvestorDashboard,
   });
+  const InvestorRecentInvestment = IDL.Record({
+    status: IDL.Text,
+    startupId: IDL.Text,
+    date: Time,
+    quantity: IDL.Nat,
+    startupName: IDL.Text,
+    amount: IDL.Nat,
+    nftPrice: IDL.Nat,
+  });
+  const InvestorPortfolioItem = IDL.Record({
+    startupId: IDL.Text,
+    totalInvested: IDL.Nat,
+    averagePrice: IDL.Nat,
+    nftCount: IDL.Nat,
+    firstInvestment: Time,
+    startupStatus: IDL.Text,
+    startupName: IDL.Text,
+    lastInvestment: Time,
+  });
+  const InvestorDashboardOverview = IDL.Record({
+    averageInvestmentPerStartup: IDL.Nat,
+    uniqueStartupsInvested: IDL.Nat,
+    monthlyCommitment: IDL.Nat,
+    recentInvestments: IDL.Vec(InvestorRecentInvestment),
+    totalAmountInvested: IDL.Nat,
+    totalInvestments: IDL.Nat,
+    totalNFTsOwned: IDL.Nat,
+    votingPending: IDL.Nat,
+    profitSharingEarnings: IDL.Nat,
+    investmentPortfolio: IDL.Vec(InvestorPortfolioItem),
+  });
+  const InvestorDashboardOverviewResponse = IDL.Variant({
+    Error: IDL.Text,
+    Success: InvestorDashboardOverview,
+  });
+  const InvestorPerformance = IDL.Record({
+    uniqueStartups: IDL.Nat,
+    averageInvestmentSize: IDL.Nat,
+    investmentTrend: IDL.Text,
+    totalInvested: IDL.Nat,
+    diversificationScore: IDL.Nat,
+    totalNFTs: IDL.Nat,
+    profitSharingEarnings: IDL.Nat,
+    riskProfile: IDL.Text,
+  });
+  const InvestorPerformanceResponse = IDL.Variant({
+    Error: IDL.Text,
+    Success: InvestorPerformance,
+  });
   const NFTPurchaseHistory = IDL.Record({
     totalNFTs: IDL.Nat,
     totalPurchases: IDL.Nat,
@@ -423,6 +472,21 @@ export const idlFactory = ({ IDL }) => {
     purchases: IDL.Vec(NFTPurchaseInfo),
   });
   const Result_9 = IDL.Variant({ ok: NFTPurchaseHistory, err: IDL.Text });
+  const InvestorStartupInvestment = IDL.Record({
+    startupId: IDL.Text,
+    totalInvested: IDL.Nat,
+    averagePrice: IDL.Nat,
+    nftCount: IDL.Nat,
+    firstInvestment: Time,
+    profitSharingEarnings: IDL.Nat,
+    startupStatus: IDL.Text,
+    startupName: IDL.Text,
+    lastInvestment: Time,
+  });
+  const InvestorStartupInvestmentResponse = IDL.Variant({
+    Error: IDL.Text,
+    Success: InvestorStartupInvestment,
+  });
   const Result_19 = IDL.Variant({
     ok: IDL.Opt(InvestorVote),
     err: IDL.Text,
@@ -742,8 +806,19 @@ export const idlFactory = ({ IDL }) => {
     getICPTokenConfig: IDL.Func([], [TokenConfig], []),
     getInvestorByPrincipal: IDL.Func([], [IDL.Opt(Investor)], []),
     getInvestorDashboard: IDL.Func([], [InvestorDashboardResponse], []),
+    getInvestorDashboardOverview: IDL.Func(
+      [],
+      [InvestorDashboardOverviewResponse],
+      []
+    ),
+    getInvestorPerformance: IDL.Func([], [InvestorPerformanceResponse], []),
     getInvestorProfile: IDL.Func([], [IDL.Opt(Investor)], []),
     getInvestorPurchaseHistory: IDL.Func([IDL.Text], [Result_9], []),
+    getInvestorStartupInvestment: IDL.Func(
+      [IDL.Text],
+      [InvestorStartupInvestmentResponse],
+      []
+    ),
     getInvestorVoteForReport: IDL.Func([IDL.Text], [Result_19], []),
     getInvestorVoteHistory: IDL.Func([IDL.Text], [Result_18], []),
     getInvestors: IDL.Func([], [IDL.Vec(Investor)], []),

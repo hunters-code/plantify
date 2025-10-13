@@ -64,7 +64,7 @@ persistent actor PlantifyBackend {
   private transient let monthlyReportService = MonthlyReportService.MonthlyReportService(storage);
   private transient let votingService = VotingService.VotingService(storage);
   private transient let dashboardFounderService = DashboardFounderService.DashboardFounder(storage, nftPurchaseService, nftService, collateralService);
-  private transient let dashboardInvestorService = DashboardInvestorService.DashboardInvestor(storage, nftPurchaseService, nftService);
+  private transient let dashboardInvestorService = DashboardInvestorService.DashboardInvestor(storage, nftPurchaseService, nftService, votingService);
 
   public shared (msg) func registerFounder(request : Types.FounderRegistrationRequest) : async Result.Result<Types.Founder, Text> {
     registrationService.registerFounder(msg.caller, request);

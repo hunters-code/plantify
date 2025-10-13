@@ -2,16 +2,20 @@ import Text "mo:base/Text";
 import Nat "mo:base/Nat";
 import Array "mo:base/Array";
 import Time "mo:base/Time";
+import Char "mo:base/Char";
+import Nat32 "mo:base/Nat32";
 import Types "../types";
 import Storage "../storage";
 import NFTPurchaseService "./nftPurchase";
 import NFTService "./nft";
+import VotingService "./voting";
 
 module DashboardInvestorService {
   public class DashboardInvestor(
     storage : Storage.UserStorage,
     nftPurchaseService : NFTPurchaseService.NFTPurchaseService,
     _nftService : NFTService.NFTService,
+    votingService : VotingService.VotingService,
   ) {
 
     // Get dashboard overview for a specific investor
@@ -37,6 +41,8 @@ module DashboardInvestorService {
               let recentInvestments = getRecentInvestmentsForInvestor(purchaseHistory.purchases, 5);
               let investmentPortfolio = getInvestmentPortfolio(purchaseHistory.purchases);
               let profitSharingEarnings = calculateProfitSharingEarnings(investorId);
+              let monthlyCommitment = calculateMonthlyCommitment(investorId);
+              let votingPending = calculateVotingPending(investorId);
 
               let overview : Types.InvestorDashboardOverview = {
                 totalInvestments = totalInvestments;
@@ -47,6 +53,8 @@ module DashboardInvestorService {
                 recentInvestments = recentInvestments;
                 investmentPortfolio = investmentPortfolio;
                 profitSharingEarnings = profitSharingEarnings;
+                monthlyCommitment = monthlyCommitment;
+                votingPending = votingPending;
               };
 
               #Success(overview);
@@ -181,6 +189,92 @@ module DashboardInvestorService {
       0;
     };
 
+    // Calculate monthly commitment for investor
+    private func calculateMonthlyCommitment(investorId : Text) : Nat {
+      // Get all startups the investor has invested in
+      switch (nftPurchaseService.getInvestorPurchaseHistory(investorId)) {
+        case (#ok(purchaseHistory)) {
+          var totalCommitment : Nat = 0;
+
+          // For each unique startup, calculate the monthly commitment
+          var processedStartups : [Text] = [];
+
+          for (purchase in purchaseHistory.purchases.vals()) {
+            // Check if we've already processed this startup
+            let alreadyProcessed = Array.find<Text>(processedStartups, func(startupId) = startupId == purchase.startupId);
+
+            if (alreadyProcessed == null) {
+              // Add to processed list
+              processedStartups := Array.append(processedStartups, [purchase.startupId]);
+
+              // Get startup details to calculate monthly commitment
+              switch (storage.getStartup(purchase.startupId)) {
+                case null {};
+                case (?startup) {
+                  // Calculate monthly commitment based on periodic profit sharing
+                  let periodicProfitSharing = textToNat(startup.periodicProfitSharing);
+                  totalCommitment := totalCommitment + periodicProfitSharing;
+                };
+              };
+            };
+          };
+
+          totalCommitment;
+        };
+        case (#err(_)) { 0 };
+      };
+    };
+
+    // Calculate voting pending for investor
+    private func calculateVotingPending(investorId : Text) : Nat {
+      // Get investor details to get the principal
+      switch (storage.getInvestor(investorId)) {
+        case null { 0 };
+        case (?investor) {
+          // Get all monthly reports that need voting
+          let allReports = storage.getAllMonthlyReports();
+          var pendingVotes : Nat = 0;
+
+          for (report in allReports.vals()) {
+            // Check if this report is in submitted status and investor hasn't voted yet
+            if (report.status == #Submitted) {
+              // Check if investor has already voted on this report
+              switch (votingService.getInvestorVoteForReport(investor.principal, report.id)) {
+                case (#ok(null)) {
+                  // Investor hasn't voted on this report yet
+                  pendingVotes := pendingVotes + 1;
+                };
+                case (#ok(?_vote)) {
+                  // Investor has already voted, no action needed
+                };
+                case (#err(_)) {
+                  // Error getting vote info, assume pending
+                  pendingVotes := pendingVotes + 1;
+                };
+              };
+            };
+          };
+
+          pendingVotes;
+        };
+      };
+    };
+
+    // Helper function to convert text to natural number
+    private func textToNat(txt : Text) : Nat {
+      if (txt.size() == 0) { 0 } else {
+        let chars = txt.chars();
+        var num : Nat = 0;
+        for (v in chars) {
+          let charToNum = Nat32.toNat(Char.toNat32(v) -48);
+          if (charToNum >= 0 and charToNum <= 9) {
+            num := num * 10 + charToNum;
+          };
+        };
+        num;
+      };
+    };
+
     // Helper function to get startup name
     private func getStartupName(startupId : Text) : Text {
       switch (storage.getStartup(startupId)) {
@@ -261,22 +355,23 @@ module DashboardInvestorService {
         );
 
         let totalSize = sortedPurchases.size();
-        let midPoint = if (totalSize > 0) {
+        let midPoint = if (totalSize > 0 and totalSize >= 2) {
           totalSize / 2;
         } else {
           0;
         };
         let firstHalf = Array.take(sortedPurchases, midPoint);
-        // Create second half using tabulate
-        let secondHalfSize = if (totalSize > midPoint) {
-          totalSize - midPoint;
-        } else {
-          0;
+        // Create second half manually to avoid subtraction warning
+        var secondHalf : [Types.NFTPurchaseInfo] = [];
+        var i = midPoint;
+        while (i < totalSize) {
+          // Get element at index i safely
+          if (i < sortedPurchases.size()) {
+            let element = sortedPurchases[i];
+            secondHalf := Array.append(secondHalf, [element]);
+          };
+          i := i + 1;
         };
-        let secondHalf = Array.tabulate<Types.NFTPurchaseInfo>(
-          secondHalfSize,
-          func(i) = sortedPurchases[midPoint + i]
-        );
 
         let firstHalfTotal = Array.foldLeft<Types.NFTPurchaseInfo, Nat>(
           firstHalf,

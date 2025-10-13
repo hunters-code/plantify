@@ -833,6 +833,8 @@ module Types {
     recentInvestments : [InvestorRecentInvestment];
     investmentPortfolio : [InvestorPortfolioItem];
     profitSharingEarnings : Nat;
+    monthlyCommitment : Nat;
+    votingPending : Nat;
   };
 
   public type InvestorDashboardOverviewResponse = {

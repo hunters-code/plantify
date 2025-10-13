@@ -614,6 +614,23 @@ type InvestorVote =
    timestamp: Time;
    vote: VoteType;
  };
+type InvestorStartupInvestmentResponse = 
+ variant {
+   Error: text;
+   Success: InvestorStartupInvestment;
+ };
+type InvestorStartupInvestment = 
+ record {
+   averagePrice: nat;
+   firstInvestment: Time;
+   lastInvestment: Time;
+   nftCount: nat;
+   profitSharingEarnings: nat;
+   startupId: text;
+   startupName: text;
+   startupStatus: text;
+   totalInvested: nat;
+ };
 type InvestorRegistrationRequest = 
  record {
    availableCapital: text;
@@ -631,6 +648,16 @@ type InvestorRegistrationRequest =
    phone: text;
    profilePhoto: opt text;
    riskTolerance: text;
+ };
+type InvestorRecentInvestment = 
+ record {
+   amount: nat;
+   date: Time;
+   nftPrice: nat;
+   quantity: nat;
+   startupId: text;
+   startupName: text;
+   status: text;
  };
 type InvestorProfileUpdateRequest = 
  record {
@@ -650,6 +677,33 @@ type InvestorProfileUpdateRequest =
    profilePhoto: opt text;
    riskTolerance: opt text;
  };
+type InvestorPortfolioItem = 
+ record {
+   averagePrice: nat;
+   firstInvestment: Time;
+   lastInvestment: Time;
+   nftCount: nat;
+   startupId: text;
+   startupName: text;
+   startupStatus: text;
+   totalInvested: nat;
+ };
+type InvestorPerformanceResponse = 
+ variant {
+   Error: text;
+   Success: InvestorPerformance;
+ };
+type InvestorPerformance = 
+ record {
+   averageInvestmentSize: nat;
+   diversificationScore: nat;
+   investmentTrend: text;
+   profitSharingEarnings: nat;
+   riskProfile: text;
+   totalInvested: nat;
+   totalNFTs: nat;
+   uniqueStartups: nat;
+ };
 type InvestorGrowthData = 
  record {
    month: nat;
@@ -661,6 +715,24 @@ type InvestorDashboardResponse =
  variant {
    Error: text;
    Success: InvestorDashboard;
+ };
+type InvestorDashboardOverviewResponse = 
+ variant {
+   Error: text;
+   Success: InvestorDashboardOverview;
+ };
+type InvestorDashboardOverview = 
+ record {
+   averageInvestmentPerStartup: nat;
+   investmentPortfolio: vec InvestorPortfolioItem;
+   monthlyCommitment: nat;
+   profitSharingEarnings: nat;
+   recentInvestments: vec InvestorRecentInvestment;
+   totalAmountInvested: nat;
+   totalInvestments: nat;
+   totalNFTsOwned: nat;
+   uniqueStartupsInvested: nat;
+   votingPending: nat;
  };
 type InvestorDashboard = 
  record {
@@ -897,8 +969,12 @@ service : {
   getICPTokenConfig: () -> (TokenConfig);
   getInvestorByPrincipal: () -> (opt Investor);
   getInvestorDashboard: () -> (InvestorDashboardResponse);
+  getInvestorDashboardOverview: () -> (InvestorDashboardOverviewResponse);
+  getInvestorPerformance: () -> (InvestorPerformanceResponse);
   getInvestorProfile: () -> (opt Investor);
   getInvestorPurchaseHistory: (investorId: text) -> (Result_9);
+  getInvestorStartupInvestment: (startupId: text) ->
+   (InvestorStartupInvestmentResponse);
   getInvestorVoteForReport: (reportId: text) -> (Result_19);
   getInvestorVoteHistory: (investorId: text) -> (Result_18);
   getInvestors: () -> (vec Investor);
