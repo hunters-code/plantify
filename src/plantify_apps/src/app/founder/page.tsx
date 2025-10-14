@@ -276,7 +276,7 @@ export default function Dashboard() {
 
               <Tabs tabs={tabs} onChange={setActiveTab} activeTab={activeTab} />
 
-              <div className='rounded-2xl shadow-sm mt-4'>
+              <div className='rounded-2xl mt-4'>
                 {renderContent()}
               </div>
             </>

@@ -194,49 +194,36 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
   }
 
   return (
-    <Card className='bg-neutral-100'>
-      {/* Summary Cards */}
-      <div className='grid grid-cols-4 gap-6 mb-8'>
-        <Card className='text-center p-4'>
-          <div className='flex items-center justify-center mb-2'>
-            <TrendingUp className='w-5 h-5 text-green-500 mr-2' />
-          </div>
-          <div className='text-2xl font-bold text-gray-900 mb-1'>
-            {formatCurrency(totalPaid)}
-          </div>
-          <div className='text-sm text-gray-500'>Total Paid</div>
-        </Card>
-        <Card className='text-center p-4'>
-          <div className='flex items-center justify-center mb-2'>
-            <CheckCircle className='w-5 h-5 text-blue-500 mr-2' />
-          </div>
-          <div className='text-2xl font-bold text-gray-900 mb-1'>
-            {paymentsMade}
-          </div>
-          <div className='text-sm text-gray-500'>Payments Made</div>
-        </Card>
-        <Card className='text-center p-4'>
-          <div className='flex items-center justify-center mb-2'>
-            <Clock className='w-5 h-5 text-purple-500 mr-2' />
-          </div>
-          <div className='text-2xl font-bold text-gray-900 mb-1'>
-            {avgApproval}%
-          </div>
-          <div className='text-sm text-gray-500'>Avg Approval</div>
-        </Card>
-        <Card className='text-center p-4'>
-          <div className='flex items-center justify-center mb-2'>
-            <Users className='w-5 h-5 text-orange-500 mr-2' />
-          </div>
-          <div className='text-2xl font-bold text-gray-900 mb-1'>
-            {activeInvestors}
-          </div>
-          <div className='text-sm text-gray-500'>Active Investors</div>
-        </Card>
+    <div className='border-none'>
+      <div className='bg-neutral-100 p-4 rounded-[16px]'>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          <Card className="text-center p-6 hover:shadow-md transition-all duration-200">
+            <div className="text-3xl font-bold text-gray-900 mb-1">
+              {formatCurrency(totalPaid)}
+            </div>
+            <div className="text-sm text-gray-500">Total Paid</div>
+          </Card>
+
+          <Card className="text-center p-6 hover:shadow-md transition-all duration-200">
+            <div className="text-3xl font-bold text-gray-900 mb-1">{paymentsMade}</div>
+            <div className="text-sm text-gray-500">Payments Made</div>
+          </Card>
+
+          <Card className="text-center p-6 hover:shadow-md transition-all duration-200">
+            <div className="text-3xl font-bold text-gray-900 mb-1">{avgApproval}%</div>
+            <div className="text-sm text-gray-500">Avg Approval</div>
+          </Card>
+
+          <Card className="text-center p-6 hover:shadow-md transition-all duration-200">
+            <div className="text-3xl font-bold text-gray-900 mb-1">{activeInvestors}</div>
+            <div className="text-sm text-gray-500">Active Investors</div>
+          </Card>
+        </div>
       </div>
 
       {/* Payment Section */}
-      <div className='mb-6'>
+      <div className='mb-6 mt-4 bg-neutral-100 rounded-[16px] p-4'>
         {currentReport ? (
           <>
             <h3 className='text-xl font-semibold mb-4'>
@@ -281,11 +268,11 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
                 </Button>
                 {('Draft' in currentReport.status ||
                   'Submitted' in currentReport.status) && (
-                  <Button variant='primary'>
-                    <Plus size={16} />
-                    Make payment
-                  </Button>
-                )}
+                    <Button variant='primary'>
+                      <Plus size={16} />
+                      Make payment
+                    </Button>
+                  )}
               </div>
             </div>
           </>
@@ -302,7 +289,9 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
             </div>
           </>
         )}
+      </div>
 
+      <div className='mb-6 mt-4 bg-neutral-100 rounded-[16px] p-4'>
         {/* Tabs */}
         <div className='mb-4'>
           <div className='flex border-b border-gray-200'>
@@ -310,11 +299,10 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
               <button
                 key={index}
                 onClick={() => setActivePaymentTab(index)}
-                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                  activePaymentTab === index
-                    ? 'border-purple-600 text-purple-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+                className={`px-4 py-2 text-sm font-medium transition rounded-[12px] ${activePaymentTab === index
+                  ? 'bg-[#F5F5F5] text-black shadow-md'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}
               >
                 {tab.label}
               </button>
@@ -442,8 +430,8 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
                             Paid on{' '}
                             {report.approvedAt
                               ? new Date(
-                                  Number(report.approvedAt) / 1000000
-                                ).toLocaleDateString()
+                                Number(report.approvedAt) / 1000000
+                              ).toLocaleDateString()
                               : 'N/A'}
                           </p>
                         </div>
@@ -594,7 +582,7 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
             </div>
           </div>
         )}
-    </Card>
+    </div>
   );
 }
 
