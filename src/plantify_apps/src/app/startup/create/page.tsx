@@ -290,9 +290,6 @@ export default function CreateStartupPage() {
     setIsSubmitting(true);
 
     try {
-      const authClient = await AuthClient.create();
-      await FounderService.initialize(authClient);
-
       try {
         const startupRequest = await mapFormDataToBackend(values);
         const result = await FounderService.createStartup(startupRequest);

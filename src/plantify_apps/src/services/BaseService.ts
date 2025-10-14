@@ -183,4 +183,13 @@ export class BaseService {
       throw error;
     }
   }
+
+  /**
+   * Clear the current actor and agent
+   * This should be called when signing out to prevent using stale authentication
+   */
+  public static clear(): void {
+    this.actor = null;
+    this.agent = null;
+  }
 }

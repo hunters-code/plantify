@@ -39,6 +39,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const createBackendActor = useCallback(async (client: AuthClient) => {
     try {
+      // Clear any existing actor/agent before initializing with new identity
+      BaseService.clear();
+
       const success = await BaseService.initialize(client);
       if (success) {
         const serviceActor = await BaseService.getActorInstance();
@@ -171,6 +174,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       await authClient.logout();
+
+      // Clear the backend service to prevent using stale authentication
+      BaseService.clear();
 
       setIsAuthenticated(false);
       setIsRegistered(false);
