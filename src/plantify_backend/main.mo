@@ -665,8 +665,6 @@ persistent actor PlantifyBackend {
   // ========================================
   // PERSISTENCE METHODS
   // ========================================
-
-  system func postupgrade() {
-    config := Config.getCurrentConfig();
-  };
+  // Note: preupgrade and postupgrade are deprecated
+  // Data persistence is handled automatically by stable variables
 };
