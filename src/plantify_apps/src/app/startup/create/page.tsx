@@ -44,12 +44,14 @@ export default function CreateStartupPage() {
   const initialValues: StartupFormData = {
     startupName: '',
     logo: null,
+    companyImages: [],
     sector: '',
     foundedYear: '',
     companyType: '',
     location: '',
     description: '',
     website: '',
+    builtByCaffeineAI: false,
 
     problemStatement: '',
     solution: '',
@@ -153,6 +155,19 @@ export default function CreateStartupPage() {
       logoUrl = await fileToString(formData.logo);
     }
 
+    // Handle company images
+    const companyImageUrls: string[] = [];
+    if (formData.companyImagesUrls && formData.companyImagesUrls.length > 0) {
+      companyImageUrls.push(...formData.companyImagesUrls);
+    } else if (formData.companyImages && formData.companyImages.length > 0) {
+      for (const image of formData.companyImages) {
+        const imageUrl = await fileToString(image);
+        if (imageUrl) {
+          companyImageUrls.push(imageUrl);
+        }
+      }
+    }
+
     let founderPhotoUrl: string | null = null;
     if (formData.founderPhotoUrl) {
       founderPhotoUrl = formData.founderPhotoUrl;
@@ -251,9 +266,11 @@ export default function CreateStartupPage() {
       location: formData.location || '',
       companyType: formData.companyType || '',
       companyLogo: logoFile,
-      companyImages: [] as string[],
+      companyImages: companyImageUrls,
       nftImage: [] as [] | [string],
-      builtByCaffeineAI: [false] as [] | [boolean],
+      builtByCaffeineAI: formData.builtByCaffeineAI
+        ? [true]
+        : ([false] as [] | [boolean]),
       problemStatement: formData.problemStatement || '',
       solution: formData.solution || '',
       targetMarket: formData.targetMarket || '',

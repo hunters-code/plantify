@@ -14,12 +14,15 @@ export interface StartupFormData {
   startupName: string;
   logo: File | null;
   logoUrl?: string; // URL after upload
+  companyImages: File[];
+  companyImagesUrls?: string[]; // URLs after upload
   sector: string;
   foundedYear: string;
   companyType: string;
   location: string;
   description: string;
   website: string;
+  builtByCaffeineAI: boolean;
 
   // Business Details
   problemStatement: string;

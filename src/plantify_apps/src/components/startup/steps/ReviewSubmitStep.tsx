@@ -292,6 +292,20 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
               {formData.website || '-'}
             </div>
           </div>
+          <div>
+            <div className='text-gray-600 text-sm mb-1'>
+              Built by Caffeine.AI
+            </div>
+            <div className='text-gray-900 font-semibold'>
+              {formData.builtByCaffeineAI ? (
+                <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800'>
+                  Yes
+                </span>
+              ) : (
+                'No'
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
