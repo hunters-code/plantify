@@ -8,6 +8,10 @@ export { default as Footer } from './layout/Footer';
 // Auth Components
 // export { default as ProtectedRoute } from './ProtectedRoute';
 
+// Startup Components
+export { default as StartupCard } from './startup/StartupCard';
+export type { StartupCardProps } from './startup/StartupCard';
+
 // Feature Components
 // export { default as Hero } from './features/Hero';
 // export { default as HowItWork } from './features/HowItWork';

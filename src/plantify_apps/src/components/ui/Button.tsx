@@ -12,6 +12,7 @@ interface CommonProps {
   variant?: ButtonVariants;
   className?: string;
   as?: AsType;
+  leftIcon?: ReactNode;
 }
 
 type ButtonProps = CommonProps &
@@ -24,13 +25,14 @@ export default function Button({
   href,
   variant = 'primary',
   className = '',
+  leftIcon,
   ...props
 }: ButtonProps) {
   const Comp = as === 'a' ? 'a' : 'button';
 
   const baseStyle = [
-    'flex items-center justify-center gap-1.5 px-4 py-3',
-    'rounded-[12px] text-sm font-medium transition-colors',
+    'flex items-center justify-center gap-2 px-4 py-3',
+    'rounded-[12px] text-sm font-medium transition-colors cursor-pointer',
   ];
 
   const variants: Record<ButtonVariants, string[]> = {
@@ -54,6 +56,7 @@ export default function Button({
       className={[...baseStyle, ...variants[variant], className].join(' ')}
       {...props}
     >
+      {leftIcon && <span className='flex-shrink-0'>{leftIcon}</span>}
       {children}
     </Comp>
   );
