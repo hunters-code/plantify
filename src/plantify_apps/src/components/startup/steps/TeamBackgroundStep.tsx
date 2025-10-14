@@ -1,6 +1,6 @@
 'use client';
 
-import { Trash2, Loader2 } from 'lucide-react';
+import { Trash2, Loader2, X } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Input, Textarea, Button } from '@/components/ui';
@@ -71,10 +71,15 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
     }
   };
 
+  const handleRemoveFounderPhoto = () => {
+    setFormData('founderPhoto', null);
+    setFormData('founderPhotoUrl', '');
+  };
+
   const handleTeamMemberChange = (
     index: number,
     field: string,
-    value: string | File
+    value: string | File | null
   ) => {
     const updatedTeamMembers = [...(formData.teamMembers || [])];
     if (!updatedTeamMembers[index]) {
@@ -110,7 +115,16 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
           handleTeamMemberChange(index, 'photoUrl', fileUrl);
 
           // Also store in the array of team member photo URLs
-          const updatedUrls = [...(formData.teamMemberPhotosUrls || [])];
+          // Create a new array with the correct length to ensure we're not overwriting other photos
+          const currentUrls = formData.teamMemberPhotosUrls || [];
+          const updatedUrls = [...currentUrls];
+
+          // Make sure the array has enough elements to accommodate the current index
+          while (updatedUrls.length <= index) {
+            updatedUrls.push(null);
+          }
+
+          // Set the URL at the correct index
           updatedUrls[index] = fileUrl;
 
           setFormData('teamMemberPhotosUrls', updatedUrls);
@@ -125,16 +139,52 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
     }
   };
 
+  const handleRemoveTeamMemberPhoto = (index: number) => {
+    // Remove photo from team member data
+    handleTeamMemberChange(index, 'photo', null);
+    handleTeamMemberChange(index, 'photoUrl', '');
+
+    // Also update the teamMemberPhotosUrls array
+    if (
+      formData.teamMemberPhotosUrls &&
+      formData.teamMemberPhotosUrls.length > index
+    ) {
+      const updatedUrls = [...formData.teamMemberPhotosUrls];
+      updatedUrls[index] = null;
+      setFormData('teamMemberPhotosUrls', updatedUrls);
+    }
+  };
+
   const addTeamMember = () => {
-    const newTeamMembers = [...(formData.teamMembers || []), {}];
+    const newTeamMember = {
+      name: '',
+      role: '',
+      email: '',
+      linkedin: '',
+      background: '',
+      photo: null,
+      isFounder: false,
+    };
+    const newTeamMembers = [...(formData.teamMembers || []), newTeamMember];
     setFormData('teamMembers', newTeamMembers);
   };
 
   const removeTeamMember = (index: number) => {
+    // Remove team member from teamMembers array
     const updatedTeamMembers = formData.teamMembers.filter(
       (_, i) => i !== index
     );
     setFormData('teamMembers', updatedTeamMembers);
+
+    // Also update the teamMemberPhotosUrls array to remove the corresponding photo URL
+    if (
+      formData.teamMemberPhotosUrls &&
+      formData.teamMemberPhotosUrls.length > index
+    ) {
+      const updatedUrls = [...formData.teamMemberPhotosUrls];
+      updatedUrls.splice(index, 1); // Remove the URL at the specified index
+      setFormData('teamMemberPhotosUrls', updatedUrls);
+    }
   };
 
   return (
@@ -228,14 +278,9 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
 
           {/* Profile Photo */}
           <div className='space-y-2'>
-            <FileUpload
-              label='Profile photo'
-              accept='.jpg,.png,.pdf'
-              maxSize='2MB'
-              fileTypes='jpg, png, or pdf'
-              onFileSelect={handleFounderPhotoUpload}
-              disabled={isUploadingFounder}
-            />
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
+              Profile photo <span className='text-red-500'>*</span>
+            </label>
 
             {isUploadingFounder && (
               <div className='flex items-center space-x-2 text-blue-600 mt-2'>
@@ -244,38 +289,33 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
               </div>
             )}
 
-            {formData.founderPhotoUrl && !isUploadingFounder && (
-              <div className='mt-2'>
-                <p className='text-sm font-medium text-gray-700 mb-1'>
-                  Preview:
-                </p>
-                <div className='flex items-center space-x-2'>
-                  <div className='h-16 w-16 rounded-md overflow-hidden border border-gray-200'>
-                    <img
-                      src={formData.founderPhotoUrl}
-                      alt='Founder Photo Preview'
-                      className='h-full w-full object-cover'
-                    />
-                  </div>
-                  <div className='text-sm text-green-600 flex items-center'>
-                    <svg
-                      className='w-4 h-4 mr-1'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                      xmlns='http://www.w3.org/2000/svg'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M5 13l4 4L19 7'
-                      />
-                    </svg>
-                    Uploaded successfully
-                  </div>
+            {formData.founderPhotoUrl && !isUploadingFounder ? (
+              <div className='relative inline-block'>
+                <div className='h-32 w-32 rounded-lg overflow-hidden border border-gray-200 shadow-sm'>
+                  <img
+                    src={formData.founderPhotoUrl}
+                    alt='Founder Photo Preview'
+                    className='h-full w-full object-cover'
+                  />
                 </div>
+                <button
+                  type='button'
+                  onClick={handleRemoveFounderPhoto}
+                  className='absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors duration-200'
+                >
+                  <X size={16} />
+                </button>
               </div>
+            ) : (
+              !isUploadingFounder && (
+                <FileUpload
+                  accept='.jpg,.png,.pdf'
+                  maxSize='2MB'
+                  fileTypes='jpg, png, or pdf'
+                  onFileSelect={handleFounderPhotoUpload}
+                  disabled={isUploadingFounder}
+                />
+              )
             )}
           </div>
         </div>
@@ -375,16 +415,9 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
 
                 {/* Profile Photo */}
                 <div className='space-y-2'>
-                  <FileUpload
-                    label='Profile photo'
-                    accept='.jpg,.png,.pdf'
-                    maxSize='2MB'
-                    fileTypes='jpg, png, or pdf'
-                    onFileSelect={files =>
-                      handleTeamMemberPhotoUpload(index, files)
-                    }
-                    disabled={isUploadingTeamMember === index}
-                  />
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Profile photo <span className='text-red-500'>*</span>
+                  </label>
 
                   {isUploadingTeamMember === index && (
                     <div className='flex items-center space-x-2 text-blue-600 mt-2'>
@@ -393,38 +426,35 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
                     </div>
                   )}
 
-                  {member.photoUrl && isUploadingTeamMember !== index && (
-                    <div className='mt-2'>
-                      <p className='text-sm font-medium text-gray-700 mb-1'>
-                        Preview:
-                      </p>
-                      <div className='flex items-center space-x-2'>
-                        <div className='h-16 w-16 rounded-md overflow-hidden border border-gray-200'>
-                          <img
-                            src={member.photoUrl}
-                            alt='Team Member Photo Preview'
-                            className='h-full w-full object-cover'
-                          />
-                        </div>
-                        <div className='text-sm text-green-600 flex items-center'>
-                          <svg
-                            className='w-4 h-4 mr-1'
-                            fill='none'
-                            stroke='currentColor'
-                            viewBox='0 0 24 24'
-                            xmlns='http://www.w3.org/2000/svg'
-                          >
-                            <path
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              strokeWidth={2}
-                              d='M5 13l4 4L19 7'
-                            />
-                          </svg>
-                          Uploaded successfully
-                        </div>
+                  {member.photoUrl && isUploadingTeamMember !== index ? (
+                    <div className='relative inline-block'>
+                      <div className='h-32 w-32 rounded-lg overflow-hidden border border-gray-200 shadow-sm'>
+                        <img
+                          src={member.photoUrl}
+                          alt='Team Member Photo Preview'
+                          className='h-full w-full object-cover'
+                        />
                       </div>
+                      <button
+                        type='button'
+                        onClick={() => handleRemoveTeamMemberPhoto(index)}
+                        className='absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors duration-200'
+                      >
+                        <X size={16} />
+                      </button>
                     </div>
+                  ) : (
+                    isUploadingTeamMember !== index && (
+                      <FileUpload
+                        accept='.jpg,.png,.pdf'
+                        maxSize='2MB'
+                        fileTypes='jpg, png, or pdf'
+                        onFileSelect={files =>
+                          handleTeamMemberPhotoUpload(index, files)
+                        }
+                        disabled={isUploadingTeamMember === index}
+                      />
+                    )
                   )}
                 </div>
               </div>
