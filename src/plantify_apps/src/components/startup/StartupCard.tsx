@@ -81,7 +81,7 @@ export function StartupCard({
     if (onViewDetails) {
       onViewDetails(id);
     } else {
-      router.push(`/explore/detail/${id}`);
+      router.push(`/explore/detail?id=${id}`);
     }
   };
 
@@ -89,7 +89,7 @@ export function StartupCard({
     if (onInvest) {
       onInvest(id);
     } else {
-      router.push(`/explore/detail/${id}?action=invest`);
+      router.push(`/explore/detail?id=${id}&action=invest`);
     }
   };
 
