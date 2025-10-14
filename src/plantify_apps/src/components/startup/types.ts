@@ -38,7 +38,6 @@ export interface StartupFormData {
   founderPhoto: File | null;
   founderPhotoUrl?: string; // URL after upload
   teamMembers: TeamMember[];
-  teamMemberPhotosUrls?: (string | null)[]; // URLs after upload
   advisors: string;
 
   // Financial Projections

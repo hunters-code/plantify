@@ -1,12 +1,11 @@
 'use client';
 
-import { Trash2, Loader2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Input, Textarea, Button } from '@/components/ui';
 import FileUpload from '@/components/ui/FileUpload';
 import { JOB_ROLE_OPTIONS } from '@/constants/jobRoles';
-import { uploadFile } from '@/lib/fileUpload';
 
 import { StartupFormData } from '../types';
 
@@ -27,10 +26,9 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
   errors = {},
   touched = {},
 }) => {
-  const [isUploadingFounder, setIsUploadingFounder] = useState(false);
-  const [isUploadingTeamMember, setIsUploadingTeamMember] = useState<
-    number | null
-  >(null);
+  const [teamMemberPhotos, setTeamMemberPhotos] = useState<{
+    [key: number]: string;
+  }>({});
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -41,33 +39,22 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
     setFormData(name, value);
   };
 
-  const handleFounderPhotoUpload = async (files: File[]) => {
+  const handleFounderPhotoUpload = (files: File[]) => {
     if (files && files.length > 0) {
       const file = files[0];
 
+      // Create a local preview URL for immediate display
+      const previewUrl = URL.createObjectURL(file);
+
       // Set the file in form data
       setFormData('founderPhoto', file);
+      setFormData('founderPhotoUrl', previewUrl); // Store preview URL temporarily
 
-      // Upload the file and get the preview URL
-      setIsUploadingFounder(true);
-      try {
-        const fileUrl = await uploadFile(
-          file,
-          'plantify-uploads',
-          'founderPhoto'
-        );
-
-        if (fileUrl) {
-          // Store the URL in the form data
-          setFormData('founderPhotoUrl', fileUrl);
-        } else {
-          console.error('Failed to upload founder photo');
-        }
-      } catch (error) {
-        console.error('Error uploading founder photo:', error);
-      } finally {
-        setIsUploadingFounder(false);
-      }
+      console.log('DEBUG: Storing founder photo locally:', {
+        fileName: file.name,
+        fileSize: file.size,
+        previewUrl,
+      });
     }
   };
 
@@ -85,6 +72,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
         linkedin: '',
         background: '',
         photo: null,
+        photoUrl: '',
         isFounder: false,
       };
     }
@@ -93,40 +81,66 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
     setFormData('teamMembers', updatedTeamMembers);
   };
 
-  const handleTeamMemberPhotoUpload = async (index: number, files: File[]) => {
+  const handleTeamMemberPhotoUpload = (index: number, files: File[]) => {
     if (files && files.length > 0) {
       const file = files[0];
 
-      // Set the file in team member data
-      handleTeamMemberChange(index, 'photo', file);
+      // Create a local preview URL for immediate display
+      const previewUrl = URL.createObjectURL(file);
 
-      // Upload the file and get the preview URL
-      setIsUploadingTeamMember(index);
-      try {
-        const fileUrl = await uploadFile(file, 'plantify-uploads', 'teamPhoto');
+      // Store photo URL in local state for preview
+      setTeamMemberPhotos(prev => ({
+        ...prev,
+        [index]: previewUrl,
+      }));
 
-        if (fileUrl) {
-          // Store the URL in the team member data
-          handleTeamMemberChange(index, 'photoUrl', fileUrl);
-
-          // Also store in the array of team member photo URLs
-          const updatedUrls = [...(formData.teamMemberPhotosUrls || [])];
-          updatedUrls[index] = fileUrl;
-
-          setFormData('teamMemberPhotosUrls', updatedUrls);
-        } else {
-          console.error(`Failed to upload team member ${index} photo`);
-        }
-      } catch (error) {
-        console.error(`Error uploading team member ${index} photo:`, error);
-      } finally {
-        setIsUploadingTeamMember(null);
+      // Update team member data with the file (no upload yet)
+      const updatedTeamMembers = [...(formData.teamMembers || [])];
+      if (!updatedTeamMembers[index]) {
+        updatedTeamMembers[index] = {
+          name: '',
+          role: '',
+          email: '',
+          linkedin: '',
+          background: '',
+          photo: null,
+          photoUrl: '',
+          isFounder: false,
+        };
       }
+      updatedTeamMembers[index].photo = file;
+      updatedTeamMembers[index].photoUrl = previewUrl; // Store preview URL temporarily
+
+      console.log(`DEBUG: Storing photo locally for team member ${index}:`, {
+        index,
+        fileName: file.name,
+        fileSize: file.size,
+        previewUrl,
+        teamMembersAfter: updatedTeamMembers.map((m, i) => ({
+          index: i,
+          name: m.name,
+          hasPhoto: !!m.photo,
+        })),
+      });
+
+      setFormData('teamMembers', updatedTeamMembers);
     }
   };
 
   const addTeamMember = () => {
-    const newTeamMembers = [...(formData.teamMembers || []), {}];
+    const newTeamMembers = [
+      ...(formData.teamMembers || []),
+      {
+        name: '',
+        role: '',
+        email: '',
+        linkedin: '',
+        background: '',
+        photo: null,
+        photoUrl: '',
+        isFounder: false,
+      },
+    ];
     setFormData('teamMembers', newTeamMembers);
   };
 
@@ -135,6 +149,23 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
       (_, i) => i !== index
     );
     setFormData('teamMembers', updatedTeamMembers);
+
+    // Clean up local photo state
+    setTeamMemberPhotos(prev => {
+      const newPhotos = { ...prev };
+      delete newPhotos[index];
+      // Shift remaining photos down
+      const shiftedPhotos: { [key: number]: string } = {};
+      Object.keys(newPhotos).forEach(key => {
+        const oldIndex = parseInt(key);
+        if (oldIndex > index) {
+          shiftedPhotos[oldIndex - 1] = newPhotos[oldIndex];
+        } else if (oldIndex < index) {
+          shiftedPhotos[oldIndex] = newPhotos[oldIndex];
+        }
+      });
+      return shiftedPhotos;
+    });
   };
 
   return (
@@ -234,17 +265,9 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
               maxSize='2MB'
               fileTypes='jpg, png, or pdf'
               onFileSelect={handleFounderPhotoUpload}
-              disabled={isUploadingFounder}
             />
 
-            {isUploadingFounder && (
-              <div className='flex items-center space-x-2 text-blue-600 mt-2'>
-                <Loader2 size={16} className='animate-spin' />
-                <span className='text-sm'>Uploading photo...</span>
-              </div>
-            )}
-
-            {formData.founderPhotoUrl && !isUploadingFounder && (
+            {formData.founderPhotoUrl && (
               <div className='mt-2'>
                 <p className='text-sm font-medium text-gray-700 mb-1'>
                   Preview:
@@ -383,17 +406,9 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
                     onFileSelect={files =>
                       handleTeamMemberPhotoUpload(index, files)
                     }
-                    disabled={isUploadingTeamMember === index}
                   />
 
-                  {isUploadingTeamMember === index && (
-                    <div className='flex items-center space-x-2 text-blue-600 mt-2'>
-                      <Loader2 size={16} className='animate-spin' />
-                      <span className='text-sm'>Uploading photo...</span>
-                    </div>
-                  )}
-
-                  {member.photoUrl && isUploadingTeamMember !== index && (
+                  {(teamMemberPhotos[index] || member.photoUrl) && (
                     <div className='mt-2'>
                       <p className='text-sm font-medium text-gray-700 mb-1'>
                         Preview:
@@ -401,9 +416,21 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
                       <div className='flex items-center space-x-2'>
                         <div className='h-16 w-16 rounded-md overflow-hidden border border-gray-200'>
                           <img
-                            src={member.photoUrl}
+                            src={teamMemberPhotos[index] || member.photoUrl}
                             alt='Team Member Photo Preview'
                             className='h-full w-full object-cover'
+                            onLoad={() =>
+                              console.log(
+                                `DEBUG: Image loaded for team member ${index}:`,
+                                teamMemberPhotos[index] || member.photoUrl
+                              )
+                            }
+                            onError={() =>
+                              console.log(
+                                `DEBUG: Image failed to load for team member ${index}:`,
+                                teamMemberPhotos[index] || member.photoUrl
+                              )
+                            }
                           />
                         </div>
                         <div className='text-sm text-green-600 flex items-center'>

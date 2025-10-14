@@ -164,7 +164,7 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
                 </div>
                 <div>
                   <div className='text-sm font-medium'>
-                    {formData.businessPlan?.name}
+                    {formData.businessPlan?.name || 'Business Plan'}
                   </div>
                   <div className='text-xs text-green-600 flex items-center'>
                     <svg
@@ -240,7 +240,8 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
                   </div>
                   <div>
                     <div className='text-sm font-medium'>
-                      {formData.financialProjectionsFile?.name}
+                      {formData.financialProjectionsFile?.name ||
+                        'Financial Projections'}
                     </div>
                     <div className='text-xs text-green-600 flex items-center'>
                       <svg
@@ -314,7 +315,7 @@ const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
                 </div>
                 <div>
                   <div className='text-sm font-medium'>
-                    {formData.legalDocuments?.name}
+                    {formData.legalDocuments?.name || 'Legal Documents'}
                   </div>
                   <div className='text-xs text-green-600 flex items-center'>
                     <svg

@@ -154,9 +154,7 @@ export default function CreateStartupPage() {
     }
 
     let founderPhotoUrl: string | null = null;
-    if (formData.founderPhotoUrl) {
-      founderPhotoUrl = formData.founderPhotoUrl;
-    } else if (formData.founderPhoto) {
+    if (formData.founderPhoto) {
       founderPhotoUrl = await fileToString(formData.founderPhoto);
     }
 
@@ -164,9 +162,7 @@ export default function CreateStartupPage() {
     for (let i = 0; i < formData.teamMembers.length; i++) {
       const member = formData.teamMembers[i];
 
-      if (member.photoUrl) {
-        teamMemberPhotoUrls[i] = member.photoUrl;
-      } else if (member.photo) {
+      if (member.photo) {
         teamMemberPhotoUrls[i] = await fileToString(member.photo);
       } else {
         teamMemberPhotoUrls[i] = null;
@@ -174,25 +170,19 @@ export default function CreateStartupPage() {
     }
 
     let businessPlanUrl: string | null = null;
-    if (formData.businessPlanUrl) {
-      businessPlanUrl = formData.businessPlanUrl;
-    } else if (formData.businessPlan) {
+    if (formData.businessPlan) {
       businessPlanUrl = await fileToString(formData.businessPlan);
     }
 
     let financialProjectionsUrl: string | null = null;
-    if (formData.financialProjectionsUrl) {
-      financialProjectionsUrl = formData.financialProjectionsUrl;
-    } else if (formData.financialProjectionsFile) {
+    if (formData.financialProjectionsFile) {
       financialProjectionsUrl = await fileToString(
         formData.financialProjectionsFile
       );
     }
 
     let legalDocumentsUrl: string | null = null;
-    if (formData.legalDocumentsUrl) {
-      legalDocumentsUrl = formData.legalDocumentsUrl;
-    } else if (formData.legalDocuments) {
+    if (formData.legalDocuments) {
       legalDocumentsUrl = await fileToString(formData.legalDocuments);
     }
 
