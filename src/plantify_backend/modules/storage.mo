@@ -553,6 +553,7 @@ module Storage {
                 availableNFTs = availableNFTs;
                 totalFunded = totalFunded;
                 builtByCaffeineAI = startup.builtByCaffeineAI;
+                location = startup.location;
               };
             },
             );
@@ -717,6 +718,7 @@ module Storage {
             availableNFTs = availableNFTs;
             totalFunded = totalFunded;
             builtByCaffeineAI = startup.builtByCaffeineAI;
+            location = startup.location;
           };
         },
         );

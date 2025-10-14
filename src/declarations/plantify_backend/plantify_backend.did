@@ -164,6 +164,7 @@ type StartupSummary =
    companyType: text;
    description: text;
    id: text;
+   location: text;
    nftPrice: text;
    startupName: text;
    totalFunded: nat;

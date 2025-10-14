@@ -641,6 +641,7 @@ export const idlFactory = ({ IDL }) => {
     startupName: IDL.Text,
     companyImages: IDL.Vec(IDL.Text),
     nftPrice: IDL.Text,
+    location: IDL.Text,
   });
   const PaginatedStartups = IDL.Record({
     startups: IDL.Vec(StartupSummary),

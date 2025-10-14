@@ -645,6 +645,7 @@ export interface StartupSummary {
   'startupName' : string,
   'companyImages' : Array<string>,
   'nftPrice' : string,
+  'location' : string,
 }
 export interface TeamMember {
   'id' : bigint,

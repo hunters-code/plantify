@@ -660,6 +660,7 @@ module Types {
     availableNFTs : Nat;
     totalFunded : Nat;
     builtByCaffeineAI : ?Bool;
+    location : Text;
   };
 
   public type PaginatedStartups = {
