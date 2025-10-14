@@ -39,7 +39,7 @@ const getTabStyles = (
     case 'active':
       return cn(
         baseStyles,
-        'bg-neutral-100 border border-neutral-200 border-solid cursor-pointer'
+        'bg-white border border-neutral-200 border-solid cursor-pointer'
       );
     case 'completed':
       return cn(baseStyles, 'hover:bg-neutral-50 cursor-pointer');

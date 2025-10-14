@@ -263,7 +263,7 @@ export default function Investors({ startupId }: InvestorsProps) {
 
   if (!startupId)
     return (
-      <Card className='bg-neutral-100 p-6 text-center'>
+      <Card className='bg-white p-6 text-center'>
         <h2 className='text-xl font-semibold mb-2'>No Startup Selected</h2>
         <p className='text-gray-500'>
           Please select a startup from the dropdown above.
@@ -272,7 +272,7 @@ export default function Investors({ startupId }: InvestorsProps) {
     );
 
   return (
-    <Card className='bg-neutral-100'>
+    <Card className='bg-white'>
       {/* HEADER */}
       <div className='flex justify-between items-center mb-4'>
         <div>
@@ -444,7 +444,7 @@ export default function Investors({ startupId }: InvestorsProps) {
               </Card>
             ))}
             {filteredInvestors.length === 0 && (
-              <Card className='p-6 text-center bg-gray-50'>
+              <Card className='p-6 text-center bg-white'>
                 <Users size={32} className='mx-auto text-gray-400 mb-2' />
                 <p className='text-gray-500'>No investors found</p>
                 <p className='text-gray-400 text-sm mt-1'>
@@ -529,7 +529,7 @@ export default function Investors({ startupId }: InvestorsProps) {
             </Card>
           ))}
           {filteredInvestors.length === 0 && (
-            <Card className='p-6 text-center bg-gray-50'>
+            <Card className='p-6 text-center bg-white'>
               <Users size={32} className='mx-auto text-gray-400 mb-2' />
               <p className='text-gray-500'>No investors found</p>
               <p className='text-gray-400 text-sm mt-1'>

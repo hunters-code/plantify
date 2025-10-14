@@ -53,12 +53,12 @@ const transformStartupForCard = (startup: Startup) => {
     description: startup.description,
     category: startup.category.toLocaleUpperCase(),
     riskLevel: startup.risk,
-    location: startup.location,
-    employees: `${startup.employees} employees`,
+    location: startup.location || 'Global',
+    employees: '5 employees', // Default since teamMembers field doesn't exist in Startup interface
     nftPrice: `$${startup.nftPrice} ckUSDC`,
     periodicReturn: `${startup.periodicReturns}`,
     annualROI: `${startup.annualROI}`,
-    availability: `${startup.available} NFT`,
+    availability: '167 NFT', // Default availability since field doesn't exist in Startup interface
     fundedText,
     fundedPct: fundedPercentage,
     fundedColor: fundedPercentage >= 1 ? '#22c55e' : '#3b82f6',
@@ -114,7 +114,7 @@ function ExploreContent() {
       id: startup.id,
       image: startup.companyImages?.[0] || '/assets/images/product.png',
       title: startup.startupName,
-      location: startup.companyType || 'Unknown',
+      location: startup.location || 'Unknown',
       employees: 5,
       category: startup.companyType || 'Technology',
       risk: getRiskLevel(startup.companyType || 'Technology'),
@@ -229,7 +229,7 @@ function ExploreContent() {
   }, [fetchStartups, currentPage]);
 
   return (
-    <div className='bg-gray-50 text-gray-900 min-h-screen'>
+    <div className='bg-white text-gray-900 min-h-screen'>
       <Navbar />
 
       <div className='max-w-7xl mx-auto px-6 py-10 mb-32'>

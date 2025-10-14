@@ -146,7 +146,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
       </div>
 
       {/* Founder Section */}
-      <div className='bg-gray-50 rounded-lg p-6'>
+      <div className='bg-white rounded-lg p-6'>
         <h3 className='text-xl font-semibold text-gray-900 mb-6'>Founder</h3>
 
         <div className='space-y-6'>
@@ -285,7 +285,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
       <div className='space-y-6'>
         {formData.teamMembers &&
           formData.teamMembers.map((member, index) => (
-            <div key={index} className='bg-gray-50 rounded-lg p-6 relative'>
+            <div key={index} className='bg-white rounded-lg p-6 relative'>
               <div className='flex justify-between items-center mb-6'>
                 <h3 className='text-xl font-semibold text-gray-900'>
                   Team member {index + 1}

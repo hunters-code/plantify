@@ -29,7 +29,7 @@ export default function Financials({ startup }) {
   return (
     <div className='space-y-8'>
       {/* Financial Overview */}
-      <div className='rounded-2xl bg-neutral-100 p-6'>
+      <div className='rounded-2xl bg-white p-6'>
         <div className='flex items-center gap-3 mb-4'>
           <h3 className='text-4xl font-semibold font-ibm'>
             Financial Overview
@@ -82,7 +82,7 @@ export default function Financials({ startup }) {
       </div>
 
       {/* Investment Information */}
-      <div className='bg-neutral-100 rounded-2xl p-6 border border-gray-200'>
+      <div className='bg-white rounded-2xl p-6 border border-gray-200'>
         <div className='flex items-center gap-3 mb-4'>
           <h3 className='text-4xl font-semibold font-ibm'>
             Investment Information

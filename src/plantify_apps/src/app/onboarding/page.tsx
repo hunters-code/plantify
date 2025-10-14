@@ -152,7 +152,7 @@ export default function OnboardingPage() {
           }}
         >
           {/* Investor Card */}
-          <Card className='bg-neutral-100 backdrop-blur-md flex flex-col justify-between shadow-md'>
+          <Card className='bg-white backdrop-blur-md flex flex-col justify-between shadow-md'>
             <div>
               <Card className='bg-white shadow-xl p-6'>
                 <h2 className='text-lg font-bold text-gray-900 mb-4'>
@@ -198,7 +198,7 @@ export default function OnboardingPage() {
           </Card>
 
           {/* Startup Founder Card */}
-          <Card className='bg-neutral-100 backdrop-blur-md flex flex-col justify-between shadow-md'>
+          <Card className='bg-white backdrop-blur-md flex flex-col justify-between shadow-md'>
             <div>
               <Card className='bg-white shadow-xl p-6'>
                 <h2 className='text-lg font-bold text-gray-900 mb-4'>

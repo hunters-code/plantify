@@ -219,7 +219,7 @@ export default function RegisterInvestor() {
 
   if (authLoading) {
     return (
-      <div className='bg-gray-50 text-gray-900 min-h-screen flex flex-col'>
+      <div className='bg-white text-gray-900 min-h-screen flex flex-col'>
         <Navbar />
         <div className='flex-1 flex flex-col items-center justify-center'>
           <Loader2 size={48} className='text-purple-600 animate-spin' />

@@ -42,7 +42,7 @@ export default function StartupAnalysisModal({
       case 'strong_sell':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
@@ -124,7 +124,7 @@ export default function StartupAnalysisModal({
             <h3 className='text-lg font-semibold mb-4'>Key Metrics</h3>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4'>
               {Object.entries(analysis.keyMetrics).map(([key, value]) => (
-                <div key={key} className='bg-gray-50 p-4 rounded-lg'>
+                <div key={key} className='bg-white p-4 rounded-lg'>
                   <div className='text-sm text-gray-600 mb-2 capitalize'>
                     {key.replace(/([A-Z])/g, ' $1').trim()}
                   </div>

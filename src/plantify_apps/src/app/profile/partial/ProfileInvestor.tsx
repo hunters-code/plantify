@@ -248,7 +248,7 @@ export default function ProfileInvestor() {
           ) : (
             <button
               onClick={handleEdit}
-              className='flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-xl shadow-sm hover:bg-gray-50 transition'
+              className='flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-xl shadow-sm hover:bg-white transition'
             >
               <Edit size={18} className='text-gray-700' />
               <span className='text-sm font-medium text-gray-800'>
@@ -282,7 +282,7 @@ export default function ProfileInvestor() {
                 type='text'
                 value={investor.fullName}
                 readOnly
-                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-gray-50 shadow-sm text-sm'
+                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-white shadow-sm text-sm'
               />
             )}
           </div>
@@ -301,7 +301,7 @@ export default function ProfileInvestor() {
                 type='text'
                 value={investor.location || 'Not specified'}
                 readOnly
-                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-gray-50 shadow-sm text-sm'
+                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-white shadow-sm text-sm'
               />
             )}
           </div>
@@ -322,7 +322,7 @@ export default function ProfileInvestor() {
                 type='email'
                 value={investor.email}
                 readOnly
-                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-gray-50 shadow-sm text-sm'
+                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-white shadow-sm text-sm'
               />
             )}
           </div>
@@ -343,7 +343,7 @@ export default function ProfileInvestor() {
                 type='text'
                 value={investor.occupation || 'Not specified'}
                 readOnly
-                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-gray-50 shadow-sm text-sm'
+                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-white shadow-sm text-sm'
               />
             )}
           </div>
@@ -364,7 +364,7 @@ export default function ProfileInvestor() {
                 type='text'
                 value={investor.phone}
                 readOnly
-                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-gray-50 shadow-sm text-sm'
+                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-white shadow-sm text-sm'
               />
             )}
           </div>
@@ -383,7 +383,7 @@ export default function ProfileInvestor() {
                 type='text'
                 value={investor.company || 'Not specified'}
                 readOnly
-                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-gray-50 shadow-sm text-sm'
+                className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-white shadow-sm text-sm'
               />
             )}
           </div>
@@ -404,7 +404,7 @@ export default function ProfileInvestor() {
               value={investor.bio || 'No bio available'}
               readOnly
               rows={3}
-              className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-gray-50 shadow-sm text-sm'
+              className='w-full rounded-xl border border-gray-200 px-4 py-2 bg-white shadow-sm text-sm'
             />
           )}
         </div>

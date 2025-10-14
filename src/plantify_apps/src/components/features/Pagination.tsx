@@ -87,7 +87,7 @@ export default function Pagination({
         className={`w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 shadow ${
           currentPage === 1
             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-neutral-100 hover:bg-gray-100 cursor-pointer'
+            : 'bg-white hover:bg-gray-100 cursor-pointer'
         }`}
       >
         ‹
@@ -113,7 +113,7 @@ export default function Pagination({
             className={`w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 shadow ${
               currentPage === page
                 ? 'bg-purple-500 text-white font-medium'
-                : 'bg-neutral-100 hover:bg-gray-100'
+                : 'bg-white hover:bg-gray-100'
             }`}
           >
             {page}
@@ -130,7 +130,7 @@ export default function Pagination({
         className={`w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 shadow ${
           currentPage === effectiveTotalPages
             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-neutral-100 hover:bg-gray-100 cursor-pointer'
+            : 'bg-white hover:bg-gray-100 cursor-pointer'
         }`}
       >
         ›

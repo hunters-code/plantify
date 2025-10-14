@@ -490,7 +490,7 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
   }
 
   return (
-    <div className='bg-neutral-100 rounded-[16px] p-6'>
+    <div className='bg-white rounded-[16px] p-6'>
       <h2 className='text-xl font-semibold mb-4'>Monthly Reports</h2>
 
       <div className='flex gap-2 mb-6 border border-neutral-200 rounded-full w-fit'>
@@ -501,7 +501,7 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
             className={`px-4 py-2 text-sm font-medium transition rounded-[12px] ${
               activeSubTab === tab.id
                 ? 'bg-[#7A5AF8] text-white'
-                : 'text-gray-600 hover:bg-gray-50'
+                : 'text-gray-600 hover:bg-white'
             }`}
           >
             {tab.label}

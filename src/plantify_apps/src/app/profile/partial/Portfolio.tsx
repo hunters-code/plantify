@@ -43,7 +43,7 @@ export default function Portfolio() {
   return (
     <div className='mx-auto space-y-6'>
       {/* Investment Statistics */}
-      <section className='bg-gray-50 p-6 rounded-2xl'>
+      <section className='bg-white p-6 rounded-2xl'>
         <h2 className='text-xl font-semibold mb-4'>Investment Statistics</h2>
         <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
           {investmentStats.map(stat => (
@@ -59,7 +59,7 @@ export default function Portfolio() {
       </section>
 
       {/* Startup Investments */}
-      <section className='bg-gray-50 p-6 rounded-2xl'>
+      <section className='bg-white p-6 rounded-2xl'>
         <h2 className='text-xl font-semibold mb-4'>Startup Investments</h2>
         <div className='space-y-4'>
           {startups.map(startup => (
@@ -93,7 +93,7 @@ export default function Portfolio() {
       </section>
 
       {/* Sector Allocation */}
-      <section className='bg-gray-50 p-6 rounded-2xl'>
+      <section className='bg-white p-6 rounded-2xl'>
         <h2 className='text-xl font-semibold mb-4'>Sector Allocation</h2>
         <div className='space-y-4'>
           {sectors.map(sector => (

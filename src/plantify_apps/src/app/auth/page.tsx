@@ -72,7 +72,7 @@ export default function LoginRequired() {
           </p>
         </div>
 
-        <Card className='bg-neutral-100 p-4 sm:p-4'>
+        <Card className='bg-white p-4 sm:p-4'>
           <div className='space-y-3 text-sm text-gray-700'>
             <div className='flex items-center gap-2'>
               <Fingerprint size={16} className='text-gray-500' />

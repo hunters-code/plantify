@@ -282,7 +282,7 @@ export default function ChatInterface({
         </div>
 
         {/* Messages */}
-        <div className='flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50'>
+        <div className='flex-1 overflow-y-auto p-4 space-y-4 bg-white'>
           {messages.length === 0 && (
             <div className='flex flex-col items-center justify-center h-full text-center text-gray-500'>
               <div className='w-16 h-16 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center mb-4'>
@@ -301,7 +301,7 @@ export default function ChatInterface({
             <div key={message.id} className='space-y-2'>
               {message.type === 'user' && (
                 <div className='flex justify-end'>
-                  <div className='bg-neutral-100 rounded-2xl rounded-tr-sm px-4 py-3 max-w-xs'>
+                  <div className='bg-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-xs'>
                     <p className='text-sm text-black whitespace-pre-line'>
                       {message.content}
                     </p>
@@ -333,7 +333,7 @@ export default function ChatInterface({
                     </div>
 
                     <div className='space-y-2'>
-                      <div className='flex items-center gap-2 p-2 bg-gray-50 rounded-lg'>
+                      <div className='flex items-center gap-2 p-2 bg-white rounded-lg'>
                         <Target className='text-purple-600' size={16} />
                         <span className='text-xs font-medium text-gray-700'>
                           {message.analysisData.investmentRecommendation
@@ -342,7 +342,7 @@ export default function ChatInterface({
                         </span>
                       </div>
 
-                      <div className='flex items-center gap-2 p-2 bg-gray-50 rounded-lg'>
+                      <div className='flex items-center gap-2 p-2 bg-white rounded-lg'>
                         <div
                           className={`w-2 h-2 rounded-full ${
                             message.analysisData.riskLevel === 'low'
@@ -364,7 +364,7 @@ export default function ChatInterface({
                     <div className='grid grid-cols-2 gap-2'>
                       {Object.entries(message.analysisData.keyMetrics).map(
                         ([key, value]) => (
-                          <div key={key} className='bg-gray-50 rounded-lg p-2'>
+                          <div key={key} className='bg-white rounded-lg p-2'>
                             <p className='text-xs text-gray-500 capitalize'>
                               {key.replace(/([A-Z])/g, ' $1').trim()}
                             </p>
@@ -437,7 +437,7 @@ export default function ChatInterface({
 
         {/* Input Area */}
         <div className='p-4 border-t border-gray-200 bg-white'>
-          <div className='relative flex items-end border border-gray-200 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-transparent'>
+          <div className='relative flex items-end border border-gray-200 rounded-2xl bg-white focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-transparent'>
             <textarea
               value={inputText}
               onChange={e => setInputText(e.target.value)}

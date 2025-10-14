@@ -81,7 +81,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
 
   if (loading) {
     return (
-      <Card className='bg-neutral-100'>
+      <Card className='bg-white'>
         <div className='animate-pulse space-y-6'>
           <div className='grid grid-cols-3 gap-6'>
             {[1, 2, 3].map(i => (
@@ -114,7 +114,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
 
   if (!startupId) {
     return (
-      <Card className='bg-neutral-100'>
+      <Card className='bg-white'>
         <div className='text-center py-12'>
           <h2 className='text-xl font-semibold mb-2'>No Startup Selected</h2>
           <p className='text-gray-500'>
@@ -127,7 +127,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
 
   if (!collateralDashboard) {
     return (
-      <Card className='bg-neutral-100'>
+      <Card className='bg-white'>
         <div className='text-center py-12'>
           <Shield size={48} className='mx-auto text-gray-400 mb-4' />
           <h2 className='text-xl font-semibold mb-2'>No Collateral Required</h2>
@@ -140,7 +140,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
   }
 
   return (
-    <Card className='bg-neutral-100'>
+    <Card className='bg-white'>
       {/* Status Alert */}
       {!isFullyFunded && (
         <Alert className='mb-6 bg-yellow-50 border-yellow-200'>
@@ -283,7 +283,7 @@ const Collateral: React.FC<CollateralProps> = ({ startupId }) => {
               ))}
           </div>
         ) : (
-          <Card className='p-6 bg-gray-50 border border-gray-200'>
+          <Card className='p-6 bg-white border border-gray-200'>
             <div className='text-center'>
               <Shield size={32} className='mx-auto text-gray-400 mb-2' />
               <p className='text-gray-500 text-sm'>

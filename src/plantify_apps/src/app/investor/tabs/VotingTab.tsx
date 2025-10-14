@@ -327,7 +327,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                 key={report.id}
                 className='bg-white rounded-lg border border-gray-200 p-6'
               >
-                <div className='bg-gray-50 rounded-lg p-6'>
+                <div className='bg-white rounded-lg p-6'>
                   <div className='flex items-center justify-between mb-8'>
                     <div className='flex items-center gap-3'>
                       <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
@@ -355,7 +355,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                         className={`text-sm font-medium px-3 py-1 rounded-full ${
                           !isVotingClosed
                             ? 'text-red-600 bg-red-50'
-                            : 'text-gray-600 bg-gray-50'
+                            : 'text-gray-600 bg-white'
                         }`}
                       >
                         {!isVotingClosed

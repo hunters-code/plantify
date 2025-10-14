@@ -161,7 +161,7 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
 
   if (!startupId) {
     return (
-      <div className='bg-neutral-100 p-6 rounded-[16px]'>
+      <div className='bg-white p-6 rounded-[16px]'>
         <div className='text-center py-8'>
           <h2 className='text-xl font-semibold mb-2'>No Startup Selected</h2>
           <p className='text-gray-500'>
@@ -173,7 +173,7 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
   }
 
   return (
-    <div className='bg-neutral-100 p-6 rounded-[16px]'>
+    <div className='bg-white p-6 rounded-[16px]'>
       <h2 className='text-xl font-semibold mb-4'>Funding Status</h2>
 
       {/* Reusable Progress Bar */}
@@ -245,7 +245,7 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
                 </thead>
                 <tbody>
                   {recentInvestments.map((investment, index) => (
-                    <tr key={index} className='border-b hover:bg-gray-50'>
+                    <tr key={index} className='border-b hover:bg-white'>
                       <td className='py-2 px-2'>{investment.investorName}</td>
                       <td className='py-2 px-2'>
                         {formatCurrency(Number(investment.amount))}

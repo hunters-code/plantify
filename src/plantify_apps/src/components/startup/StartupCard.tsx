@@ -96,7 +96,7 @@ export function StartupCard({
   return (
     <div className='bg-white border border-neutral-200 rounded-[16px] overflow-hidden hover:shadow-lg transition-shadow'>
       {/* Image Section with Overlay */}
-      <div className='relative h-[230px] overflow-hidden rounded-[12px] m-2'>
+      <div className='relative h-[280px] overflow-hidden rounded-[12px] m-2'>
         {imageError ? (
           <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
             <div className='text-center text-gray-500'>
@@ -135,6 +135,30 @@ export function StartupCard({
           )}
         </div>
 
+        {/* Caffeine.AI Label */}
+        {builtByCaffeineAI && (
+          <div className='absolute bottom-12 left-2 right-2'>
+            <div
+              className='inline-block px-2 py-[2px] rounded-[8px] text-[14px] font-normal tracking-[-0.14px]'
+              style={{
+                backgroundColor: '#DDF730',
+                color: '#1D1D1D',
+                border: '1px solid #DDF730',
+              }}
+            >
+              <span className='font-normal'>built with </span>
+              <span
+                style={{
+                  fontFamily: '"Test Söhne Breit", sans-serif',
+                  fontWeight: 600,
+                }}
+              >
+                caffeine.ai
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Location Info */}
         {showLocation && (location || employees) && (
           <div className='absolute bottom-2 left-2 right-2'>
@@ -166,23 +190,6 @@ export function StartupCard({
             </div>
           )}
           <div className='flex-1 min-w-0'>
-            {/* Caffeine.AI Label - Always reserve space for consistent positioning */}
-            <div className='mb-2 h-[26px] flex items-start'>
-              {builtByCaffeineAI && (
-                <span
-                  className='inline-block px-2 py-[2px] rounded-[8px] text-[14px] font-normal tracking-[-0.14px]'
-                  style={{
-                    fontFamily: '"Test Söhne Breit", sans-serif',
-                    fontWeight: 600,
-                    backgroundColor: '#DDF730',
-                    color: '#1D1D1D',
-                    border: '1px solid #DDF730',
-                  }}
-                >
-                  caffeine.ai
-                </span>
-              )}
-            </div>
             <h3 className='font-ibm text-[20px] font-normal text-neutral-950 leading-[1.4] tracking-[-0.2px]'>
               {title}
             </h3>

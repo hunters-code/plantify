@@ -23,7 +23,7 @@ export default function StatsCard({
   if (loading) {
     return (
       <div
-        className={`bg-neutral-100 p-4 rounded-lg animate-pulse ${className}`}
+        className={`bg-white p-4 rounded-lg animate-pulse ${className}`}
         {...props}
       >
         <div className='flex items-start justify-between'>
@@ -55,7 +55,7 @@ export default function StatsCard({
   }
 
   return (
-    <div className={`bg-neutral-100 p-4 rounded-lg ${className}`} {...props}>
+    <div className={`bg-white p-4 rounded-lg ${className}`} {...props}>
       <div className='flex items-start justify-between'>
         <div className='flex-1'>
           <p className='text-gray-500 text-sm mb-1'>{label}</p>
