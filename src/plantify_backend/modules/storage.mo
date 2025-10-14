@@ -10,6 +10,27 @@ import Nat32 "mo:base/Nat32";
 import Types "./types";
 
 module Storage {
+  // Fungsi untuk membersihkan string dari karakter non-numerik
+  private func cleanNumericString(input : Text) : Text {
+    let chars = input.chars();
+    var result : Text = "";
+    
+    for (char in chars) {
+      let charCode = Char.toNat32(char);
+      // Hanya simpan karakter angka (0-9)
+      if (charCode >= 48 and charCode <= 57) {
+        result := result # Char.toText(char);
+      };
+    };
+    
+    // Jika hasil kosong, return "0"
+    if (Text.size(result) == 0) {
+      "0";
+    } else {
+      result;
+    };
+  };
+
   // Safe textToNat function with overflow protection
   private func textToNat(txt : Text) : Nat {
     if (txt.size() == 0) { 0 }
@@ -23,8 +44,11 @@ module Storage {
       var maxSafeValue : Nat = 1000000; // 1 million - safe maximum
       
       for (v in chars) {
-        let charToNum = Nat32.toNat(Char.toNat32(v) - 48);
-        if (charToNum >= 0 and charToNum <= 9) {
+        // First check if character is a digit (0-9) to prevent arithmetic overflow
+        let charCode = Char.toNat32(v);
+        if (charCode >= 48 and charCode <= 57) {
+          let charToNum = Nat32.toNat(charCode - 48);
+          
           // Check for overflow before multiplication
           if (num > maxSafeValue / 10) {
             return maxSafeValue; // Return max safe value to prevent overflow
@@ -311,11 +335,11 @@ module Storage {
             };
             availableCapital = switch (updateRequest.availableCapital) {
               case null { existingInvestor.availableCapital };
-              case (?capital) { capital };
+              case (?capital) { cleanNumericString(capital) };
             };
             monthlyBudget = switch (updateRequest.monthlyBudget) {
               case null { existingInvestor.monthlyBudget };
-              case (?budget) { budget };
+              case (?budget) { cleanNumericString(budget) };
             };
             createdAt = existingInvestor.createdAt;
             updatedAt = Time.now();
