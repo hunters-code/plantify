@@ -18,7 +18,7 @@ export default function FundingProgress({
   color = 'orange',
 }: FundingProgressProps) {
   return (
-    <div className='mb-6 flex gap-2'>
+    <div className='mb-6 flex gap-2 bg-white rounded-[16px] p-4'>
       <Sparkle size={16} />
       <div className='w-full'>
         {/* Progress Info */}

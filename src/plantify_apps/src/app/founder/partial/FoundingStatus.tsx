@@ -46,7 +46,6 @@ function useFundingStatus(startupId: string) {
         setLoading(true);
         setError(null);
 
-        // Fetch startup details, funding status, and collateral info in parallel
         const [startupResult, fundingResult, collateralResult] =
           await Promise.all([
             StartupService.getStartupDetails(startupId),
@@ -263,98 +262,6 @@ export default function FundingStatus({ startupId }: FundingStatusProps) {
                 </tbody>
               </table>
             </div>
-          </Card>
-        </div>
-      )}
-
-      {/* Funding Milestones */}
-      {fundingMilestones && fundingMilestones.length > 0 && (
-        <div className='mt-6'>
-          <Card className='p-4'>
-            <h3 className='text-lg font-semibold mb-3'>Funding Milestones</h3>
-            <div className='space-y-4'>
-              {fundingMilestones.map((milestone, index) => (
-                <div
-                  key={index}
-                  className='border-l-4 border-blue-500 pl-4 py-1'
-                >
-                  <p className='font-medium'>{milestone.milestone}</p>
-                  <p className='text-sm text-gray-500'>
-                    Target: {formatCurrency(Number(milestone.targetAmount))}
-                  </p>
-                  <div className='w-full bg-gray-200 rounded-full h-2 mt-2'>
-                    <div
-                      className='bg-blue-500 h-2 rounded-full transition-all duration-300'
-                      style={{
-                        width: `${Math.min(100, (totalRaised / Number(milestone.targetAmount)) * 100)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* Collateral Information */}
-      {collateralInfo && (
-        <div className='mt-6'>
-          <Card className='p-4'>
-            <h3 className='text-lg font-semibold mb-3'>Collateral Status</h3>
-            <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-              <div>
-                <p className='text-sm text-gray-500'>Current Amount</p>
-                <p className='text-lg font-semibold'>
-                  {formatCurrency(Number(collateralInfo.currentAmount))}
-                </p>
-              </div>
-              <div>
-                <p className='text-sm text-gray-500'>Required Amount</p>
-                <p className='text-lg font-semibold'>
-                  {formatCurrency(Number(collateralInfo.requiredAmount))}
-                </p>
-              </div>
-              <div>
-                <p className='text-sm text-gray-500'>Status</p>
-                <p className='text-lg font-semibold capitalize'>
-                  {typeof collateralInfo.status === 'object'
-                    ? Object.keys(collateralInfo.status)[0].toLowerCase()
-                    : collateralInfo.status}
-                </p>
-              </div>
-              <div>
-                <p className='text-sm text-gray-500'>Token Type</p>
-                <p className='text-lg font-semibold uppercase'>
-                  {collateralInfo.tokenType}
-                </p>
-              </div>
-            </div>
-
-            {/* Progress Bar for Collateral */}
-            {collateralInfo.requiredAmount > 0 && (
-              <div className='mt-4'>
-                <div className='flex justify-between text-sm text-gray-600 mb-2'>
-                  <span>Collateral Progress</span>
-                  <span>
-                    {Math.round(
-                      (Number(collateralInfo.currentAmount) /
-                        Number(collateralInfo.requiredAmount)) *
-                        100
-                    )}
-                    %
-                  </span>
-                </div>
-                <div className='w-full bg-gray-200 rounded-full h-2'>
-                  <div
-                    className='bg-blue-500 h-2 rounded-full transition-all duration-300'
-                    style={{
-                      width: `${Math.min(100, (Number(collateralInfo.currentAmount) / Number(collateralInfo.requiredAmount)) * 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
           </Card>
         </div>
       )}

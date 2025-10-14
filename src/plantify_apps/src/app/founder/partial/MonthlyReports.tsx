@@ -12,6 +12,7 @@ import type {
 } from '@/declarations/plantify_backend/plantify_backend.did';
 import { MonthlyReportService } from '@/services/founders/MonthlyReportService';
 import { formatCurrency } from '@/utils/formatCurrency';
+import Image from 'next/image';
 
 type FormData = {
   monthlyRevenue: string;
@@ -331,7 +332,13 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
             {!showReportForm ? (
               <div className='flex flex-col items-center justify-center py-16 px-8'>
                 <div className='w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mb-6'>
-                  <FileText size={48} className='text-gray-400' />
+                  <Image
+                    src='/assets/images/document.webp'
+                    alt='empty'
+                    width={300}
+                    height={370}
+                    className='w-full h-auto object-cover rounded-[16px]'
+                  />
                 </div>
                 <h3 className='text-xl font-semibold text-gray-900 mb-2'>
                   {getMonthName(new Date().getMonth() + 1)}{' '}
@@ -500,8 +507,8 @@ export default function MonthlyReports({ startupId }: { startupId?: string }) {
             onClick={() => setActiveSubTab(tab.id)}
             className={`px-4 py-2 text-sm font-medium transition rounded-[12px] ${
               activeSubTab === tab.id
-                ? 'bg-[#7A5AF8] text-white'
-                : 'text-gray-600 hover:bg-white'
+                ? 'bg-[#F5F5F5] text-black shadow-md'
+                : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
             {tab.label}

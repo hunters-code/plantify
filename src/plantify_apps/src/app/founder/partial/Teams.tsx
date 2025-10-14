@@ -141,7 +141,6 @@ export default function TeamSection({ startupId }: { startupId: string }) {
       ) : (
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
           {teamMembers.map(member => {
-            // Helper function to get photo URL from backend format
             const getPhotoUrl = (photo: [] | [string]) => {
               if (Array.isArray(photo) && photo.length > 0) {
                 return photo[0];
@@ -149,7 +148,6 @@ export default function TeamSection({ startupId }: { startupId: string }) {
               return null;
             };
 
-            // Handle both TeamMember and TeamMemberOverview types
             const photoUrl =
               'photo' in member ? getPhotoUrl(member.photo) : null;
             const isFounder = 'isFounder' in member ? member.isFounder : false;
@@ -158,53 +156,38 @@ export default function TeamSection({ startupId }: { startupId: string }) {
             const background = 'background' in member ? member.background : '';
 
             return (
-              <Card key={member.id.toString()} className='overflow-hidden'>
-                <div className='p-2'>
-                  {photoUrl ? (
-                    <Image
-                      src={photoUrl}
-                      alt={member.name}
-                      width={300}
-                      height={370}
-                      className='w-full h-[370px] object-cover rounded-xl'
-                    />
-                  ) : (
-                    <div className='w-full h-[370px] bg-gray-200 rounded-xl flex items-center justify-center'>
-                      <User size={64} className='text-gray-400' />
-                    </div>
-                  )}
-                </div>
+              <div
+                key={member.id.toString()}
+                className='bg-white rounded-[16px] p-2'
+              >
+                {/* Hapus p-2 agar tidak ada padding di sekitar gambar */}
+                {photoUrl ? (
+                  <Image
+                    src={photoUrl}
+                    alt={member.name}
+                    width={300}
+                    height={370}
+                    className='w-full h-[370px] object-cover rounded-[16px]'
+                  />
+                ) : (
+                  <div className='w-full h-[370px] bg-gray-200 flex items-center justify-center rounded-[16px]'>
+                    <User size={64} className='text-gray-400' />
+                  </div>
+                )}
+
                 <div className='flex items-center justify-between p-4'>
                   <div className='flex-1'>
                     <p className='text-gray-900 font-medium text-[16px]'>
                       {member.name}
                     </p>
                     <p className='text-gray-500 text-sm'>{member.role}</p>
-                    {isFounder && (
-                      <span className='inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1'>
-                        Founder
-                      </span>
-                    )}
-                    {email && (
-                      <p className='text-gray-400 text-xs mt-1'>{email}</p>
-                    )}
-                    {linkedin && (
-                      <p className='text-blue-500 text-xs mt-1 hover:underline'>
-                        <a
-                          href={linkedin}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                        >
-                          LinkedIn Profile
-                        </a>
-                      </p>
-                    )}
                   </div>
+
                   <Button variant='secondary' className='p-3'>
                     <MoreHorizontal size={18} className='text-gray-600' />
                   </Button>
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
