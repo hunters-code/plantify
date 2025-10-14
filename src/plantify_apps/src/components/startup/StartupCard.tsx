@@ -36,6 +36,7 @@ export interface StartupCardProps {
   fundedColor?: string;
   totalFunded?: number;
   fundingGoal?: number;
+  builtByCaffeineAI?: boolean;
   onViewDetails?: (id: string | number) => void;
   onInvest?: (id: string | number) => void;
   showLikeButton?: boolean;
@@ -64,6 +65,7 @@ export function StartupCard({
   fundedColor = '#22c55e',
   totalFunded,
   fundingGoal,
+  builtByCaffeineAI = false,
   onViewDetails,
   onInvest,
   showLikeButton = true,
@@ -164,6 +166,23 @@ export function StartupCard({
             </div>
           )}
           <div className='flex-1 min-w-0'>
+            {/* Caffeine.AI Label - Always reserve space for consistent positioning */}
+            <div className='mb-2 h-[26px] flex items-start'>
+              {builtByCaffeineAI && (
+                <span
+                  className='inline-block px-2 py-[2px] rounded-[8px] text-[14px] font-normal tracking-[-0.14px]'
+                  style={{
+                    fontFamily: '"Test Söhne Breit", sans-serif',
+                    fontWeight: 600,
+                    backgroundColor: '#DDF730',
+                    color: '#1D1D1D',
+                    border: '1px solid #DDF730',
+                  }}
+                >
+                  caffeine.ai
+                </span>
+              )}
+            </div>
             <h3 className='font-ibm text-[20px] font-normal text-neutral-950 leading-[1.4] tracking-[-0.2px]'>
               {title}
             </h3>

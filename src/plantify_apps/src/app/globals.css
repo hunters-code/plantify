@@ -4,7 +4,7 @@
 /* Custom fonts */
 @font-face {
   font-family: 'Test Söhne Breit';
-  src: url('/fonts/TestSöhneBreit-Halbfett.woff2') format('woff2');
+  src: url('/fonts/test-soehne-breit-halbfett.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;

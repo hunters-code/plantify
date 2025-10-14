@@ -26,6 +26,7 @@ export default function Button({
   variant = 'primary',
   className = '',
   leftIcon,
+  style,
   ...props
 }: ButtonProps) {
   const Comp = as === 'a' ? 'a' : 'button';
@@ -54,6 +55,7 @@ export default function Button({
     <Comp
       href={as === 'a' ? href : undefined}
       className={[...baseStyle, ...variants[variant], className].join(' ')}
+      style={style}
       {...props}
     >
       {leftIcon && <span className='flex-shrink-0'>{leftIcon}</span>}

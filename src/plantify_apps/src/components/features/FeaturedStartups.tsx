@@ -42,6 +42,9 @@ export default function FeaturedStartups() {
       fundedColor: fundedPercentage >= 1 ? '#22c55e' : '#3b82f6',
       totalFunded,
       fundingGoal,
+      builtByCaffeineAI: Array.isArray(startup.builtByCaffeineAI)
+        ? startup.builtByCaffeineAI.length > 0
+        : Boolean(startup.builtByCaffeineAI),
     };
   });
 
