@@ -12,7 +12,7 @@ const CardSkeleton: React.FC<CardSkeletonProps> = ({
   textRows = 3,
 }) => {
   return (
-    <div className='bg-neutral-100 p-6 rounded-[16px] animate-pulse space-y-4'>
+    <div className='bg-white p-6 rounded-[16px] animate-pulse space-y-4'>
       <Skeleton height={24} width='40%' />
       <SkeletonText lines={textRows} />
 

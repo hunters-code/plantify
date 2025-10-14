@@ -6,10 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import {
   Navbar,
-  ProductCard,
   Pagination,
   WhyPlantify,
   Footer,
+  StartupCard,
 } from '@/components';
 import { Button, CardSkeleton, Input } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,8 +39,38 @@ interface Startup {
 
 type FilterType = 'all' | 'available' | 'featured' | 'caffeineai';
 
+// Transform startup data to match StartupCard interface
+const transformStartupForCard = (startup: Startup) => {
+  const totalFunded = startup.fundedAmount || 0;
+  const fundingGoal = startup.targetAmount || 1;
+  const fundedPercentage = Math.min(totalFunded / fundingGoal, 1);
+  const fundedText = `${Math.round(fundedPercentage * 100)}% Funded`;
+
+  return {
+    id: startup.id,
+    image: startup.image,
+    title: startup.title,
+    description: startup.description,
+    category: startup.category.toLocaleUpperCase(),
+    riskLevel: startup.risk,
+    location: startup.location || 'Global',
+    employees: '5 employees', // Default since teamMembers field doesn't exist in Startup interface
+    nftPrice: `$${startup.nftPrice} ckUSDC`,
+    periodicReturn: `${startup.periodicReturns}`,
+    annualROI: `${startup.annualROI}`,
+    availability: '167 NFT', // Default availability since field doesn't exist in Startup interface
+    fundedText,
+    fundedPct: fundedPercentage,
+    fundedColor: fundedPercentage >= 1 ? '#22c55e' : '#3b82f6',
+    totalFunded,
+    fundingGoal,
+    builtByCaffeineAI: Array.isArray(startup.builtByCaffeineAI)
+      ? startup.builtByCaffeineAI.length > 0
+      : Boolean(startup.builtByCaffeineAI),
+  };
+};
+
 function ExploreContent() {
-  const { isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -70,8 +100,7 @@ function ExploreContent() {
     const fundingGoal = parseFloat(startup.totalFunding) || 50000;
     const nftPrice = parseFloat(startup.nftPrice) || 100;
     const totalNFTs = Math.floor(fundingGoal / nftPrice);
-    const fundedAmount =
-      Number(startup.totalFunded) || Math.floor(fundingGoal * 0.6);
+    const fundedAmount = Number(startup.totalFunded) || 0;
     const fundingProgress = Math.floor((fundedAmount / fundingGoal) * 100);
     const available =
       Number(startup.availableNFTs) || Math.floor(totalNFTs * 0.4);
@@ -85,7 +114,7 @@ function ExploreContent() {
       id: startup.id,
       image: startup.companyImages?.[0] || '/assets/images/product.png',
       title: startup.startupName,
-      location: startup.companyType || 'Unknown',
+      location: startup.location || 'Unknown',
       employees: 5,
       category: startup.companyType || 'Technology',
       risk: getRiskLevel(startup.companyType || 'Technology'),
@@ -138,8 +167,6 @@ function ExploreContent() {
     let matchesFilter = true;
     if (filter === 'available') {
       matchesFilter = startup.status === 'active' && startup.available > 0;
-    } else if (filter === 'featured') {
-      matchesFilter = startup.fundingProgress > 50;
     } else if (filter === 'caffeineai') {
       matchesFilter = startup.builtByCaffeineAI === true;
     }
@@ -202,7 +229,7 @@ function ExploreContent() {
   }, [fetchStartups, currentPage]);
 
   return (
-    <div className='bg-gray-50 text-gray-900 min-h-screen'>
+    <div className='bg-white text-gray-900 min-h-screen'>
       <Navbar />
 
       <div className='max-w-7xl mx-auto px-6 py-10 mb-32'>
@@ -261,16 +288,6 @@ function ExploreContent() {
             </span>
           </Button>
           <Button
-            onClick={() => handleFilterChange('featured')}
-            variant={filter === 'featured' ? 'primary' : 'secondary'}
-            className='flex items-center gap-1'
-          >
-            Featured
-            <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
-              {startups.filter(s => s.fundingProgress > 50).length}
-            </span>
-          </Button>
-          <Button
             onClick={() => handleFilterChange('caffeineai')}
             variant={filter === 'caffeineai' ? 'primary' : 'secondary'}
             className='flex items-center gap-1'
@@ -280,10 +297,24 @@ function ExploreContent() {
               fontSize: '14px',
               lineHeight: '140%',
               letterSpacing: '-1%',
+              backgroundColor: filter === 'caffeineai' ? '#DDF730' : '#1D1D1D',
+              color: filter === 'caffeineai' ? '#1D1D1D' : '#DDF730',
+              borderColor: filter === 'caffeineai' ? '#DDF730' : '#1D1D1D',
+              boxShadow:
+                filter === 'caffeineai'
+                  ? 'inset 0 3px 3px rgba(255,255,255,0.4), inset 0 -2px 1px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.16)'
+                  : 'inset 0 3px 3px rgba(255,255,255,0.1), inset 0 -2px 1px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2)',
             }}
           >
-            Caffeine.AI
-            <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
+            caffeine.ai
+            <span
+              className='ml-1 text-xs rounded-full h-6 w-6 flex items-center justify-center'
+              style={{
+                backgroundColor:
+                  filter === 'caffeineai' ? '#1D1D1D' : '#DDF730',
+                color: filter === 'caffeineai' ? '#DDF730' : '#1D1D1D',
+              }}
+            >
               {startups.filter(s => s.builtByCaffeineAI === true).length}
             </span>
           </Button>
@@ -324,7 +355,10 @@ function ExploreContent() {
           <>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
               {filteredStartups.map(startup => (
-                <ProductCard key={startup.id} {...startup} />
+                <StartupCard
+                  key={startup.id}
+                  {...transformStartupForCard(startup)}
+                />
               ))}
             </div>
 

@@ -305,7 +305,7 @@ function ExploreDetailContent() {
 
   if (loading) {
     return (
-      <div className='bg-gray-50 text-gray-900 min-h-screen'>
+      <div className='bg-white text-gray-900 min-h-screen'>
         <Navbar />
         <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
           {/* Skeleton Left (image gallery) */}
@@ -328,7 +328,7 @@ function ExploreDetailContent() {
 
   if (error || !startup) {
     return (
-      <div className='bg-gray-50 text-gray-900 min-h-screen'>
+      <div className='bg-white text-gray-900 min-h-screen'>
         <Navbar />
         <div className='flex justify-center items-center min-h-[60vh]'>
           <p>{error || 'Startup not found.'}</p>
@@ -350,7 +350,7 @@ function ExploreDetailContent() {
           />
 
           {/* Right Side */}
-          <Card className='bg-neutral-100 flex flex-col gap-4'>
+          <Card className='bg-white flex flex-col gap-4'>
             <div className='flex gap-2'>
               <Badge variant='primary' icon={<ThumbsUp size={16} />}>
                 Featured

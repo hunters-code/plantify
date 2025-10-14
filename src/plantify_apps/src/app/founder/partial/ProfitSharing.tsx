@@ -151,7 +151,7 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
 
   if (loading) {
     return (
-      <Card className='bg-neutral-100'>
+      <Card className='bg-white'>
         <div className='animate-pulse space-y-6'>
           <div className='grid grid-cols-4 gap-6'>
             {[1, 2, 3, 4].map(i => (
@@ -182,7 +182,7 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
 
   if (!startupId) {
     return (
-      <Card className='bg-neutral-100'>
+      <Card className='bg-white'>
         <div className='text-center py-12'>
           <h2 className='text-xl font-semibold mb-2'>No Startup Selected</h2>
           <p className='text-gray-500'>
@@ -194,7 +194,7 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
   }
 
   return (
-    <Card className='bg-neutral-100'>
+    <Card className='bg-white'>
       {/* Summary Cards */}
       <div className='grid grid-cols-4 gap-6 mb-8'>
         <Card className='text-center p-4'>
@@ -294,7 +294,7 @@ export default function ProfitSharing({ startupId }: ProfitSharingProps) {
             <h3 className='text-xl font-semibold mb-4'>
               {getMonthName(currentMonth)} {currentYear} Payment
             </h3>
-            <div className='bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4'>
+            <div className='bg-white border border-gray-200 rounded-lg p-4 mb-4'>
               <p className='text-gray-600'>
                 No payment due for this month. Create a monthly report to
                 generate profit sharing payments.

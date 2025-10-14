@@ -3,13 +3,13 @@ import { TrendingUp } from 'lucide-react';
 export default function Overview({ startup }) {
   if (!startup) {
     return (
-      <div className='bg-neutral-100 p-4 rounded-lg'>
+      <div className='bg-white p-4 rounded-lg'>
         <p className='text-gray-500'>Loading startup information...</p>
       </div>
     );
   }
   return (
-    <div className='bg-neutral-100 p-4 rounded-lg'>
+    <div className='bg-white p-4 rounded-lg'>
       {/* Company Overview */}
       <div>
         <h2 className='text-xl font-semibold font-ibm'>Company Overview</h2>
@@ -51,7 +51,7 @@ export default function Overview({ startup }) {
         <h3 className='text-lg font-medium font-ibm'>Competitive Advantage</h3>
         {startup.competitiveAdvantage ? (
           <div className='mt-2'>
-            <div className='flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 text-sm'>
+            <div className='flex items-center gap-2 bg-white rounded-lg px-3 py-2 text-sm'>
               <span className='w-2 h-2 bg-green-500 rounded-full' />
               {startup.competitiveAdvantage}
             </div>

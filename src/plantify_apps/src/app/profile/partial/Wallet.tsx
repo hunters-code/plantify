@@ -29,7 +29,7 @@ export default function WalletPage() {
   return (
     <div className='mx-auto space-y-6'>
       {/* ICP Wallet Balance */}
-      <section className='bg-gray-50 p-6 rounded-2xl'>
+      <section className='bg-white p-6 rounded-2xl'>
         <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4'>
           <h2 className='text-xl font-semibold flex items-center gap-2'>
             <ICPIcon />
@@ -59,7 +59,7 @@ export default function WalletPage() {
       </section>
 
       {/* Withdraw History */}
-      <section className='bg-gray-50 p-6 rounded-2xl'>
+      <section className='bg-white p-6 rounded-2xl'>
         <h2 className='text-xl font-semibold mb-4'>Withdraw History</h2>
         <div className='space-y-4'>
           {withdrawHistory.map((tx, index) => (
@@ -83,7 +83,7 @@ export default function WalletPage() {
       </section>
 
       {/* Wallet Informations */}
-      <section className='bg-gray-50 p-6 rounded-2xl'>
+      <section className='bg-white p-6 rounded-2xl'>
         <h2 className='text-xl font-semibold mb-4'>Wallet Informations</h2>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {/* Left Side */}

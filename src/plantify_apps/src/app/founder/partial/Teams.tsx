@@ -67,7 +67,7 @@ export default function TeamSection({ startupId }: { startupId: string }) {
 
   if (loading) {
     return (
-      <div className='bg-neutral-100 rounded-[16px] p-6'>
+      <div className='bg-white rounded-[16px] p-6'>
         <div className='animate-pulse'>
           <div className='h-8 bg-gray-300 rounded mb-6 w-1/3'></div>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
@@ -99,7 +99,7 @@ export default function TeamSection({ startupId }: { startupId: string }) {
 
   if (!startupId) {
     return (
-      <div className='bg-neutral-100 rounded-[16px] p-6'>
+      <div className='bg-white rounded-[16px] p-6'>
         <div className='text-center py-8'>
           <h2 className='text-2xl font-semibold mb-2'>No Startup Selected</h2>
           <p className='text-gray-500'>
@@ -111,7 +111,7 @@ export default function TeamSection({ startupId }: { startupId: string }) {
   }
 
   return (
-    <div className='bg-neutral-100 rounded-[16px] p-6'>
+    <div className='bg-white rounded-[16px] p-6'>
       {/* Header */}
       <div className='flex justify-between items-center mb-6'>
         <h2 className='text-2xl font-semibold text-gray-900 font-ibm'>

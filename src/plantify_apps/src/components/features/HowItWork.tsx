@@ -118,7 +118,7 @@ export default function HowItWork() {
               className={`${pillBase} ${
                 tab === 'founders'
                   ? 'border border-[#E5E5E5] bg-[#F5F5F5] text-gray-900 shadow-[inset_0_3px_3px_rgba(255,255,255,0.4),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)]'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  : 'bg-white text-gray-700 hover:bg-white'
               }`}
             >
               <ShieldUser size={20} />
@@ -130,7 +130,7 @@ export default function HowItWork() {
               className={`${pillBase} ${
                 tab === 'investors'
                   ? 'border border-[#E5E5E5] bg-[#F5F5F5] text-gray-900 shadow-[inset_0_3px_3px_rgba(255,255,255,0.4),inset_0_-2px_1px_rgba(0,0,0,0.25),0_2px_4px_rgba(0,0,0,0.16)]'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  : 'bg-white text-gray-700 hover:bg-white'
               }`}
             >
               <Camera size={20} />

@@ -175,7 +175,7 @@ export default function RegisterFounder() {
 
   if (authLoading) {
     return (
-      <div className='bg-gray-50 text-gray-900 min-h-screen flex flex-col'>
+      <div className='bg-white text-gray-900 min-h-screen flex flex-col'>
         <Navbar />
         <div className='flex-1 flex flex-col items-center justify-center'>
           <Loader2 size={48} className='text-purple-600 animate-spin' />
@@ -185,7 +185,7 @@ export default function RegisterFounder() {
   }
 
   return (
-    <div className='bg-gray-50 text-gray-900 min-h-screen'>
+    <div className='bg-white text-gray-900 min-h-screen'>
       <Navbar />
 
       <div className='max-w-7xl mx-auto mt-8 mb-8 px-4'>

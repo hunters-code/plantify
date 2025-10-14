@@ -74,7 +74,7 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
 
   if (loading) {
     return (
-      <div className='bg-neutral-100 rounded-[16px] p-6'>
+      <div className='bg-white rounded-[16px] p-6'>
         <div className='animate-pulse space-y-4'>
           <div className='h-8 bg-gray-300 rounded w-1/3'></div>
           <div className='h-4 bg-gray-200 rounded w-2/3'></div>
@@ -104,7 +104,7 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
 
   if (!startup) {
     return (
-      <div className='bg-neutral-100 rounded-[16px] p-6'>
+      <div className='bg-white rounded-[16px] p-6'>
         <div className='text-center py-8'>
           <h2 className='text-xl font-semibold mb-2'>No Startup Data</h2>
           <p className='text-gray-500'>Unable to load startup information.</p>
@@ -138,7 +138,7 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
   const nftSalesPercentage = totalNFTs > 0 ? (nftSales / totalNFTs) * 100 : 0;
 
   return (
-    <Card className='bg-neutral-100'>
+    <Card className='bg-white'>
       <div className='flex justify-between items-center mb-4'>
         <div className='flex flex-col gap-2'>
           <div className='flex gap-3 items-center'>

@@ -36,7 +36,7 @@ export default function FileUpload({
           {label}
         </label>
       )}
-      <div className='border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#7A5AF8] transition-colors cursor-pointer bg-gray-50'>
+      <div className='border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#7A5AF8] transition-colors cursor-pointer bg-white'>
         <input
           type='file'
           multiple

@@ -8,7 +8,7 @@ export default function Investment() {
   return (
     <div className='text-sm'>
       {/* Investment Statistics */}
-      <section className='bg-gray-50 p-4 rounded-lg'>
+      <section className='bg-white p-4 rounded-lg'>
         <h2 className='text-lg font-semibold mb-3'>Investment Statistics</h2>
         <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
           {[
@@ -29,7 +29,7 @@ export default function Investment() {
       </section>
 
       {/* Risk Profile Settings */}
-      <section className='bg-gray-50 p-4 rounded-lg mt-4'>
+      <section className='bg-white p-4 rounded-lg mt-4'>
         <h2 className='text-lg font-semibold mb-4'>Risk Profile Settings</h2>
         <div className='space-y-4'>
           {[
@@ -72,7 +72,7 @@ export default function Investment() {
               className={`flex flex-col gap-2 border rounded-2xl p-4 cursor-pointer transition ${
                 selectedProfile === profile.id
                   ? 'border-indigo-500 bg-indigo-50/50'
-                  : 'border-gray-200 hover:bg-gray-50'
+                  : 'border-gray-200 hover:bg-white'
               }`}
             >
               <div className='flex items-center gap-2'>
@@ -108,9 +108,9 @@ export default function Investment() {
       </section>
 
       {/* Investment Settings */}
-      <section className='bg-gray-50 p-4 rounded-lg mt-4'>
+      <section className='bg-white p-4 rounded-lg mt-4'>
         <h2 className='text-lg font-semibold mb-4'>Investment Settings</h2>
-        <div className='bg-gray-50 rounded-2xl p-4 space-y-4'>
+        <div className='bg-white rounded-2xl p-4 space-y-4'>
           <div className='grid md:grid-cols-2 gap-4'>
             <div>
               <label className='block text-gray-700 text-xs mb-1'>

@@ -77,7 +77,7 @@ export default function FounderTeam({ startup }) {
       {achievements.length > 0 && (
         <div>
           <h2 className='text-2xl font-semibold mb-6'>Key Achievements</h2>
-          <div className='space-y-4 bg-gray-50 rounded-lg p-6'>
+          <div className='space-y-4 bg-white rounded-lg p-6'>
             {achievements.map((achievement, index) => (
               <div
                 key={index}
@@ -159,7 +159,7 @@ export default function FounderTeam({ startup }) {
 
       {/* Additional Information */}
       {(startup.founderBackground || startup.advisors) && (
-        <div className='bg-gray-50 rounded-lg p-6'>
+        <div className='bg-white rounded-lg p-6'>
           <h2 className='text-xl font-semibold mb-4'>Additional Information</h2>
           <div className='space-y-4'>
             {startup.founderBackground && (

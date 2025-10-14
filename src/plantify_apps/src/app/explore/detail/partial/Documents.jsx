@@ -12,7 +12,7 @@ import { Alert, Button, Card } from '../../../../components/ui';
 export default function Documents({ startup }) {
   if (!startup) {
     return (
-      <div className='max-w-2xl mt-8 bg-neutral-100 p-4 rounded-lg'>
+      <div className='max-w-2xl mt-8 bg-white p-4 rounded-lg'>
         <p className='text-gray-500'>Loading documents...</p>
       </div>
     );
@@ -25,7 +25,7 @@ export default function Documents({ startup }) {
 
   const hasWebsite = startup.website && startup.website.trim() !== '';
   return (
-    <Card className='max-w-2xl mt-8 bg-neutral-100'>
+    <Card className='max-w-2xl mt-8 bg-white'>
       <h2 className='text-xl font-semibold text-gray-900 font-ibm'>
         Documents & Resources
       </h2>

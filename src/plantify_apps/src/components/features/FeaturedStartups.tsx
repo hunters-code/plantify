@@ -1,129 +1,52 @@
 'use client';
 
-import { CircleDollarSign, Coins, Eye, Globe, Loader2 } from 'lucide-react';
-import Image from 'next/image';
+import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
 
-import { useFeaturedStartup } from '@/hooks/useFeaturedStartup';
-
-interface StartupCardProps {
-  id: string | number;
-  image: string;
-  title: string;
-  category?: string;
-  nftPrice: string;
-  periodicReturn: string;
-  fundedText: string;
-  fundedPct?: number;
-  fundedColor?: string;
-}
-
-export function StartupCard({
-  id,
-  image,
-  title,
-  category,
-  nftPrice,
-  periodicReturn,
-  fundedText,
-  fundedPct = 0.45,
-  fundedColor = '#22c55e',
-}: StartupCardProps) {
-  const router = useRouter();
-
-  const handleViewDetails = () => {
-    router.push(`/explore/detail/${id}`);
-  };
-
-  return (
-    <div className='group rounded-2xl bg-white ring-1 ring-black/5 shadow-sm hover:shadow-lg transition-shadow overflow-hidden'>
-      {/* Image with padding */}
-      <div className='p-3'>
-        <div className='relative overflow-hidden rounded-xl h-[250px]'>
-          <Image src={image} alt={title} fill className='object-cover' />
-          {category && (
-            <span className='absolute right-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-medium ring-1 ring-black/10 shadow-sm'>
-              {category}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className='px-4 pb-4'>
-        <h3 className='font-ibm text-[15px] sm:text-[16px] font-semibold text-gray-900 leading-tight'>
-          {title}
-        </h3>
-
-        <ul className='mt-3 space-y-1.5 text-[13px] text-gray-700'>
-          <li className='flex items-center gap-2'>
-            <Coins size={14} className='text-gray-500' />
-            <span className='text-gray-800'>
-              NFT Price: <span className='font-semibold'>{nftPrice}</span>
-            </span>
-          </li>
-          <li className='flex items-center gap-2'>
-            <CircleDollarSign size={14} className='text-gray-500' />
-            <span className='text-gray-800'>
-              Periodic Returns:{' '}
-              <span className='font-semibold'>{periodicReturn}</span>
-            </span>
-          </li>
-          <li className='flex items-center gap-2'>
-            <span className='inline-block h-2 w-2 rounded-full bg-amber-500' />
-            <span className='text-gray-800'>
-              Funding Progress:{' '}
-              <span className='font-semibold text-amber-600'>{fundedText}</span>
-            </span>
-          </li>
-        </ul>
-
-        {/* Progress */}
-        <div className='mt-2 h-1.5 w-full rounded-full bg-gray-200'>
-          <div
-            className='h-1.5 rounded-full'
-            style={{
-              width: `${Math.min(100, Math.max(0, fundedPct * 100))}%`,
-              backgroundColor: fundedColor,
-            }}
-          />
-        </div>
-
-        {/* CTA */}
-        <div className='mt-4'>
-          <button
-            onClick={handleViewDetails}
-            className='w-full inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 text-[13px] font-medium text-gray-900 px-3 py-2 shadow hover:bg-white transition'
-          >
-            <Eye size={20} /> View Details
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { useFeaturedStartupsPaginated } from '@/hooks/useFeaturedStartupsPaginated';
+import {
+  StartupCard,
+  StartupCardProps,
+} from '@/components/startup/StartupCard';
+import { Button } from '@/components/ui';
+import { GlobeIcon } from '../icons';
 
 export default function FeaturedStartups() {
   const router = useRouter();
-  const { startup, loading, error } = useFeaturedStartup();
+  const { startups, loading, error } = useFeaturedStartupsPaginated();
 
   // Transform backend startup data to match UI requirements
-  const featuredStartups: StartupCardProps[] = startup
-    ? [
-        {
-          id: startup.id,
-          image: startup.companyLogo?.[0] || '/assets/images/icon-startup.png',
-          title: startup.startupName,
-          category: startup.sector,
-          nftPrice: `$${startup.nftPrice}`,
-          periodicReturn: `${startup.periodicProfitSharing} Annual`,
-          fundedText: 'Featured',
-          fundedPct: 1.0,
-          fundedColor: '#22c55e',
-        },
-      ]
-    : [];
+  const featuredStartups: StartupCardProps[] = startups.map(startup => {
+    const totalFunded = Number(startup.totalFunded || 0);
+    const fundingGoal = Number(startup.fundingGoal || 1); // Avoid division by zero
+    const fundedPercentage = Math.min(totalFunded / fundingGoal, 1);
+    const fundedAmount = totalFunded;
+    const fundedText = `${Math.round(fundedPercentage * 100)}% Funded`;
+
+    return {
+      id: startup.id,
+      image: startup.companyImages?.[0] || '/assets/images/icon-startup.png',
+      title: startup.startupName,
+      description: startup.description,
+      category: startup.sector,
+      riskLevel: 'Moderate Risk', // Default risk level
+      location: startup.location || 'Global',
+      employees: '12 employees', // Default employee count
+      logo: startup.companyLogo?.[0],
+      nftPrice: `$${startup.nftPrice} ckUSDC`,
+      periodicReturn: `$${startup.periodicProfitSharing}`,
+      annualROI: `${startup.periodicProfitSharing}`,
+      availability: '167 NFT', // Default availability
+      fundedText,
+      fundedPct: fundedPercentage,
+      fundedColor: fundedPercentage >= 1 ? '#22c55e' : '#3b82f6',
+      totalFunded,
+      fundingGoal,
+      builtByCaffeineAI: Array.isArray(startup.builtByCaffeineAI)
+        ? startup.builtByCaffeineAI.length > 0
+        : Boolean(startup.builtByCaffeineAI),
+    };
+  });
 
   const handleExploreAll = () => {
     router.push('/explore');
@@ -135,14 +58,16 @@ export default function FeaturedStartups() {
       <div className='pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-white/0 via-white/0 to-white/0' />
 
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-        <h2 className='text-center font-ibm text-2xl sm:text-3xl font-semibold text-white mb-6'>
+        <h2 className='text-center font-geist text-2xl sm:text-3xl font-semibold text-white mb-16'>
           Featured Startups
         </h2>
 
         {loading && (
           <div className='flex justify-center items-center py-12'>
             <Loader2 size={32} className='animate-spin text-white' />
-            <span className='ml-3 text-white'>Loading featured startup...</span>
+            <span className='ml-3 text-white'>
+              Loading featured startups...
+            </span>
           </div>
         )}
 
@@ -152,7 +77,7 @@ export default function FeaturedStartups() {
               <div className='text-red-600 mr-3'>⚠️</div>
               <div>
                 <h3 className='text-red-800 font-medium'>
-                  Error Loading Featured Startup
+                  Error Loading Featured Startups
                 </h3>
                 <p className='text-red-600 text-sm mt-1'>{error}</p>
               </div>
@@ -171,10 +96,10 @@ export default function FeaturedStartups() {
             {featuredStartups.length === 0 && (
               <div className='text-center py-12'>
                 <div className='text-gray-400 mb-4'>
-                  <Globe size={48} className='mx-auto' />
+                  <GlobeIcon className='mx-auto' />
                 </div>
                 <h3 className='text-lg font-medium text-white mb-2'>
-                  No featured startup available
+                  No featured startups available
                 </h3>
                 <p className='text-gray-300'>
                   Check back later for new investment opportunities.
@@ -184,14 +109,14 @@ export default function FeaturedStartups() {
           </>
         )}
 
-        <div className='mt-6 flex justify-center'>
-          <button
+        <div className='mt-16 flex justify-center'>
+          <Button
             onClick={handleExploreAll}
-            className='inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow hover:bg-gray-50'
+            leftIcon={<GlobeIcon />}
+            variant='secondary'
           >
-            <Globe size={20} />
             Explore All Startups
-          </button>
+          </Button>
         </div>
       </div>
     </section>

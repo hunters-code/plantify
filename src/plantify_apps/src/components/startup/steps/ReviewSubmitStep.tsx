@@ -178,7 +178,7 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
         </div>
 
         {/* NFT Details */}
-        <div className='mt-6 p-4 bg-gray-50 rounded-xl'>
+        <div className='mt-6 p-4 bg-white rounded-xl'>
           <div className='grid grid-cols-2 gap-4 text-sm'>
             <div>
               <span className='text-gray-600'>NFT Price:</span>

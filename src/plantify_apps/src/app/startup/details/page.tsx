@@ -62,7 +62,7 @@ export default function StartupDetailsPage() {
 
   return (
     <Layout>
-      <div className='min-h-screen bg-gray-50 py-8'>
+      <div className='min-h-screen bg-white py-8'>
         <div className='max-w-6xl mx-auto px-4'>
           <Card className='overflow-hidden'>
             <div className='p-8'>
@@ -158,7 +158,7 @@ export default function StartupDetailsPage() {
 
                 {/* Right side */}
                 <div className='space-y-6'>
-                  <Card className='bg-gray-50'>
+                  <Card className='bg-white'>
                     <h3 className='text-lg font-semibold text-gray-900 mb-4'>
                       Investment Details
                     </h3>
@@ -194,7 +194,7 @@ export default function StartupDetailsPage() {
                     )}
                   </Card>
 
-                  <Card className='bg-gray-50'>
+                  <Card className='bg-white'>
                     <h3 className='text-lg font-semibold text-gray-900 mb-4'>
                       Team
                     </h3>

@@ -67,7 +67,7 @@ export default function FormMultiStep({
       </div>
 
       {/* Content */}
-      <div className='bg-neutral-100 rounded-2xl shadow-sm p-8'>
+      <div className='bg-white rounded-2xl shadow-sm p-8'>
         {steps.find(s => s.id === currentStep)?.content}
       </div>
 

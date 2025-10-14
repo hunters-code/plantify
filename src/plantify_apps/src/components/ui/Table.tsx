@@ -16,7 +16,7 @@ export default function Table({
 }: TableProps) {
   const baseStyle = 'w-full border-collapse text-sm';
   const stripedStyle = striped ? 'divide-y divide-gray-200' : '';
-  const hoverStyle = hover ? '[&_tbody_tr:hover]:bg-gray-50' : '';
+  const hoverStyle = hover ? '[&_tbody_tr:hover]:bg-white' : '';
 
   return (
     <div className='overflow-x-auto'>

@@ -67,7 +67,7 @@ const FinancialProjectionsStep: React.FC<FinancialProjectionsStepProps> = ({
               value={formData.nftPrice || ''}
               readOnly
               placeholder='100'
-              className='w-full px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-gray-50 text-gray-600 text-[16px]'
+              className='w-full px-4 py-3 rounded-[12px] border border-[#E5E5E5] bg-white text-gray-600 text-[16px]'
             />
             <p className='mt-1 text-xs text-gray-500'>
               Auto-calculated based on funding goal. You can adjust manually.
