@@ -270,40 +270,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
         </Button>
       </div>
 
-      {voteHistory.length > 0 && (
-        <Card className='p-6'>
-          <h3 className='text-lg font-semibold text-gray-900 mb-4'>
-            Your Voting History
-          </h3>
-          <div className='grid grid-cols-3 gap-6'>
-            <div>
-              <p className='text-sm text-gray-600 mb-1'>Total Votes</p>
-              <p className='text-2xl font-bold text-gray-900'>
-                {voteHistory.length}
-              </p>
-            </div>
-            <div>
-              <p className='text-sm text-gray-600 mb-1'>Approved</p>
-              <p className='text-2xl font-bold text-green-600'>
-                {
-                  voteHistory.filter(v => v.voteType.approved !== undefined)
-                    .length
-                }
-              </p>
-            </div>
-            <div>
-              <p className='text-sm text-gray-600 mb-1'>Rejected</p>
-              <p className='text-2xl font-bold text-red-600'>
-                {
-                  voteHistory.filter(v => v.voteType.rejected !== undefined)
-                    .length
-                }
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
-
+  
       {pendingReports.length === 0 ? (
         <div className='p-8 bg-neutral-100 rounded-[16px]'>
           <div className='text-center'>
@@ -417,7 +384,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                     </div>
                   </div>
 
-                  <div className='flex gap-3'>
+                  <div className='flex gap-3 justify-end'>
                     <Button
                       variant='secondary'
                       className='flex items-center gap-2'
@@ -464,44 +431,6 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
         </div>
       )}
 
-      {voteHistory.length > 0 && (
-        <div>
-          <h3 className='text-xl font-semibold text-gray-900 mb-6'>
-            Recent Voting Activity
-          </h3>
-          <div className='space-y-3'>
-            {voteHistory.slice(0, 5).map(vote => (
-              <Card key={vote.id} className='p-4'>
-                <div className='flex items-center justify-between'>
-                  <div>
-                    <p className='font-medium text-gray-900'>
-                      Report {vote.reportId.slice(0, 12)}...
-                    </p>
-                    <p className='text-sm text-gray-600'>
-                      {formatDate(vote.timestamp)}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      vote.voteType.approved
-                        ? 'success'
-                        : vote.voteType.rejected
-                          ? 'destructive'
-                          : 'secondary'
-                    }
-                  >
-                    {vote.voteType.approved
-                      ? 'Approved'
-                      : vote.voteType.rejected
-                        ? 'Rejected'
-                        : 'Abstained'}
-                  </Badge>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
