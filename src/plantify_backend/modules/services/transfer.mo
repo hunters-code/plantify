@@ -563,8 +563,7 @@ module Transfer {
             switch (transaction.operation) {
               case (#Transfer(transfer)) {
                 // Check if this is the expected transfer
-                // transfer.from == fromAccount and transfer.to == toAccount and transfer.amount == expectedAmount
-                if (transfer.to == toAccount and transfer.amount == expectedAmount) {
+                if (transfer.from == fromAccount and transfer.to == toAccount and transfer.amount == expectedAmount) {
                   #ok({
                     verified = true;
                     transactionId = Nat.toText(blockIndex);

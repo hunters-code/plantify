@@ -114,23 +114,6 @@ module NFTPurchase {
             };
           };
 
-          // Check if Plantify canister has sufficient allowance from investor
-          let plantifySpenderAccount : Types.TransferAccount = {
-            owner = Principal.fromText(config.plantifyAccount);
-            subaccount = null;
-          };
-
-          switch (await transferService.checkAllowance(investorAccount, plantifySpenderAccount, "ckUSDC")) {
-            case (#err(error)) {
-              return #Error("Failed to check allowance: " # error);
-            };
-            case (#ok(allowanceInfo)) {
-              if (allowanceInfo.allowance < totalRequiredAmount) {
-                return #Error("Insufficient allowance. Required: " # Nat.toText(totalRequiredAmount) # ", Allowed: " # Nat.toText(allowanceInfo.allowance) # ". Please approve the Plantify canister to spend your ckUSDC tokens first.");
-              };
-            };
-          };
-
           // Create purchase record
           let purchaseId = "purchase_" # Nat.toText(nextPurchaseId);
           nextPurchaseId += 1;

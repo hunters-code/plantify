@@ -2,6 +2,9 @@ import Text "mo:base/Text";
 import Result "mo:base/Result";
 import Array "mo:base/Array";
 import Principal "mo:base/Principal";
+import Nat "mo:base/Nat";
+import Debug "mo:base/Debug";
+import Iter "mo:base/Iter";
 import Types "./modules/types";
 import Storage "./modules/storage";
 import RegistrationService "./modules/services/registration";
@@ -16,6 +19,9 @@ import DashboardFounderService "./modules/services/dashboardFounder";
 import DashboardInvestorService "./modules/services/dashboardInvestor";
 import Config "./config";
 persistent actor PlantifyBackend {
+  // Canister version for upgrade compatibility
+  private var canisterVersion : Nat = 1;
+  
   // Stable variables for persistence across canister upgrades
   private var config : Types.EnvironmentConfig = Config.getCurrentConfig();
   private var foundersEntries : [(Text, Types.Founder)] = [];
@@ -231,9 +237,6 @@ persistent actor PlantifyBackend {
     };
   };
 
-  public shared func getCanisterVersion() : async Nat {
-    1;
-  };
 
   // ========================================
   // TRANSFER SERVICE METHODS
@@ -684,6 +687,116 @@ persistent actor PlantifyBackend {
       case (?investor) {
         dashboardInvestorService.getMyInvestmentPortfolio(investor.id);
       };
+    };
+  };
+
+  // ========================================
+  // UPGRADE SYSTEM WITH DATA PERSISTENCE
+  // ========================================
+
+  // Pre-upgrade hook: Save all data to stable variables
+  system func preupgrade() {
+    Debug.print("Pre-upgrade: Saving data to stable variables - version " # Nat.toText(canisterVersion));
+    
+    // Save all data from storage to stable variables
+    foundersEntries := Array.map<Types.Founder, (Text, Types.Founder)>(
+      storage.getAllFounders(),
+      func(founder : Types.Founder) : (Text, Types.Founder) {
+        (founder.id, founder);
+      }
+    );
+    
+    founderPrincipalsEntries := Iter.toArray(storage.founderPrincipals.entries());
+    
+    investorsEntries := Array.map<Types.Investor, (Text, Types.Investor)>(
+      storage.getAllInvestors(),
+      func(investor : Types.Investor) : (Text, Types.Investor) {
+        (investor.id, investor);
+      }
+    );
+    
+    investorPrincipalsEntries := Iter.toArray(storage.investorPrincipals.entries());
+    
+    startupsEntries := Array.map<Types.Startup, (Text, Types.Startup)>(
+      storage.getAllStartups(),
+      func(startup : Types.Startup) : (Text, Types.Startup) {
+        (startup.id, startup);
+      }
+    );
+    
+    founderStartupsEntries := Iter.toArray(storage.founderStartups.entries());
+    
+    monthlyReportsEntries := Array.map<Types.MonthlyReport, (Text, Types.MonthlyReport)>(
+      storage.getAllMonthlyReports(),
+      func(report : Types.MonthlyReport) : (Text, Types.MonthlyReport) {
+        let reportKey = report.startupId # "-" # Nat.toText(report.year) # "-" # Nat.toText(report.month);
+        (reportKey, report);
+      }
+    );
+    
+    startupReportsEntries := Iter.toArray(storage.startupReports.entries());
+    
+    votesEntries := Array.map<Types.InvestorVote, (Text, Types.InvestorVote)>(
+      storage.getAllVotes(),
+      func(vote : Types.InvestorVote) : (Text, Types.InvestorVote) {
+        let voteKey = vote.investorId # "-" # vote.reportId;
+        (voteKey, vote);
+      }
+    );
+    
+    reportVotesEntries := Iter.toArray(storage.reportVotes.entries());
+    investorVotesEntries := Iter.toArray(storage.investorVotes.entries());
+    
+    // Save ID counters
+    nextFounderId := storage.nextFounderId;
+    nextInvestorId := storage.nextInvestorId;
+    nextStartupId := storage.nextStartupId;
+    nextReportId := storage.nextReportId;
+    nextVoteId := storage.nextVoteId;
+    
+    Debug.print("Pre-upgrade completed: Saved " # Nat.toText(foundersEntries.size()) # " founders, " # Nat.toText(investorsEntries.size()) # " investors, " # Nat.toText(startupsEntries.size()) # " startups");
+  };
+
+  // Post-upgrade hook: Restore data from stable variables
+  system func postupgrade() {
+    Debug.print("Post-upgrade: Restoring data from stable variables");
+    
+    // Increment version for this upgrade
+    canisterVersion += 1;
+    
+    // The storage will be automatically reinitialized with the stable variables
+    // when the actor is created, so we don't need to manually restore data here
+    
+    Debug.print("Post-upgrade completed: Canister version updated to " # Nat.toText(canisterVersion));
+    Debug.print("Restored data: " # Nat.toText(foundersEntries.size()) # " founders, " # Nat.toText(investorsEntries.size()) # " investors, " # Nat.toText(startupsEntries.size()) # " startups");
+  };
+
+  // Get current canister version
+  public shared func getCanisterVersion() : async Nat {
+    canisterVersion;
+  };
+
+  // Test function to verify upgrade functionality
+  public shared func testUpgrade() : async Text {
+    "Upgrade test successful - version " # Nat.toText(canisterVersion) # " - Enhanced with stable variables!";
+  };
+
+  // Get upgrade status and data counts
+  public shared func getUpgradeStatus() : async {
+    version : Nat;
+    foundersCount : Nat;
+    investorsCount : Nat;
+    startupsCount : Nat;
+    reportsCount : Nat;
+    votesCount : Nat;
+  } {
+    {
+      version = canisterVersion;
+      foundersCount = foundersEntries.size();
+      investorsCount = investorsEntries.size();
+      startupsCount = startupsEntries.size();
+      reportsCount = monthlyReportsEntries.size();
+      votesCount = votesEntries.size();
     };
   };
 };

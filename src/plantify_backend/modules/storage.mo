@@ -563,8 +563,8 @@ module Storage {
                 0;
               };
 
-              // For now, set totalFunded to 0 - this would need to be calculated from NFT purchases
-              let totalFunded = 0;
+              // Use the actual totalFunded from the startup record
+              let totalFunded = startup.totalFunded;
 
               {
                 id = startup.id;
@@ -727,9 +727,8 @@ module Storage {
             0;
           };
 
-          // For now, set totalFunded to 0 - this would need to be calculated from NFT purchases
-          // This is a placeholder that should be replaced with actual calculation
-          let totalFunded = 0;
+          // Use the actual totalFunded from the startup record
+          let totalFunded = startup.totalFunded;
 
           {
             id = startup.id;
