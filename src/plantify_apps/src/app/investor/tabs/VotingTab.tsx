@@ -270,42 +270,9 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
         </Button>
       </div>
 
-      {voteHistory.length > 0 && (
-        <Card className='p-6'>
-          <h3 className='text-lg font-semibold text-gray-900 mb-4'>
-            Your Voting History
-          </h3>
-          <div className='grid grid-cols-3 gap-6'>
-            <div>
-              <p className='text-sm text-gray-600 mb-1'>Total Votes</p>
-              <p className='text-2xl font-bold text-gray-900'>
-                {voteHistory.length}
-              </p>
-            </div>
-            <div>
-              <p className='text-sm text-gray-600 mb-1'>Approved</p>
-              <p className='text-2xl font-bold text-green-600'>
-                {
-                  voteHistory.filter(v => v.voteType.approved !== undefined)
-                    .length
-                }
-              </p>
-            </div>
-            <div>
-              <p className='text-sm text-gray-600 mb-1'>Rejected</p>
-              <p className='text-2xl font-bold text-red-600'>
-                {
-                  voteHistory.filter(v => v.voteType.rejected !== undefined)
-                    .length
-                }
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
-
+  
       {pendingReports.length === 0 ? (
-        <Card className='p-8'>
+        <div className='p-8 bg-neutral-100 rounded-[16px]'>
           <div className='text-center'>
             <FileText className='w-12 h-12 text-gray-400 mx-auto mb-4' />
             <h3 className='text-lg font-medium text-gray-900 mb-2'>
@@ -315,7 +282,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
               There are currently no monthly reports that require your vote.
             </p>
           </div>
-        </Card>
+        </div>
       ) : (
         <div className='space-y-6'>
           {pendingReports.map(report => {
@@ -325,9 +292,9 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
             return (
               <div
                 key={report.id}
-                className='bg-white rounded-lg border border-gray-200 p-6'
+                className='bg-neutral-100 rounded-[16px] border border-gray-200 p-6'
               >
-                <div className='bg-white rounded-lg p-6'>
+                <div className='p-6'>
                   <div className='flex items-center justify-between mb-8'>
                     <div className='flex items-center gap-3'>
                       <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
@@ -365,22 +332,22 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                     </div>
                   </div>
 
-                  <div className='grid grid-cols-3 gap-12 mb-8'>
-                    <div>
+                  <div className='grid grid-cols-3 gap-4 mb-8'>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Revenue</p>
                       <p className='text-2xl font-bold text-gray-900'>
                         ${report.revenue.toLocaleString()}
                       </p>
                     </div>
 
-                    <div>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Expenses</p>
                       <p className='text-2xl font-bold text-red-600'>
                         ${report.expenses.toLocaleString()}
                       </p>
                     </div>
 
-                    <div>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Profit</p>
                       <p className='text-2xl font-bold text-green-600'>
                         ${report.profit.toLocaleString()}
@@ -388,8 +355,8 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                     </div>
                   </div>
 
-                  <div className='grid grid-cols-3 gap-12 mb-8'>
-                    <div>
+                  <div className='grid grid-cols-3 gap-4 mb-8'>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>
                         Profit Sharing
                       </p>
@@ -398,7 +365,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                       </p>
                     </div>
 
-                    <div>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Status</p>
                       <Badge
                         variant={
@@ -409,7 +376,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                       </Badge>
                     </div>
 
-                    <div>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Investors</p>
                       <p className='text-2xl font-bold text-gray-900'>
                         {report.investorCount}
@@ -417,7 +384,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                     </div>
                   </div>
 
-                  <div className='flex gap-3'>
+                  <div className='flex gap-3 justify-end'>
                     <Button
                       variant='secondary'
                       className='flex items-center gap-2'
@@ -464,44 +431,6 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
         </div>
       )}
 
-      {voteHistory.length > 0 && (
-        <div>
-          <h3 className='text-xl font-semibold text-gray-900 mb-6'>
-            Recent Voting Activity
-          </h3>
-          <div className='space-y-3'>
-            {voteHistory.slice(0, 5).map(vote => (
-              <Card key={vote.id} className='p-4'>
-                <div className='flex items-center justify-between'>
-                  <div>
-                    <p className='font-medium text-gray-900'>
-                      Report {vote.reportId.slice(0, 12)}...
-                    </p>
-                    <p className='text-sm text-gray-600'>
-                      {formatDate(vote.timestamp)}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      vote.voteType.approved
-                        ? 'success'
-                        : vote.voteType.rejected
-                          ? 'destructive'
-                          : 'secondary'
-                    }
-                  >
-                    {vote.voteType.approved
-                      ? 'Approved'
-                      : vote.voteType.rejected
-                        ? 'Rejected'
-                        : 'Abstained'}
-                  </Badge>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

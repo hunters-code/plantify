@@ -48,7 +48,7 @@ export default function PortfolioTab({
       <div className='flex items-center justify-center min-h-[400px]'>
         <div className='text-center'>
           <LoadingSpinner className='mx-auto mb-4' />
-          <p className='text-gray-600'>Memuat portofolio...</p>
+          <p className='text-gray-600'>Loading portofolio...</p>
         </div>
       </div>
     );
@@ -56,50 +56,50 @@ export default function PortfolioTab({
 
   if (error) {
     return (
-      <Card className='p-8'>
+      <div className='p-8 bg-neutral-100 rounded-[16px] p-4'>
         <div className='text-center'>
           <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
           <h3 className='text-lg font-medium text-gray-900 mb-2'>
-            Gagal Memuat Portofolio
+            Failed to Load Portfolio
           </h3>
           <p className='text-gray-600 mb-4'>{error}</p>
           <div className='flex gap-2 justify-center'>
             <Button variant='primary' onClick={onRefresh}>
-              Coba Lagi
+              Try Again
             </Button>
             <Button
               variant='secondary'
               onClick={() => navigate.push('/register/investor')}
             >
-              Daftar Sebagai Investor
+              Register as Investor
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
     );
   }
 
   if (investments.length === 0) {
     return (
-      <Card className='p-8'>
+      <div className='p-8 bg-neutral-100 rounded-[16px]'>
         <div className='text-center'>
           <TrendingUp className='w-12 h-12 text-gray-400 mx-auto mb-4' />
           <h3 className='text-lg font-medium text-gray-900 mb-2'>
-            Belum Ada Investasi
+            No Investments Yet
           </h3>
           <p className='text-gray-600 mb-4'>
-            Mulailah membangun portofolio Anda dengan berinvestasi di startup.
+            Start building your portfolio by investing in startups.
           </p>
           <div className='flex gap-2 justify-center'>
             <Button variant='primary' onClick={() => navigate.push('/explore')}>
-              Jelajahi Startup
+              Explore Startups
             </Button>
             <Button variant='secondary' onClick={onRefresh}>
-              Muat Ulang
+              Reload
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
     );
   }
 

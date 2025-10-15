@@ -203,66 +203,60 @@ export default function OverviewTab({
   return (
     <>
       {/* === Dashboard Overview === */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8'>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
         {[
           {
             label: 'Total Invested',
             value: `$${dashboardData.totalInvested.toLocaleString()}`,
             sub: 'ckUSDC',
-            icon: <DollarSign className='w-6 h-6 text-blue-600' />,
             color: 'bg-blue-100',
           },
           {
             label: 'Total Returns',
             value: `+$${dashboardData.totalReturns.toLocaleString()}`,
             sub: `${dashboardData.returnPercentage}% overall`,
-            icon: <TrendingUp className='w-6 h-6 text-green-600' />,
             color: 'bg-green-100',
           },
           {
             label: 'NFTs Owned',
             value: dashboardData.totalNFTsOwned,
             sub: 'total tokens',
-            icon: <Calendar className='w-6 h-6 text-purple-600' />,
             color: 'bg-purple-100',
           },
           {
             label: 'Startups Invested',
             value: dashboardData.uniqueStartupsInvested,
             sub: 'companies',
-            icon: <Activity className='w-6 h-6 text-orange-600' />,
             color: 'bg-orange-100',
           },
           {
             label: 'Voting Pending',
             value: dashboardData.votingPending,
             sub: 'action needed',
-            icon: <Vote className='w-6 h-6 text-red-600' />,
             color: 'bg-red-100',
           },
         ].map((stat, i) => (
-          <Card key={i} className='p-6'>
+          <div key={i} className='p-6 bg-neutral-100 rounded-[16px]'>
             <div className='flex items-center justify-between'>
               <div>
                 <p className='text-sm text-gray-600 mb-1'>{stat.label}</p>
-                <p className='text-2xl font-bold text-gray-900'>{stat.value}</p>
-                <p
-                  className={`text-xs ${
-                    stat.label === 'Total Returns'
-                      ? 'text-green-600'
-                      : 'text-gray-500'
-                  }`}
-                >
-                  {stat.sub}
-                </p>
-              </div>
-              <div
-                className={`w-12 h-12 ${stat.color} rounded-full flex items-center justify-center`}
-              >
-                {stat.icon}
+                <div className='flex items-end gap-2'>
+                  <p className='text-2xl pt-2 font-bold text-gray-900'>
+                    {stat.value}
+                  </p>
+                  <p
+                    className={`text-sm ${
+                      stat.label === 'Total Returns'
+                        ? 'text-green-600'
+                        : 'text-gray-500'
+                    }`}
+                  >
+                    {stat.sub}
+                  </p>
+                </div>
               </div>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 
@@ -282,9 +276,9 @@ export default function OverviewTab({
         </div>
 
         {matchingStartups.length === 0 ? (
-          <Card className='p-8 text-center'>
+          <div className='p-8 text-center bg-neutral-100 rounded-[16px] p-4'>
             <p className='text-gray-600'>No startups available for now.</p>
-          </Card>
+          </div>
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {matchingStartups.map(startup => (
@@ -314,21 +308,22 @@ export default function OverviewTab({
       </div>
 
       {/* === Recent Activity === */}
-      <Card className='p-6'>
+      <div className='p-6 bg-neutral-100 rounded-[16px] p-4'>
         <h3 className='text-lg font-semibold text-gray-900 mb-4'>
           Recent Activity
         </h3>
+
         {recentActivity.length === 0 ? (
           <div className='text-center py-8'>
             <Activity className='w-12 h-12 text-gray-400 mx-auto mb-4' />
             <p className='text-gray-500'>No recent activity</p>
           </div>
         ) : (
-          <div className='space-y-4'>
+          <div className='space-y-3'>
             {recentActivity.map((activity, index) => (
               <div
                 key={index}
-                className='flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0'
+                className='flex items-center justify-between bg-gray-50 rounded-xl px-4 py-4'
               >
                 <div className='flex items-center gap-3'>
                   <div
@@ -353,6 +348,7 @@ export default function OverviewTab({
                     <p className='text-sm text-gray-600'>{activity.company}</p>
                   </div>
                 </div>
+
                 <div className='text-right'>
                   <p
                     className={`font-medium ${
@@ -369,7 +365,7 @@ export default function OverviewTab({
             ))}
           </div>
         )}
-      </Card>
+      </div>
     </>
   );
 }

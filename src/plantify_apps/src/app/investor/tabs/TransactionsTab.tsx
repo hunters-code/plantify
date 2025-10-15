@@ -105,8 +105,8 @@ export default function TransactionsTab({
       });
     });
 
-    const monthlyReturnRate = 0.05; 
-    const totalReturns = Math.floor(totalInvested * monthlyReturnRate * 3); 
+    const monthlyReturnRate = 0.05;
+    const totalReturns = Math.floor(totalInvested * monthlyReturnRate * 3);
     const activeInvestments = startupSet.size;
     transactionList.sort((a, b) => {
       const timeA = a.timestamp ? Number(a.timestamp) : 0;
@@ -219,7 +219,7 @@ export default function TransactionsTab({
       </div>
 
       {/* Summary Stats */}
-      <div className='grid grid-cols-2 gap-6'>
+      <div className='grid grid-cols-2 gap-6 bg-neutral-100 rounded-[16px] p-4'>
         <Card className='p-4'>
           <p className='text-sm text-gray-600 mb-2'>Total invested</p>
           <p className='text-2xl font-bold text-gray-900'>
@@ -256,74 +256,78 @@ export default function TransactionsTab({
         </h3>
 
         {transactions.length === 0 ? (
-          <Card className='p-8'>
+          <div className='p-8 bg-neutral-100 rounded-[16px]'>
             <div className='text-center'>
               <p className='text-gray-600'>No transactions found</p>
             </div>
-          </Card>
+          </div>
         ) : (
-          <div className='space-y-4'>
+          <div className='space-y-4 bg-neutral-100 p-4 rounded-[16px]'>
             {transactions.map(transaction => (
               <div
                 key={transaction.id}
-                className='bg-white rounded-lg border border-gray-200 p-6'
+                className='bg-white rounded-[16px] border border-gray-200 p-6'
               >
-                {/* Transaction Header */}
-                <div className='flex items-center justify-between mb-4'>
-                  <h4 className='text-lg font-semibold text-gray-900'>
-                    {transaction.title}
-                  </h4>
-                  <div className='flex items-center gap-4 text-sm text-gray-600'>
-                    <span>{transaction.date}</span>
-                    <Badge variant='success' className='text-xs'>
-                      {transaction.status}
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Transaction Details Grid */}
-                <div className='grid grid-cols-3 gap-8'>
-                  <div>
-                    <p className='text-sm text-gray-600 mb-1'>
-                      {transaction.type === 'investment'
-                        ? 'NFT purchase'
-                        : transaction.type === 'profit'
-                          ? 'Monthly returns'
-                          : transaction.type === 'topup'
-                            ? 'Added funds'
-                            : transaction.type === 'fee'
-                              ? 'Transaction fee'
-                              : transaction.description}
-                    </p>
-                    <p className='font-medium text-gray-900'>
-                      {transaction.nftCount &&
-                        `${transaction.nftCount} NFT${transaction.nftCount > 1 ? 's' : ''}`}
-                      {transaction.currency && transaction.currency}
-                      {transaction.percentage && transaction.percentage}
-                    </p>
+                <div className='bg-neutral-100 rounded-[16px] p-4'>
+                  {/* Transaction Header */}
+                  <div className='flex items-center justify-between mb-4'>
+                    <h4 className='text-lg font-semibold text-gray-900'>
+                      {transaction.title}
+                    </h4>
+                    <div className='flex items-center gap-4 text-sm text-gray-600'>
+                      <span>{transaction.date}</span>
+                      <Badge variant='success' className='text-xs'>
+                        {transaction.status}
+                      </Badge>
+                    </div>
                   </div>
 
-                  <div>
-                    <p className='text-sm text-gray-600 mb-1'>Transaction ID</p>
-                    <p className='font-medium text-gray-900 truncate'>
-                      {transaction.id.length > 20
-                        ? `${transaction.id.slice(0, 20)}...`
-                        : transaction.id}
-                    </p>
-                  </div>
+                  {/* Transaction Details Grid */}
+                  <div className='grid grid-cols-3 gap-8'>
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>
+                        {transaction.type === 'investment'
+                          ? 'NFT purchase'
+                          : transaction.type === 'profit'
+                            ? 'Monthly returns'
+                            : transaction.type === 'topup'
+                              ? 'Added funds'
+                              : transaction.type === 'fee'
+                                ? 'Transaction fee'
+                                : transaction.description}
+                      </p>
+                      <p className='font-medium text-gray-900'>
+                        {transaction.nftCount &&
+                          `${transaction.nftCount} NFT${transaction.nftCount > 1 ? 's' : ''}`}
+                        {transaction.currency && transaction.currency}
+                        {transaction.percentage && transaction.percentage}
+                      </p>
+                    </div>
 
-                  <div>
-                    <p className='text-sm text-gray-600 mb-1'>Total</p>
-                    <p
-                      className={`font-bold text-lg ${
-                        transaction.amount >= 0
-                          ? 'text-green-600'
-                          : 'text-red-600'
-                      }`}
-                    >
-                      {transaction.amount >= 0 ? '+' : ''}$
-                      {Math.abs(transaction.amount).toFixed(2)}
-                    </p>
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>
+                        Transaction ID
+                      </p>
+                      <p className='font-medium text-gray-900 truncate'>
+                        {transaction.id.length > 20
+                          ? `${transaction.id.slice(0, 20)}...`
+                          : transaction.id}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>Total</p>
+                      <p
+                        className={`font-bold text-lg ${
+                          transaction.amount >= 0
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }`}
+                      >
+                        {transaction.amount >= 0 ? '+' : ''}$
+                        {Math.abs(transaction.amount).toFixed(2)}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
