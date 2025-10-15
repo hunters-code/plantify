@@ -16,6 +16,7 @@ import {
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback, Suspense } from 'react';
+import { Principal } from '@dfinity/principal';
 
 import Footer from '@/components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
@@ -35,7 +36,13 @@ import {
 } from '@/components/ui';
 import { InvestorService } from '@/services/investors/InvestorService';
 import { StartupService } from '@/services/marketplace';
+import { ICRCServiceHelper } from '@/services/ICRCServiceHelper';
 import { getRiskLevel } from '@/utils/riskLevels';
+import {
+  createPurchaseSteps,
+  PurchaseStep,
+} from '@/components/ui/PurchaseProgress';
+import { useAuth } from '@/contexts/AuthContext';
 
 import Documents from './partial/Documents';
 import Financials from './partial/Financials';
@@ -74,7 +81,12 @@ interface InvestmentDetails {
 function ExploreDetailContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id') || '1'; // Get ID from query parameter
-  const authLoading = false;
+  const {
+    isAuthenticated,
+    principal,
+    identity,
+    isLoading: authLoading,
+  } = useAuth();
   const investmentLoading = false;
 
   const [activeTab, setActiveTab] = useState(0);
@@ -88,6 +100,10 @@ function ExploreDetailContent() {
 
   // Chat interface state
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  // Purchase progress state
+  const [purchaseSteps, setPurchaseSteps] = useState<PurchaseStep[]>([]);
+  const [showPurchaseProgress, setShowPurchaseProgress] = useState(false);
 
   useEffect(() => {
     setStartup(null);
@@ -175,6 +191,13 @@ function ExploreDetailContent() {
   };
 
   const handleInvestNow = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // You can add a sign-in modal or redirect to sign-in page here
+      alert('Please sign in to invest in startups');
+      return;
+    }
+
     // Use existing startup data for immediate modal opening
     const fallbackNftPrice = Number(startup?.nftPrice) || 75;
     const fallbackAvailableNFTs = 10; // Default value
@@ -269,6 +292,14 @@ function ExploreDetailContent() {
     totalAmount: number;
   }) => {
     try {
+      // Initialize purchase steps
+      const steps = createPurchaseSteps();
+      setPurchaseSteps(steps);
+      setShowPurchaseProgress(true);
+
+      // Step 1: Validate purchase
+      updatePurchaseStep('validate', 'in_progress');
+
       // Get current investor information
       const investor = await InvestorService.getInvestorByPrincipal();
       if (!investor) {
@@ -276,7 +307,53 @@ function ExploreDetailContent() {
           'Investor not found. Please register as an investor first.'
         );
       }
-      // Create NFT purchase request
+
+      // Check balance
+      if (!isAuthenticated || !principal || !identity) {
+        throw new Error('User must be authenticated to purchase NFTs');
+      }
+
+      const userPrincipal = Principal.fromText(principal);
+
+      // Initialize the ICRC service with identity
+      await ICRCServiceHelper.initializeWithAuth(identity);
+
+      const balance = await ICRCServiceHelper.getUserBalance(userPrincipal);
+      const requiredAmount = BigInt(investmentDetails.totalAmount);
+
+      if (balance < requiredAmount) {
+        const balanceInDollars = Number(balance) / 100;
+        const requiredInDollars = Number(requiredAmount) / 100;
+        throw new Error(
+          `Insufficient balance. Required: $${requiredInDollars.toFixed(2)}, Available: $${balanceInDollars.toFixed(2)}`
+        );
+      }
+
+      updatePurchaseStep('validate', 'completed');
+      updatePurchaseStep('transfer', 'in_progress');
+
+      // Step 2: Transfer tokens
+      const plantifyAccount = Principal.fromText('plantify-account'); // Replace with actual Plantify account
+      const transferResult = await ICRCServiceHelper.purchaseNFT(
+        plantifyAccount,
+        BigInt(investmentDetails.totalAmount),
+        `Purchase of ${investmentDetails.quantity} NFTs for ${startup?.startupName}`
+      );
+
+      if (!transferResult.success) {
+        throw new Error(transferResult.error || 'Transfer failed');
+      }
+
+      updatePurchaseStep('transfer', 'completed');
+      updatePurchaseStep('confirm', 'in_progress');
+
+      // Step 3: Wait for confirmation (simulate)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      updatePurchaseStep('confirm', 'completed');
+      updatePurchaseStep('mint', 'in_progress');
+
+      // Step 4: Complete NFT purchase with backend
       const purchaseRequest = {
         startupId: investmentDetails.startupId.toString(),
         investorId: investor.id,
@@ -287,20 +364,43 @@ function ExploreDetailContent() {
         ] as [] | [string],
       };
 
-      // Call backend service
       const result = await InvestorService.purchaseNFT(purchaseRequest);
-      if (result.success) {
-        setIsModalOpen(false);
-        // Show success message
-        // Show success message
-      } else {
-        console.error('Investment failed:', result.error);
-        throw new Error(result.error || 'Investment failed');
+      if (!result.success) {
+        throw new Error(result.error || 'NFT purchase failed');
       }
+
+      updatePurchaseStep('mint', 'completed');
+      updatePurchaseStep('complete', 'completed');
+
+      // Step 5: Complete
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setShowPurchaseProgress(false);
+        setPurchaseSteps([]);
+        // Show success message
+        alert('NFT purchase completed successfully!');
+      }, 1000);
     } catch (error) {
       console.error('Error processing investment:', error);
+      // Mark current step as error
+      const currentStepIndex = purchaseSteps.findIndex(
+        step => step.status === 'in_progress'
+      );
+      if (currentStepIndex >= 0) {
+        updatePurchaseStep(purchaseSteps[currentStepIndex].id, 'error');
+      }
       throw error; // Re-throw to let the modal handle the error state
     }
+  };
+
+  // Helper function to update purchase steps
+  const updatePurchaseStep = (
+    stepId: string,
+    status: 'pending' | 'in_progress' | 'completed' | 'error'
+  ) => {
+    setPurchaseSteps(prev =>
+      prev.map(step => (step.id === stepId ? { ...step, status } : step))
+    );
   };
 
   if (loading) {
@@ -404,9 +504,13 @@ function ExploreDetailContent() {
               <ProgressBar value={45} max={100} color='bg-orange-500' />
             </div>
 
-            <Button onClick={handleInvestNow}>
+            <Button onClick={handleInvestNow} disabled={!isAuthenticated}>
               <Banknote size={20} />
-              {investmentLoading ? 'Loading...' : 'Invest Now'}
+              {!isAuthenticated
+                ? 'Sign In to Invest'
+                : investmentLoading
+                  ? 'Loading...'
+                  : 'Invest Now'}
             </Button>
           </Card>
         </div>
@@ -437,7 +541,11 @@ function ExploreDetailContent() {
 
         <InvestmentModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+            setShowPurchaseProgress(false);
+            setPurchaseSteps([]);
+          }}
           startup={
             investmentData
               ? {
@@ -452,6 +560,8 @@ function ExploreDetailContent() {
           }
           onInvest={handleInvestmentPurchase}
           isLoading={investmentLoading}
+          purchaseSteps={purchaseSteps}
+          showProgress={showPurchaseProgress}
         />
       </Layout>
 

@@ -538,7 +538,12 @@ export type Result_2 = { ok: Investor } | { err: string };
 export type Result_20 = { ok: Array<CollateralTopUp> } | { err: string };
 export type Result_21 = { ok: CollateralInfo } | { err: string };
 export type Result_22 = { ok: Startup } | { err: string };
-export type Result_23 = { ok: boolean } | { err: string };
+export type Result_23 =
+  | {
+      ok: { expiresAt: [] | [bigint]; allowance: bigint };
+    }
+  | { err: string };
+export type Result_24 = { ok: boolean } | { err: string };
 export type Result_3 = { ok: TransferNFTResponse } | { err: string };
 export type Result_4 = { ok: TopUpResponse } | { err: string };
 export type Result_5 = { ok: Founder } | { err: string };
@@ -775,10 +780,15 @@ export interface VotingStats {
 export interface _SERVICE {
   approveMonthlyReport: ActorMethod<[string], Result_1>;
   calculateRequiredCollateral: ActorMethod<[bigint, string], bigint>;
-  canInvestorVote: ActorMethod<[string], Result_23>;
-  canMintNFT: ActorMethod<[string], Result_23>;
-  canPurchaseNFT: ActorMethod<[string, string], Result_23>;
+  canInvestorVote: ActorMethod<[string], Result_24>;
+  canMintNFT: ActorMethod<[string], Result_24>;
+  canPurchaseNFT: ActorMethod<[string, string], Result_24>;
   castVote: ActorMethod<[VoteRequest], Result>;
+  checkAllowance: ActorMethod<[string], Result_23>;
+  completeNFTPurchase: ActorMethod<
+    [NFTPurchaseRequest, bigint],
+    NFTPurchaseResponse
+  >;
   createMonthlyReport: ActorMethod<[MonthlyReportRequest], Result_1>;
   createStartup: ActorMethod<[StartupCreationRequest], Result_22>;
   createStartupForFounder: ActorMethod<
@@ -843,6 +853,7 @@ export interface _SERVICE {
   >;
   getNFTsByStartup: ActorMethod<[string], Result_12>;
   getPlantifyAccount: ActorMethod<[], string>;
+  getPlantifyCanisterPrincipal: ActorMethod<[], string>;
   getPurchaseInfo: ActorMethod<[string], Result_11>;
   getPurchaseStats: ActorMethod<[], NFTPurchaseStats>;
   getReportVoteDetails: ActorMethod<[string], Result_10>;
@@ -860,6 +871,17 @@ export interface _SERVICE {
   getStartupsPaginated: ActorMethod<[PaginationParams], PaginatedStartups>;
   getTokenCanisterId: ActorMethod<[string], [] | [string]>;
   getTokenInfo: ActorMethod<[string], TokenInfoResponse>;
+  getUpgradeStatus: ActorMethod<
+    [],
+    {
+      investorsCount: bigint;
+      foundersCount: bigint;
+      votesCount: bigint;
+      startupsCount: bigint;
+      version: bigint;
+      reportsCount: bigint;
+    }
+  >;
   getUserType: ActorMethod<[], [] | [UserType]>;
   getVoteSummary: ActorMethod<[string], Result_8>;
   getVotingStats: ActorMethod<[], VotingStats>;
@@ -874,6 +896,7 @@ export interface _SERVICE {
   registerInvestor: ActorMethod<[InvestorRegistrationRequest], Result_2>;
   rejectMonthlyReport: ActorMethod<[string], Result_1>;
   submitMonthlyReport: ActorMethod<[string], Result_1>;
+  testUpgrade: ActorMethod<[], string>;
   topUpCollateral: ActorMethod<[TopUpRequest], Result_4>;
   transferCkUSDC: ActorMethod<
     [TransferAccount, bigint, [] | [string]],

@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthClient } from '@dfinity/auth-client';
+import { AuthClient, Identity } from '@dfinity/auth-client';
 import {
   createContext,
   useContext,
@@ -21,8 +21,10 @@ interface AuthContextType {
   isRegistered: boolean;
   userType: UserType;
   principal: string | null;
+  identity: Identity | null;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  getIdentity: () => Identity | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [userType, setUserType] = useState<UserType>(null);
   const [principal, setPrincipal] = useState<string | null>(null);
+  const [identity, setIdentity] = useState<Identity | null>(null);
 
   const [authClient, setAuthClient] = useState<AuthClient | null>(null);
   const [actor, setActor] = useState<_SERVICE | null>(null);
@@ -71,9 +74,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (isAuth) {
           setIsAuthenticated(true);
 
-          const identity = client.getIdentity();
-          const principalId = identity.getPrincipal().toString();
+          const userIdentity = client.getIdentity();
+          const principalId = userIdentity.getPrincipal().toString();
           setPrincipal(principalId);
+          setIdentity(userIdentity);
 
           await createBackendActor(client);
         } else {
@@ -141,9 +145,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           try {
             setIsAuthenticated(true);
 
-            const identity = authClient.getIdentity();
-            const principalId = identity.getPrincipal().toString();
+            const userIdentity = authClient.getIdentity();
+            const principalId = userIdentity.getPrincipal().toString();
             setPrincipal(principalId);
+            setIdentity(userIdentity);
 
             await createBackendActor(authClient);
             resolve();
@@ -182,6 +187,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsRegistered(false);
       setUserType(null);
       setPrincipal(null);
+      setIdentity(null);
       setActor(null);
     } catch (error) {
       console.error('Sign out error:', error);
@@ -189,6 +195,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getIdentity = (): Identity | null => {
+    return identity;
   };
 
   return (
@@ -199,8 +209,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isRegistered,
         userType,
         principal,
+        identity,
         signIn,
         signOut,
+        getIdentity,
       }}
     >
       {children}

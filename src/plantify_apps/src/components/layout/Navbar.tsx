@@ -15,6 +15,7 @@ import React, { useState, useEffect, useRef, JSX } from 'react';
 
 import { useAuth } from '@/contexts/AuthContext';
 import type { TransferAccount } from '@/declarations/plantify_backend/plantify_backend.did';
+import { ICRCServiceHelper } from '@/services/ICRCServiceHelper';
 
 import { Logo } from '../icons';
 
@@ -94,7 +95,6 @@ export default function Navbar(): JSX.Element {
     setBalanceLoading(true);
     try {
       const { BalanceService } = await import('@/services');
-
       const { Principal } = await import('@dfinity/principal');
 
       console.log('Original principal string:', principal);
@@ -116,6 +116,8 @@ export default function Navbar(): JSX.Element {
 
       console.log('Fetching balances for account:', account);
 
+      // BalanceService.getAllBalances() will automatically initialize ICRC service
+      // and use it for ckUSDC balance checking with backend fallback
       const balances = await BalanceService.getAllBalances(account);
 
       console.log('Balance results:', balances);
@@ -127,8 +129,13 @@ export default function Navbar(): JSX.Element {
         setIcpBalance('0.0000');
       }
 
+      // ckUSDC balance now uses ICRC service with backend fallback
       if (balances.ckUSDC.success && balances.ckUSDC.balance !== undefined) {
         setCkUSDCBalance(balances.ckUSDC.balance.toFixed(2));
+        console.log(
+          'ckUSDC balance fetched via ICRC service:',
+          balances.ckUSDC.balance
+        );
       } else {
         console.error('Failed to get ckUSDC balance:', balances.ckUSDC.error);
         setCkUSDCBalance('0.00');
@@ -299,7 +306,12 @@ export default function Navbar(): JSX.Element {
                               {balanceLoading ? (
                                 <Loader2 size={16} className='animate-spin' />
                               ) : (
-                                `${ckUSDCBalance} ckUSDC`
+                                <div className='flex items-center gap-1'>
+                                  <span>{ckUSDCBalance} ckUSDC</span>
+                                  <span className='text-xs text-green-600 font-normal'>
+                                    (ICRC)
+                                  </span>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -454,7 +466,12 @@ export default function Navbar(): JSX.Element {
                                       className='animate-spin'
                                     />
                                   ) : (
-                                    `${ckUSDCBalance} ckUSDC`
+                                    <div className='flex items-center gap-1'>
+                                      <span>{ckUSDCBalance} ckUSDC</span>
+                                      <span className='text-xs text-green-600 font-normal'>
+                                        (ICRC)
+                                      </span>
+                                    </div>
                                   )}
                                 </div>
                               </div>

@@ -4,6 +4,8 @@ import type {
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from './BaseService';
+import { ICRCServiceHelper } from './ICRCServiceHelper';
+import { Principal } from '@dfinity/principal';
 
 /**
  * Service for balance-related operations
@@ -39,7 +41,7 @@ export class BalanceService extends BaseService {
   }
 
   /**
-   * Get ckUSDC balance for an account
+   * Get ckUSDC balance for an account using ICRC service
    * @param account - The account to check balance for
    * @returns The ckUSDC balance or error message
    */
@@ -49,21 +51,36 @@ export class BalanceService extends BaseService {
     error?: string;
   }> {
     try {
-      const actor = await this.getActor();
-      const result: BalanceResponse = await actor.getCkUSDCBalance(account);
+      // Use ICRC service for ckUSDC balance
+      const balance = await ICRCServiceHelper.getUserBalance(account.owner);
 
-      if ('Success' in result) {
-        // Convert from smallest unit (cents) to dollars (divide by 100)
-        const rawBalance = Number(result.Success.balance);
-        const balance = rawBalance / 100;
-        return { success: true, balance };
-      } else {
-        console.error('ckUSDC balance error:', result.Error);
-        return { success: false, error: result.Error };
-      }
+      // Convert from smallest unit (cents) to dollars (divide by 100)
+      const balanceInDollars = Number(balance) / 100;
+      return { success: true, balance: balanceInDollars };
     } catch (error) {
-      console.error('Error getting ckUSDC balance:', error);
-      return { success: false, error: 'Failed to get ckUSDC balance' };
+      console.error('Error getting ckUSDC balance via ICRC service:', error);
+
+      // Fallback to backend service if ICRC service fails
+      try {
+        const actor = await this.getActor();
+        const result: BalanceResponse = await actor.getCkUSDCBalance(account);
+
+        if ('Success' in result) {
+          // Convert from smallest unit (cents) to dollars (divide by 100)
+          const rawBalance = Number(result.Success.balance);
+          const balance = rawBalance / 100;
+          return { success: true, balance };
+        } else {
+          console.error('ckUSDC balance error:', result.Error);
+          return { success: false, error: result.Error };
+        }
+      } catch (fallbackError) {
+        console.error(
+          'Error getting ckUSDC balance from backend:',
+          fallbackError
+        );
+        return { success: false, error: 'Failed to get ckUSDC balance' };
+      }
     }
   }
 
@@ -83,6 +100,18 @@ export class BalanceService extends BaseService {
     error?: string;
   }> {
     try {
+      // Use ICRC service for ckUSDC
+      if (tokenType.toLowerCase().includes('usdc')) {
+        const balance = await ICRCServiceHelper.getUserBalance(account.owner);
+        const balanceInDollars = Number(balance) / 100;
+        return {
+          success: true,
+          balance: balanceInDollars,
+          tokenType: 'ckUSDC',
+        };
+      }
+
+      // Use backend service for other tokens (ICP, etc.)
       const actor = await this.getActor();
       const result: BalanceResponse = await actor.getBalance(
         account,
@@ -95,8 +124,6 @@ export class BalanceService extends BaseService {
         // Apply appropriate conversion based on token type
         if (tokenType.toLowerCase() === 'icp') {
           balance = balance / 100000000; // e8s to ICP
-        } else if (tokenType.toLowerCase().includes('usdc')) {
-          balance = balance / 100; // cents to dollars
         }
         // Add more token types as needed
 
@@ -133,6 +160,16 @@ export class BalanceService extends BaseService {
 
         if (isAuth) {
           await this.initialize(authClient);
+          // Also initialize ICRC service with the same identity
+          try {
+            const identity = await authClient.getIdentity();
+            await ICRCServiceHelper.initializeWithAuth(identity);
+          } catch (icrcError) {
+            console.warn(
+              'Failed to initialize ICRC service, will use fallback:',
+              icrcError
+            );
+          }
         } else {
           await this.initialize();
         }
