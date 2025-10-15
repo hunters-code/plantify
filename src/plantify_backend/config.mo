@@ -80,7 +80,7 @@ module Config {
         maxTakeValue = ?100;
         atomicBatchTransfers = ?true;
       };
-      plantifyAccount = "PLANTIFY_PRODUCTION_ACCOUNT_HERE"; // Replace with actual production account
+      plantifyAccount = "qzvg3-e2uko-chkzo-bpegv-vf6ev-hvbjc-bky6t-2t3ye-lf5lk-gw5rm-fqe"; // Replace with actual production account
       useTestTokens = false;
     };
   };
@@ -121,7 +121,7 @@ module Config {
         maxTakeValue = ?100;
         atomicBatchTransfers = ?true;
       };
-      plantifyAccount = "PLANTIFY_TESTNET_ACCOUNT_HERE"; // Replace with testnet account
+      plantifyAccount = "qzvg3-e2uko-chkzo-bpegv-vf6ev-hvbjc-bky6t-2t3ye-lf5lk-gw5rm-fqe"; // Replace with testnet account
       useTestTokens = true;
     };
   };
