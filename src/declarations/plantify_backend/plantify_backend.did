@@ -1077,6 +1077,15 @@ service : {
   getStartupsPaginated: (params: PaginationParams) -> (PaginatedStartups);
   getTokenCanisterId: (tokenType: text) -> (opt text);
   getTokenInfo: (tokenType: text) -> (TokenInfoResponse);
+  getUpgradeStatus: () ->
+   (record {
+      foundersCount: nat;
+      investorsCount: nat;
+      reportsCount: nat;
+      startupsCount: nat;
+      version: nat;
+      votesCount: nat;
+    });
   getUserType: () -> (opt UserType);
   getVoteSummary: (reportId: text) -> (Result_8);
   getVotingStats: () -> (VotingStats);
@@ -1092,6 +1101,7 @@ service : {
   registerInvestor: (request: InvestorRegistrationRequest) -> (Result_2);
   rejectMonthlyReport: (reportId: text) -> (Result_1);
   submitMonthlyReport: (reportId: text) -> (Result_1);
+  testUpgrade: () -> (text);
   topUpCollateral: (request: TopUpRequest) -> (Result_4);
   transferCkUSDC: (toAccount: TransferAccount, amount: nat, memo:
    opt text) -> (TransferResponse);

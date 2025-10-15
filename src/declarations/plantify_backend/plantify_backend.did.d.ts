@@ -874,6 +874,17 @@ export interface _SERVICE {
   'getStartupsPaginated' : ActorMethod<[PaginationParams], PaginatedStartups>,
   'getTokenCanisterId' : ActorMethod<[string], [] | [string]>,
   'getTokenInfo' : ActorMethod<[string], TokenInfoResponse>,
+  'getUpgradeStatus' : ActorMethod<
+    [],
+    {
+      'investorsCount' : bigint,
+      'foundersCount' : bigint,
+      'votesCount' : bigint,
+      'startupsCount' : bigint,
+      'version' : bigint,
+      'reportsCount' : bigint,
+    }
+  >,
   'getUserType' : ActorMethod<[], [] | [UserType]>,
   'getVoteSummary' : ActorMethod<[string], Result_8>,
   'getVotingStats' : ActorMethod<[], VotingStats>,
@@ -888,6 +899,7 @@ export interface _SERVICE {
   'registerInvestor' : ActorMethod<[InvestorRegistrationRequest], Result_2>,
   'rejectMonthlyReport' : ActorMethod<[string], Result_1>,
   'submitMonthlyReport' : ActorMethod<[string], Result_1>,
+  'testUpgrade' : ActorMethod<[], string>,
   'topUpCollateral' : ActorMethod<[TopUpRequest], Result_4>,
   'transferCkUSDC' : ActorMethod<
     [TransferAccount, bigint, [] | [string]],

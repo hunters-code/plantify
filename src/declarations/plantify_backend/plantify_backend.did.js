@@ -948,6 +948,20 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getTokenCanisterId' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], []),
     'getTokenInfo' : IDL.Func([IDL.Text], [TokenInfoResponse], []),
+    'getUpgradeStatus' : IDL.Func(
+        [],
+        [
+          IDL.Record({
+            'investorsCount' : IDL.Nat,
+            'foundersCount' : IDL.Nat,
+            'votesCount' : IDL.Nat,
+            'startupsCount' : IDL.Nat,
+            'version' : IDL.Nat,
+            'reportsCount' : IDL.Nat,
+          }),
+        ],
+        [],
+      ),
     'getUserType' : IDL.Func([], [IDL.Opt(UserType)], []),
     'getVoteSummary' : IDL.Func([IDL.Text], [Result_8], []),
     'getVotingStats' : IDL.Func([], [VotingStats], []),
@@ -970,6 +984,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'rejectMonthlyReport' : IDL.Func([IDL.Text], [Result_1], []),
     'submitMonthlyReport' : IDL.Func([IDL.Text], [Result_1], []),
+    'testUpgrade' : IDL.Func([], [IDL.Text], []),
     'topUpCollateral' : IDL.Func([TopUpRequest], [Result_4], []),
     'transferCkUSDC' : IDL.Func(
         [TransferAccount, IDL.Nat, IDL.Opt(IDL.Text)],

@@ -35,6 +35,9 @@ persistent actor PlantifyBackend {
   private var votesEntries : [(Text, Types.InvestorVote)] = [];
   private var reportVotesEntries : [(Text, [Text])] = [];
   private var investorVotesEntries : [(Text, [Text])] = [];
+  private var nftInfoEntries : [(Nat, Types.NFTInfo)] = [];
+  private var startupNFTsEntries : [(Text, [Nat])] = [];
+  private var nextTokenId : Nat = 1;
   private var nextFounderId : Nat = 1;
   private var nextInvestorId : Nat = 1;
   private var nextStartupId : Nat = 1;
@@ -64,8 +67,8 @@ persistent actor PlantifyBackend {
   private transient let registrationService = RegistrationService.RegistrationService(storage);
   private transient let startupCreationService = StartupCreation.StartupCreationService(storage);
   private transient let transferService = TransferService.TransferService(config);
-  private transient let collateralService = CollateralService.CollateralService(config, storage);
-  private transient let nftService = NFTService.NFTService(storage);
+  private transient let nftService = NFTService.NFTService(storage, nftInfoEntries, startupNFTsEntries, nextTokenId);
+  private transient let collateralService = CollateralService.CollateralService(config, storage, nftService);
   private transient let nftPurchaseService = NFTPurchaseService.NFTPurchaseService(config, storage, transferService, nftService);
   private transient let monthlyReportService = MonthlyReportService.MonthlyReportService(storage);
   private transient let votingService = VotingService.VotingService(storage);
@@ -754,7 +757,12 @@ persistent actor PlantifyBackend {
     nextReportId := storage.nextReportId;
     nextVoteId := storage.nextVoteId;
     
-    Debug.print("Pre-upgrade completed: Saved " # Nat.toText(foundersEntries.size()) # " founders, " # Nat.toText(investorsEntries.size()) # " investors, " # Nat.toText(startupsEntries.size()) # " startups");
+    // Save NFT data
+    nftInfoEntries := nftService.getNFTInfoEntries();
+    startupNFTsEntries := nftService.getStartupNFTsEntries();
+    nextTokenId := nftService.getNextTokenId();
+    
+    Debug.print("Pre-upgrade completed: Saved " # Nat.toText(foundersEntries.size()) # " founders, " # Nat.toText(investorsEntries.size()) # " investors, " # Nat.toText(startupsEntries.size()) # " startups, " # Nat.toText(nftInfoEntries.size()) # " NFTs");
   };
 
   // Post-upgrade hook: Restore data from stable variables
@@ -767,8 +775,12 @@ persistent actor PlantifyBackend {
     // The storage will be automatically reinitialized with the stable variables
     // when the actor is created, so we don't need to manually restore data here
     
+    // Verify NFT data restoration
+    let nftStats = nftService.getNFTStats();
+    Debug.print("NFT Service Stats after upgrade: totalSupply=" # Nat.toText(nftStats.totalSupply) # ", totalStartups=" # Nat.toText(nftStats.totalStartups) # ", nextTokenId=" # Nat.toText(nftStats.nextTokenId));
+    
     Debug.print("Post-upgrade completed: Canister version updated to " # Nat.toText(canisterVersion));
-    Debug.print("Restored data: " # Nat.toText(foundersEntries.size()) # " founders, " # Nat.toText(investorsEntries.size()) # " investors, " # Nat.toText(startupsEntries.size()) # " startups");
+    Debug.print("Restored data: " # Nat.toText(foundersEntries.size()) # " founders, " # Nat.toText(investorsEntries.size()) # " investors, " # Nat.toText(startupsEntries.size()) # " startups, " # Nat.toText(nftInfoEntries.size()) # " NFTs");
   };
 
   // Get current canister version
@@ -776,9 +788,29 @@ persistent actor PlantifyBackend {
     canisterVersion;
   };
 
+
   // Test function to verify upgrade functionality
   public shared func testUpgrade() : async Text {
     "Upgrade test successful - version " # Nat.toText(canisterVersion) # " - Enhanced with stable variables!";
+  };
+
+  // Debug function to check NFT persistence
+  public shared func debugNFTPersistence() : async {
+    nftStats : {
+      totalSupply : Nat;
+      totalStartups : Nat;
+      nextTokenId : Nat;
+    };
+    stableNFTCount : Nat;
+    allNFTs : [Types.NFTInfo];
+  } {
+    let stats = nftService.getNFTStats();
+    let allNFTs = nftService.getAllNFTs();
+    {
+      nftStats = stats;
+      stableNFTCount = nftInfoEntries.size();
+      allNFTs = allNFTs;
+    };
   };
 
   // Get upgrade status and data counts

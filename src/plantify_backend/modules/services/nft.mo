@@ -9,24 +9,32 @@ import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
+import Iter "mo:base/Iter";
 import Types "../types";
 import Storage "../storage";
 
 module NFT {
-  public class NFTService(storage : Storage.UserStorage) {
+  public class NFTService(
+    storage : Storage.UserStorage,
+    nftInfoEntries : [(Nat, Types.NFTInfo)],
+    startupNFTsEntries : [(Text, [Nat])],
+    initialNextTokenId : Nat
+  ) {
     
-    // Storage for NFT information
-    private var nftInfo = HashMap.HashMap<Nat, Types.NFTInfo>(
-      0,
+    // Storage for NFT information - initialized from persistent data
+    private var nftInfo = HashMap.fromIter<Nat, Types.NFTInfo>(
+      nftInfoEntries.vals(),
+      nftInfoEntries.size(),
       Nat.equal,
       func(n : Nat) : Nat32 { Nat32.fromNat(n) },
     );
-    private var startupNFTs = HashMap.HashMap<Text, [Nat]>(
-      0,
+    private var startupNFTs = HashMap.fromIter<Text, [Nat]>(
+      startupNFTsEntries.vals(),
+      startupNFTsEntries.size(),
       Text.equal,
       Text.hash,
     );
-    private var nextTokenId : Nat = 1;
+    private var nextTokenId : Nat = initialNextTokenId;
 
     // Mint NFT for a startup
     public func mintNFT(
@@ -221,6 +229,19 @@ module NFT {
         totalStartups = startupNFTs.size();
         nextTokenId = nextTokenId;
       };
+    };
+
+    // Methods for persistence - used by pre-upgrade hook
+    public func getNFTInfoEntries() : [(Nat, Types.NFTInfo)] {
+      Iter.toArray(nftInfo.entries());
+    };
+
+    public func getStartupNFTsEntries() : [(Text, [Nat])] {
+      Iter.toArray(startupNFTs.entries());
+    };
+
+    public func getNextTokenId() : Nat {
+      nextTokenId;
     };
   };
 };
