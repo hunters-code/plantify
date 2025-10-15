@@ -219,7 +219,7 @@ export default function TransactionsTab({
       </div>
 
       {/* Summary Stats */}
-      <div className='grid grid-cols-2 gap-6'>
+      <div className='grid grid-cols-2 gap-6 bg-neutral-100 rounded-[16px] p-4'>
         <Card className='p-4'>
           <p className='text-sm text-gray-600 mb-2'>Total invested</p>
           <p className='text-2xl font-bold text-gray-900'>
@@ -256,11 +256,11 @@ export default function TransactionsTab({
         </h3>
 
         {transactions.length === 0 ? (
-          <Card className='p-8'>
+          <div className='p-8 bg-neutral-100 rounded-[16px]'>
             <div className='text-center'>
               <p className='text-gray-600'>No transactions found</p>
             </div>
-          </Card>
+          </div>
         ) : (
           <div className='space-y-4'>
             {transactions.map(transaction => (

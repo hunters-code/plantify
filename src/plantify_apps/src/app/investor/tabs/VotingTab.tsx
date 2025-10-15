@@ -305,7 +305,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
       )}
 
       {pendingReports.length === 0 ? (
-        <Card className='p-8'>
+        <div className='p-8 bg-neutral-100 rounded-[16px]'>
           <div className='text-center'>
             <FileText className='w-12 h-12 text-gray-400 mx-auto mb-4' />
             <h3 className='text-lg font-medium text-gray-900 mb-2'>
@@ -315,7 +315,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
               There are currently no monthly reports that require your vote.
             </p>
           </div>
-        </Card>
+        </div>
       ) : (
         <div className='space-y-6'>
           {pendingReports.map(report => {
@@ -325,9 +325,9 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
             return (
               <div
                 key={report.id}
-                className='bg-white rounded-lg border border-gray-200 p-6'
+                className='bg-neutral-100 rounded-[16px] border border-gray-200 p-6'
               >
-                <div className='bg-white rounded-lg p-6'>
+                <div className='p-6'>
                   <div className='flex items-center justify-between mb-8'>
                     <div className='flex items-center gap-3'>
                       <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
@@ -365,22 +365,22 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                     </div>
                   </div>
 
-                  <div className='grid grid-cols-3 gap-12 mb-8'>
-                    <div>
+                  <div className='grid grid-cols-3 gap-4 mb-8'>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Revenue</p>
                       <p className='text-2xl font-bold text-gray-900'>
                         ${report.revenue.toLocaleString()}
                       </p>
                     </div>
 
-                    <div>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Expenses</p>
                       <p className='text-2xl font-bold text-red-600'>
                         ${report.expenses.toLocaleString()}
                       </p>
                     </div>
 
-                    <div>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Profit</p>
                       <p className='text-2xl font-bold text-green-600'>
                         ${report.profit.toLocaleString()}
@@ -388,8 +388,8 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                     </div>
                   </div>
 
-                  <div className='grid grid-cols-3 gap-12 mb-8'>
-                    <div>
+                  <div className='grid grid-cols-3 gap-4 mb-8'>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>
                         Profit Sharing
                       </p>
@@ -398,7 +398,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                       </p>
                     </div>
 
-                    <div>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Status</p>
                       <Badge
                         variant={
@@ -409,7 +409,7 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
                       </Badge>
                     </div>
 
-                    <div>
+                    <div className='bg-white rounded-[16px] p-4'>
                       <p className='text-sm text-gray-500 mb-2'>Investors</p>
                       <p className='text-2xl font-bold text-gray-900'>
                         {report.investorCount}
