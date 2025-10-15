@@ -245,6 +245,22 @@ module Types {
     memo : ?Text;
   };
 
+  public type TransferFromArgs = {
+    amount : Nat;
+    fromAccount : TransferAccount;
+    toAccount : TransferAccount;
+    tokenType : Text; // "ICP" or "ckUSDC"
+    memo : ?Text;
+  };
+
+  public type ApproveArgs = {
+    amount : Nat;
+    spenderAccount : TransferAccount;
+    tokenType : Text; // "ICP" or "ckUSDC"
+    memo : ?Text;
+    expiresAt : ?Nat;
+  };
+
   public type TransferResponse = {
     #Success : {
       blockIndex : Nat;

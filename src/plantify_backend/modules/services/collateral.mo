@@ -7,6 +7,7 @@ import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
+import Int "mo:base/Int";
 import Types "../types";
 import TransferService "./transfer";
 import Storage "../storage";
@@ -167,7 +168,12 @@ module Collateral {
               let remainingAmount = if (newCurrentAmount >= info.requiredAmount) {
                 0;
               } else {
-                info.requiredAmount - newCurrentAmount;
+                let diff = Int.abs(Int.sub(Int.abs(info.requiredAmount), Int.abs(newCurrentAmount)));
+                if (info.requiredAmount > newCurrentAmount) {
+                  Int.abs(diff);
+                } else {
+                  0;
+                };
               };
 
               let isFullyPaid = newStatus == #Active;

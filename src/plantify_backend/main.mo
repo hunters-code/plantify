@@ -1,7 +1,7 @@
 import Text "mo:base/Text";
 import Result "mo:base/Result";
-import Iter "mo:base/Iter";
 import Array "mo:base/Array";
+import Principal "mo:base/Principal";
 import Types "./modules/types";
 import Storage "./modules/storage";
 import RegistrationService "./modules/services/registration";
@@ -424,6 +424,10 @@ persistent actor PlantifyBackend {
     await nftPurchaseService.purchaseNFT(msg.caller, request);
   };
 
+  public shared (msg) func completeNFTPurchase(request : Types.NFTPurchaseRequest, blockIndex : Nat) : async Types.NFTPurchaseResponse {
+    await nftPurchaseService.completeNFTPurchase(msg.caller, request, blockIndex);
+  };
+
   public shared (_msg) func getPurchaseInfo(purchaseId : Text) : async Result.Result<Types.NFTPurchaseInfo, Text> {
     nftPurchaseService.getPurchaseInfo(purchaseId);
   };
@@ -450,6 +454,27 @@ persistent actor PlantifyBackend {
 
   public shared (_msg) func getNFTPrice(startupId : Text) : async Result.Result<Nat, Text> {
     nftPurchaseService.getNFTPrice(startupId);
+  };
+
+  // Helper function to get Plantify canister principal for approval
+  public shared func getPlantifyCanisterPrincipal() : async Text {
+    config.plantifyAccount;
+  };
+
+  // Check allowance for investor
+  public shared (msg) func checkAllowance(tokenType : Text) : async Result.Result<{
+    allowance : Nat;
+    expiresAt : ?Nat;
+  }, Text> {
+    let investorAccount : Types.TransferAccount = {
+      owner = msg.caller;
+      subaccount = null;
+    };
+    let plantifySpenderAccount : Types.TransferAccount = {
+      owner = Principal.fromText(config.plantifyAccount);
+      subaccount = null;
+    };
+    await transferService.checkAllowance(investorAccount, plantifySpenderAccount, tokenType);
   };
 
   // ========================================
@@ -661,10 +686,4 @@ persistent actor PlantifyBackend {
       };
     };
   };
-
-  // ========================================
-  // PERSISTENCE METHODS
-  // ========================================
-  // Note: preupgrade and postupgrade are deprecated
-  // Data persistence is handled automatically by stable variables
 };

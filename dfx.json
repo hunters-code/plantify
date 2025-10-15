@@ -14,7 +14,8 @@
     "plantify_backend": {
       "main": "src/plantify_backend/main.mo",
       "type": "motoko",
-      "ic": "oncwy-yqaaa-aaaae-qfzja-cai"
+      "ic": "oncwy-yqaaa-aaaae-qfzja-cai",
+      "args": "--enhanced-orthogonal-persistence"
     },
     "plantify_frontend": {
       "source": [
