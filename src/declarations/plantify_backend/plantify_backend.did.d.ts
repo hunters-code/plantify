@@ -534,7 +534,11 @@ export type Result_21 = { 'ok' : CollateralInfo } |
   { 'err' : string };
 export type Result_22 = { 'ok' : Startup } |
   { 'err' : string };
-export type Result_23 = { 'ok' : boolean } |
+export type Result_23 = {
+    'ok' : { 'expiresAt' : [] | [bigint], 'allowance' : bigint }
+  } |
+  { 'err' : string };
+export type Result_24 = { 'ok' : boolean } |
   { 'err' : string };
 export type Result_3 = { 'ok' : TransferNFTResponse } |
   { 'err' : string };
@@ -776,10 +780,15 @@ export interface VotingStats {
 export interface _SERVICE {
   'approveMonthlyReport' : ActorMethod<[string], Result_1>,
   'calculateRequiredCollateral' : ActorMethod<[bigint, string], bigint>,
-  'canInvestorVote' : ActorMethod<[string], Result_23>,
-  'canMintNFT' : ActorMethod<[string], Result_23>,
-  'canPurchaseNFT' : ActorMethod<[string, string], Result_23>,
+  'canInvestorVote' : ActorMethod<[string], Result_24>,
+  'canMintNFT' : ActorMethod<[string], Result_24>,
+  'canPurchaseNFT' : ActorMethod<[string, string], Result_24>,
   'castVote' : ActorMethod<[VoteRequest], Result>,
+  'checkAllowance' : ActorMethod<[string], Result_23>,
+  'completeNFTPurchase' : ActorMethod<
+    [NFTPurchaseRequest, bigint],
+    NFTPurchaseResponse
+  >,
   'createMonthlyReport' : ActorMethod<[MonthlyReportRequest], Result_1>,
   'createStartup' : ActorMethod<[StartupCreationRequest], Result_22>,
   'createStartupForFounder' : ActorMethod<
@@ -844,6 +853,7 @@ export interface _SERVICE {
   >,
   'getNFTsByStartup' : ActorMethod<[string], Result_12>,
   'getPlantifyAccount' : ActorMethod<[], string>,
+  'getPlantifyCanisterPrincipal' : ActorMethod<[], string>,
   'getPurchaseInfo' : ActorMethod<[string], Result_11>,
   'getPurchaseStats' : ActorMethod<[], NFTPurchaseStats>,
   'getReportVoteDetails' : ActorMethod<[string], Result_10>,

@@ -39,7 +39,7 @@ module Config {
         maxTakeValue = ?100;
         atomicBatchTransfers = ?true;
       };
-      plantifyAccount = "cix4d-vquwk-gyhx2-gncl3-kkd5l-nqx35-27fa4-kndmx-nk7fp-msvxz-xae";
+      plantifyAccount = "qzvg3-e2uko-chkzo-bpegv-vf6ev-hvbjc-bky6t-2t3ye-lf5lk-gw5rm-fqe";
       useTestTokens = true;
     };
   };

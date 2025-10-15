@@ -295,10 +295,18 @@ type Result_3 =
    err: text;
    ok: TransferNFTResponse;
  };
-type Result_23 = 
+type Result_24 = 
  variant {
    err: text;
    ok: bool;
+ };
+type Result_23 = 
+ variant {
+   err: text;
+   ok: record {
+         allowance: nat;
+         expiresAt: opt nat;
+       };
  };
 type Result_22 = 
  variant {
@@ -987,10 +995,13 @@ service : {
   approveMonthlyReport: (reportId: text) -> (Result_1);
   calculateRequiredCollateral: (monthlyProfitSharing: nat, tokenType:
    text) -> (nat);
-  canInvestorVote: (reportId: text) -> (Result_23);
-  canMintNFT: (startupId: text) -> (Result_23);
-  canPurchaseNFT: (investorId: text, startupId: text) -> (Result_23);
+  canInvestorVote: (reportId: text) -> (Result_24);
+  canMintNFT: (startupId: text) -> (Result_24);
+  canPurchaseNFT: (investorId: text, startupId: text) -> (Result_24);
   castVote: (request: VoteRequest) -> (Result);
+  checkAllowance: (tokenType: text) -> (Result_23);
+  completeNFTPurchase: (request: NFTPurchaseRequest, blockIndex: nat) ->
+   (NFTPurchaseResponse);
   createMonthlyReport: (request: MonthlyReportRequest) -> (Result_1);
   createStartup: (request: StartupCreationRequest) -> (Result_22);
   createStartupForFounder: (founderId: text, request:
@@ -1049,6 +1060,7 @@ service : {
     });
   getNFTsByStartup: (startupId: text) -> (Result_12);
   getPlantifyAccount: () -> (text);
+  getPlantifyCanisterPrincipal: () -> (text);
   getPurchaseInfo: (purchaseId: text) -> (Result_11);
   getPurchaseStats: () -> (NFTPurchaseStats);
   getReportVoteDetails: (reportId: text) -> (Result_10);
