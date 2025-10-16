@@ -1,6 +1,13 @@
 'use client';
 
-import { Eye, Vote, CreditCard, TrendingUp, ArrowUpRight } from 'lucide-react';
+import {
+  Eye,
+  Vote,
+  CreditCard,
+  TrendingUp,
+  ArrowUpRight,
+  LucideIcon,
+} from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 import { Layout } from '@/components';
@@ -40,7 +47,7 @@ type TabType = 'overview' | 'portfolio' | 'voting' | 'transactions';
 interface TabConfig {
   id: TabType;
   label: string;
-  icon: React.ComponentType<{ size?: number }>;
+  icon: LucideIcon;
 }
 
 export default function InvestorDashboard() {

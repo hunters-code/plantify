@@ -11,6 +11,7 @@ import type {
   Result_18,
   Result_19,
   Result_23,
+  Result_24,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -75,7 +76,7 @@ export class VotingService extends BaseService {
   public static async canInvestorVote(reportId: string): Promise<boolean> {
     try {
       const actor = await this.getActor();
-      const result: Result_23 = await actor.canInvestorVote(reportId);
+      const result: Result_24 = await actor.canInvestorVote(reportId);
       return 'ok' in result ? result.ok : false;
     } catch (error) {
       console.error('Error checking if investor can vote:', error);
