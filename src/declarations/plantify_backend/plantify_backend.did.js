@@ -228,6 +228,7 @@ export const idlFactory = ({ IDL }) => {
     'nftPrice' : IDL.Nat,
     'transactionId' : IDL.Text,
   });
+  const Result_13 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
   const TransferAccount = IDL.Record({
     'owner' : IDL.Principal,
     'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
@@ -611,7 +612,6 @@ export const idlFactory = ({ IDL }) => {
     }),
   });
   const Result_14 = IDL.Variant({ 'ok' : NFTOwnerResponse, 'err' : IDL.Text });
-  const Result_13 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
   const PaginatedNFTs = IDL.Record({
     'nfts' : IDL.Vec(NFTInfo),
     'page' : IDL.Nat,
@@ -861,6 +861,7 @@ export const idlFactory = ({ IDL }) => {
     'getAllPurchases' : IDL.Func([], [IDL.Vec(NFTPurchaseInfo)], []),
     'getAllStartups' : IDL.Func([], [IDL.Vec(Startup)], []),
     'getAllVotes' : IDL.Func([], [IDL.Vec(InvestorVote)], []),
+    'getAvailableNFTCount' : IDL.Func([IDL.Text], [Result_13], []),
     'getBalance' : IDL.Func([TransferAccount, IDL.Text], [BalanceResponse], []),
     'getCanisterVersion' : IDL.Func([], [IDL.Nat], []),
     'getCkUSDCBalance' : IDL.Func([TransferAccount], [BalanceResponse], []),

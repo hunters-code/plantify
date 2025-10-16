@@ -11,6 +11,7 @@ import type {
   Result_3,
   Result_6,
   Result_7,
+  Result_13,
   Result_14,
   Result_15,
   Result_16,
@@ -203,6 +204,31 @@ export class NFTService extends BaseService {
     } catch (error) {
       console.error('Error getting NFT stats:', error);
       return null;
+    }
+  }
+
+  /**
+   * Get available NFT count for a startup
+   * @param startupId - The ID of the startup
+   * @returns Available NFT count or error message
+   */
+  public static async getAvailableNFTCount(startupId: string): Promise<{
+    success: boolean;
+    count?: bigint;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result: Result_13 = await actor.getAvailableNFTCount(startupId);
+
+      if ('ok' in result) {
+        return { success: true, count: result.ok };
+      } else {
+        return { success: false, error: result.err };
+      }
+    } catch (error) {
+      console.error('Error getting available NFT count:', error);
+      return { success: false, error: 'Failed to get available NFT count' };
     }
   }
 }
