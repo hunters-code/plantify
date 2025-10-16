@@ -1,7 +1,6 @@
 // Base service
 export { BaseService } from './BaseService';
 export { AuthService } from './AuthService';
-export { BalanceService } from './BalanceService';
 
 // Founder services
 export { FounderService } from './founders/FounderService';

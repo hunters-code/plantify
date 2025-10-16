@@ -15,6 +15,7 @@ import type {
   Result_15,
   Result_16,
   Result_23,
+  Result_24,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -139,7 +140,7 @@ export class NFTService extends BaseService {
   public static async canMintNFT(startupId: string): Promise<boolean> {
     try {
       const actor = await this.getActor();
-      const result: Result_23 = await actor.canMintNFT(startupId);
+      const result: Result_24 = await actor.canMintNFT(startupId);
       return 'ok' in result ? result.ok : false;
     } catch (error) {
       console.error('Error checking if NFT can be minted:', error);

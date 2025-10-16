@@ -422,6 +422,10 @@ persistent actor PlantifyBackend {
     nftService.getNFTStats();
   };
 
+  public shared (_msg) func getAvailableNFTCount(startupId : Text) : async Result.Result<Nat, Text> {
+    nftService.getAvailableNFTCount(startupId);
+  };
+
   // ========================================
   // NFT PURCHASE SERVICE METHODS
   // ========================================
