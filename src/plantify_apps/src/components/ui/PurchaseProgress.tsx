@@ -93,20 +93,14 @@ export function createPurchaseSteps(): PurchaseStep[] {
     },
     {
       id: 'transfer',
-      title: 'Processing Payment',
-      description: 'Transferring ckUSDC tokens to complete the purchase',
+      title: 'Transfer ckUSDC',
+      description: 'Transferring ckUSDC tokens to Plantify account',
       status: 'pending',
     },
     {
       id: 'confirm',
-      title: 'Confirming Transaction',
-      description: 'Waiting for blockchain confirmation',
-      status: 'pending',
-    },
-    {
-      id: 'mint',
-      title: 'Minting NFT',
-      description: 'Creating your NFT tokens',
+      title: 'Validate Transaction and Send NFT',
+      description: 'Validating transaction and minting your NFT tokens',
       status: 'pending',
     },
     {

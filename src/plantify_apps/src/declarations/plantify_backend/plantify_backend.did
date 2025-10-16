@@ -366,7 +366,7 @@ type Result_13 =
 type Result_12 = 
  variant {
    err: text;
-   ok: vec NFTInfo;
+   ok: PaginatedNFTs;
  };
 type Result_11 = 
  variant {
@@ -458,6 +458,14 @@ type PaginatedStartups =
    limit: nat;
    page: nat;
    startups: vec StartupSummary;
+   totalCount: nat;
+   totalPages: nat;
+ };
+type PaginatedNFTs = 
+ record {
+   limit: nat;
+   nfts: vec NFTInfo;
+   page: nat;
    totalCount: nat;
    totalPages: nat;
  };
@@ -1006,6 +1014,17 @@ service : {
   createStartup: (request: StartupCreationRequest) -> (Result_22);
   createStartupForFounder: (founderId: text, request:
    StartupCreationRequest) -> (Result_22);
+  debugNFTPersistence: () ->
+   (record {
+      allNFTs: vec NFTInfo;
+      nftStats:
+       record {
+         nextTokenId: nat;
+         totalStartups: nat;
+         totalSupply: nat;
+       };
+      stableNFTCount: nat;
+    });
   getAllCollateralInfo: () -> (vec CollateralInfo);
   getAllMonthlyReports: () -> (vec MonthlyReport);
   getAllNFTs: () -> (vec NFTInfo);
@@ -1058,7 +1077,7 @@ service : {
       totalStartups: nat;
       totalSupply: nat;
     });
-  getNFTsByStartup: (startupId: text) -> (Result_12);
+  getNFTsByStartup: (startupId: text, page: nat, limit: nat) -> (Result_12);
   getPlantifyAccount: () -> (text);
   getPlantifyCanisterPrincipal: () -> (text);
   getPurchaseInfo: (purchaseId: text) -> (Result_11);

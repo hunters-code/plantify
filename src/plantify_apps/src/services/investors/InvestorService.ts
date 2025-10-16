@@ -22,6 +22,7 @@ import type {
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
+import { Principal } from '@dfinity/principal';
 
 /**
  * Service for investor-related operations
@@ -294,6 +295,41 @@ export class InvestorService extends BaseService {
     } catch (error) {
       console.error('Error getting investment portfolio:', error);
       return { success: false, error: 'Failed to get investment portfolio' };
+    }
+  }
+
+  /**
+   * Complete NFT purchase with ICRC transfer
+   */
+  public static async completeNFTPurchase(
+    request: NFTPurchaseRequest,
+    blockIndex: bigint
+  ): Promise<{
+    success: boolean;
+    data?: NFTPurchaseResponse;
+    error?: string;
+  }> {
+    try {
+      const actor = await this.getActor();
+      const result = await actor.completeNFTPurchase(request, blockIndex);
+
+      if ('Success' in result) {
+        return {
+          success: true,
+          data: result,
+        };
+      } else {
+        return {
+          success: false,
+          error: result.Error,
+        };
+      }
+    } catch (error) {
+      console.error('Error completing NFT purchase:', error);
+      return {
+        success: false,
+        error: `Failed to complete NFT purchase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
     }
   }
 }

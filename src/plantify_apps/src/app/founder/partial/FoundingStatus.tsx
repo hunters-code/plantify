@@ -55,7 +55,6 @@ function useFundingStatus(startupId: string) {
 
         if (startupResult) {
           setStartup(startupResult);
-          console.log('Startup details loaded:', startupResult);
         }
 
         if (fundingResult.success && fundingResult.data) {
@@ -66,7 +65,6 @@ function useFundingStatus(startupId: string) {
 
         if (collateralResult.success && collateralResult.collateral) {
           setCollateralInfo(collateralResult.collateral);
-          console.log('Collateral info loaded:', collateralResult.collateral);
         }
       } catch (err) {
         console.error('Error fetching funding data:', err);

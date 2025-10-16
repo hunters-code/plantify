@@ -76,12 +76,10 @@ export function CustomizedStartupCard() {
 // Example 4: Card with custom event handlers
 export function InteractiveStartupCard() {
   const handleViewDetails = (id: string | number) => {
-    console.log('View details for startup:', id);
     // Custom logic here
   };
 
   const handleInvest = (id: string | number) => {
-    console.log('Invest in startup:', id);
     // Custom investment logic here
   };
 

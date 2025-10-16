@@ -50,7 +50,6 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
 
         if (startupResult) {
           setStartup(startupResult);
-          console.log('Startup overview data loaded:', startupResult);
         }
 
         if (overviewResult.success && overviewResult.data) {
@@ -59,7 +58,6 @@ export default function StartupOverview({ startupId }: StartupOverviewProps) {
 
         if (purchaseResult.success && purchaseResult.history) {
           setPurchaseHistory(purchaseResult.history);
-          console.log('Purchase history loaded:', purchaseResult.history);
         }
       } catch (err) {
         console.error('Error fetching startup overview data:', err);

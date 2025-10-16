@@ -500,6 +500,7 @@ module Transfer {
       };
     };
 
+
     // Verify a transfer by checking the transaction in the ledger
     public func verifyTransfer(blockIndex : Nat, fromAccount : Account, toAccount : Account, expectedAmount : Nat, tokenType : Text) : async Result.Result<{
       verified : Bool;
@@ -557,13 +558,52 @@ module Transfer {
 
         switch (await ledger.get_transaction(blockIndex)) {
           case null {
+            Debug.print("ERROR: Transaction not found for blockIndex: " # Nat.toText(blockIndex));
             #err("Transaction not found");
           };
           case (?transaction) {
+            Debug.print("Transaction found, checking operation type...");
             switch (transaction.operation) {
               case (#Transfer(transfer)) {
-                // Check if this is the expected transfer
-                if (transfer.from == fromAccount and transfer.to == toAccount and transfer.amount == expectedAmount) {
+                
+                // Detailed comparison with debugging
+                let fromMatch = transfer.from == fromAccount;
+                let toMatch = transfer.to == toAccount;
+                
+                // Get actual decimal places from the ledger
+                let ledger = actor (ledgerCanisterId) : actor {
+                  icrc1_decimals : () -> async Nat8;
+                };
+                let actualDecimals = await ledger.icrc1_decimals();
+                let decimalMultiplier = Nat.pow(10, Nat8.toNat(actualDecimals));
+                let expectedAmountWithDecimals = expectedAmount * decimalMultiplier;
+                let amountMatch = transfer.amount == expectedAmountWithDecimals;
+                
+                Debug.print("FROM account comparison:");
+                Debug.print("  Expected: " # debug_show(fromAccount));
+                Debug.print("  Actual: " # debug_show(transfer.from));
+                Debug.print("  Match: " # debug_show(fromMatch));
+                
+                Debug.print("TO account comparison:");
+                Debug.print("  Expected: " # debug_show(toAccount));
+                Debug.print("  Actual: " # debug_show(transfer.to));
+                Debug.print("  Match: " # debug_show(toMatch));
+
+                Debug.print("AMOUNT comparison:");
+                Debug.print("  Token type: " # tokenType);
+                Debug.print("  Actual decimals from ledger: " # Nat8.toText(actualDecimals));
+                Debug.print("  Decimal multiplier: " # debug_show(decimalMultiplier));
+                Debug.print("  Expected (raw): " # debug_show(expectedAmount));
+                Debug.print("  Expected (with decimals): " # debug_show(expectedAmountWithDecimals));
+                Debug.print("  Actual: " # debug_show(transfer.amount));
+                Debug.print("  Match: " # debug_show(amountMatch));
+                
+                Debug.print("From account matches: " # debug_show(fromMatch));
+                Debug.print("To account matches: " # debug_show(toMatch));
+                Debug.print("Amount matches: " # debug_show(amountMatch));
+                
+                if (fromMatch and toMatch and amountMatch) {
+                  Debug.print("SUCCESS: All verification checks passed");
                   #ok({
                     verified = true;
                     transactionId = Nat.toText(blockIndex);
@@ -572,6 +612,14 @@ module Transfer {
                     to = transfer.to;
                   });
                 } else {
+                  Debug.print("FAILURE: Verification checks failed");
+                  Debug.print("Expected from: " # debug_show(fromAccount));
+                  Debug.print("Actual from: " # debug_show(transfer.from));
+                  Debug.print("Expected to: " # debug_show(toAccount));
+                  Debug.print("Actual to: " # debug_show(transfer.to));
+                  Debug.print("Expected amount: " # Nat.toText(expectedAmount));
+                  Debug.print("Actual amount: " # Nat.toText(transfer.amount));
+                  
                   #ok({
                     verified = false;
                     transactionId = Nat.toText(blockIndex);
@@ -582,12 +630,14 @@ module Transfer {
                 };
               };
               case (_) {
+                Debug.print("ERROR: Transaction is not a transfer operation");
                 #err("Transaction is not a transfer");
               };
             };
           };
         };
       } catch (error : Error) {
+        Debug.print("ERROR: Exception during verification: " # Error.message(error));
         #err("Failed to verify transfer: " # Error.message(error));
       };
     };

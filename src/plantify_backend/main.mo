@@ -406,8 +406,8 @@ persistent actor PlantifyBackend {
     nftService.getAllNFTs();
   };
 
-  public shared (_msg) func getNFTsByStartup(startupId : Text) : async Result.Result<[Types.NFTInfo], Text> {
-    nftService.getNFTsByStartup(startupId);
+  public shared (_msg) func getNFTsByStartup(startupId : Text, page : Nat, limit : Nat) : async Result.Result<Types.PaginatedNFTs, Text> {
+    nftService.getNFTsByStartup(startupId, page, limit);
   };
 
   public shared (_msg) func canMintNFT(startupId : Text) : async Result.Result<Bool, Text> {

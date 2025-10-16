@@ -492,7 +492,7 @@ module NFTPurchase {
               purchases.put(purchaseId, purchaseInfo);
 
               // Find existing NFT for the startup
-              switch (_nftService.getNFTsByStartup(request.startupId)) {
+              switch (_nftService.getNFTsByStartup(request.startupId, 1, 1)) {
                 case (#err(error)) {
                   // Update purchase status to failed
                   let failedPurchase = {
@@ -510,8 +510,8 @@ module NFTPurchase {
                   purchases.put(purchaseId, failedPurchase);
                   return #Error("Failed to find NFT for startup: " # error);
                 };
-                case (#ok(nftList)) {
-                  if (nftList.size() == 0) {
+                case (#ok(paginatedResult)) {
+                  if (paginatedResult.totalCount == 0) {
                     let failedPurchase = {
                       id = purchaseInfo.id;
                       startupId = purchaseInfo.startupId;
@@ -529,7 +529,7 @@ module NFTPurchase {
                   };
 
                   // Check if there are enough NFTs available
-                  if (nftList.size() < request.quantity) {
+                  if (paginatedResult.totalCount < request.quantity) {
                     let failedPurchase = {
                       id = purchaseInfo.id;
                       startupId = purchaseInfo.startupId;
@@ -543,13 +543,13 @@ module NFTPurchase {
                       status = "Failed";
                     };
                     purchases.put(purchaseId, failedPurchase);
-                    return #Error("Insufficient NFTs available. Requested: " # Nat.toText(request.quantity) # ", Available: " # Nat.toText(nftList.size()));
+                    return #Error("Insufficient NFTs available. Requested: " # Nat.toText(request.quantity) # ", Available: " # Nat.toText(paginatedResult.totalCount));
                   };
 
                   // Get the required number of NFTs
                   let nftsToTransfer = Array.tabulate<{tokenId: Nat; owner: Types.NFTAccount; metadata: Types.NFTMetadata}>(
                     request.quantity,
-                    func(i) = nftList[i]
+                    func(i) = paginatedResult.nfts[i]
                   );
 
                   // Transfer NFTs to investor

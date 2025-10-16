@@ -158,19 +158,27 @@ export class StartupService extends BaseService {
   }
 
   /**
-   * Get all NFTs for a specific startup
+   * Get all NFTs for a specific startup with pagination
    * @param startupId - The ID of the startup
-   * @returns Array of NFTs or error message
+   * @param page - Page number (0-based)
+   * @param limit - Number of items per page
+   * @returns Paginated NFTs data or error message
    */
   public static async getNFTsByStartup(
-    startupId: string
-  ): Promise<{ success: boolean; nfts?: NFTInfo[]; error?: string }> {
+    startupId: string,
+    page: number = 0,
+    limit: number = 10
+  ): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
       const actor = await this.getActor();
-      const result: Result_12 = await actor.getNFTsByStartup(startupId);
+      const result: Result_12 = await actor.getNFTsByStartup(
+        startupId,
+        BigInt(page),
+        BigInt(limit)
+      );
 
       if ('ok' in result) {
-        return { success: true, nfts: result.ok };
+        return { success: true, data: result.ok };
       } else {
         return { success: false, error: result.err };
       }
@@ -238,9 +246,7 @@ export class StartupService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns Array of team members or error message
    */
-  public static async getStartupTeamMembers(
-    startupId: string
-  ): Promise<{
+  public static async getStartupTeamMembers(startupId: string): Promise<{
     success: boolean;
     members?: TeamMemberOverview[];
     error?: string;

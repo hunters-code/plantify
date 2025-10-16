@@ -1,6 +1,7 @@
 'use client';
 
-import { AuthClient, Identity } from '@dfinity/auth-client';
+import { AuthClient } from '@dfinity/auth-client';
+import { Identity } from '@dfinity/agent';
 import {
   createContext,
   useContext,
@@ -49,7 +50,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (success) {
         const serviceActor = await BaseService.getActorInstance();
         setActor(serviceActor);
-        return true;
       }
       return false;
     } catch (error) {

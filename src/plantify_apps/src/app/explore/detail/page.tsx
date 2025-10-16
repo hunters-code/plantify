@@ -36,7 +36,7 @@ import {
 } from '@/components/ui';
 import { InvestorService } from '@/services/investors/InvestorService';
 import { StartupService } from '@/services/marketplace';
-import { ICRCServiceHelper } from '@/services/ICRCServiceHelper';
+import { icrcService } from '@/services/ICRCService';
 import { getRiskLevel } from '@/utils/riskLevels';
 import {
   createPurchaseSteps,
@@ -100,10 +100,6 @@ function ExploreDetailContent() {
 
   // Chat interface state
   const [isChatOpen, setIsChatOpen] = useState(false);
-
-  // Purchase progress state
-  const [purchaseSteps, setPurchaseSteps] = useState<PurchaseStep[]>([]);
-  const [showPurchaseProgress, setShowPurchaseProgress] = useState(false);
 
   useEffect(() => {
     setStartup(null);
@@ -240,7 +236,7 @@ function ExploreDetailContent() {
         : fallbackNftPrice;
 
       const actualAvailableNFTs = nftsResult.success
-        ? nftsResult.nfts?.length || fallbackAvailableNFTs
+        ? nftsResult.data?.length || fallbackAvailableNFTs
         : fallbackAvailableNFTs;
 
       // Only update if the data is different from fallback
@@ -283,124 +279,6 @@ function ExploreDetailContent() {
   // Handle investment from chat
   const handleInvestFromChat = () => {
     handleInvestNow();
-  };
-
-  // Handle actual investment purchase
-  const handleInvestmentPurchase = async (investmentDetails: {
-    startupId: string | number;
-    quantity: number;
-    totalAmount: number;
-  }) => {
-    try {
-      // Initialize purchase steps
-      const steps = createPurchaseSteps();
-      setPurchaseSteps(steps);
-      setShowPurchaseProgress(true);
-
-      // Step 1: Validate purchase
-      updatePurchaseStep('validate', 'in_progress');
-
-      // Get current investor information
-      const investor = await InvestorService.getInvestorByPrincipal();
-      if (!investor) {
-        throw new Error(
-          'Investor not found. Please register as an investor first.'
-        );
-      }
-
-      // Check balance
-      if (!isAuthenticated || !principal || !identity) {
-        throw new Error('User must be authenticated to purchase NFTs');
-      }
-
-      const userPrincipal = Principal.fromText(principal);
-
-      // Initialize the ICRC service with identity
-      await ICRCServiceHelper.initializeWithAuth(identity);
-
-      const balance = await ICRCServiceHelper.getUserBalance(userPrincipal);
-      const requiredAmount = BigInt(investmentDetails.totalAmount);
-
-      if (balance < requiredAmount) {
-        const balanceInDollars = Number(balance) / 100;
-        const requiredInDollars = Number(requiredAmount) / 100;
-        throw new Error(
-          `Insufficient balance. Required: $${requiredInDollars.toFixed(2)}, Available: $${balanceInDollars.toFixed(2)}`
-        );
-      }
-
-      updatePurchaseStep('validate', 'completed');
-      updatePurchaseStep('transfer', 'in_progress');
-
-      // Step 2: Transfer tokens
-      const plantifyAccount = Principal.fromText('plantify-account'); // Replace with actual Plantify account
-      const transferResult = await ICRCServiceHelper.purchaseNFT(
-        plantifyAccount,
-        BigInt(investmentDetails.totalAmount),
-        `Purchase of ${investmentDetails.quantity} NFTs for ${startup?.startupName}`
-      );
-
-      if (!transferResult.success) {
-        throw new Error(transferResult.error || 'Transfer failed');
-      }
-
-      updatePurchaseStep('transfer', 'completed');
-      updatePurchaseStep('confirm', 'in_progress');
-
-      // Step 3: Wait for confirmation (simulate)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      updatePurchaseStep('confirm', 'completed');
-      updatePurchaseStep('mint', 'in_progress');
-
-      // Step 4: Complete NFT purchase with backend
-      const purchaseRequest = {
-        startupId: investmentDetails.startupId.toString(),
-        investorId: investor.id,
-        amount: BigInt(investmentDetails.totalAmount),
-        quantity: BigInt(investmentDetails.quantity),
-        memo: [
-          `Purchase of ${investmentDetails.quantity} NFTs for ${startup?.startupName}`,
-        ] as [] | [string],
-      };
-
-      const result = await InvestorService.purchaseNFT(purchaseRequest);
-      if (!result.success) {
-        throw new Error(result.error || 'NFT purchase failed');
-      }
-
-      updatePurchaseStep('mint', 'completed');
-      updatePurchaseStep('complete', 'completed');
-
-      // Step 5: Complete
-      setTimeout(() => {
-        setIsModalOpen(false);
-        setShowPurchaseProgress(false);
-        setPurchaseSteps([]);
-        // Show success message
-        alert('NFT purchase completed successfully!');
-      }, 1000);
-    } catch (error) {
-      console.error('Error processing investment:', error);
-      // Mark current step as error
-      const currentStepIndex = purchaseSteps.findIndex(
-        step => step.status === 'in_progress'
-      );
-      if (currentStepIndex >= 0) {
-        updatePurchaseStep(purchaseSteps[currentStepIndex].id, 'error');
-      }
-      throw error; // Re-throw to let the modal handle the error state
-    }
-  };
-
-  // Helper function to update purchase steps
-  const updatePurchaseStep = (
-    stepId: string,
-    status: 'pending' | 'in_progress' | 'completed' | 'error'
-  ) => {
-    setPurchaseSteps(prev =>
-      prev.map(step => (step.id === stepId ? { ...step, status } : step))
-    );
   };
 
   if (loading) {
@@ -543,8 +421,6 @@ function ExploreDetailContent() {
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
-            setShowPurchaseProgress(false);
-            setPurchaseSteps([]);
           }}
           startup={
             investmentData
@@ -558,10 +434,10 @@ function ExploreDetailContent() {
                 }
               : undefined
           }
-          onInvest={handleInvestmentPurchase}
-          isLoading={investmentLoading}
-          purchaseSteps={purchaseSteps}
-          showProgress={showPurchaseProgress}
+          onSuccess={payload => {
+            console.log('Investment completed:', payload);
+            setIsModalOpen(false);
+          }}
         />
       </Layout>
 

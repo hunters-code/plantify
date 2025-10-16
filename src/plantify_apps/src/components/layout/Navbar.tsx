@@ -15,7 +15,8 @@ import React, { useState, useEffect, useRef, JSX } from 'react';
 
 import { useAuth } from '@/contexts/AuthContext';
 import type { TransferAccount } from '@/declarations/plantify_backend/plantify_backend.did';
-import { ICRCServiceHelper } from '@/services/ICRCServiceHelper';
+import { icrcService } from '@/services/ICRCService';
+import { Principal } from '@dfinity/principal';
 
 import { Logo } from '../icons';
 
@@ -38,8 +39,14 @@ export default function Navbar(): JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { isAuthenticated, isLoading, userType, principal, signOut } =
-    useAuth();
+  const {
+    isAuthenticated,
+    isLoading,
+    userType,
+    principal,
+    signOut,
+    getIdentity,
+  } = useAuth();
 
   const getNavigationItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
@@ -94,52 +101,21 @@ export default function Navbar(): JSX.Element {
 
     setBalanceLoading(true);
     try {
-      const { BalanceService } = await import('@/services');
-      const { Principal } = await import('@dfinity/principal');
-
-      console.log('Original principal string:', principal);
-
       let principalObj;
       try {
         principalObj = Principal.fromText(principal);
-        console.log('Created Principal object:', principalObj.toString());
-        console.log('Principal toUint8Array:', principalObj.toUint8Array());
       } catch (error) {
         console.error('Error creating Principal from text:', error);
         throw new Error(`Invalid principal format: ${principal}`);
       }
 
-      const account: TransferAccount = {
-        owner: principalObj,
-        subaccount: [],
-      };
-
-      console.log('Fetching balances for account:', account);
-
-      // BalanceService.getAllBalances() will automatically initialize ICRC service
-      // and use it for ckUSDC balance checking with backend fallback
-      const balances = await BalanceService.getAllBalances(account);
-
-      console.log('Balance results:', balances);
-
-      if (balances.icp.success && balances.icp.balance !== undefined) {
-        setIcpBalance(balances.icp.balance.toFixed(4));
-      } else {
-        console.error('Failed to get ICP balance:', balances.icp.error);
-        setIcpBalance('0.0000');
-      }
-
-      // ckUSDC balance now uses ICRC service with backend fallback
-      if (balances.ckUSDC.success && balances.ckUSDC.balance !== undefined) {
-        setCkUSDCBalance(balances.ckUSDC.balance.toFixed(2));
-        console.log(
-          'ckUSDC balance fetched via ICRC service:',
-          balances.ckUSDC.balance
-        );
-      } else {
-        console.error('Failed to get ckUSDC balance:', balances.ckUSDC.error);
-        setCkUSDCBalance('0.00');
-      }
+      // Get balances directly from ICRC service
+      const [icpBalance, ckUSDCBalance] = await Promise.all([
+        icrcService.getBalanceInUnits(principalObj, 'ICP'),
+        icrcService.getBalanceInUnits(principalObj, 'ckUSDC'),
+      ]);
+      setIcpBalance(icpBalance.toFixed(0));
+      setCkUSDCBalance(ckUSDCBalance.toFixed(0));
     } catch (error) {
       console.error('Failed to fetch balances:', error);
       setIcpBalance('0.0000');

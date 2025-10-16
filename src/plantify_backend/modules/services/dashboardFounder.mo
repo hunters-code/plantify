@@ -162,8 +162,8 @@ module DashboardFounderService {
     
     // Calculate total NFT count for a startup
     private func calculateTotalNFT(startupId : Text) : Nat {
-      switch (nftService.getNFTsByStartup(startupId)) {
-        case (#ok(nfts)) { nfts.size() };
+      switch (nftService.getNFTsByStartup(startupId, 1, 1)) {
+        case (#ok(paginatedResult)) { paginatedResult.totalCount };
         case (#err(_)) { 0 };
       };
     };

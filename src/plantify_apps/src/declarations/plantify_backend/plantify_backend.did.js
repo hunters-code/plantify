@@ -171,6 +171,24 @@ export const idlFactory = ({ IDL }) => {
     founderBackground: IDL.Text,
   });
   const Result_22 = IDL.Variant({ ok: Startup, err: IDL.Text });
+  const NFTAccount = IDL.Record({
+    owner: IDL.Principal,
+    subaccount: IDL.Opt(IDL.Vec(IDL.Nat8)),
+  });
+  const NFTMetadata = IDL.Record({
+    tokenUri: IDL.Text,
+    name: IDL.Opt(IDL.Text),
+    description: IDL.Opt(IDL.Text),
+    attributes: IDL.Opt(IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))),
+    image: IDL.Opt(IDL.Text),
+  });
+  const NFTInfo = IDL.Record({
+    tokenId: IDL.Nat,
+    startupId: IDL.Text,
+    owner: NFTAccount,
+    metadata: NFTMetadata,
+    mintedAt: Time,
+  });
   const CollateralStatus = IDL.Variant({
     Active: IDL.Null,
     Released: IDL.Null,
@@ -197,24 +215,6 @@ export const idlFactory = ({ IDL }) => {
     currentAmount: IDL.Nat,
     requiredAmount: IDL.Nat,
     lockStartTime: IDL.Opt(Time),
-  });
-  const NFTAccount = IDL.Record({
-    owner: IDL.Principal,
-    subaccount: IDL.Opt(IDL.Vec(IDL.Nat8)),
-  });
-  const NFTMetadata = IDL.Record({
-    tokenUri: IDL.Text,
-    name: IDL.Opt(IDL.Text),
-    description: IDL.Opt(IDL.Text),
-    attributes: IDL.Opt(IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))),
-    image: IDL.Opt(IDL.Text),
-  });
-  const NFTInfo = IDL.Record({
-    tokenId: IDL.Nat,
-    startupId: IDL.Text,
-    owner: NFTAccount,
-    metadata: NFTMetadata,
-    mintedAt: Time,
   });
   const NFTPurchaseInfo = IDL.Record({
     id: IDL.Text,
@@ -612,7 +612,14 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_14 = IDL.Variant({ ok: NFTOwnerResponse, err: IDL.Text });
   const Result_13 = IDL.Variant({ ok: IDL.Nat, err: IDL.Text });
-  const Result_12 = IDL.Variant({ ok: IDL.Vec(NFTInfo), err: IDL.Text });
+  const PaginatedNFTs = IDL.Record({
+    nfts: IDL.Vec(NFTInfo),
+    page: IDL.Nat,
+    totalCount: IDL.Nat,
+    limit: IDL.Nat,
+    totalPages: IDL.Nat,
+  });
+  const Result_12 = IDL.Variant({ ok: PaginatedNFTs, err: IDL.Text });
   const Result_11 = IDL.Variant({ ok: NFTPurchaseInfo, err: IDL.Text });
   const NFTPurchaseStats = IDL.Record({
     totalNFTsSold: IDL.Nat,
@@ -829,6 +836,21 @@ export const idlFactory = ({ IDL }) => {
       [Result_22],
       []
     ),
+    debugNFTPersistence: IDL.Func(
+      [],
+      [
+        IDL.Record({
+          allNFTs: IDL.Vec(NFTInfo),
+          nftStats: IDL.Record({
+            totalSupply: IDL.Nat,
+            totalStartups: IDL.Nat,
+            nextTokenId: IDL.Nat,
+          }),
+          stableNFTCount: IDL.Nat,
+        }),
+      ],
+      []
+    ),
     getAllCollateralInfo: IDL.Func([], [IDL.Vec(CollateralInfo)], []),
     getAllMonthlyReports: IDL.Func([], [IDL.Vec(MonthlyReport)], []),
     getAllNFTs: IDL.Func([], [IDL.Vec(NFTInfo)], []),
@@ -907,7 +929,7 @@ export const idlFactory = ({ IDL }) => {
       ],
       []
     ),
-    getNFTsByStartup: IDL.Func([IDL.Text], [Result_12], []),
+    getNFTsByStartup: IDL.Func([IDL.Text, IDL.Nat, IDL.Nat], [Result_12], []),
     getPlantifyAccount: IDL.Func([], [IDL.Text], []),
     getPlantifyCanisterPrincipal: IDL.Func([], [IDL.Text], []),
     getPurchaseInfo: IDL.Func([IDL.Text], [Result_11], []),

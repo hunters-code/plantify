@@ -457,6 +457,13 @@ export interface NFTPurchaseStats {
   averagePurchaseAmount: bigint;
   totalRevenue: bigint;
 }
+export interface PaginatedNFTs {
+  nfts: Array<NFTInfo>;
+  page: bigint;
+  totalCount: bigint;
+  limit: bigint;
+  totalPages: bigint;
+}
 export interface PaginatedStartups {
   startups: Array<StartupSummary>;
   page: bigint;
@@ -526,7 +533,7 @@ export type Result = { ok: InvestorVote } | { err: string };
 export type Result_1 = { ok: MonthlyReport } | { err: string };
 export type Result_10 = { ok: ReportVoteDetails } | { err: string };
 export type Result_11 = { ok: NFTPurchaseInfo } | { err: string };
-export type Result_12 = { ok: Array<NFTInfo> } | { err: string };
+export type Result_12 = { ok: PaginatedNFTs } | { err: string };
 export type Result_13 = { ok: bigint } | { err: string };
 export type Result_14 = { ok: NFTOwnerResponse } | { err: string };
 export type Result_15 = { ok: NFTInfo } | { err: string };
@@ -795,6 +802,18 @@ export interface _SERVICE {
     [string, StartupCreationRequest],
     Result_22
   >;
+  debugNFTPersistence: ActorMethod<
+    [],
+    {
+      allNFTs: Array<NFTInfo>;
+      nftStats: {
+        totalSupply: bigint;
+        totalStartups: bigint;
+        nextTokenId: bigint;
+      };
+      stableNFTCount: bigint;
+    }
+  >;
   getAllCollateralInfo: ActorMethod<[], Array<CollateralInfo>>;
   getAllMonthlyReports: ActorMethod<[], Array<MonthlyReport>>;
   getAllNFTs: ActorMethod<[], Array<NFTInfo>>;
@@ -851,7 +870,7 @@ export interface _SERVICE {
     [],
     { totalSupply: bigint; totalStartups: bigint; nextTokenId: bigint }
   >;
-  getNFTsByStartup: ActorMethod<[string], Result_12>;
+  getNFTsByStartup: ActorMethod<[string, bigint, bigint], Result_12>;
   getPlantifyAccount: ActorMethod<[], string>;
   getPlantifyCanisterPrincipal: ActorMethod<[], string>;
   getPurchaseInfo: ActorMethod<[string], Result_11>;

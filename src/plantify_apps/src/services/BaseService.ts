@@ -185,6 +185,20 @@ export class BaseService {
   }
 
   /**
+   * Get the current agent for external services
+   * @returns The HttpAgent instance
+   * @throws Error if the agent is not initialized
+   */
+  public static getAgent(): HttpAgent {
+    if (!this.agent) {
+      throw new Error(
+        'Agent not initialized. Please ensure you are authenticated and try again.'
+      );
+    }
+    return this.agent;
+  }
+
+  /**
    * Clear the current actor and agent
    * This should be called when signing out to prevent using stale authentication
    */

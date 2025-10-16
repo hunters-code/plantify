@@ -664,6 +664,14 @@ module Types {
     limit : Nat;
   };
 
+  public type PaginatedNFTs = {
+    nfts : [NFTInfo];
+    totalCount : Nat;
+    page : Nat;
+    limit : Nat;
+    totalPages : Nat;
+  };
+
   // Lightweight startup data for pagination
   public type StartupSummary = {
     id : Text;

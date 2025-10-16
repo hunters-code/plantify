@@ -183,21 +183,76 @@ module NFT {
       Buffer.toArray(nftArray);
     };
 
-    // Get NFTs by startup ID
-    public func getNFTsByStartup(startupId : Text) : Result.Result<[Types.NFTInfo], Text> {
+    // Get NFTs by startup ID with pagination
+    public func getNFTsByStartup(startupId : Text, page : Nat, limit : Nat) : Result.Result<Types.PaginatedNFTs, Text> {
+      // Validate pagination parameters
+      if (page == 0) {
+        return #err("Page number must be greater than 0");
+      };
+      if (limit == 0) {
+        return #err("Limit must be greater than 0");
+      };
+      
       switch (startupNFTs.get(startupId)) {
         case null {
-          #ok([]);
+          #ok({
+            nfts = [];
+            totalCount = 0;
+            page = page;
+            limit = limit;
+            totalPages = 0;
+          });
         };
         case (?tokenIds) {
-          let nftArray = Buffer.Buffer<Types.NFTInfo>(tokenIds.size());
-          for (tokenId in tokenIds.vals()) {
-            switch (nftInfo.get(tokenId)) {
-              case null { };
-              case (?info) { nftArray.add(info) };
-            };
+          let totalCount = tokenIds.size();
+          let totalPages = if (totalCount == 0) { 0 } else { 
+            let division = totalCount / limit;
+            let remainder = totalCount % limit;
+            if (remainder == 0) { division } else { division + 1 }
           };
-          #ok(Buffer.toArray(nftArray));
+          
+          // Validate page number
+          if (totalPages > 0 and page > totalPages) {
+            return #err("Invalid page number");
+          };
+          
+          let startIndex = if (page == 1) { 
+            0 
+          } else { 
+            let pageOffset = if (page > 1) { 
+              Nat.sub(page, 1)
+            } else { 
+              0 
+            };
+            pageOffset * limit
+          };
+          let endIndex = if (startIndex >= totalCount) { 
+            totalCount 
+          } else { 
+            let calculatedEnd = startIndex + limit;
+            if (calculatedEnd > totalCount) { totalCount } else { calculatedEnd }
+          };
+          
+          let nftArray = Buffer.Buffer<Types.NFTInfo>(limit);
+          var currentIndex = 0;
+          
+          for (tokenId in tokenIds.vals()) {
+            if (currentIndex >= startIndex and currentIndex < endIndex) {
+              switch (nftInfo.get(tokenId)) {
+                case null { };
+                case (?info) { nftArray.add(info) };
+              };
+            };
+            currentIndex += 1;
+          };
+          
+          #ok({
+            nfts = Buffer.toArray(nftArray);
+            totalCount = totalCount;
+            page = page;
+            limit = limit;
+            totalPages = totalPages;
+          });
         };
       };
     };

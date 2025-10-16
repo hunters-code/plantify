@@ -313,9 +313,9 @@ module Collateral {
         };
         case (?startup) {
           // Check if NFTs are already minted for this startup
-          switch (nftService.getNFTsByStartup(startupId)) {
-            case (#ok(existingNFTs)) {
-              if (existingNFTs.size() > 0) {
+          switch (nftService.getNFTsByStartup(startupId, 1, 1)) {
+            case (#ok(paginatedResult)) {
+              if (paginatedResult.totalCount > 0) {
                 Debug.print("NFTs already minted for startup " # startupId # ". Skipping minting.");
                 return;
               };
