@@ -273,6 +273,40 @@ module NFT {
       };
     };
 
+    // Get available NFT count for a specific startup (only NFTs still owned by the startup/founder)
+    public func getAvailableNFTCount(startupId : Text) : Result.Result<Nat, Text> {
+      // First, get the founder of the startup
+      switch (storage.getFounderOfStartup(startupId)) {
+        case null {
+          #err("Startup not found or has no founder");
+        };
+        case (?founder) {
+          // Get all NFTs for this startup
+          switch (startupNFTs.get(startupId)) {
+            case null {
+              #ok(0);
+            };
+            case (?tokenIds) {
+              // Count only NFTs that are still owned by the founder
+              var availableCount = 0;
+              for (tokenId in tokenIds.vals()) {
+                switch (nftInfo.get(tokenId)) {
+                  case null { };
+                  case (?nft) {
+                    // Check if the NFT is still owned by the founder
+                    if (Principal.equal(nft.owner.owner, founder.principal)) {
+                      availableCount += 1;
+                    };
+                  };
+                };
+              };
+              #ok(availableCount);
+            };
+          };
+        };
+      };
+    };
+
     // Get NFT statistics
     public func getNFTStats() : {
       totalSupply : Nat;
