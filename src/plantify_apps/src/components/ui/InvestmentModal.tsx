@@ -16,6 +16,7 @@ import PurchaseProgress, {
 } from './PurchaseProgress';
 import { icrcService } from '../../services/ICRCService';
 import { InvestorService } from '../../services/investors/InvestorService';
+import { NFTService } from '../../services/marketplace/NFTService';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface Startup {
@@ -115,6 +116,34 @@ export default function InvestmentModal({
     // Check if user has sufficient balance
     if (userBalance < totalAmount) {
       setTransferError('Insufficient balance');
+      setTransferStatus('error');
+      return;
+    }
+
+    // Validate available NFT count before proceeding
+    try {
+      const availableCountResult = await NFTService.getAvailableNFTCount(
+        startup.id.toString()
+      );
+      if (!availableCountResult.success) {
+        setTransferError(
+          availableCountResult.error || 'Failed to check available NFTs'
+        );
+        setTransferStatus('error');
+        return;
+      }
+
+      const availableCount = Number(availableCountResult.count || 0);
+      if (availableCount < nftQuantity) {
+        setTransferError(
+          `Only ${availableCount} NFTs are available for purchase`
+        );
+        setTransferStatus('error');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking available NFT count:', error);
+      setTransferError('Failed to validate available NFTs');
       setTransferStatus('error');
       return;
     }

@@ -1031,6 +1031,7 @@ service : {
   getAllPurchases: () -> (vec NFTPurchaseInfo);
   getAllStartups: () -> (vec Startup);
   getAllVotes: () -> (vec InvestorVote);
+  getAvailableNFTCount: (startupId: text) -> (Result_13);
   getBalance: (account: TransferAccount, tokenType: text) ->
    (BalanceResponse);
   getCanisterVersion: () -> (nat);

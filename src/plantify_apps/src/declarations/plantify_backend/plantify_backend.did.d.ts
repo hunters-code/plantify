@@ -820,6 +820,7 @@ export interface _SERVICE {
   getAllPurchases: ActorMethod<[], Array<NFTPurchaseInfo>>;
   getAllStartups: ActorMethod<[], Array<Startup>>;
   getAllVotes: ActorMethod<[], Array<InvestorVote>>;
+  getAvailableNFTCount: ActorMethod<[string], Result_13>;
   getBalance: ActorMethod<[TransferAccount, string], BalanceResponse>;
   getCanisterVersion: ActorMethod<[], bigint>;
   getCkUSDCBalance: ActorMethod<[TransferAccount], BalanceResponse>;
