@@ -65,6 +65,10 @@ interface Startup {
   monthlyRevenue: string;
   nftPrice: string;
   fundingGoal: string;
+  website: string;
+  businessPlan: string[];
+  legalDocuments: string[];
+  financialProjections: string[];
 }
 
 interface InvestmentDetails {
@@ -139,6 +143,10 @@ function ExploreDetailContent() {
           monthlyRevenue: startupData.monthlyRevenue,
           nftPrice: startupData.nftPrice,
           fundingGoal: startupData.fundingGoal,
+          website: startupData.website,
+          businessPlan: startupData.businessPlan || undefined,
+          legalDocuments: startupData.legalDocuments || undefined,
+          financialProjections: startupData.financialProjections || undefined,
         };
         setStartup(transformedStartup);
       } else {

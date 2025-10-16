@@ -29,7 +29,11 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    "dist/types/**/*.ts"
+    "dist/types/**/*.ts",
+    "src/app/explore/detail/partial/Documents.jsx",
+    "src/app/explore/detail/partial/FounderTeam.jsx",
+    "src/app/explore/detail/partial/Overview.jsx",
+    "src/app/explore/detail/partial/Risks.jsx"
   ],
   "exclude": ["node_modules"]
 }
