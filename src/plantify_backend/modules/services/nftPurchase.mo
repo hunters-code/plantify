@@ -546,10 +546,45 @@ module NFTPurchase {
                     return #Error("Insufficient NFTs available. Requested: " # Nat.toText(request.quantity) # ", Available: " # Nat.toText(paginatedResult.totalCount));
                   };
 
+                  // Additional safety check: ensure the NFTs array has enough elements
+                  if (paginatedResult.nfts.size() < request.quantity) {
+                    let failedPurchase = {
+                      id = purchaseInfo.id;
+                      startupId = purchaseInfo.startupId;
+                      investorId = purchaseInfo.investorId;
+                      tokenId = 0;
+                      amount = purchaseInfo.amount;
+                      nftPrice = purchaseInfo.nftPrice;
+                      change = purchaseInfo.change;
+                      transactionId = purchaseInfo.transactionId;
+                      timestamp = purchaseInfo.timestamp;
+                      status = "Failed";
+                    };
+                    purchases.put(purchaseId, failedPurchase);
+                    return #Error("Insufficient NFTs in current page. Requested: " # Nat.toText(request.quantity) # ", Available in page: " # Nat.toText(paginatedResult.nfts.size()));
+                  };
+
                   // Get the required number of NFTs
                   let nftsToTransfer = Array.tabulate<{tokenId: Nat; owner: Types.NFTAccount; metadata: Types.NFTMetadata}>(
                     request.quantity,
-                    func(i) = paginatedResult.nfts[i]
+                    func(i) {
+                      if (i < paginatedResult.nfts.size()) {
+                        paginatedResult.nfts[i]
+                      } else {
+                        // This should not happen due to the check above, but adding safety
+                        {
+                          tokenId = 0;
+                          owner = { owner = _principal; subaccount = null };
+                          metadata = {
+                            tokenUri = "";
+                            name = ?"";
+                            description = ?"";
+                            image = ?"";
+                            attributes = ?[];
+                          };
+                        }
+                      }
+                    }
                   );
 
                   // Transfer NFTs to investor
