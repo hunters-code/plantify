@@ -399,7 +399,7 @@ function ExploreDetailContent() {
             {/* Left side - Tabs and Content */}
             <div className='lg:col-span-2'>
               <Tabs tabs={tabs} onChange={setActiveTab} />
-              <div>{renderContent()}</div>
+              <div className='mb-8'>{renderContent()}</div>
             </div>
 
             {/* Right side - Chat Interface */}

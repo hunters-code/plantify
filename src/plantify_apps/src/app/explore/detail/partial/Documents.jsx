@@ -25,7 +25,7 @@ export default function Documents({ startup }) {
 
   const hasWebsite = startup.website && startup.website.trim() !== '';
   return (
-    <Card className='max-w-2xl mt-8 bg-white'>
+    <div className='max-w-2xl mt-8 bg-neutral-100 p-4 rounded-[16px]'>
       <h2 className='text-xl font-semibold text-gray-900 font-ibm'>
         Documents & Resources
       </h2>
@@ -191,6 +191,6 @@ export default function Documents({ startup }) {
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
