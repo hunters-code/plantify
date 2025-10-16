@@ -1,6 +1,6 @@
 import { SVGProps } from 'react';
 
-export const EyeIcon = (props: SVGProps<SVGAElement>) => (
+export const EyeIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='21'
@@ -21,7 +21,7 @@ export const EyeIcon = (props: SVGProps<SVGAElement>) => (
         d='M20.0417 0.625V19.375H1.29175V0.625H20.0417Z'
         fill='white'
         stroke='white'
-        stroke-width='1.25'
+        strokeWidth='1.25'
       />
     </mask>
     <g mask='url(#mask0_816_1494)'>
@@ -37,7 +37,7 @@ export const EyeIcon = (props: SVGProps<SVGAElement>) => (
   </svg>
 );
 
-export const InvestIcon = (props: SVGProps<SVGAElement>) => (
+export const InvestIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='20'
@@ -58,7 +58,7 @@ export const InvestIcon = (props: SVGProps<SVGAElement>) => (
         d='M19.375 0.625V19.375H0.625V0.625H19.375Z'
         fill='white'
         stroke='white'
-        stroke-width='1.25'
+        strokeWidth='1.25'
       />
     </mask>
     <g mask='url(#mask0_816_315)'>
@@ -74,7 +74,7 @@ export const InvestIcon = (props: SVGProps<SVGAElement>) => (
   </svg>
 );
 
-export const GlobeIcon = (props: SVGProps<SVGAElement>) => (
+export const GlobeIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='20'

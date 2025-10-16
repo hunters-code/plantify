@@ -110,10 +110,14 @@ export default function ProductCard({
     }
   };
 
-  const handleInvest = async (investmentDetails: any) => {
+  const handleInvest = async (payload: {
+    startupId: string | number;
+    quantity: number;
+    totalAmount: number;
+  }) => {
     try {
       setIsLoading(true);
-      const result = await purchaseNFTs(investmentDetails);
+      const result = await purchaseNFTs(payload);
 
       if (result.success) {
         alert(result.message);
@@ -255,8 +259,7 @@ export default function ProductCard({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         startup={investmentData}
-        onInvest={handleInvest}
-        isLoading={isLoading}
+        onSuccess={handleInvest}
       />
     </div>
   );
