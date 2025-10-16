@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Calendar, TrendingUp, DollarSign, FileText } from 'lucide-react';
+import {
+  Calendar,
+  TrendingUp,
+  DollarSign,
+  FileText,
+  CalendarDays,
+} from 'lucide-react';
 import { MonthlyReportService } from '@/services/founders/MonthlyReportService';
 
 type ReportStatus = 'Approved' | 'Draft' | 'Rejected' | 'Submitted';
@@ -51,24 +57,81 @@ const Financials: React.FC<FinancialsProps> = ({ startup }) => {
   const [reportData, setReportData] = useState<MonthlyReportList | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const dummyData: MonthlyReportList = {
+    totalProfitSharing: 120000,
+    totalReports: 3,
+    totalProfit: 155000,
+    totalExpenses: 210000,
+    totalRevenue: 365000,
+    reports: [
+      {
+        id: '1',
+        month: 7,
+        year: 2025,
+        revenue: 120000,
+        expenses: 80000,
+        profit: 40000,
+        profitSharingAmount: 10000,
+        newInvestors: 5,
+        investorCount: 45,
+        status: 'Approved',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+      {
+        id: '2',
+        month: 8,
+        year: 2025,
+        revenue: 150000,
+        expenses: 90000,
+        profit: 60000,
+        profitSharingAmount: 12000,
+        newInvestors: 3,
+        investorCount: 48,
+        status: 'Approved',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+      {
+        id: '3',
+        month: 9,
+        year: 2025,
+        revenue: 95000,
+        expenses: 70000,
+        profit: 25000,
+        profitSharingAmount: 8000,
+        newInvestors: 2,
+        investorCount: 50,
+        status: 'Submitted',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+    ],
+  };
+
   useEffect(() => {
     const fetchReports = async () => {
       if (!startup?.id) return;
       setLoading(true);
 
-      const response = await MonthlyReportService.getMonthlyReportsByStartup(
-        startup.id
-      );
-      if (response.success && response.reportList) {
-        const convertedReports: MonthlyReportList = {
-          ...response.reportList,
-          totalProfitSharing: Number(response.reportList.totalProfitSharing),
-        };
-        setReportData(convertedReports);
+      try {
+        const response = await MonthlyReportService.getMonthlyReportsByStartup(
+          startup.id
+        );
+        if (response.success && response.reportList) {
+          const convertedReports: MonthlyReportList = {
+            ...response.reportList,
+            totalProfitSharing: Number(response.reportList.totalProfitSharing),
+          };
+          setReportData(convertedReports);
+        } else {
+          setReportData(dummyData);
+        }
+      } catch {
+        setReportData(dummyData);
+      } finally {
+        setLoading(false);
       }
-
-      setReportData(dummyData);
-      setLoading(false);
     };
 
     fetchReports();
@@ -128,18 +191,6 @@ const Financials: React.FC<FinancialsProps> = ({ startup }) => {
             )}
           </div>
         </div>
-
-        {startup.financialProjections?.length ? (
-          <div className='bg-white rounded-lg p-4'>
-            <h4 className='text-lg font-medium mb-3 flex items-center gap-2'>
-              <FileText size={18} className='text-blue-500' />
-              Financial Projections
-            </h4>
-            <p className='text-gray-600 text-sm'>
-              {startup.financialProjections[0]}
-            </p>
-          </div>
-        ) : null}
       </div>
 
       {/* Financial Performance Details */}
@@ -163,7 +214,7 @@ const Financials: React.FC<FinancialsProps> = ({ startup }) => {
                   key={record.id}
                   className='bg-white border border-gray-200 shadow-sm rounded-[16px] p-4 flex flex-col'
                 >
-                  <div className='flex justify-between items-start gap-3 w-full sm:w-auto'>
+                  <div className='flex justify-between items-start gap-3 w-full'>
                     <div className='flex gap-2 items-center justify-center'>
                       <Calendar className='w-5 h-5 text-gray-500 mt-1' />
                       <h4 className='font-medium text-sm text-gray-800 mb-1'>
@@ -183,20 +234,6 @@ const Financials: React.FC<FinancialsProps> = ({ startup }) => {
                       </div>
                     </div>
                   </div>
-                  <div className='text-sm text-gray-700 space-y-1 flex justify-between mt-4'>
-                    <div>
-                      <span className='text-gray-500'>Revenue: </span>
-                      <span className='font-semibold'>
-                        ${record.revenue.toLocaleString()}
-                      </span>
-                    </div>
-                    <div>
-                      <span className='text-gray-500'>Expenses: </span>
-                      <span className='font-semibold text-red-600'>
-                        ${record.expenses.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
                 </div>
               );
             })}
@@ -213,6 +250,7 @@ const Financials: React.FC<FinancialsProps> = ({ startup }) => {
         <h3 className='text-2xl font-semibold font-ibm mb-4'>
           Investment Information
         </h3>
+
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <div className='bg-white rounded-[16px] p-4'>
             <h4 className='text-sm font-medium mb-3'>Funding Details</h4>
@@ -246,13 +284,46 @@ const Financials: React.FC<FinancialsProps> = ({ startup }) => {
             </p>
           </div>
         </div>
+      </div>
 
-        {startup.useOfFunds && (
-          <div className='mt-4 bg-white rounded-lg p-4'>
-            <h4 className='text-lg font-medium mb-3'>Use of Funds</h4>
-            <p className='text-gray-600 text-sm'>{startup.useOfFunds}</p>
+      {/* 🟢 Investor Profit Sharing Model Section */}
+      <div className='bg-neutral-100 rounded-[16px] p-6 space-y-6'>
+        <div className='flex items-center justify-between'>
+          <h3 className='text-2xl font-semibold font-ibm'>
+            Investor Profit Sharing Model
+          </h3>
+          <div className='flex items-center gap-1 text-orange-600 bg-orange-50 border border-orange-200 text-xs px-3 py-1 rounded-full'>
+            <CalendarDays size={14} />
+            <span>Last 6 months</span>
           </div>
-        )}
+        </div>
+
+        <div className='bg-white rounded-[16px] p-5 space-y-3'>
+          <h4 className='text-lg font-medium'>How profit sharing works</h4>
+          <ul className='text-sm text-gray-600 list-disc pl-5 space-y-1'>
+            <li>70% of monthly net profit distributed to NFT holders</li>
+            <li>30% retained by company for growth and operations</li>
+            <li>Payments distributed on 1st of each month</li>
+            <li>Profit sharing locked for 36 months</li>
+            <li>Transparent reporting with monthly financial statements</li>
+          </ul>
+        </div>
+
+        <div className='bg-white rounded-[16px] p-5 space-y-4'>
+          <h4 className='text-lg font-medium'>Expected Monthly Distribution</h4>
+          <div className='bg-neutral-50 rounded-[12px] p-4'>
+            <p className='text-sm text-gray-500 mb-1'>
+              Based on current performance:
+            </p>
+            <p className='text-3xl font-semibold'>
+              $12{' '}
+              <span className='text-sm text-gray-600 font-normal'>per NFT</span>
+            </p>
+            <p className='text-sm text-gray-500 mt-1'>
+              From latest month net profit of $6,700
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
