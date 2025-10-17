@@ -59,12 +59,17 @@ interface Startup {
   status: string;
   location: string;
   teamMembers: { name: string; role: string }[];
+  nftImage: string;
   companyImages: string[];
   companyLogo: string[];
   periodicProfitSharing: string;
   monthlyRevenue: string;
   nftPrice: string;
   fundingGoal: string;
+  website: string;
+  businessPlan: string[];
+  legalDocuments: string[];
+  financialProjections: string[];
 }
 
 interface InvestmentDetails {
@@ -131,6 +136,7 @@ function ExploreDetailContent() {
               role: member.role,
             })) || [],
           companyImages: startupData.companyImages || [],
+          nftImage: startupData.nftImage,
           companyLogo:
             startupData.companyLogo && startupData.companyLogo.length > 0
               ? [startupData.companyLogo[0] as string]
@@ -139,6 +145,10 @@ function ExploreDetailContent() {
           monthlyRevenue: startupData.monthlyRevenue,
           nftPrice: startupData.nftPrice,
           fundingGoal: startupData.fundingGoal,
+          website: startupData.website,
+          businessPlan: startupData.businessPlan || undefined,
+          legalDocuments: startupData.legalDocuments || undefined,
+          financialProjections: startupData.financialProjections || undefined,
         };
         setStartup(transformedStartup);
       } else {
@@ -322,9 +332,8 @@ function ExploreDetailContent() {
         <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
           {/* Left Side */}
           <ImageGallery
-            images={images.filter(img => img && !img.includes('undefined'))}
-            showViewMore={true}
-            onViewMore={() => console.log('View more clicked')}
+            nftImage={startup?.nftImage}
+            companyImages={startup?.companyImages || []}
           />
 
           {/* Right Side */}
@@ -399,7 +408,7 @@ function ExploreDetailContent() {
             {/* Left side - Tabs and Content */}
             <div className='lg:col-span-2'>
               <Tabs tabs={tabs} onChange={setActiveTab} />
-              <div>{renderContent()}</div>
+              <div className='mb-8'>{renderContent()}</div>
             </div>
 
             {/* Right side - Chat Interface */}
