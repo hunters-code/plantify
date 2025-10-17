@@ -106,7 +106,18 @@ export default function ProductCard({
     try {
       setIsLoading(true);
       const details = await getInvestmentDetails(id);
-      setInvestmentData(details);
+      setInvestmentData(
+        details as {
+          id: string | number;
+          name: string;
+          nftPrice: number;
+          monthlyReturns: number;
+          expectedROI: number;
+          availableNFTs: number;
+          totalNFTs: number;
+          soldNFTs: number;
+        }
+      );
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error getting investment details:', error);
@@ -275,7 +286,7 @@ export default function ProductCard({
       <InvestmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        startup={investmentData}
+        startup={investmentData || undefined}
         onSuccess={handleInvest}
       />
     </div>

@@ -75,9 +75,9 @@ function ExploreContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const pageParam = searchParams.get('page');
-  const filterParam = searchParams.get('filter') as FilterType | null;
-  const searchParam = searchParams.get('search');
+  const pageParam = searchParams?.get('page');
+  const filterParam = searchParams?.get('filter') as FilterType | null;
+  const searchParam = searchParams?.get('search');
 
   const ITEMS_PER_PAGE = 6;
 
