@@ -1,6 +1,6 @@
 'use client';
 
-import {
+import React, {
   createContext,
   useContext,
   useState,
@@ -202,23 +202,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return identity;
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        isLoading,
-        isRegistered,
-        userType,
-        principal,
-        identity,
-        signIn,
-        signOut,
-        getIdentity,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const value: AuthContextType = {
+    isAuthenticated,
+    isLoading,
+    isRegistered,
+    userType,
+    principal,
+    identity,
+    signIn,
+    signOut,
+    getIdentity,
+  };
+
+  return React.createElement(AuthContext.Provider, { value }, children);
 };
 
 export const useAuth = (): AuthContextType => {
