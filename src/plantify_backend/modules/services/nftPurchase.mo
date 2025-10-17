@@ -491,8 +491,8 @@ module NFTPurchase {
               // Store purchase info
               purchases.put(purchaseId, purchaseInfo);
 
-              // Find existing NFT for the startup
-              switch (_nftService.getNFTsByStartup(request.startupId, 1, 1)) {
+              // Check available NFT count for the startup
+              switch (_nftService.getAvailableNFTCount(request.startupId)) {
                 case (#err(error)) {
                   // Update purchase status to failed
                   let failedPurchase = {
@@ -508,10 +508,10 @@ module NFTPurchase {
                     status = "Failed";
                   };
                   purchases.put(purchaseId, failedPurchase);
-                  return #Error("Failed to find NFT for startup: " # error);
+                  return #Error("Failed to get available NFT count for startup: " # error);
                 };
-                case (#ok(paginatedResult)) {
-                  if (paginatedResult.totalCount == 0) {
+                case (#ok(availableCount)) {
+                  if (availableCount == 0) {
                     let failedPurchase = {
                       id = purchaseInfo.id;
                       startupId = purchaseInfo.startupId;
@@ -529,7 +529,7 @@ module NFTPurchase {
                   };
 
                   // Check if there are enough NFTs available
-                  if (paginatedResult.totalCount < request.quantity) {
+                  if (availableCount < request.quantity) {
                     let failedPurchase = {
                       id = purchaseInfo.id;
                       startupId = purchaseInfo.startupId;
@@ -543,49 +543,68 @@ module NFTPurchase {
                       status = "Failed";
                     };
                     purchases.put(purchaseId, failedPurchase);
-                    return #Error("Insufficient NFTs available. Requested: " # Nat.toText(request.quantity) # ", Available: " # Nat.toText(paginatedResult.totalCount));
+                    return #Error("Insufficient NFTs available. Requested: " # Nat.toText(request.quantity) # ", Available: " # Nat.toText(availableCount));
                   };
 
-                  // Additional safety check: ensure the NFTs array has enough elements
-                  if (paginatedResult.nfts.size() < request.quantity) {
-                    let failedPurchase = {
-                      id = purchaseInfo.id;
-                      startupId = purchaseInfo.startupId;
-                      investorId = purchaseInfo.investorId;
-                      tokenId = 0;
-                      amount = purchaseInfo.amount;
-                      nftPrice = purchaseInfo.nftPrice;
-                      change = purchaseInfo.change;
-                      transactionId = purchaseInfo.transactionId;
-                      timestamp = purchaseInfo.timestamp;
-                      status = "Failed";
+                  // Get the actual NFTs for transfer
+                  switch (_nftService.getNFTsByStartup(request.startupId, 1, request.quantity)) {
+                    case (#err(error)) {
+                      let failedPurchase = {
+                        id = purchaseInfo.id;
+                        startupId = purchaseInfo.startupId;
+                        investorId = purchaseInfo.investorId;
+                        tokenId = 0;
+                        amount = purchaseInfo.amount;
+                        nftPrice = purchaseInfo.nftPrice;
+                        change = purchaseInfo.change;
+                        transactionId = purchaseInfo.transactionId;
+                        timestamp = purchaseInfo.timestamp;
+                        status = "Failed";
+                      };
+                      purchases.put(purchaseId, failedPurchase);
+                      return #Error("Failed to get NFTs for transfer: " # error);
                     };
-                    purchases.put(purchaseId, failedPurchase);
-                    return #Error("Insufficient NFTs in current page. Requested: " # Nat.toText(request.quantity) # ", Available in page: " # Nat.toText(paginatedResult.nfts.size()));
-                  };
-
-                  // Get the required number of NFTs
-                  let nftsToTransfer = Array.tabulate<{tokenId: Nat; owner: Types.NFTAccount; metadata: Types.NFTMetadata}>(
-                    request.quantity,
-                    func(i) {
-                      if (i < paginatedResult.nfts.size()) {
-                        paginatedResult.nfts[i]
-                      } else {
-                        // This should not happen due to the check above, but adding safety
-                        {
+                    case (#ok(paginatedResult)) {
+                      // Additional safety check: ensure the NFTs array has enough elements
+                      if (paginatedResult.nfts.size() < request.quantity) {
+                        let failedPurchase = {
+                          id = purchaseInfo.id;
+                          startupId = purchaseInfo.startupId;
+                          investorId = purchaseInfo.investorId;
                           tokenId = 0;
-                          owner = { owner = _principal; subaccount = null };
-                          metadata = {
-                            tokenUri = "";
-                            name = ?"";
-                            description = ?"";
-                            image = ?"";
-                            attributes = ?[];
-                          };
+                          amount = purchaseInfo.amount;
+                          nftPrice = purchaseInfo.nftPrice;
+                          change = purchaseInfo.change;
+                          transactionId = purchaseInfo.transactionId;
+                          timestamp = purchaseInfo.timestamp;
+                          status = "Failed";
+                        };
+                        purchases.put(purchaseId, failedPurchase);
+                        return #Error("Insufficient NFTs in current page. Requested: " # Nat.toText(request.quantity) # ", Available in page: " # Nat.toText(paginatedResult.nfts.size()));
+                      };
+
+                      // Get the required number of NFTs
+                      let nftsToTransfer = Array.tabulate<{tokenId: Nat; owner: Types.NFTAccount; metadata: Types.NFTMetadata}>(
+                        request.quantity,
+                        func(i) {
+                          if (i < paginatedResult.nfts.size()) {
+                            paginatedResult.nfts[i]
+                          } else {
+                            // This should not happen due to the check above, but adding safety
+                            {
+                              tokenId = 0;
+                              owner = { owner = _principal; subaccount = null };
+                              metadata = {
+                                tokenUri = "";
+                                name = ?"";
+                                description = ?"";
+                                image = ?"";
+                                attributes = ?[];
+                              };
+                            }
+                          }
                         }
-                      }
-                    }
-                  );
+                      );
 
                   // Transfer NFTs to investor
                   let investorNFTAccount : Types.NFTAccount = {
@@ -693,6 +712,8 @@ module NFTPurchase {
                     nftPrice = nftPrice;
                     quantity = request.quantity;
                   });
+                    };
+                  };
                 };
               };
             };
