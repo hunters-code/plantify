@@ -317,7 +317,7 @@ export function generateFallbackNFTImage(formData: StartupFormData): string {
       <rect width="400" height="400" fill="url(#bg)" />
       
       <!-- Glass pot -->
-      <ellipse cx="200" cy="320" rx="80" ry="40" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
+      <ellipse cx="200" cy="320" rx="80" ry="40" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.8)" strokeWidth="2"/>
       
       <!-- Plant body -->
       <ellipse cx="200" cy="280" rx="60" ry="80" fill="#8B4513"/>
@@ -330,7 +330,7 @@ export function generateFallbackNFTImage(formData: StartupFormData): string {
       <!-- Face -->
       <circle cx="200" cy="210" r="8" fill="black"/> <!-- Left eye -->
       <circle cx="220" cy="210" r="8" fill="black"/> <!-- Right eye -->
-      <path d="M 190 230 Q 200 240 210 230" stroke="black" stroke-width="2" fill="none"/> <!-- Smile -->
+      <path d="M 190 230 Q 200 240 210 230" stroke="black" strokeWidth="2" fill="none"/> <!-- Smile -->
     </svg>
   `;
 

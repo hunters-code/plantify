@@ -76,7 +76,7 @@ export const CoinsIcon = (props: SVGProps<SVGAElement>) => (
         d='M17.375 0.625V17.375H0.625V0.625H17.375Z'
         fill='white'
         stroke='white'
-        stroke-width='1.25'
+        strokeWidth='1.25'
       />
     </mask>
     <g mask='url(#mask0_816_228)'>
@@ -132,7 +132,7 @@ export const PercentIcon = (props: SVGProps<SVGAElement>) => (
         d='M17.375 0.625V17.375H0.625V0.625H17.375Z'
         fill='white'
         stroke='white'
-        stroke-width='1.25'
+        strokeWidth='1.25'
       />
     </mask>
     <g mask='url(#mask0_816_1099)'>
@@ -169,7 +169,7 @@ export const PackageIcon = (props: SVGProps<SVGAElement>) => (
         d='M17.375 0.625V17.375H0.625V0.625H17.375Z'
         fill='white'
         stroke='white'
-        stroke-width='1.25'
+        strokeWidth='1.25'
       />
     </mask>
     <g mask='url(#mask0_816_310)'>
@@ -206,7 +206,7 @@ export const TargetIcon = (props: SVGProps<SVGAElement>) => (
         d='M17.375 0.625V17.375H0.625V0.625H17.375Z'
         fill='white'
         stroke='white'
-        stroke-width='1.25'
+        strokeWidth='1.25'
       />
     </mask>
     <g mask='url(#mask0_816_325)'>
