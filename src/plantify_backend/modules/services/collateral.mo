@@ -1,19 +1,22 @@
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Nat "mo:base/Nat";
+import Nat32 "mo:base/Nat32";
+import Char "mo:base/Char";
 import Time "mo:base/Time";
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
+import Int "mo:base/Int";
 import Types "../types";
 import TransferService "./transfer";
 import Storage "../storage";
 import NFTService "./nft";
 
 module Collateral {
-  public class CollateralService(config : Types.EnvironmentConfig, storage : Storage.UserStorage) {
+  public class CollateralService(config : Types.EnvironmentConfig, storage : Storage.UserStorage, nftService : NFTService.NFTService) {
     
     private var collateralInfo = HashMap.HashMap<Text, Types.CollateralInfo>(
       0,
@@ -27,8 +30,41 @@ module Collateral {
     );
     private var nextTopUpId : Nat = 1;
 
+    // Helper function to convert text to natural number
+    private func textToNat(txt : Text) : Nat {
+      if (txt.size() == 0) { 0 }
+      else {
+        let chars = txt.chars();
+        var num : Nat = 0;
+        var maxSafeValue : Nat = 1000000000; // 1 billion - reasonable maximum
+        
+        for (v in chars) {
+          let charCode = Char.toNat32(v);
+          if (charCode >= 48 and charCode <= 57) {
+            let charToNum = Nat32.toNat(charCode - 48);
+            
+            // Check for overflow before multiplication
+            if (num > maxSafeValue / 10) {
+              return maxSafeValue; // Return max safe value to prevent overflow
+            };
+            
+            let newNum = num * 10 + charToNum;
+            if (newNum < num or newNum > maxSafeValue) {
+              // Overflow detected, return max safe value
+              return maxSafeValue;
+            };
+            num := newNum;
+          } else {
+            // Non-numeric character found, return 0
+            return 0;
+          };
+        };
+        
+        num;
+      };
+    };
+
     private let transferService = TransferService.TransferService(config);
-    private let nftService = NFTService.NFTService(config, storage);
 
     public func initializeCollateral(
       startupId : Text, 
@@ -167,7 +203,12 @@ module Collateral {
               let remainingAmount = if (newCurrentAmount >= info.requiredAmount) {
                 0;
               } else {
-                info.requiredAmount - newCurrentAmount;
+                let diff = Int.abs(Int.sub(Int.abs(info.requiredAmount), Int.abs(newCurrentAmount)));
+                if (info.requiredAmount > newCurrentAmount) {
+                  Int.abs(diff);
+                } else {
+                  0;
+                };
               };
 
               let isFullyPaid = newStatus == #Active;
@@ -271,11 +312,42 @@ module Collateral {
           Debug.print("Startup not found for NFT minting: " # startupId);
         };
         case (?startup) {
+          // Check if NFTs are already minted for this startup
+          switch (nftService.getNFTsByStartup(startupId, 1, 1)) {
+            case (#ok(paginatedResult)) {
+              if (paginatedResult.totalCount > 0) {
+                Debug.print("NFTs already minted for startup " # startupId # ". Skipping minting.");
+                return;
+              };
+            };
+            case (#err(_)) {
+              Debug.print("Error checking existing NFTs for startup " # startupId);
+            };
+          };
+
           switch (storage.getFounderOfStartup(startupId)) {
             case null {
               Debug.print("Founder not found for startup: " # startupId);
             };
             case (?founder) {
+              // Calculate total number of NFTs to mint based on funding goal and NFT price
+              let fundingGoal = textToNat(startup.fundingGoal);
+              let nftPrice = textToNat(startup.nftPrice);
+              
+              if (nftPrice == 0) {
+                Debug.print("NFT price is zero for startup " # startupId # ". Cannot mint NFTs.");
+                return;
+              };
+              
+              let totalNFTs = fundingGoal / nftPrice;
+              
+              if (totalNFTs == 0) {
+                Debug.print("Total NFTs calculated as zero for startup " # startupId # ". Cannot mint NFTs.");
+                return;
+              };
+
+              Debug.print("Minting " # Nat.toText(totalNFTs) # " NFTs for startup " # startupId);
+
               let startupImage = switch (startup.nftImage) {
                 case (?nftImageUrl) {
                   nftImageUrl;
@@ -292,44 +364,55 @@ module Collateral {
                 };
               };
 
-              let metadata : Types.NFTMetadata = {
-                tokenUri = "https://plantify.com/nft/" # startupId;
-                name = ?("Plantify: " # startup.startupName);
-                description = ?("Plantify ownership share in " # startup.startupName # " - " # startup.description);
-                image = ?startupImage;
-                attributes = ?[
-                  ("startup_id", startupId),
-                  ("startup_name", startup.startupName),
-                  ("sector", startup.sector),
-                  ("founded_year", startup.foundedYear),
-                  ("founder", founder.fullName),
-                  ("plantify_share", "true")
-                ];
-              };
-
               let founderAccount : Types.NFTAccount = {
                 owner = founder.principal;
                 subaccount = null;
               };
 
-              let mintRequest : Types.MintNFTRequest = {
-                startupId = startupId;
-                toAccount = founderAccount;
-                metadata = metadata;
-                memo = ?("Auto-minted when startup became active - " # startupId);
+              // Mint all NFTs for the startup
+              var mintedCount = 0;
+              var i = 0;
+              while (i < totalNFTs) {
+                let metadata : Types.NFTMetadata = {
+                  tokenUri = "https://hiplantify.com/nft/" # startupId # "/" # Nat.toText(i + 1);
+                  name = ?("Plantify: " # startup.startupName # " #" # Nat.toText(i + 1));
+                  description = ?("Plantify ownership share in " # startup.startupName # " - " # startup.description);
+                  image = ?startupImage;
+                  attributes = ?[
+                    ("startup_id", startupId),
+                    ("startup_name", startup.startupName),
+                    ("sector", startup.sector),
+                    ("founded_year", startup.foundedYear),
+                    ("founder", founder.fullName),
+                    ("plantify_share", "true"),
+                    ("nft_number", Nat.toText(i + 1)),
+                    ("total_nfts", Nat.toText(totalNFTs))
+                  ];
+                };
+
+                let mintRequest : Types.MintNFTRequest = {
+                  startupId = startupId;
+                  toAccount = founderAccount;
+                  metadata = metadata;
+                  memo = ?("Auto-minted when startup became active - " # startupId # " - NFT " # Nat.toText(i + 1) # "/" # Nat.toText(totalNFTs));
+                };
+
+                switch (await nftService.mintNFT(founder.principal, mintRequest)) {
+                  case (#ok(#Success(result))) {
+                    mintedCount += 1;
+                    Debug.print("Successfully minted NFT " # Nat.toText(i + 1) # "/" # Nat.toText(totalNFTs) # " for startup " # startupId # " with token ID: " # Nat.toText(result.tokenId));
+                  };
+                  case (#ok(#Error(error))) {
+                    Debug.print("Error minting NFT " # Nat.toText(i + 1) # " for startup " # startupId # ": " # error);
+                  };
+                  case (#err(error)) {
+                    Debug.print("Failed to mint NFT " # Nat.toText(i + 1) # " for startup " # startupId # ": " # error);
+                  };
+                };
+                i += 1;
               };
 
-              switch (await nftService.mintNFT(founder.principal, mintRequest)) {
-                case (#ok(#Success(result))) {
-                  Debug.print("Successfully minted NFT for startup " # startupId # " with token ID: " # Nat.toText(result.tokenId));
-                };
-                case (#ok(#Error(error))) {
-                  Debug.print("Error minting NFT for startup " # startupId # ": " # error);
-                };
-                case (#err(error)) {
-                  Debug.print("Failed to mint NFT for startup " # startupId # ": " # error);
-                };
-              };
+              Debug.print("Completed minting " # Nat.toText(mintedCount) # "/" # Nat.toText(totalNFTs) # " NFTs for startup " # startupId);
             };
           };
         };

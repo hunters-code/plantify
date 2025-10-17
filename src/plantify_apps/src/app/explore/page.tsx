@@ -1,0 +1,448 @@
+'use client';
+
+import { useState, useEffect, useCallback, Suspense } from 'react';
+
+import { useRouter, useSearchParams } from 'next/navigation';
+
+import { Funnel, ListFilter, Search } from 'lucide-react';
+
+import {
+  Navbar,
+  Pagination,
+  WhyPlantify,
+  Footer,
+  StartupCard,
+} from '@/components';
+import { Button, CardSkeleton, Input } from '@/components/ui';
+import type { StartupSummary } from '@/declarations/plantify_backend/plantify_backend.did';
+import { StartupService } from '@/services/marketplace';
+import { getRiskLevel } from '@/utils/riskLevels';
+
+interface Startup {
+  id: string | number;
+  image: string;
+  title: string;
+  location: string;
+  employees: number;
+  category: string;
+  risk: string;
+  description: string;
+  nftPrice: number;
+  periodicReturns: string;
+  annualROI: number;
+  available: number;
+  fundingProgress: number;
+  fundedAmount: number;
+  targetAmount: number;
+  status: string;
+  builtByCaffeineAI: boolean;
+}
+
+type FilterType = 'all' | 'available' | 'featured' | 'caffeineai';
+
+// Transform startup data to match StartupCard interface
+const transformStartupForCard = (startup: Startup) => {
+  const totalFunded = startup.fundedAmount || 0;
+  const fundingGoal = startup.targetAmount || 1;
+  const fundedPercentage = Math.min(totalFunded / fundingGoal, 1);
+  const fundedText = `${Math.round(fundedPercentage * 100)}% Funded`;
+
+  return {
+    id: startup.id,
+    image: startup.image,
+    title: startup.title,
+    description: startup.description,
+    category: startup.category.toLocaleUpperCase(),
+    riskLevel: startup.risk,
+    location: startup.location || 'Global',
+    employees: '5 employees', // Default since teamMembers field doesn't exist in Startup interface
+    nftPrice: `$${startup.nftPrice} ckUSDC`,
+    periodicReturn: `${startup.periodicReturns}`,
+    annualROI: `${startup.annualROI}`,
+    availability: '167 NFT', // Default availability since field doesn't exist in Startup interface
+    fundedText,
+    fundedPct: fundedPercentage,
+    fundedColor: fundedPercentage >= 1 ? '#22c55e' : '#3b82f6',
+    totalFunded,
+    fundingGoal,
+    builtByCaffeineAI: Array.isArray(startup.builtByCaffeineAI)
+      ? startup.builtByCaffeineAI.length > 0
+      : Boolean(startup.builtByCaffeineAI),
+  };
+};
+
+function ExploreContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const pageParam = searchParams?.get('page');
+  const filterParam = searchParams?.get('filter') as FilterType | null;
+  const searchParam = searchParams?.get('search');
+
+  const ITEMS_PER_PAGE = 6;
+
+  const [startups, setStartups] = useState<Startup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState(searchParam || '');
+  const [filter, setFilter] = useState<FilterType>(
+    filterParam &&
+      ['all', 'available', 'featured', 'caffeineai'].includes(filterParam)
+      ? filterParam
+      : 'all'
+  );
+  const [currentPage, setCurrentPage] = useState(
+    pageParam ? parseInt(pageParam, 10) : 1
+  );
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const mapStartupData = useCallback((startup: StartupSummary): Startup => {
+    const fundingGoal = parseFloat(startup.totalFunding) || 50000;
+    const nftPrice = parseFloat(startup.nftPrice) || 100;
+    const totalNFTs = Math.floor(fundingGoal / nftPrice);
+    const fundedAmount = Number(startup.totalFunded) || 0;
+    const fundingProgress = Math.floor((fundedAmount / fundingGoal) * 100);
+    const available =
+      Number(startup.availableNFTs) || Math.floor(totalNFTs * 0.4);
+
+    // Default values since StartupSummary doesn't have these fields
+    const monthlyProfitSharing = 5;
+    const annualReturns = monthlyProfitSharing * 12;
+    const annualROI = ((annualReturns / nftPrice) * 100).toFixed(1);
+
+    return {
+      id: startup.id,
+      image: startup.companyImages?.[0] || '/assets/images/product.png',
+      title: startup.startupName,
+      location: startup.location || 'Unknown',
+      employees: 5,
+      category: startup.companyType || 'Technology',
+      risk: getRiskLevel(startup.companyType || 'Technology'),
+      description: startup.description,
+      nftPrice,
+      periodicReturns: `$${monthlyProfitSharing}`,
+      annualROI: parseFloat(annualROI),
+      available,
+      fundingProgress,
+      fundedAmount,
+      targetAmount: fundingGoal,
+      status: 'active',
+      builtByCaffeineAI: startup.builtByCaffeineAI?.[0] || false,
+    };
+  }, []);
+
+  const fetchStartups = useCallback(
+    async (page: number) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const result = await StartupService.getStartupsPaginated({
+          page,
+          limit: ITEMS_PER_PAGE,
+        });
+
+        const mappedStartups = result.startups.map(mapStartupData);
+        setStartups(mappedStartups);
+        setTotalPages(result.totalPages);
+        setTotalCount(result.totalCount);
+        setCurrentPage(page);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching startups:', err);
+        setError('Failed to load startups. Please try again.');
+        setLoading(false);
+      }
+    },
+    [mapStartupData, ITEMS_PER_PAGE]
+  );
+
+  const filteredStartups = startups.filter(startup => {
+    const matchesSearch =
+      searchTerm === '' ||
+      startup.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      startup.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      startup.location.toLowerCase().includes(searchTerm.toLowerCase());
+
+    let matchesFilter = true;
+    if (filter === 'available') {
+      matchesFilter = startup.status === 'active' && startup.available > 0;
+    } else if (filter === 'caffeineai') {
+      matchesFilter = startup.builtByCaffeineAI === true;
+    }
+
+    return matchesSearch && matchesFilter;
+  });
+
+  const updateURLParams = useCallback(
+    (page: number, currentFilter: FilterType, currentSearch: string) => {
+      const params = new URLSearchParams();
+
+      if (page > 1) params.set('page', page.toString());
+      if (currentFilter !== 'all') params.set('filter', currentFilter);
+      if (currentSearch) params.set('search', currentSearch);
+
+      const url = params.toString() ? `?${params.toString()}` : '';
+      router.push(`/explore${url}`, { scroll: false });
+    },
+    [router]
+  );
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      updateURLParams(page, filter, searchTerm);
+      fetchStartups(page);
+    },
+    [fetchStartups, updateURLParams, filter, searchTerm]
+  );
+
+  const handleFilterChange = useCallback(
+    (newFilter: FilterType) => {
+      setFilter(newFilter);
+      updateURLParams(1, newFilter, searchTerm);
+      fetchStartups(1);
+    },
+    [fetchStartups, updateURLParams, searchTerm]
+  );
+
+  const handleSearchChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newSearchTerm = event.target.value;
+      setSearchTerm(newSearchTerm);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (searchTerm === undefined) return;
+
+    const timer = setTimeout(() => {
+      updateURLParams(1, filter, searchTerm);
+      fetchStartups(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, filter, updateURLParams, fetchStartups]);
+
+  useEffect(() => {
+    fetchStartups(currentPage);
+  }, [fetchStartups, currentPage]);
+
+  return (
+    <div className='bg-white text-gray-900 min-h-screen'>
+      <Navbar />
+
+      <div className='max-w-7xl mx-auto px-6 py-10 mb-32'>
+        <h1 className='text-3xl font-ibm'>All Startups</h1>
+        <p className='text-gray-600 text-sm mb-6'>
+          Discover investment opportunities across various sectors and risk
+          levels
+        </p>
+
+        <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6'>
+          <div className='w-full md:w-[450px]'>
+            <Input
+              type='text'
+              placeholder='Search by name, sector, location, or tags...'
+              className='w-full'
+              value={searchTerm}
+              icon={<Search size={20} className='text-gray-500' />}
+              onChange={handleSearchChange}
+            />
+          </div>
+
+          <div className='flex items-center gap-2'>
+            <Button variant='secondary' className='flex items-center gap-2'>
+              <Funnel size={20} /> Filters
+            </Button>
+            <Button variant='secondary' className='flex items-center gap-2'>
+              <ListFilter size={20} /> Sort
+            </Button>
+          </div>
+        </div>
+
+        <hr />
+
+        <div className='flex items-center gap-3 mb-8 mt-8'>
+          <Button
+            onClick={() => handleFilterChange('all')}
+            variant={filter === 'all' ? 'primary' : 'secondary'}
+            className='flex items-center gap-1'
+          >
+            All Startups
+            <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
+              {totalCount}
+            </span>
+          </Button>
+          <Button
+            onClick={() => handleFilterChange('available')}
+            variant={filter === 'available' ? 'primary' : 'secondary'}
+            className='flex items-center gap-1'
+          >
+            Available
+            <span className='ml-1 bg-purple-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center'>
+              {
+                startups.filter(s => s.status === 'active' && s.available > 0)
+                  .length
+              }
+            </span>
+          </Button>
+          <Button
+            onClick={() => handleFilterChange('caffeineai')}
+            variant={filter === 'caffeineai' ? 'primary' : 'secondary'}
+            className='flex items-center gap-1'
+            style={{
+              fontFamily: '"Test Söhne Breit", sans-serif',
+              fontWeight: 600,
+              fontSize: '14px',
+              lineHeight: '140%',
+              letterSpacing: '-1%',
+              backgroundColor: filter === 'caffeineai' ? '#DDF730' : '#1D1D1D',
+              color: filter === 'caffeineai' ? '#1D1D1D' : '#DDF730',
+              borderColor: filter === 'caffeineai' ? '#DDF730' : '#1D1D1D',
+              boxShadow:
+                filter === 'caffeineai'
+                  ? 'inset 0 3px 3px rgba(255,255,255,0.4), inset 0 -2px 1px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.16)'
+                  : 'inset 0 3px 3px rgba(255,255,255,0.1), inset 0 -2px 1px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2)',
+            }}
+          >
+            caffeine.ai
+            <span
+              className='ml-1 text-xs rounded-full h-6 w-6 flex items-center justify-center'
+              style={{
+                backgroundColor:
+                  filter === 'caffeineai' ? '#1D1D1D' : '#DDF730',
+                color: filter === 'caffeineai' ? '#DDF730' : '#1D1D1D',
+              }}
+            >
+              {startups.filter(s => s.builtByCaffeineAI === true).length}
+            </span>
+          </Button>
+        </div>
+
+        {/* ✅ Loading Skeleton Grid */}
+        {loading && (
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <CardSkeleton key={idx} textRows={3} withImage />
+            ))}
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-6 mb-6'>
+            <div className='flex items-center'>
+              <div className='text-red-600 mr-3'>⚠️</div>
+              <div>
+                <h3 className='text-red-800 font-medium'>
+                  Error Loading Startups
+                </h3>
+                <p className='text-red-600 text-sm mt-1'>{error}</p>
+                <button
+                  onClick={() => fetchStartups(currentPage)}
+                  className='mt-2 text-sm text-red-600 hover:text-red-800 underline'
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Startups Grid */}
+        {!loading && !error && (
+          <>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+              {filteredStartups.map(startup => (
+                <StartupCard
+                  key={startup.id}
+                  {...transformStartupForCard(startup)}
+                />
+              ))}
+            </div>
+
+            {/* No Results */}
+            {filteredStartups.length === 0 && startups.length > 0 && (
+              <div className='text-center py-12'>
+                <div className='text-gray-400 mb-4'>
+                  <Search size={48} className='mx-auto' />
+                </div>
+                <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                  No startups found
+                </h3>
+                <p className='text-gray-600'>
+                  Try adjusting your search terms or filters to find what
+                  you&apos;re looking for.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    handleFilterChange('all');
+                    router.push('/explore');
+                  }}
+                  className='mt-4 text-purple-600 hover:text-purple-800 underline'
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
+
+            {/* No startups available */}
+            {filteredStartups.length === 0 && startups.length === 0 && (
+              <div className='text-center py-12'>
+                <div className='text-gray-400 mb-4'>
+                  <Search size={48} className='mx-auto' />
+                </div>
+                <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                  No startups available
+                </h3>
+                <p className='text-gray-600'>
+                  There are currently no startups available for investment.
+                  Check back later for new opportunities.
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        {!loading && !error && (
+          <div className='mt-10'>
+            {filteredStartups.length > 0 ? (
+              <div className='text-center text-sm text-gray-600 mb-4'>
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
+                {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of{' '}
+                {totalCount} startups
+              </div>
+            ) : (
+              <div className='text-center text-sm text-gray-600 mb-4'>
+                Page {currentPage} of {Math.max(totalPages, 1)}
+              </div>
+            )}
+
+            {/* Always show pagination component */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.max(totalPages, 1)}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
+      </div>
+
+      <div className='mb-12'>
+        <WhyPlantify withoutCta />
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+export default function ExplorePage() {
+  return (
+    <Suspense fallback={<div className='p-8'>Loading explore page...</div>}>
+      <ExploreContent />
+    </Suspense>
+  );
+}

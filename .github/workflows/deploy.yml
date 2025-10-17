@@ -1,0 +1,85 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-ic:
+    name: Deploy to Internet Computer
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install DFX
+      run: |
+        sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+        echo "$HOME/bin" >> $GITHUB_PATH
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Setup DFX identity
+      run: |
+        dfx identity new deploy-identity || true
+        dfx identity use deploy-identity
+        # Note: You'll need to add your identity file as a GitHub secret
+        # and import it here for production deployment
+        
+    - name: Deploy to IC Mainnet
+      run: |
+        dfx deploy --network ic
+      env:
+        DFX_NETWORK: ic
+        # Add your IC identity and other secrets here
+
+  deploy-frontend:
+    name: Deploy Frontend Applications
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build plantify_apps
+      run: |
+        cd src/plantify_apps
+        npm ci
+        npm run build
+        
+    - name: Build plantify_admin
+      run: |
+        cd src/plantify_admin
+        npm ci
+        npm run build
+        
+    # Add deployment steps for your hosting platform here
+    # Examples for Vercel, Netlify, or other platforms
+    - name: Deploy to Vercel (example)
+      if: false  # Set to true and configure if using Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.ORG_ID }}
+        vercel-project-id: ${{ secrets.PROJECT_ID }}
+        working-directory: src/plantify_apps

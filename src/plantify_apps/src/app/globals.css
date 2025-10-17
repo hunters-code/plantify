@@ -1,0 +1,54 @@
+/* globals.css (Tailwind v4) */
+@import 'tailwindcss';
+
+/* Custom fonts */
+@font-face {
+  font-family: 'Test Söhne Breit';
+  src: url('/fonts/test-soehne-breit-halbfett.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Custom styles */
+body {
+  font-family: 'Geist', sans-serif;
+  font-size: 1.5rem;
+}
+
+img {
+  /* max-width: 50vw;
+  max-height: 25vw; */
+  display: block;
+  margin: auto;
+}
+
+form {
+  display: flex;
+  justify-content: center;
+  gap: 0.5em;
+  flex-flow: row wrap;
+  max-width: 40vw;
+  margin: auto;
+  align-items: baseline;
+}
+
+button[type='submit'] {
+  padding: 5px 20px;
+  margin: 10px auto;
+  float: right;
+}
+
+#greeting {
+  margin: 10px auto;
+  padding: 10px 60px;
+  border: 1px solid #222;
+}
+
+#greeting:empty {
+  display: none;
+}
+
+.browser-warning {
+  display: none;
+}

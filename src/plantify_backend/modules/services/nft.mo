@@ -9,24 +9,32 @@ import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
+import Iter "mo:base/Iter";
 import Types "../types";
 import Storage "../storage";
 
 module NFT {
-  public class NFTService(config : Types.EnvironmentConfig, storage : Storage.UserStorage) {
+  public class NFTService(
+    storage : Storage.UserStorage,
+    nftInfoEntries : [(Nat, Types.NFTInfo)],
+    startupNFTsEntries : [(Text, [Nat])],
+    initialNextTokenId : Nat
+  ) {
     
-    // Storage for NFT information
-    private var nftInfo = HashMap.HashMap<Nat, Types.NFTInfo>(
-      0,
+    // Storage for NFT information - initialized from persistent data
+    private var nftInfo = HashMap.fromIter<Nat, Types.NFTInfo>(
+      nftInfoEntries.vals(),
+      nftInfoEntries.size(),
       Nat.equal,
       func(n : Nat) : Nat32 { Nat32.fromNat(n) },
     );
-    private var startupNFTs = HashMap.HashMap<Text, [Nat]>(
-      0,
+    private var startupNFTs = HashMap.fromIter<Text, [Nat]>(
+      startupNFTsEntries.vals(),
+      startupNFTsEntries.size(),
       Text.equal,
       Text.hash,
     );
-    private var nextTokenId : Nat = 1;
+    private var nextTokenId : Nat = initialNextTokenId;
 
     // Mint NFT for a startup
     public func mintNFT(
@@ -136,40 +144,6 @@ module NFT {
       };
     };
 
-    // Get NFTs by startup
-    public func getNFTsByStartup(startupId : Text) : Result.Result<[Types.NFTInfo], Text> {
-      switch (startupNFTs.get(startupId)) {
-        case null {
-          #ok([]);
-        };
-        case (?tokenIds) {
-          let nftArray = Array.map<Nat, ?Types.NFTInfo>(
-            tokenIds,
-            func(id : Nat) : ?Types.NFTInfo { nftInfo.get(id) },
-          );
-          let validNFTs = Array.filter<?Types.NFTInfo>(
-            nftArray,
-            func(nft : ?Types.NFTInfo) : Bool {
-              switch (nft) {
-                case null { false };
-                case (?_) { true };
-              };
-            },
-          );
-          let result = Array.map<?Types.NFTInfo, Types.NFTInfo>(
-            validNFTs,
-            func(nft : ?Types.NFTInfo) : Types.NFTInfo {
-              switch (nft) {
-                case null { assert false; loop {} };
-                case (?n) { n };
-              };
-            },
-          );
-          #ok(result);
-        };
-      };
-    };
-
     // Get NFT balance for an account
     public func getNFTBalance(account : Types.NFTAccount) : Result.Result<Types.NFTBalanceResponse, Text> {
       var balance : Nat = 0;
@@ -209,9 +183,78 @@ module NFT {
       Buffer.toArray(nftArray);
     };
 
-    // Get NFT collection info
-    public func getCollectionInfo() : Types.NFTConfig {
-      config.nftToken;
+    // Get NFTs by startup ID with pagination
+    public func getNFTsByStartup(startupId : Text, page : Nat, limit : Nat) : Result.Result<Types.PaginatedNFTs, Text> {
+      // Validate pagination parameters
+      if (page == 0) {
+        return #err("Page number must be greater than 0");
+      };
+      if (limit == 0) {
+        return #err("Limit must be greater than 0");
+      };
+      
+      switch (startupNFTs.get(startupId)) {
+        case null {
+          #ok({
+            nfts = [];
+            totalCount = 0;
+            page = page;
+            limit = limit;
+            totalPages = 0;
+          });
+        };
+        case (?tokenIds) {
+          let totalCount = tokenIds.size();
+          let totalPages = if (totalCount == 0) { 0 } else { 
+            let division = totalCount / limit;
+            let remainder = totalCount % limit;
+            if (remainder == 0) { division } else { division + 1 }
+          };
+          
+          // Validate page number
+          if (totalPages > 0 and page > totalPages) {
+            return #err("Invalid page number");
+          };
+          
+          let startIndex = if (page == 1) { 
+            0 
+          } else { 
+            let pageOffset = if (page > 1) { 
+              Nat.sub(page, 1)
+            } else { 
+              0 
+            };
+            pageOffset * limit
+          };
+          let endIndex = if (startIndex >= totalCount) { 
+            totalCount 
+          } else { 
+            let calculatedEnd = startIndex + limit;
+            if (calculatedEnd > totalCount) { totalCount } else { calculatedEnd }
+          };
+          
+          let nftArray = Buffer.Buffer<Types.NFTInfo>(limit);
+          var currentIndex = 0;
+          
+          for (tokenId in tokenIds.vals()) {
+            if (currentIndex >= startIndex and currentIndex < endIndex) {
+              switch (nftInfo.get(tokenId)) {
+                case null { };
+                case (?info) { nftArray.add(info) };
+              };
+            };
+            currentIndex += 1;
+          };
+          
+          #ok({
+            nfts = Buffer.toArray(nftArray);
+            totalCount = totalCount;
+            page = page;
+            limit = limit;
+            totalPages = totalPages;
+          });
+        };
+      };
     };
 
     // Check if NFT can be minted for startup
@@ -230,6 +273,40 @@ module NFT {
       };
     };
 
+    // Get available NFT count for a specific startup (only NFTs still owned by the startup/founder)
+    public func getAvailableNFTCount(startupId : Text) : Result.Result<Nat, Text> {
+      // First, get the founder of the startup
+      switch (storage.getFounderOfStartup(startupId)) {
+        case null {
+          #err("Startup not found or has no founder");
+        };
+        case (?founder) {
+          // Get all NFTs for this startup
+          switch (startupNFTs.get(startupId)) {
+            case null {
+              #ok(0);
+            };
+            case (?tokenIds) {
+              // Count only NFTs that are still owned by the founder
+              var availableCount = 0;
+              for (tokenId in tokenIds.vals()) {
+                switch (nftInfo.get(tokenId)) {
+                  case null { };
+                  case (?nft) {
+                    // Check if the NFT is still owned by the founder
+                    if (Principal.equal(nft.owner.owner, founder.principal)) {
+                      availableCount += 1;
+                    };
+                  };
+                };
+              };
+              #ok(availableCount);
+            };
+          };
+        };
+      };
+    };
+
     // Get NFT statistics
     public func getNFTStats() : {
       totalSupply : Nat;
@@ -241,6 +318,19 @@ module NFT {
         totalStartups = startupNFTs.size();
         nextTokenId = nextTokenId;
       };
+    };
+
+    // Methods for persistence - used by pre-upgrade hook
+    public func getNFTInfoEntries() : [(Nat, Types.NFTInfo)] {
+      Iter.toArray(nftInfo.entries());
+    };
+
+    public func getStartupNFTsEntries() : [(Text, [Nat])] {
+      Iter.toArray(startupNFTs.entries());
+    };
+
+    public func getNextTokenId() : Nat {
+      nextTokenId;
     };
   };
 };

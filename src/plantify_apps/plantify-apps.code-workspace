@@ -1,0 +1,78 @@
+{
+  "folders": [
+    {
+      "name": "Plantify Apps",
+      "path": "."
+    }
+  ],
+  "settings": {
+    // Ensure consistent formatting across the workspace
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    
+    // Prettier configuration
+    "prettier.requireConfig": true,
+    "prettier.useEditorConfig": false,
+    
+    // ESLint configuration
+    "eslint.workingDirectories": ["."],
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ],
+    
+    // File associations
+    "files.associations": {
+      "*.sol": "solidity",
+      "*.did": "typescript"
+    },
+    
+    // Explorer settings
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+      "*.ts": "${capture}.js, ${capture}.d.ts, ${capture}.js.map",
+      "*.tsx": "${capture}.js, ${capture}.d.ts, ${capture}.js.map",
+      "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml",
+      "tsconfig.json": "tsconfig.*.json",
+      "next.config.*": "next-env.d.ts"
+    },
+    
+    // Search settings
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.next": true,
+      "**/build": true,
+      "**/.git": true
+    },
+    
+    // Files to exclude from explorer
+    "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/CVS": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      "**/node_modules": true,
+      "**/.next": true,
+      "**/dist": true,
+      "**/build": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "ms-vscode.vscode-typescript-next",
+      "bradlc.vscode-tailwindcss",
+      "JuanBlanco.solidity"
+    ]
+  }
+}

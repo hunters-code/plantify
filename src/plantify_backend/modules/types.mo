@@ -33,6 +33,11 @@ module Types {
     phone : Text;
     country : Text;
     city : Text;
+    location : ?Text;
+    occupation : ?Text;
+    company : ?Text;
+    bio : ?Text;
+    profilePhoto : ?Text;
     investmentExperience : Text;
     riskTolerance : Text;
     investmentGoals : Text;
@@ -61,11 +66,34 @@ module Types {
     phone : Text;
     country : Text;
     city : Text;
+    location : ?Text;
+    occupation : ?Text;
+    company : ?Text;
+    bio : ?Text;
+    profilePhoto : ?Text;
     investmentExperience : Text;
     riskTolerance : Text;
     investmentGoals : Text;
     availableCapital : Text;
     monthlyBudget : Text;
+  };
+
+  public type InvestorProfileUpdateRequest = {
+    fullName : ?Text;
+    email : ?Text;
+    phone : ?Text;
+    country : ?Text;
+    city : ?Text;
+    location : ?Text;
+    occupation : ?Text;
+    company : ?Text;
+    bio : ?Text;
+    profilePhoto : ?Text;
+    investmentExperience : ?Text;
+    riskTolerance : ?Text;
+    investmentGoals : ?Text;
+    availableCapital : ?Text;
+    monthlyBudget : ?Text;
   };
 
   public type TeamMember = {
@@ -112,6 +140,8 @@ module Types {
     financialProjections : ?Text;
     legalDocuments : ?Text;
     status : Text;
+    builtByCaffeineAI : ?Bool;
+    totalFunded : Nat;
     createdAt : Time.Time;
     updatedAt : Time.Time;
   };
@@ -147,6 +177,24 @@ module Types {
     financialProjections : ?Text;
     legalDocuments : ?Text;
     status : Text;
+    builtByCaffeineAI : ?Bool;
+  };
+
+
+  // Enhanced startup details with related information
+  public type EnhancedStartupDetails = {
+    startup : Startup;
+    founder : ?Founder;
+    relatedStartups : [Startup];
+    monthlyReports : [MonthlyReport];
+    nftInfo : ?{
+      tokenId : Nat;
+      owner : NFTAccount;
+      metadata : NFTMetadata;
+    };
+    collateralInfo : ?CollateralInfo;
+    totalVotes : Nat;
+    averageVoteScore : ?Float;
   };
 
   public type TokenConfig = {
@@ -187,7 +235,7 @@ module Types {
   // Transfer Service Types
   public type TransferAccount = {
     owner : Principal;
-    subaccount : ?Blob;
+    subaccount : ?[Nat8];
   };
 
   public type TransferArgs = {
@@ -195,6 +243,22 @@ module Types {
     toAccount : TransferAccount;
     tokenType : Text; // "ICP" or "ckUSDC"
     memo : ?Text;
+  };
+
+  public type TransferFromArgs = {
+    amount : Nat;
+    fromAccount : TransferAccount;
+    toAccount : TransferAccount;
+    tokenType : Text; // "ICP" or "ckUSDC"
+    memo : ?Text;
+  };
+
+  public type ApproveArgs = {
+    amount : Nat;
+    spenderAccount : TransferAccount;
+    tokenType : Text; // "ICP" or "ckUSDC"
+    memo : ?Text;
+    expiresAt : ?Nat;
   };
 
   public type TransferResponse = {
@@ -365,19 +429,19 @@ module Types {
   public type NFTPurchaseRequest = {
     startupId : Text;
     investorId : Text;
-    amount : Nat; // Amount in ckUSDC
+    quantity : Nat; // Number of NFTs to purchase
     memo : ?Text;
   };
 
   public type NFTPurchaseResponse = {
     #Success : {
-      tokenId : Nat;
+      tokenIds : [Nat]; // List of purchased NFT token IDs
       transactionId : Text;
       startupId : Text;
       investorId : Text;
-      amount : Nat;
+      totalAmount : Nat; // Total amount charged (nftPrice * quantity)
       nftPrice : Nat;
-      change : Nat; // Amount returned to investor if overpaid
+      quantity : Nat; // Number of NFTs purchased
     };
     #Error : Text;
   };
@@ -591,6 +655,322 @@ module Types {
 
   public type VotingStatsResponse = {
     #Success : VotingStats;
+    #Error : Text;
+  };
+
+  // Pagination types
+  public type PaginationParams = {
+    page : Nat;
+    limit : Nat;
+  };
+
+  public type PaginatedNFTs = {
+    nfts : [NFTInfo];
+    totalCount : Nat;
+    page : Nat;
+    limit : Nat;
+    totalPages : Nat;
+  };
+
+  // Lightweight startup data for pagination
+  public type StartupSummary = {
+    id : Text;
+    startupName : Text;
+    description : Text;
+    nftPrice : Text;
+    companyImages : [Text];
+    companyType : Text;
+    totalFunding : Text;
+    availableNFTs : Nat;
+    totalFunded : Nat;
+    builtByCaffeineAI : ?Bool;
+    location : Text;
+  };
+
+  public type PaginatedStartups = {
+    startups : [StartupSummary];
+    totalCount : Nat;
+    page : Nat;
+    limit : Nat;
+    totalPages : Nat;
+  };
+
+  // Dashboard Founder Service Types
+  public type DashboardOverview = {
+    totalFundingRaised : Nat;
+    activeStartups : Nat;
+    pendingStartups : Nat;
+    draftStartups : Nat;
+    totalNFTHolders : Nat;
+    totalMonthlyCommitments : Nat;
+  };
+
+  public type DashboardOverviewResponse = {
+    #Success : DashboardOverview;
+    #Error : Text;
+  };
+
+  // Dashboard Startup Overview Types
+  public type StartupOverview = {
+    name : Text;
+    companyType : Text;
+    location : Text;
+    description : Text;
+    totalFunded : Nat;
+    fundTarget : Nat;
+    totalNFTSale : Nat;
+    totalNFT : Nat;
+    totalTeamMembers : Nat;
+  };
+
+  public type StartupOverviewResponse = {
+    #Success : StartupOverview;
+    #Error : Text;
+  };
+
+  // Dashboard Team Members Types
+  public type TeamMemberOverview = {
+    id : Nat;
+    name : Text;
+    role : Text;
+    background : Text;
+    photo : ?Text;
+    linkedin : Text;
+    email : Text;
+    isFounder : Bool;
+  };
+
+  public type TeamMembersResponse = {
+    #Success : [TeamMemberOverview];
+    #Error : Text;
+  };
+
+  // Dashboard Funding Status Types
+  public type FundingStatus = {
+    totalRaised : Nat;
+    fundingGoal : Nat;
+    progressPercentage : Nat;
+    remainingAmount : Nat;
+    isFullyFunded : Bool;
+    fundingStatus : Text; // "Not Started", "In Progress", "Fully Funded", "Over Funded"
+    recentInvestments : [RecentInvestment];
+    fundingMilestones : [FundingMilestone];
+  };
+
+  public type RecentInvestment = {
+    investorName : Text;
+    amount : Nat;
+    date : Time.Time;
+    tokenType : Text;
+  };
+
+  public type FundingMilestone = {
+    milestone : Text;
+    targetAmount : Nat;
+    isAchieved : Bool;
+    achievedDate : ?Time.Time;
+  };
+
+  public type FundingStatusResponse = {
+    #Success : FundingStatus;
+    #Error : Text;
+  };
+
+  // Dashboard Collateral Status Types
+  public type CollateralDashboard = {
+    startupId : Text;
+    requiredAmount : Nat;
+    currentAmount : Nat;
+    progressPercentage : Nat;
+    status : Text; // "Pending", "Active", "Locked", "Released"
+    tokenType : Text;
+    isFullyPaid : Bool;
+    remainingAmount : Nat;
+    lockStartTime : ?Time.Time;
+    lockEndTime : ?Time.Time;
+    topUpHistory : [CollateralTopUpSummary];
+    nextPaymentDue : ?Time.Time;
+  };
+
+  public type CollateralTopUpSummary = {
+    id : Text;
+    amount : Nat;
+    timestamp : Time.Time;
+    status : Text;
+    transactionId : ?Text;
+  };
+
+  public type CollateralDashboardResponse = {
+    #Success : CollateralDashboard;
+    #Error : Text;
+  };
+
+  // Dashboard Investor Types
+  public type InvestorDashboard = {
+    totalInvestors : Nat;
+    activeInvestors : Nat;
+    newInvestorsThisMonth : Nat;
+    totalInvestmentAmount : Nat;
+    averageInvestmentPerInvestor : Nat;
+    topInvestors : [TopInvestor];
+    recentInvestments : [RecentInvestmentSummary];
+    investorGrowth : [InvestorGrowthData];
+  };
+
+  public type TopInvestor = {
+    investorId : Text;
+    investorName : Text;
+    totalInvested : Nat;
+    numberOfInvestments : Nat;
+    lastInvestmentDate : Time.Time;
+    profilePhoto : ?Text;
+  };
+
+  public type RecentInvestmentSummary = {
+    investorId : Text;
+    investorName : Text;
+    startupId : Text;
+    startupName : Text;
+    amount : Nat;
+    date : Time.Time;
+    tokenType : Text;
+  };
+
+  public type InvestorGrowthData = {
+    month : Nat;
+    year : Nat;
+    newInvestors : Nat;
+    totalInvestors : Nat;
+  };
+
+  public type InvestorDashboardResponse = {
+    #Success : InvestorDashboard;
+    #Error : Text;
+  };
+
+  // Dashboard Investor Service Types
+  public type InvestorDashboardOverview = {
+    totalInvestments : Nat;
+    totalAmountInvested : Nat;
+    totalNFTsOwned : Nat;
+    uniqueStartupsInvested : Nat;
+    averageInvestmentPerStartup : Nat;
+    recentInvestments : [InvestorRecentInvestment];
+    investmentPortfolio : [InvestorPortfolioItem];
+    profitSharingEarnings : Nat;
+    monthlyCommitment : Nat;
+    votingPending : Nat;
+  };
+
+  public type InvestorDashboardOverviewResponse = {
+    #Success : InvestorDashboardOverview;
+    #Error : Text;
+  };
+
+  public type InvestorRecentInvestment = {
+    startupId : Text;
+    startupName : Text;
+    amount : Nat;
+    nftPrice : Nat;
+    quantity : Nat;
+    date : Time.Time;
+    status : Text;
+  };
+
+  public type InvestorPortfolioItem = {
+    startupId : Text;
+    startupName : Text;
+    totalInvested : Nat;
+    nftCount : Nat;
+    averagePrice : Nat;
+    firstInvestment : Time.Time;
+    lastInvestment : Time.Time;
+    startupStatus : Text;
+  };
+
+  public type InvestorPerformance = {
+    totalInvested : Nat;
+    totalNFTs : Nat;
+    uniqueStartups : Nat;
+    averageInvestmentSize : Nat;
+    diversificationScore : Nat; // 0-100
+    investmentTrend : Text; // "Increasing", "Decreasing", "Stable"
+    riskProfile : Text;
+    profitSharingEarnings : Nat;
+  };
+
+  public type InvestorPerformanceResponse = {
+    #Success : InvestorPerformance;
+    #Error : Text;
+  };
+
+  public type InvestorStartupInvestment = {
+    startupId : Text;
+    startupName : Text;
+    totalInvested : Nat;
+    nftCount : Nat;
+    averagePrice : Nat;
+    firstInvestment : Time.Time;
+    lastInvestment : Time.Time;
+    startupStatus : Text;
+    profitSharingEarnings : Nat;
+  };
+
+  public type InvestorStartupInvestmentResponse = {
+    #Success : InvestorStartupInvestment;
+    #Error : Text;
+  };
+
+  // My Investment Portfolio Types
+  public type MyInvestmentPortfolio = {
+    totalPortfolioValue : Nat;
+    totalInvested : Nat;
+    totalReturns : Nat;
+    returnPercentage : Nat; // Percentage as integer (e.g., 15 for 15%)
+    portfolioItems : [PortfolioItem];
+    portfolioSummary : PortfolioSummary;
+    performanceMetrics : PerformanceMetrics;
+  };
+
+  public type PortfolioItem = {
+    startupId : Text;
+    startupName : Text;
+    startupLogo : ?Text;
+    sector : Text;
+    investedAmount : Nat;
+    currentValue : Nat;
+    nftCount : Nat;
+    returnAmount : Nat;
+    returnPercentage : Nat;
+    investmentDate : Time.Time;
+    lastUpdateDate : Time.Time;
+    status : Text; // "Active", "Completed", "Pending"
+    profitSharingEarnings : Nat;
+    monthlyCommitment : Nat;
+  };
+
+  public type PortfolioSummary = {
+    totalStartups : Nat;
+    activeInvestments : Nat;
+    completedInvestments : Nat;
+    averageReturn : Nat;
+    bestPerformer : ?Text;
+    worstPerformer : ?Text;
+    totalMonthlyCommitments : Nat;
+    totalProfitSharingEarnings : Nat;
+  };
+
+  public type PerformanceMetrics = {
+    portfolioGrowth : Nat; // Percentage growth
+    riskScore : Nat; // 1-10 scale
+    diversificationScore : Nat; // 1-10 scale
+    investmentTrend : Text; // "Growing", "Stable", "Declining"
+    monthlyCommitmentTrend : Text;
+    profitSharingTrend : Text;
+  };
+
+  public type MyInvestmentPortfolioResponse = {
+    #Success : MyInvestmentPortfolio;
     #Error : Text;
   };
 

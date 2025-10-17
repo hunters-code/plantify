@@ -1,0 +1,70 @@
+{
+  "name": "plantify-apps",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "npm i && dfx canister create plantify_backend && dfx generate plantify_backend && dfx deploy",
+    "dev": "next dev --turbopack",
+    "start": "next start",
+    "build": "next build --turbopack",
+    "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss,md}\"",
+    "format:check": "prettier --check \"src/**/*.{json,js,jsx,ts,tsx,css,scss,md}\"",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format:lint": "npm run lint:fix && npm run format",
+    "lint:format": "npm run lint:fix && npm run format",
+    "sort-imports": "eslint . --ext .js,.jsx,.ts,.tsx --fix --rule 'import/order: error'",
+    "type-check": "tsc --noEmit",
+    "type-check:staged": "tsc --noEmit --skipLibCheck --jsx preserve"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^3.0.0",
+    "@dfinity/auth-client": "^3.0.0",
+    "@dfinity/candid": "^3.0.0",
+    "@dfinity/identity": "^3.0.0",
+    "@dfinity/ledger-icrc": "^4.1.2",
+    "@dfinity/principal": "^3.0.0",
+    "@supabase/supabase-js": "^2.74.0",
+    "@types/uuid": "^10.0.0",
+    "clsx": "^2.1.1",
+    "formik": "^2.4.6",
+    "framer-motion": "^12.23.12",
+    "lucide-react": "^0.543.0",
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-router-dom": "^7.8.2",
+    "supabase": "^2.48.3",
+    "uuid": "^13.0.0",
+    "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
+    "dotenv": "^16.3.1",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
+    "sass": "^1.63.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "**/*.{json,css,scss,md}": [
+      "prettier --write"
+    ]
+  }
+}

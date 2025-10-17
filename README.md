@@ -20,7 +20,7 @@ The platform provides a complete set of tools including an AI-powered startup an
 
 ### 🚀 Live Demos
 - **Frontend Demo**: https://ueifo-jqaaa-aaaah-qqewa-cai.icp0.io/
-- **Backend ICP Dashboard**: https://dashboard.internetcomputer.org/canister/a5ptu-ryaaa-aaaai-q32cq-cai
+- **Backend ICP Dashboard**: https://dashboard.internetcomputer.org/canister/oncwy-yqaaa-aaaae-qfzja-cai
 
 ---
 
@@ -59,7 +59,7 @@ The AI system processes multiple data points including startup sustainability pr
 ## 📚 Complete Resources
 
 - **Live Application**: https://ueifo-jqaaa-aaaah-qqewa-cai.icp0.io/
-- **Backend Dashboard**: https://dashboard.internetcomputer.org/canister/a5ptu-ryaaa-aaaai-q32cq-cai
+- **Backend Dashboard**: https://dashboard.internetcomputer.org/canister/oncwy-yqaaa-aaaae-qfzja-cai
 
 ## 🌟 Features of Plantify
 
@@ -443,7 +443,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### 🌐 Live Application
 
 - **Live Demo**: [https://ueifo-jqaaa-aaaah-qqewa-cai.icp0.io/](https://ueifo-jqaaa-aaaah-qqewa-cai.icp0.io/)
-- **Backend ICP Dashboard**: [https://dashboard.internetcomputer.org/canister/a5ptu-ryaaa-aaaai-q32cq-cai](https://dashboard.internetcomputer.org/canister/a5ptu-ryaaa-aaaai-q32cq-cai)
+- **Backend ICP Dashboard**: [https://dashboard.internetcomputer.org/canister/oncwy-yqaaa-aaaae-qfzja-cai](https://dashboard.internetcomputer.org/canister/oncwy-yqaaa-aaaae-qfzja-cai)
 
 ### 📚 Documentation & Resources
 

@@ -1,28 +1,30 @@
 import Types "./modules/types";
 
 module Config {
+  // Version constants for canister upgrades
+  public let CURRENT_CANISTER_VERSION : Nat = 3;
   // Development/Testing Configuration
   public func getDevelopmentConfig() : Types.EnvironmentConfig {
     {
       environment = "development";
       icpToken = {
-        canisterId = "rdmx6-jaaaa-aaaah-qcaiq-cai"; // ICP Ledger on local replica
-        ledgerId = "rdmx6-jaaaa-aaaah-qcaiq-cai";
+        canisterId = "72oxd-oyaaa-aaaam-qd5na-cai";
+        ledgerId = "72oxd-oyaaa-aaaam-qd5na-cai";
         name = "Internet Computer";
         symbol = "ICP";
         decimals = 8;
         fee = 10000;
       };
       ckUSDCToken = {
-        canisterId = "be2us-64aaa-aaaah-qzcya-cai"; // Local ckUSDC canister (will be set after deployment)
-        ledgerId = "be2us-64aaa-aaaah-qzcya-cai";
+        canisterId = "hbxhn-uiaaa-aaaak-qumlq-cai";
+        ledgerId = "hbxhn-uiaaa-aaaak-qumlq-cai";
         name = "CkUSDC Token";
         symbol = "ckUSDC";
         decimals = 8;
         fee = 10000;
       };
       nftToken = {
-        canisterId = "NFT_CANISTER_ID_HERE"; // Replace with actual NFT canister ID
+        canisterId = "oncwy-yqaaa-aaaae-qfzja-cai"; // Use Plantify backend canister ID
         name = "Plantify Startup NFTs";
         symbol = "PLANT";
         description = "NFTs representing ownership shares in Plantify startups";
@@ -37,7 +39,7 @@ module Config {
         maxTakeValue = ?100;
         atomicBatchTransfers = ?true;
       };
-      plantifyAccount = "rrkah-fqaaa-aaaah-qcvmq-cai";
+      plantifyAccount = "qzvg3-e2uko-chkzo-bpegv-vf6ev-hvbjc-bky6t-2t3ye-lf5lk-gw5rm-fqe";
       useTestTokens = true;
     };
   };
@@ -47,23 +49,23 @@ module Config {
     {
       environment = "production";
       icpToken = {
-        canisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai"; // ICP Ledger on mainnet
-        ledgerId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+        canisterId = "72oxd-oyaaa-aaaam-qd5na-cai"; // ICP Ledger on mainnet
+        ledgerId = "72oxd-oyaaa-aaaam-qd5na-cai";
         name = "Internet Computer";
         symbol = "ICP";
         decimals = 8;
         fee = 10000;
       };
       ckUSDCToken = {
-        canisterId = "mxzaz-hqaaa-aaaar-qaada-cai"; // ckUSDC on mainnet
-        ledgerId = "mxzaz-hqaaa-aaaar-qaada-cai";
+        canisterId = "hbxhn-uiaaa-aaaak-qumlq-cai"; // ckUSDC on mainnet
+        ledgerId = "hbxhn-uiaaa-aaaak-qumlq-cai";
         name = "CkUSDC";
         symbol = "ckUSDC";
         decimals = 8;
         fee = 10000;
       };
       nftToken = {
-        canisterId = "NFT_PRODUCTION_CANISTER_ID_HERE"; // Replace with production NFT canister ID
+        canisterId = "oncwy-yqaaa-aaaae-qfzja-cai"; // Use Plantify backend canister ID
         name = "Plantify Startup NFTs";
         symbol = "PLANT";
         description = "NFTs representing ownership shares in Plantify startups";
@@ -78,7 +80,7 @@ module Config {
         maxTakeValue = ?100;
         atomicBatchTransfers = ?true;
       };
-      plantifyAccount = "PLANTIFY_PRODUCTION_ACCOUNT_HERE"; // Replace with actual production account
+      plantifyAccount = "qzvg3-e2uko-chkzo-bpegv-vf6ev-hvbjc-bky6t-2t3ye-lf5lk-gw5rm-fqe"; // Replace with actual production account
       useTestTokens = false;
     };
   };
@@ -88,8 +90,8 @@ module Config {
     {
       environment = "testnet";
       icpToken = {
-        canisterId = "rdmx6-jaaaa-aaaah-qcaiq-cai"; // ICP Ledger on testnet
-        ledgerId = "rdmx6-jaaaa-aaaah-qcaiq-cai";
+        canisterId = "72oxd-oyaaa-aaaam-qd5na-cai"; // ICP Ledger on testnet
+        ledgerId = "72oxd-oyaaa-aaaam-qd5na-cai";
         name = "Internet Computer";
         symbol = "ICP";
         decimals = 8;
@@ -104,7 +106,7 @@ module Config {
         fee = 10000;
       };
       nftToken = {
-        canisterId = "NFT_TESTNET_CANISTER_ID_HERE"; // Replace with testnet NFT canister ID
+        canisterId = "oncwy-yqaaa-aaaae-qfzja-cai"; // Use Plantify backend canister ID
         name = "Plantify Startup NFTs";
         symbol = "PLANT";
         description = "NFTs representing ownership shares in Plantify startups";
@@ -119,7 +121,7 @@ module Config {
         maxTakeValue = ?100;
         atomicBatchTransfers = ?true;
       };
-      plantifyAccount = "PLANTIFY_TESTNET_ACCOUNT_HERE"; // Replace with testnet account
+      plantifyAccount = "qzvg3-e2uko-chkzo-bpegv-vf6ev-hvbjc-bky6t-2t3ye-lf5lk-gw5rm-fqe"; // Replace with testnet account
       useTestTokens = true;
     };
   };
@@ -136,7 +138,7 @@ module Config {
 
   // Helper function to get current environment (can be modified based on your needs)
   public func getCurrentEnvironment() : Text {
-    "production"; // Default to production for mainnet deployment
+    "development"; // Using development environment for testnet ckUSDC
   };
 
   // Get the current configuration

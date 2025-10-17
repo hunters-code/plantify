@@ -5,31 +5,93 @@ import HashMap "mo:base/HashMap";
 import Time "mo:base/Time";
 import Array "mo:base/Array";
 import Iter "mo:base/Iter";
+import Char "mo:base/Char";
+import Nat32 "mo:base/Nat32";
 import Types "./types";
 
 module Storage {
+  // Fungsi untuk membersihkan string dari karakter non-numerik
+  private func cleanNumericString(input : Text) : Text {
+    let chars = input.chars();
+    var result : Text = "";
+    
+    for (char in chars) {
+      let charCode = Char.toNat32(char);
+      // Hanya simpan karakter angka (0-9)
+      if (charCode >= 48 and charCode <= 57) {
+        result := result # Char.toText(char);
+      };
+    };
+    
+    // Jika hasil kosong, return "0"
+    if (Text.size(result) == 0) {
+      "0";
+    } else {
+      result;
+    };
+  };
+
+  // Safe textToNat function with overflow protection
+  private func textToNat(txt : Text) : Nat {
+    if (txt.size() == 0) { 0 }
+    else if (txt.size() > 10) { 
+      // If text is too long, return a safe maximum to prevent overflow
+      1000000; 
+    }
+    else {
+      let chars = txt.chars();
+      var num : Nat = 0;
+      var maxSafeValue : Nat = 1000000; // 1 million - safe maximum
+      
+      for (v in chars) {
+        // First check if character is a digit (0-9) to prevent arithmetic overflow
+        let charCode = Char.toNat32(v);
+        if (charCode >= 48 and charCode <= 57) {
+          let charToNum = Nat32.toNat(charCode - 48);
+          
+          // Check for overflow before multiplication
+          if (num > maxSafeValue / 10) {
+            return maxSafeValue; // Return max safe value to prevent overflow
+          };
+          
+          let newNum = num * 10 + charToNum;
+          if (newNum < num or newNum > maxSafeValue) {
+            // Overflow detected, return max safe value
+            return maxSafeValue;
+          };
+          num := newNum;
+        } else {
+          // Non-numeric character found, return 0
+          return 0;
+        };
+      };
+      
+      num;
+    };
+  };
+
   public class UserStorage(
-    foundersEntries: [(Text, Types.Founder)],
-    founderPrincipalsEntries: [(Principal, Text)],
-    investorsEntries: [(Text, Types.Investor)],
-    investorPrincipalsEntries: [(Principal, Text)],
-    startupsEntries: [(Text, Types.Startup)],
-    founderStartupsEntries: [(Text, [Text])],
-    monthlyReportsEntries: [(Text, Types.MonthlyReport)],
-    startupReportsEntries: [(Text, [Text])],
-    votesEntries: [(Text, Types.InvestorVote)],
-    reportVotesEntries: [(Text, [Text])],
-    investorVotesEntries: [(Text, [Text])],
-    initialNextFounderId: Nat,
-    initialNextInvestorId: Nat,
-    initialNextStartupId: Nat,
-    initialNextReportId: Nat,
-    initialNextVoteId: Nat
+    foundersEntries : [(Text, Types.Founder)],
+    founderPrincipalsEntries : [(Principal, Text)],
+    investorsEntries : [(Text, Types.Investor)],
+    investorPrincipalsEntries : [(Principal, Text)],
+    startupsEntries : [(Text, Types.Startup)],
+    founderStartupsEntries : [(Text, [Text])],
+    monthlyReportsEntries : [(Text, Types.MonthlyReport)],
+    startupReportsEntries : [(Text, [Text])],
+    votesEntries : [(Text, Types.InvestorVote)],
+    reportVotesEntries : [(Text, [Text])],
+    investorVotesEntries : [(Text, [Text])],
+    initialNextFounderId : Nat,
+    initialNextInvestorId : Nat,
+    initialNextStartupId : Nat,
+    initialNextReportId : Nat,
+    initialNextVoteId : Nat,
   ) {
     // ========================================
     // STORAGE VARIABLES
     // ========================================
-    
+
     // Founder Storage
     public var founders = HashMap.fromIter<Text, Types.Founder>(
       foundersEntries.vals(),
@@ -153,7 +215,7 @@ module Storage {
     public func getAllFounders() : [Types.Founder] {
       let founderArray = Array.map<(Text, Types.Founder), Types.Founder>(
         Iter.toArray(founders.entries()),
-        func((id, founder) : (Text, Types.Founder)) : Types.Founder { founder }
+        func((id, founder) : (Text, Types.Founder)) : Types.Founder { founder },
       );
       founderArray;
     };
@@ -161,7 +223,9 @@ module Storage {
     public func getAllInvestors() : [Types.Investor] {
       let investorArray = Array.map<(Text, Types.Investor), Types.Investor>(
         Iter.toArray(investors.entries()),
-        func((id, investor) : (Text, Types.Investor)) : Types.Investor { investor }
+        func((id, investor) : (Text, Types.Investor)) : Types.Investor {
+          investor;
+        },
       );
       investorArray;
     };
@@ -181,6 +245,11 @@ module Storage {
         phone = investor.phone;
         country = investor.country;
         city = investor.city;
+        location = investor.location;
+        occupation = investor.occupation;
+        company = investor.company;
+        bio = investor.bio;
+        profilePhoto = investor.profilePhoto;
         investmentExperience = investor.investmentExperience;
         riskTolerance = investor.riskTolerance;
         investmentGoals = investor.investmentGoals;
@@ -202,6 +271,82 @@ module Storage {
       switch (investorPrincipals.get(principal)) {
         case null { null };
         case (?id) { investors.get(id) };
+      };
+    };
+
+    public func updateInvestorProfile(investorId : Text, updateRequest : Types.InvestorProfileUpdateRequest) : Bool {
+      switch (investors.get(investorId)) {
+        case null { false };
+        case (?existingInvestor) {
+          let updatedInvestor : Types.Investor = {
+            id = existingInvestor.id;
+            principal = existingInvestor.principal;
+            fullName = switch (updateRequest.fullName) {
+              case null { existingInvestor.fullName };
+              case (?name) { name };
+            };
+            email = switch (updateRequest.email) {
+              case null { existingInvestor.email };
+              case (?email) { email };
+            };
+            phone = switch (updateRequest.phone) {
+              case null { existingInvestor.phone };
+              case (?phone) { phone };
+            };
+            country = switch (updateRequest.country) {
+              case null { existingInvestor.country };
+              case (?country) { country };
+            };
+            city = switch (updateRequest.city) {
+              case null { existingInvestor.city };
+              case (?city) { city };
+            };
+            location = switch (updateRequest.location) {
+              case null { existingInvestor.location };
+              case (?location) { ?location };
+            };
+            occupation = switch (updateRequest.occupation) {
+              case null { existingInvestor.occupation };
+              case (?occupation) { ?occupation };
+            };
+            company = switch (updateRequest.company) {
+              case null { existingInvestor.company };
+              case (?company) { ?company };
+            };
+            bio = switch (updateRequest.bio) {
+              case null { existingInvestor.bio };
+              case (?bio) { ?bio };
+            };
+            profilePhoto = switch (updateRequest.profilePhoto) {
+              case null { existingInvestor.profilePhoto };
+              case (?photo) { ?photo };
+            };
+            investmentExperience = switch (updateRequest.investmentExperience) {
+              case null { existingInvestor.investmentExperience };
+              case (?experience) { experience };
+            };
+            riskTolerance = switch (updateRequest.riskTolerance) {
+              case null { existingInvestor.riskTolerance };
+              case (?tolerance) { tolerance };
+            };
+            investmentGoals = switch (updateRequest.investmentGoals) {
+              case null { existingInvestor.investmentGoals };
+              case (?goals) { goals };
+            };
+            availableCapital = switch (updateRequest.availableCapital) {
+              case null { existingInvestor.availableCapital };
+              case (?capital) { cleanNumericString(capital) };
+            };
+            monthlyBudget = switch (updateRequest.monthlyBudget) {
+              case null { existingInvestor.monthlyBudget };
+              case (?budget) { cleanNumericString(budget) };
+            };
+            createdAt = existingInvestor.createdAt;
+            updatedAt = Time.now();
+          };
+          investors.put(investorId, updatedInvestor);
+          true;
+        };
       };
     };
 
@@ -252,7 +397,6 @@ module Storage {
             monthlyExpenses = startupRequest.monthlyExpenses;
             useOfFunds = startupRequest.useOfFunds;
 
-
             // Documents
             businessPlan = startupRequest.businessPlan;
             financialProjections = startupRequest.financialProjections;
@@ -260,6 +404,8 @@ module Storage {
 
             // Status and Metadata
             status = startupRequest.status;
+            builtByCaffeineAI = startupRequest.builtByCaffeineAI;
+            totalFunded = 0; // Always initialize to 0, only incremented by NFT purchases
             createdAt = now;
             updatedAt = now;
           };
@@ -312,6 +458,176 @@ module Storage {
       };
     };
 
+    public func getStartupsByFounderPrincipal(principal : Principal) : [Types.Startup] {
+      switch (founderPrincipals.get(principal)) {
+        case null { [] };
+        case (?founderId) { getStartupsByFounder(founderId) };
+      };
+    };
+
+    public func getStartupsByFounderPrincipalPaginated(principal : Principal, params : Types.PaginationParams) : Types.PaginatedStartups {
+      switch (founderPrincipals.get(principal)) {
+        case null {
+          {
+            startups = [];
+            totalCount = 0;
+            page = params.page;
+            limit = params.limit;
+            totalPages = 0;
+          };
+        };
+        case (?founderId) {
+          let founderStartups = getStartupsByFounder(founderId);
+          let totalCount = founderStartups.size();
+          
+          // Safe offset calculation to prevent arithmetic overflow
+          let offset = if (params.page == 0) {
+            0;
+          } else if (params.limit == 0) {
+            0;
+          } else {
+            // Check for potential overflow before multiplication
+            let maxSafePage = if (params.limit > 0) {
+              // Use a safe maximum to prevent overflow
+              let maxPage = 1000000; // Reasonable maximum page number
+              if (params.page > maxPage) {
+                maxPage;
+              } else {
+                params.page;
+              };
+            } else {
+              0;
+            };
+            maxSafePage * params.limit;
+          };
+
+          let paginatedStartups = if (offset >= totalCount or params.limit == 0) {
+            [];
+          } else {
+            // Safe endIndex calculation to prevent overflow
+            let endIndex = if (offset + params.limit > totalCount) {
+              totalCount;
+            } else {
+              offset + params.limit;
+            };
+            let takeCount = if (endIndex > offset) {
+              // Use a loop to safely calculate the difference
+              var count : Nat = 0;
+              var current : Nat = offset;
+              while (current < endIndex) {
+                count := count + 1;
+                current := current + 1;
+              };
+              count;
+            } else { 0 };
+
+            if (takeCount == 0) {
+              [];
+            } else {
+              // Safe array creation with overflow protection
+              var safeStartups : [Types.Startup] = [];
+              var i : Nat = 0;
+              while (i < takeCount and i < 1000) { // Limit to 1000 items max
+                if (offset + i < founderStartups.size()) {
+                  let startup = founderStartups[offset + i];
+                  safeStartups := Array.append(safeStartups, [startup]);
+                };
+                i := i + 1;
+              };
+              safeStartups;
+            };
+          };
+
+          // Convert to lightweight startup summaries with overflow protection
+          let startupSummaries = if (paginatedStartups.size() > 1000) {
+            // If too many startups, return empty array to prevent overflow
+            [];
+          } else {
+            Array.map<Types.Startup, Types.StartupSummary>(
+              paginatedStartups,
+              func(startup : Types.Startup) : Types.StartupSummary {
+              // Get first company image or empty array if none
+              let firstImage = if (startup.companyImages.size() > 0) {
+                [startup.companyImages[0]];
+              } else {
+                [];
+              };
+
+              // Parse funding goal to calculate available NFTs with safe textToNat
+              let fundingGoal = textToNat(startup.fundingGoal);
+              let nftPrice = textToNat(startup.nftPrice);
+              let availableNFTs = if (nftPrice > 0 and fundingGoal > 0 and nftPrice <= fundingGoal) {
+                let result = fundingGoal / nftPrice;
+                if (result > 1000000) { 1000000 } else { result }; // Cap at 1 million NFTs
+              } else {
+                0;
+              };
+
+              // Use the actual totalFunded from the startup record
+              let totalFunded = startup.totalFunded;
+
+              {
+                id = startup.id;
+                startupName = startup.startupName;
+                description = startup.description;
+                nftPrice = startup.nftPrice;
+                companyImages = firstImage;
+                companyType = startup.companyType;
+                totalFunding = startup.fundingGoal;
+                availableNFTs = availableNFTs;
+                totalFunded = totalFunded;
+                builtByCaffeineAI = startup.builtByCaffeineAI;
+                location = startup.location;
+              };
+            },
+            );
+          };
+
+          let totalPages = if (totalCount == 0 or params.limit == 0) {
+            0;
+          } else {
+            // Safe division with overflow protection
+            let pages = if (params.limit > 0) {
+              let result = totalCount / params.limit;
+              if (result > 1000000) { 1000000 } else { result }; // Cap at 1 million pages
+            } else {
+              0;
+            };
+            let remainder = if (params.limit > 0) {
+              totalCount % params.limit;
+            } else {
+              0;
+            };
+            if (remainder == 0) { pages } else { 
+              let finalPages = pages + 1;
+              if (finalPages > 1000000) { 1000000 } else { finalPages };
+            };
+          };
+
+          {
+            startups = startupSummaries;
+            totalCount = totalCount;
+            page = params.page;
+            limit = params.limit;
+            totalPages = totalPages;
+          };
+        };
+      };
+    };
+
+    public func getStartupsByFounderNameAndId(founderName : Text, founderId : Text) : [Types.Startup] {
+      switch (founders.get(founderId)) {
+        case null { [] };
+        case (?founder) {
+          if (founder.fullName == founderName) {
+            getStartupsByFounder(founderId);
+          } else {
+            [];
+          };
+        };
+      };
+    };
+
     public func getAllStartups() : [Types.Startup] {
       let startupArray = Array.map<(Text, Types.Startup), Types.Startup>(
         Iter.toArray(startups.entries()),
@@ -321,6 +637,148 @@ module Storage {
         },
       );
       startupArray;
+    };
+
+    public func getStartupsPaginated(params : Types.PaginationParams) : Types.PaginatedStartups {
+      // Input validation to prevent overflow
+      let safeParams = {
+        page = if (params.page > 1000000) { 1000000 } else { params.page };
+        limit = if (params.limit > 1000) { 1000 } else { params.limit };
+      };
+      
+      let allStartups = Array.map<(Text, Types.Startup), Types.Startup>(
+        Iter.toArray(startups.entries()),
+        func(entry : (Text, Types.Startup)) : Types.Startup {
+          let (id, startup) = entry;
+          startup;
+        },
+      );
+
+      let totalCount = allStartups.size();
+      
+      // Safe offset calculation to prevent arithmetic overflow
+      let offset = if (safeParams.page == 0) {
+        0;
+      } else if (safeParams.limit == 0) {
+        0;
+      } else {
+        safeParams.page * safeParams.limit;
+      };
+
+      let paginatedStartups = if (offset >= totalCount or safeParams.limit == 0) {
+        [];
+      } else {
+        // Safe endIndex calculation to prevent overflow
+        let endIndex = if (offset + safeParams.limit > totalCount) {
+          totalCount;
+        } else {
+          offset + safeParams.limit;
+        };
+        let takeCount = if (endIndex > offset) {
+          // Use a loop to safely calculate the difference
+          var count : Nat = 0;
+          var current : Nat = offset;
+          while (current < endIndex) {
+            count := count + 1;
+            current := current + 1;
+          };
+          count;
+        } else { 0 };
+
+        if (takeCount == 0) {
+          [];
+        } else {
+          // Safe array creation with overflow protection
+          var safeStartups : [Types.Startup] = [];
+          var i : Nat = 0;
+          while (i < takeCount and i < 1000) { // Limit to 1000 items max
+            if (offset + i < allStartups.size()) {
+              let startup = allStartups[offset + i];
+              safeStartups := Array.append(safeStartups, [startup]);
+            };
+            i := i + 1;
+          };
+          safeStartups;
+        };
+      };
+
+      // Convert to lightweight startup summaries with overflow protection
+      let startupSummaries = if (paginatedStartups.size() > 1000) {
+        // If too many startups, return empty array to prevent overflow
+        [];
+      } else {
+        Array.map<Types.Startup, Types.StartupSummary>(
+          paginatedStartups,
+          func(startup : Types.Startup) : Types.StartupSummary {
+          // Get first company image or empty array if none
+          let firstImage = if (startup.companyImages.size() > 0) {
+            [startup.companyImages[0]];
+          } else {
+            [];
+          };
+
+          // Parse funding goal to calculate available NFTs with safe textToNat
+          let fundingGoal = textToNat(startup.fundingGoal);
+          let nftPrice = textToNat(startup.nftPrice);
+          let availableNFTs = if (nftPrice > 0 and fundingGoal > 0 and nftPrice <= fundingGoal) {
+            let result = fundingGoal / nftPrice;
+            if (result > 1000000) { 1000000 } else { result }; // Cap at 1 million NFTs
+          } else {
+            0;
+          };
+
+          // Use the actual totalFunded from the startup record
+          let totalFunded = startup.totalFunded;
+
+          {
+            id = startup.id;
+            startupName = startup.startupName;
+            description = startup.description;
+            nftPrice = startup.nftPrice;
+            companyImages = firstImage;
+            companyType = startup.companyType;
+            totalFunding = startup.fundingGoal;
+            availableNFTs = availableNFTs;
+            totalFunded = totalFunded;
+            builtByCaffeineAI = startup.builtByCaffeineAI;
+            location = startup.location;
+          };
+        },
+        );
+      };
+
+      let totalPages = if (totalCount == 0 or safeParams.limit == 0) {
+        0;
+      } else {
+        // Safe division with overflow protection
+        let pages = if (safeParams.limit > 0) {
+          let result = totalCount / safeParams.limit;
+          if (result > 1000000) { 1000000 } else { result }; // Cap at 1 million pages
+        } else {
+          0;
+        };
+        let remainder = if (safeParams.limit > 0) {
+          totalCount % safeParams.limit;
+        } else {
+          0;
+        };
+        if (remainder == 0) { pages } else { 
+          let finalPages = pages + 1;
+          if (finalPages > 1000000) { 1000000 } else { finalPages };
+        };
+      };
+
+      {
+        startups = startupSummaries;
+        totalCount = totalCount;
+        page = safeParams.page;
+        limit = safeParams.limit;
+        totalPages = totalPages;
+      };
+    };
+
+    public func getStartupsCount() : Nat {
+      startups.size();
     };
 
     // ========================================
@@ -333,7 +791,6 @@ module Storage {
         case (?startup) { founders.get(startup.founderId) };
       };
     };
-
 
     public func updateStartupStatus(startupId : Text, newStatus : Text) : Bool {
       switch (startups.get(startupId)) {
@@ -372,6 +829,56 @@ module Storage {
             financialProjections = startup.financialProjections;
             legalDocuments = startup.legalDocuments;
             status = newStatus;
+            builtByCaffeineAI = startup.builtByCaffeineAI;
+            totalFunded = startup.totalFunded;
+            createdAt = startup.createdAt;
+            updatedAt = Time.now();
+          };
+          startups.put(startupId, updatedStartup);
+          true;
+        };
+      };
+    };
+
+    public func updateStartupTotalFunded(startupId : Text, amount : Nat) : Bool {
+      switch (startups.get(startupId)) {
+        case null { false };
+        case (?startup) {
+          let updatedStartup : Types.Startup = {
+            id = startup.id;
+            founderId = startup.founderId;
+            startupName = startup.startupName;
+            sector = startup.sector;
+            foundedYear = startup.foundedYear;
+            description = startup.description;
+            website = startup.website;
+            location = startup.location;
+            companyType = startup.companyType;
+            companyLogo = startup.companyLogo;
+            companyImages = startup.companyImages;
+            nftImage = startup.nftImage;
+            problemStatement = startup.problemStatement;
+            solution = startup.solution;
+            targetMarket = startup.targetMarket;
+            competitiveAdvantage = startup.competitiveAdvantage;
+            marketingStrategy = startup.marketingStrategy;
+            operationalProcess = startup.operationalProcess;
+            founderBackground = startup.founderBackground;
+            teamMembers = startup.teamMembers;
+            advisors = startup.advisors;
+            fundingGoal = startup.fundingGoal;
+            nftPrice = startup.nftPrice;
+            periodicProfitSharing = startup.periodicProfitSharing;
+            revenueModel = startup.revenueModel;
+            monthlyRevenue = startup.monthlyRevenue;
+            monthlyExpenses = startup.monthlyExpenses;
+            useOfFunds = startup.useOfFunds;
+            businessPlan = startup.businessPlan;
+            financialProjections = startup.financialProjections;
+            legalDocuments = startup.legalDocuments;
+            status = startup.status;
+            builtByCaffeineAI = startup.builtByCaffeineAI;
+            totalFunded = startup.totalFunded + amount;
             createdAt = startup.createdAt;
             updatedAt = Time.now();
           };

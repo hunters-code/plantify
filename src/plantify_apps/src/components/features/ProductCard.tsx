@@ -1,0 +1,294 @@
+'use client';
+
+import React, { useState } from 'react';
+
+import Image from 'next/image';
+
+import {
+  BadgeDollarSign,
+  TrendingUp,
+  Leaf,
+  Users,
+  BanknoteArrowUp,
+  Eye,
+  ThumbsUp,
+  MapPin,
+} from 'lucide-react';
+
+import Button from '@/components/ui/Button';
+import InvestmentModal from '@/components/ui/InvestmentModal';
+
+type ProductCardProps = {
+  id: string | number;
+  image: string;
+  title: string;
+  location: string;
+  employees: number;
+  category: string;
+  risk: string;
+  description: string;
+  nftPrice: number;
+  periodicReturns: string;
+  annualROI: number;
+  available: number;
+  fundingProgress: number;
+  fundedAmount: number;
+  targetAmount: number;
+  builtByCaffeineAI?: boolean;
+};
+
+export default function ProductCard({
+  id,
+  image,
+  title,
+  location,
+  employees,
+  category,
+  risk,
+  description,
+  nftPrice,
+  periodicReturns,
+  annualROI,
+  available,
+  fundingProgress,
+  fundedAmount,
+  targetAmount,
+  builtByCaffeineAI,
+}: ProductCardProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [investmentData, setInvestmentData] = useState<{
+    id: string | number;
+    name: string;
+    nftPrice: number;
+    monthlyReturns: number;
+    expectedROI: number;
+    availableNFTs: number;
+    totalNFTs: number;
+    soldNFTs: number;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Dummy API
+  const getInvestmentDetails = async (investmentId: string | number) => {
+    return new Promise(resolve =>
+      setTimeout(() => {
+        resolve({
+          id: investmentId,
+          name: title,
+          nftPrice: nftPrice || 75,
+          monthlyReturns: Math.round((nftPrice || 75) * 0.16),
+          expectedROI: annualROI || 192,
+          availableNFTs: available || 1,
+          totalNFTs: available || 1,
+          soldNFTs: 0,
+        });
+      }, 500)
+    );
+  };
+
+  const purchaseNFTs = async (_investmentDetails: {
+    startupId: string | number;
+    quantity: number;
+    totalAmount: number;
+  }) => {
+    return new Promise<{ success: boolean; message?: string; error?: string }>(
+      resolve =>
+        setTimeout(() => {
+          resolve({
+            success: true,
+            message: 'Investment successful! 🚀',
+          });
+        }, 1000)
+    );
+  };
+
+  const handleInvestClick = async () => {
+    try {
+      setIsLoading(true);
+      const details = await getInvestmentDetails(id);
+      setInvestmentData(
+        details as {
+          id: string | number;
+          name: string;
+          nftPrice: number;
+          monthlyReturns: number;
+          expectedROI: number;
+          availableNFTs: number;
+          totalNFTs: number;
+          soldNFTs: number;
+        }
+      );
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error getting investment details:', error);
+      setInvestmentData({
+        id,
+        name: title,
+        nftPrice: nftPrice || 75,
+        monthlyReturns: Math.round((nftPrice || 75) * 0.16),
+        expectedROI: annualROI || 192,
+        availableNFTs: available || 1,
+        totalNFTs: available || 1,
+        soldNFTs: 0,
+      });
+      setIsModalOpen(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInvest = async (payload: {
+    startupId: string | number;
+    quantity: number;
+    totalAmount: number;
+  }) => {
+    try {
+      setIsLoading(true);
+      const result = await purchaseNFTs(payload);
+
+      if (result.success) {
+        // Don't auto-close modal on success, let user close manually
+      } else {
+        console.error(`Investment failed: ${result.error}`);
+      }
+    } catch (error: unknown) {
+      console.error('Investment error:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Investment failed: ${errorMessage}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className='bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden'>
+      {/* Image */}
+      <div className='relative h-60 w-full'>
+        <Image src={image} alt={title} fill className='object-cover' />
+
+        {/* Caffeine.AI badge */}
+        {builtByCaffeineAI && (
+          <div className='absolute top-2 left-2'>
+            <span
+              className='bg-blue-600 text-white text-sm px-3 py-1 rounded-lg shadow font-semibold'
+              style={{
+                fontFamily: '"Test Söhne Breit", sans-serif',
+                fontWeight: 600,
+                fontSize: '14px',
+                lineHeight: '140%',
+                letterSpacing: '-1%',
+              }}
+            >
+              Caffeine.AI
+            </span>
+          </div>
+        )}
+
+        {/* Category & Risk badges */}
+        <div className='absolute top-2 right-2 flex gap-2'>
+          <span className='bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-lg shadow'>
+            <ThumbsUp size={15} className='text-purple-600' />
+          </span>
+          <span className='bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-lg shadow'>
+            {category}
+          </span>
+          <span className='bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-lg shadow'>
+            {risk}
+          </span>
+        </div>
+
+        {/* Location overlay */}
+        <div className='absolute bottom-2 left-2 bg-white text-neutral-500 text-[11px] px-2 py-1 rounded-full flex items-center gap-1'>
+          <MapPin size={12} />
+          {location} • {employees} employees
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className='p-4'>
+        {/* Title & Desc */}
+        <h3 className='font-normal text-gray-900 text-[20px] font-ibm'>
+          {title}
+        </h3>
+        <p className='text-xs text-gray-600 mt-1 line-clamp-2 font-geist'>
+          {description}
+        </p>
+
+        <div className='mt-3 text-[13px] space-y-1 text-gray-700 font-geist'>
+          <p>
+            <BadgeDollarSign
+              className='inline mr-1 text-neutral-500'
+              size={14}
+            />
+            NFT Price: ${nftPrice} ckUSDC
+          </p>
+          <p>
+            <TrendingUp className='inline mr-1 text-neutral-500' size={14} />
+            Periodic Returns: {periodicReturns}
+          </p>
+          <p>
+            <Leaf className='inline mr-1 text-neutral-500' size={14} />
+            Annual ROI: {annualROI}%
+          </p>
+          <p>
+            <Users className='inline mr-1 text-neutral-500' size={14} />
+            Available: {available} NFT
+          </p>
+        </div>
+
+        <div className='mt-3'>
+          <div className='h-2 w-full bg-gray-200 rounded-full'>
+            <div
+              className='h-2 bg-orange-400 rounded-full'
+              style={{ width: `${fundingProgress}%` }}
+            />
+          </div>
+          <p className='text-xs mt-1 text-orange-600 font-medium'>
+            Funding Progress: {fundingProgress}% Funded
+          </p>
+        </div>
+
+        <div className='mt-2 text-sm font-semibold'>
+          <span className='text-orange-600'>
+            ${fundedAmount.toLocaleString()}
+          </span>{' '}
+          <span className='text-gray-400'>
+            / ${targetAmount.toLocaleString()}
+          </span>
+        </div>
+
+        <div className='mt-4 flex gap-2'>
+          <Button
+            as='a'
+            href={`/explore/detail?id=${
+              id || title.replace(/\s+/g, '-').toLowerCase()
+            }`}
+            variant='secondary'
+            className='flex-1'
+          >
+            <Eye size={20} /> Details
+          </Button>
+
+          <Button
+            onClick={handleInvestClick}
+            disabled={isLoading}
+            variant='primary'
+            className='flex-1 disabled:opacity-50 disabled:cursor-not-allowed'
+          >
+            <BanknoteArrowUp size={20} />
+            {isLoading ? 'Loading...' : 'Invest'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Investment Modal */}
+      <InvestmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        startup={investmentData || undefined}
+        onSuccess={handleInvest}
+      />
+    </div>
+  );
+}
