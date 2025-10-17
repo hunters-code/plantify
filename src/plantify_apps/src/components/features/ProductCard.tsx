@@ -120,8 +120,7 @@ export default function ProductCard({
       const result = await purchaseNFTs(payload);
 
       if (result.success) {
-        alert(result.message);
-        setIsModalOpen(false);
+        // Don't auto-close modal on success, let user close manually
       } else {
         alert(`Investment failed: ${result.error}`);
       }

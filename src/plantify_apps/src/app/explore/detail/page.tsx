@@ -435,8 +435,7 @@ function ExploreDetailContent() {
               : undefined
           }
           onSuccess={payload => {
-            console.log('Investment completed:', payload);
-            setIsModalOpen(false);
+            // Don't auto-close modal on success, let user close manually
           }}
         />
       </Layout>
