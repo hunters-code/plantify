@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+
+import { useRouter } from 'next/navigation';
+
 import {
   TrendingUp,
   DollarSign,
@@ -9,10 +12,10 @@ import {
   Vote,
   AlertCircle,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { InvestorService } from '@/services/investors/InvestorService';
+
 import { ProductCard } from '@/components/features';
 import { Button, Card, LoadingSpinner } from '@/components/ui';
+import { InvestorService } from '@/services/investors/InvestorService';
 
 interface DashboardData {
   totalInvested: number;

@@ -1,5 +1,8 @@
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
+
+import { Principal } from '@dfinity/principal';
 import {
   X,
   Minus,
@@ -8,15 +11,15 @@ import {
   CheckCircle,
   CheckCircle2,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { Principal } from '@dfinity/principal';
-import Stepper, { StepperStep } from './Stepper';
-import Button from './Button';
+
+import { useAuth } from '../../contexts/AuthContext';
 import { icrcService } from '../../services/ICRCService';
 import { InvestorService } from '../../services/investors/InvestorService';
 import { NFTService } from '../../services/marketplace/NFTService';
-import { useAuth } from '../../contexts/AuthContext';
 import { CancelIcon, InvestIcon } from '../icons';
+
+import Button from './Button';
+import Stepper, { StepperStep } from './Stepper';
 
 interface Startup {
   id: string | number;
@@ -64,33 +67,7 @@ export default function InvestmentModal({
   const [showPurchaseProgress, setShowPurchaseProgress] = useState(false);
   const { principal } = useAuth();
 
-  // Load user balance and available NFTs when modal opens
-  useEffect(() => {
-    if (isOpen && principal) {
-      loadUserBalance();
-      loadAvailableNFTs();
-    }
-  }, [isOpen, principal]);
-
-  const loadUserBalance = async () => {
-    if (!principal) return;
-
-    try {
-      setTransferStatus('checking_balance');
-      const balance = await icrcService.getBalanceInUnits(
-        Principal.fromText(principal),
-        'ckUSDC'
-      );
-      setUserBalance(balance);
-      setTransferStatus('idle');
-    } catch (error) {
-      console.error('Failed to load user balance:', error);
-      setTransferError('Failed to load balance');
-      setTransferStatus('error');
-    }
-  };
-
-  const loadAvailableNFTs = async () => {
+  const loadAvailableNFTs = useCallback(async () => {
     if (!startup) return;
 
     try {
@@ -110,7 +87,33 @@ export default function InvestmentModal({
       console.error('Failed to load available NFTs:', error);
       setAvailableNFTs(0);
     }
-  };
+  }, [startup]);
+
+  const loadUserBalance = useCallback(async () => {
+    if (!principal) return;
+
+    try {
+      setTransferStatus('checking_balance');
+      const balance = await icrcService.getBalanceInUnits(
+        Principal.fromText(principal),
+        'ckUSDC'
+      );
+      setUserBalance(balance);
+      setTransferStatus('idle');
+    } catch (error) {
+      console.error('Failed to load user balance:', error);
+      setTransferError('Failed to load balance');
+      setTransferStatus('error');
+    }
+  }, [principal]);
+
+  // Load user balance and available NFTs when modal opens
+  useEffect(() => {
+    if (isOpen && principal) {
+      loadUserBalance();
+      loadAvailableNFTs();
+    }
+  }, [isOpen, principal, loadAvailableNFTs, loadUserBalance]);
 
   if (!isOpen || !startup) return null;
 
@@ -285,7 +288,7 @@ export default function InvestmentModal({
         onSuccess({
           startupId: startup.id,
           quantity: nftQuantity,
-          totalAmount: totalAmount,
+          totalAmount,
         });
       }
 

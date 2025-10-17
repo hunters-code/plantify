@@ -1,5 +1,6 @@
-import { Award, Medal } from 'lucide-react';
 import Image from 'next/image';
+
+import { Award, Medal } from 'lucide-react';
 
 export default function FounderTeam({ startup }) {
   if (!startup) {

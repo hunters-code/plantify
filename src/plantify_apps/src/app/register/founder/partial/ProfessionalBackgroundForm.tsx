@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { Input, Textarea } from '@/components/ui';
 
@@ -25,7 +25,7 @@ interface ProfessionalBackgroundFormProps {
     expertise?: string;
     linkedIn?: string;
   };
-  handleInputChange: (field: keyof FormData, value: any) => void;
+  handleInputChange: (field: keyof FormData, value: string) => void;
 }
 
 export default function ProfessionalBackgroundForm({
@@ -45,38 +45,38 @@ export default function ProfessionalBackgroundForm({
   });
 
   // Validate individual fields
-  const validateField = (
-    field: 'experience' | 'expertise' | 'linkedIn',
-    value: string
-  ) => {
-    let error = '';
+  const validateField = useCallback(
+    (field: 'experience' | 'expertise' | 'linkedIn', value: string) => {
+      let error = '';
 
-    switch (field) {
-      case 'experience':
-        if (!value.trim()) {
-          error = 'Business experience is required';
-        } else if (value.trim().length < 50) {
-          error = 'Please provide more details (minimum 50 characters)';
-        }
-        break;
+      switch (field) {
+        case 'experience':
+          if (!value.trim()) {
+            error = 'Business experience is required';
+          } else if (value.trim().length < 50) {
+            error = 'Please provide more details (minimum 50 characters)';
+          }
+          break;
 
-      case 'expertise':
-        if (!value.trim()) {
-          error = 'Area of expertise is required';
-        } else if (value.trim().length < 20) {
-          error = 'Please provide more details (minimum 20 characters)';
-        }
-        break;
+        case 'expertise':
+          if (!value.trim()) {
+            error = 'Area of expertise is required';
+          } else if (value.trim().length < 20) {
+            error = 'Please provide more details (minimum 20 characters)';
+          }
+          break;
 
-      case 'linkedIn':
-        if (value.trim() && !isValidLinkedInUrl(value)) {
-          error = 'Please enter a valid LinkedIn URL';
-        }
-        break;
-    }
+        case 'linkedIn':
+          if (value.trim() && !isValidLinkedInUrl(value)) {
+            error = 'Please enter a valid LinkedIn URL';
+          }
+          break;
+      }
 
-    return error;
-  };
+      return error;
+    },
+    []
+  );
 
   // Validate LinkedIn URL
   const isValidLinkedInUrl = (url: string): boolean => {
@@ -99,7 +99,7 @@ export default function ProfessionalBackgroundForm({
         : '',
     };
     setErrors(newErrors);
-  }, [formData, touched]);
+  }, [formData, touched, validateField]);
 
   const handleBlur = (field: 'experience' | 'expertise' | 'linkedIn') => {
     setTouched(prev => ({ ...prev, [field]: true }));

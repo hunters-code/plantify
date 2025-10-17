@@ -1,16 +1,13 @@
 'use client';
 
-import {
-  X,
-  ArrowUp,
-  TrendingUp,
-  Users,
-  DollarSign,
-  Target,
-} from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+
+import { X, ArrowUp, TrendingUp, Target } from 'lucide-react';
+
 import { analyzeStartup, StartupAnalysisResult } from '@/lib/aiService';
+
 import LoadingSpinner from './LoadingSpinner';
+
 import { Button } from '.';
 
 interface Message {
@@ -50,7 +47,7 @@ export default function ChatInterface({
   onClose,
   startupData,
   startupName,
-  onInvestClick,
+  onInvestClick: _onInvestClick,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');

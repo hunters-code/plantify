@@ -1,7 +1,8 @@
 'use client';
 
-import { AlertTriangle, Loader2, X } from 'lucide-react';
 import React, { useState } from 'react';
+
+import { AlertTriangle, Loader2, X } from 'lucide-react';
 
 import FileUpload from '@/components/ui/FileUpload';
 import { uploadFile } from '@/lib/fileUpload';
@@ -22,8 +23,8 @@ interface CollateralSetupStepProps {
 const CollateralSetupStep: React.FC<CollateralSetupStepProps> = ({
   formData,
   setFormData,
-  errors = {},
-  touched = {},
+  errors: _errors = {},
+  touched: _touched = {},
 }) => {
   const [isUploadingBusinessPlan, setIsUploadingBusinessPlan] = useState(false);
   const [isUploadingFinancialProjections, setIsUploadingFinancialProjections] =

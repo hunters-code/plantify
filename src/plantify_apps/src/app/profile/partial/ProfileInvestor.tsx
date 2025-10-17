@@ -1,13 +1,16 @@
 'use client';
 
-import { Edit, Mail, MapPin, Phone, Save, X } from 'lucide-react';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { InvestorService } from '@/services/investors/InvestorService';
+
+import Image from 'next/image';
+
+import { Edit, Mail, MapPin, Phone, Save, X } from 'lucide-react';
+
 import type {
   Investor,
   InvestorProfileUpdateRequest,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+import { InvestorService } from '@/services/investors/InvestorService';
 
 export default function ProfileInvestor() {
   const [investor, setInvestor] = useState<Investor | null>(null);

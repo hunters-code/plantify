@@ -1016,6 +1016,6 @@ export const idlFactory = ({ IDL }) => {
     whoami: IDL.Func([], [IDL.Principal], []),
   });
 };
-export const init = ({ IDL }) => {
+export const init = ({ _IDL }) => {
   return [];
 };

@@ -40,7 +40,7 @@ export const LikeIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export const LocationIcon = (props: SVGProps<SVGAElement>) => (
+export const LocationIcon = (_props: SVGProps<SVGAElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='14'
@@ -55,7 +55,7 @@ export const LocationIcon = (props: SVGProps<SVGAElement>) => (
   </svg>
 );
 
-export const CoinsIcon = (props: SVGProps<SVGAElement>) => (
+export const CoinsIcon = (_props: SVGProps<SVGAElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='18'
@@ -96,7 +96,7 @@ export const CoinsIcon = (props: SVGProps<SVGAElement>) => (
   </svg>
 );
 
-export const TrendingUpIcon = (props: SVGProps<SVGAElement>) => (
+export const TrendingUpIcon = (_props: SVGProps<SVGAElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='16'
@@ -111,7 +111,7 @@ export const TrendingUpIcon = (props: SVGProps<SVGAElement>) => (
   </svg>
 );
 
-export const PercentIcon = (props: SVGProps<SVGAElement>) => (
+export const PercentIcon = (_props: SVGProps<SVGAElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='18'
@@ -148,7 +148,7 @@ export const PercentIcon = (props: SVGProps<SVGAElement>) => (
   </svg>
 );
 
-export const PackageIcon = (props: SVGProps<SVGAElement>) => (
+export const PackageIcon = (_props: SVGProps<SVGAElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='18'
@@ -185,7 +185,7 @@ export const PackageIcon = (props: SVGProps<SVGAElement>) => (
   </svg>
 );
 
-export const TargetIcon = (props: SVGProps<SVGAElement>) => (
+export const TargetIcon = (_props: SVGProps<SVGAElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='18'

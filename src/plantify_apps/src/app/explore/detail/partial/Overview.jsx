@@ -1,5 +1,3 @@
-import { TrendingUp } from 'lucide-react';
-
 export default function Overview({ startup }) {
   if (!startup) {
     return (

@@ -1,5 +1,6 @@
-import { AlertTriangle, FileText, Eye, Download, Copy } from 'lucide-react';
+import { AlertTriangle, FileText, Eye, Copy } from 'lucide-react';
 import PropTypes from 'prop-types';
+
 import { Alert } from '@/components/ui';
 
 export default function Documents({ startup }) {
@@ -10,8 +11,6 @@ export default function Documents({ startup }) {
       </div>
     );
   }
-
-  const safeTrim = value => (typeof value === 'string' ? value.trim() : '');
 
   const hasBusinessPlan =
     startup.businessPlan &&

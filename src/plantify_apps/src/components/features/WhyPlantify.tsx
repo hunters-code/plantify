@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
   ShieldCheck,
   Users,
@@ -6,7 +8,6 @@ import {
   Globe,
   HandCoins,
 } from 'lucide-react';
-import React from 'react';
 
 import { Logo } from '@/components/icons';
 import Button from '@/components/ui/Button';

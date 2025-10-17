@@ -1,14 +1,16 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { useFeaturedStartupsPaginated } from '@/hooks/useFeaturedStartupsPaginated';
+import { Loader2 } from 'lucide-react';
+
 import {
   StartupCard,
   StartupCardProps,
 } from '@/components/startup/StartupCard';
 import { Button } from '@/components/ui';
+import { useFeaturedStartupsPaginated } from '@/hooks/useFeaturedStartupsPaginated';
+
 import { GlobeIcon } from '../icons';
 
 export default function FeaturedStartups() {
@@ -20,7 +22,6 @@ export default function FeaturedStartups() {
     const totalFunded = Number(startup.totalFunded || 0);
     const fundingGoal = Number(startup.fundingGoal || 1); // Avoid division by zero
     const fundedPercentage = Math.min(totalFunded / fundingGoal, 1);
-    const fundedAmount = totalFunded;
     const fundedText = `${Math.round(fundedPercentage * 100)}% Funded`;
 
     return {

@@ -1,8 +1,10 @@
 'use client';
 
-import { Funnel, ListFilter, Search } from 'lucide-react';
 import { useState, useEffect, useCallback, Suspense } from 'react';
+
 import { useRouter, useSearchParams } from 'next/navigation';
+
+import { Funnel, ListFilter, Search } from 'lucide-react';
 
 import {
   Navbar,
@@ -12,7 +14,6 @@ import {
   StartupCard,
 } from '@/components';
 import { Button, CardSkeleton, Input } from '@/components/ui';
-import { useAuth } from '@/contexts/AuthContext';
 import type { StartupSummary } from '@/declarations/plantify_backend/plantify_backend.did';
 import { StartupService } from '@/services/marketplace';
 import { getRiskLevel } from '@/utils/riskLevels';
@@ -74,9 +75,9 @@ function ExploreContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const pageParam = searchParams.get('page');
-  const filterParam = searchParams.get('filter') as FilterType | null;
-  const searchParam = searchParams.get('search');
+  const pageParam = searchParams?.get('page');
+  const filterParam = searchParams?.get('filter') as FilterType | null;
+  const searchParam = searchParams?.get('search');
 
   const ITEMS_PER_PAGE = 6;
 

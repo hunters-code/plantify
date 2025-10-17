@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+
 import {
   Calendar,
   TrendingUp,
@@ -8,6 +9,7 @@ import {
   FileText,
   CalendarDays,
 } from 'lucide-react';
+
 import { MonthlyReportService } from '@/services/founders/MonthlyReportService';
 
 type ReportStatus = 'Approved' | 'Draft' | 'Rejected' | 'Submitted';
@@ -41,8 +43,8 @@ type Startup = {
   startupName: string;
   monthlyRevenue: string;
   monthlyExpenses: string;
-  fundingGoal?: number;
-  nftPrice?: number;
+  fundingGoal?: string;
+  nftPrice?: string;
   companyType?: string;
   periodicProfitSharing?: string;
   useOfFunds?: string;
@@ -122,6 +124,24 @@ const Financials: React.FC<FinancialsProps> = ({ startup }) => {
           const convertedReports: MonthlyReportList = {
             ...response.reportList,
             totalProfitSharing: Number(response.reportList.totalProfitSharing),
+            totalReports: Number(response.reportList.totalReports),
+            totalProfit: Number(response.reportList.totalProfit),
+            totalExpenses: Number(response.reportList.totalExpenses),
+            totalRevenue: Number(response.reportList.totalRevenue),
+            reports: response.reportList.reports.map(report => ({
+              ...report,
+              month: Number(report.month),
+              year: Number(report.year),
+              revenue: Number(report.revenue),
+              expenses: Number(report.expenses),
+              profit: Number(report.profit),
+              profitSharingAmount: Number(report.profitSharingAmount),
+              newInvestors: Number(report.newInvestors),
+              investorCount: Number(report.investorCount),
+              status: Object.keys(report.status)[0] as ReportStatus,
+              createdAt: Number(report.createdAt),
+              updatedAt: Number(report.updatedAt),
+            })),
           };
           setReportData(convertedReports);
         } else {

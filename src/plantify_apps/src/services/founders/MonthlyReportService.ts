@@ -6,7 +6,6 @@ import type {
   MonthlyReportStatus,
   Result_1,
   Result_17,
-  Result_18,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';

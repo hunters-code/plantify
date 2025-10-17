@@ -1,8 +1,10 @@
 'use client';
 
-import { Plus, MoreHorizontal, User } from 'lucide-react';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
+
+import Image from 'next/image';
+
+import { Plus, MoreHorizontal, User } from 'lucide-react';
 
 import { Button, Card } from '@/components/ui';
 import type {

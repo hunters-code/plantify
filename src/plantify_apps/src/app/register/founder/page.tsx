@@ -1,8 +1,10 @@
 'use client';
 
-import { User, Briefcase, CheckCircle, FileText, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+
+import { useRouter } from 'next/navigation';
+
+import { User, Briefcase, CheckCircle, FileText, Loader2 } from 'lucide-react';
 
 import { Navbar, Footer } from '@/components';
 import FormMultiStep from '@/components/layout/FormMultiStep';
@@ -94,7 +96,10 @@ export default function RegisterFounder() {
     checkExistingFounder();
   }, [isAuthenticated, navigate]);
 
-  const handleInputChange = (field: keyof FormData, value: any) => {
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string | boolean
+  ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (error) setError(null);
   };
@@ -165,9 +170,13 @@ export default function RegisterFounder() {
       } else {
         setError(result.error || 'Registration failed. Please try again.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Registration error:', err);
-      setError(err.message || 'Registration failed. Please try again.');
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'Registration failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -262,7 +271,7 @@ export default function RegisterFounder() {
               content: (
                 <VerificationDocumentsForm
                   formData={formData}
-                  handleInputChange={handleInputChange}
+                  handleInputChange={handleInputChange as unknown as any}
                 />
               ),
             },
@@ -272,7 +281,14 @@ export default function RegisterFounder() {
               icon: <FileText className='w-4 h-4' />,
               content: (
                 <TermsAgreementForm
-                  formData={formData}
+                  formData={
+                    formData as unknown as {
+                      [key: string]: string | boolean;
+                      terms: boolean;
+                      risks: boolean;
+                      transparency: boolean;
+                    }
+                  }
                   handleInputChange={handleInputChange}
                 />
               ),

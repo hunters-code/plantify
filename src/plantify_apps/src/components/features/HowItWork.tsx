@@ -1,9 +1,11 @@
 'use client';
 
+import React, { useMemo, useState } from 'react';
+
+import Image from 'next/image';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, ShieldUser } from 'lucide-react';
-import Image from 'next/image';
-import React, { useMemo, useState } from 'react';
 
 interface Step {
   title: string;

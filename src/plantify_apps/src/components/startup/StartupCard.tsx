@@ -1,8 +1,9 @@
 'use client';
 
+import React from 'react';
+
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React from 'react';
 
 import {
   LikeIcon,
@@ -62,7 +63,7 @@ export function StartupCard({
   availability,
   fundedText,
   fundedPct = 0.45,
-  fundedColor = '#22c55e',
+  fundedColor: _fundedColor = '#22c55e',
   totalFunded,
   fundingGoal,
   builtByCaffeineAI = false,

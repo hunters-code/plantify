@@ -1,7 +1,8 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+
+import { useParams } from 'next/navigation';
 
 import Layout from '@/components/layout/Layout';
 import { Button, Card, Skeleton, CardSkeleton } from '@/components/ui';
@@ -27,7 +28,11 @@ type Startup = {
 };
 
 export default function StartupDetailsPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams();
+  const id =
+    typeof params === 'object' && params !== null
+      ? (params as Record<string, string>).id
+      : undefined;
   const [startup, setStartup] = useState<Startup | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 

@@ -1,5 +1,6 @@
-import { Principal } from '@dfinity/principal';
 import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
+import { Principal } from '@dfinity/principal';
+
 import { BaseService } from './BaseService';
 
 export interface TransferParams {
@@ -69,7 +70,7 @@ export class ICRCService {
     // Get agent from BaseService
     const agent = BaseService.getAgent();
     const ledger = IcrcLedgerCanister.create({
-      agent: agent,
+      agent,
       canisterId: Principal.fromText(tokenConfig.canisterId),
     });
 

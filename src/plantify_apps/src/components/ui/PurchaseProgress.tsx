@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { CheckCircle, Clock, Loader2, XCircle } from 'lucide-react';
 
 export interface PurchaseStep {
@@ -16,10 +17,10 @@ interface PurchaseProgressProps {
 
 export default function PurchaseProgress({
   steps,
-  currentStep,
+  currentStep: _currentStep,
   className = '',
 }: PurchaseProgressProps) {
-  const getStepIcon = (step: PurchaseStep, index: number) => {
+  const getStepIcon = (step: PurchaseStep, _index: number) => {
     if (step.status === 'completed') {
       return <CheckCircle className='w-5 h-5 text-green-500' />;
     }

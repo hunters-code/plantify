@@ -1,6 +1,9 @@
 'use client';
 
-import { AuthClient } from '@dfinity/auth-client';
+import { useState } from 'react';
+
+import { useRouter } from 'next/navigation';
+
 import { Formik, FormikProps } from 'formik';
 import {
   CircleArrowRight,
@@ -8,8 +11,6 @@ import {
   CircleCheckBig,
   Loader2,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
 import { Layout } from '@/components';
 import {

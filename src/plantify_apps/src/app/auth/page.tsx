@@ -1,5 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
+import { useRouter } from 'next/navigation';
+
 import {
   Fingerprint,
   Smartphone,
@@ -7,8 +11,6 @@ import {
   UserX,
   CircleOff,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
 
 import { Logo } from '@/components/icons';
 import Button from '@/components/ui/Button';
@@ -115,11 +117,11 @@ export default function LoginRequired() {
 
           <p className='mt-4 text-center text-xs text-gray-500'>
             By authenticating with ID.ai, you agree to our{' '}
-            <a href='#' className='underline hover:text-gray-700'>
+            <a href='/terms' className='underline hover:text-gray-700'>
               Terms of Service
             </a>{' '}
             and{' '}
-            <a href='#' className='underline hover:text-gray-700'>
+            <a href='/privacy' className='underline hover:text-gray-700'>
               Privacy Policy
             </a>
             .

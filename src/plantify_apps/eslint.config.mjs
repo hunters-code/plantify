@@ -11,12 +11,14 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends("prettier"), // This must be last to override other configs
   {
     ignores: [
       "node_modules/**",
       ".next/**",
       "out/**",
       "build/**",
+      "dist/**",
       "next-env.d.ts",
     ],
   },
@@ -28,13 +30,48 @@ const eslintConfig = [
       "no-tabs": "warn", // Change to warning
       "no-trailing-spaces": "warn",
       "no-multiple-empty-lines": "warn",
-      "eol-last": "warn"
+      "eol-last": "warn",
       
       // Import order and organization
-      "import/order": "warn", // Change to warning
-      "import/no-duplicates": "warn",
-      "import/first": "warn",
-      "import/newline-after-import": "warn",
+      "import/order": [
+        "error",
+        {
+          "groups": [
+            "builtin",     // Node.js built-in modules
+            "external",    // npm packages
+            "internal",    // Internal modules (using path mapping)
+            "parent",      // Parent directory imports
+            "sibling",     // Same directory imports
+            "index"        // Index file imports
+          ],
+          "pathGroups": [
+            {
+              "pattern": "react",
+              "group": "external",
+              "position": "before"
+            },
+            {
+              "pattern": "next/**",
+              "group": "external",
+              "position": "before"
+            },
+            {
+              "pattern": "@/**",
+              "group": "internal",
+              "position": "before"
+            }
+          ],
+          "pathGroupsExcludedImportTypes": ["react", "next"],
+          "newlines-between": "always",
+          "alphabetize": {
+            "order": "asc",
+            "caseInsensitive": true
+          }
+        }
+      ],
+      "import/no-duplicates": "error",
+      "import/first": "error",
+      "import/newline-after-import": "error",
       
       // TypeScript specific rules
       "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }], // Change to warning
@@ -70,19 +107,26 @@ const eslintConfig = [
       "jsx-a11y/anchor-has-content": "warn", // Change to warning
       "jsx-a11y/anchor-is-valid": "warn", // Change to warning
       
-      // Code style - matching Prettier config
-      "quotes": "warn", // Change to warning
-      "semi": "warn", // Change to warning
-      "comma-dangle": "warn", // Change to warning
-      "object-curly-spacing": "warn",
-      "array-bracket-spacing": "warn",
-      "computed-property-spacing": "warn",
-      "space-before-blocks": "warn",
-      "keyword-spacing": "warn",
-      "space-infix-ops": "warn",
-      "space-before-function-paren": "warn",
-      "jsx-quotes": "warn",
-      "arrow-parens": "warn"
+      // Code style - let Prettier handle formatting
+      "quotes": "off", // Let Prettier handle quotes
+      "semi": "off", // Let Prettier handle semicolons
+      "comma-dangle": "off", // Let Prettier handle trailing commas
+      "object-curly-spacing": "off", // Let Prettier handle spacing
+      "array-bracket-spacing": "off", // Let Prettier handle spacing
+      "computed-property-spacing": "off", // Let Prettier handle spacing
+      "space-before-blocks": "off", // Let Prettier handle spacing
+      "keyword-spacing": "off", // Let Prettier handle spacing
+      "space-infix-ops": "off", // Let Prettier handle spacing
+      "space-before-function-paren": "off", // Let Prettier handle spacing
+      "jsx-quotes": "off", // Let Prettier handle JSX quotes
+      "arrow-parens": "off", // Let Prettier handle arrow function parentheses
+      
+      // Additional rules that work well with Prettier
+      "max-len": "off", // Let Prettier handle line length
+      "indent": "off", // Let Prettier handle indentation
+      "no-multi-spaces": "off", // Let Prettier handle spacing
+      "no-trailing-spaces": "off", // Let Prettier handle trailing spaces
+      "eol-last": "off", // Let Prettier handle end of line
       
       // Unused variables and imports
       "no-unused-vars": "off", // Turn off base rule as it can report incorrect errors

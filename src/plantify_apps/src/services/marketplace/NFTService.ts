@@ -9,13 +9,11 @@ import type {
   TransferNFTResponse,
   NFTConfig,
   Result_3,
-  Result_6,
   Result_7,
   Result_13,
   Result_14,
   Result_15,
   Result_16,
-  Result_23,
   Result_24,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 

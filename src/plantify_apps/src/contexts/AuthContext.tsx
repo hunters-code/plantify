@@ -1,7 +1,5 @@
 'use client';
 
-import { AuthClient } from '@dfinity/auth-client';
-import { Identity } from '@dfinity/agent';
 import {
   createContext,
   useContext,
@@ -10,6 +8,9 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
+
+import { Identity } from '@dfinity/agent';
+import { AuthClient } from '@dfinity/auth-client';
 
 import type { _SERVICE } from '@/declarations/plantify_backend/plantify_backend.did';
 import { BaseService } from '@/services/BaseService';

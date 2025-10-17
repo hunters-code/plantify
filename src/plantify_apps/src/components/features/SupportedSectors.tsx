@@ -1,8 +1,10 @@
 'use client';
 
-import { BadgeDollarSign, Leaf } from 'lucide-react';
-import Image from 'next/image';
 import React from 'react';
+
+import Image from 'next/image';
+
+import { BadgeDollarSign, Leaf } from 'lucide-react';
 
 interface SectorCardProps {
   image: string;

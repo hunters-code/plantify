@@ -1,8 +1,10 @@
 'use client';
 
-import { AlertTriangle, Check, Loader2, Wand2 } from 'lucide-react';
-import Image from 'next/image';
 import React, { useState } from 'react';
+
+import Image from 'next/image';
+
+import { AlertTriangle, Check, Loader2, Wand2 } from 'lucide-react';
 
 import { Button } from '@/components/ui';
 import {

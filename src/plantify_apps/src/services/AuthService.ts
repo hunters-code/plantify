@@ -1,5 +1,3 @@
-import type { UserType } from '@/declarations/plantify_backend/plantify_backend.did';
-
 import { BaseService } from './BaseService';
 
 /**

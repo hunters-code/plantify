@@ -1,18 +1,15 @@
 import type {
   Startup,
   StartupSummary,
-  NFTInfo,
   NFTPurchaseInfo,
   NFTPurchaseHistory,
   NFTPurchaseStats,
-  PaginatedStartups,
   Result_9,
   Result_12,
   Result_13,
-  TeamMembersResponse,
   TeamMemberOverview,
   FundingStatus,
-  FundingStatusResponse,
+  PaginatedNFTs,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -168,7 +165,7 @@ export class StartupService extends BaseService {
     startupId: string,
     page: number = 0,
     limit: number = 10
-  ): Promise<{ success: boolean; data?: any; error?: string }> {
+  ): Promise<{ success: boolean; data?: PaginatedNFTs; error?: string }> {
     try {
       const actor = await this.getActor();
       const result: Result_12 = await actor.getNFTsByStartup(

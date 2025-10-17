@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
+
 import { AlertCircle } from 'lucide-react';
 
 import { Card, Badge, LoadingSpinner, Button } from '@/components/ui';
-import { InvestorService } from '@/services/investors/InvestorService';
 import type {
   NFTPurchaseHistory,
   NFTPurchaseInfo,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+import { InvestorService } from '@/services/investors/InvestorService';
 
 interface TransactionData {
   totalInvested: number;

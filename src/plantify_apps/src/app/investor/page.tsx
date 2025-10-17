@@ -1,5 +1,7 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
+
 import {
   Eye,
   Vote,
@@ -8,18 +10,17 @@ import {
   ArrowUpRight,
   LucideIcon,
 } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
 
 import { Layout } from '@/components';
 import { Button } from '@/components/ui';
-import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
-
-import { InvestorService } from '@/services/investors/InvestorService';
 import type {
   MyInvestmentPortfolio,
   NFTPurchaseInfo,
   PortfolioItem,
 } from '@/declarations/plantify_backend/plantify_backend.did';
+import { InvestorService } from '@/services/investors/InvestorService';
+
+import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
 
 interface ActivityItem {
   type: 'profit' | 'investment';

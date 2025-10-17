@@ -2,25 +2,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import supabase from './supabase';
 
-// File types for organization
-type FileType =
-  | 'pitchDeck'
-  | 'demoVideo'
-  | 'logo'
-  | 'productImage'
-  | 'founderPhoto'
-  | 'teamPhoto'
-  | 'businessPlan'
-  | 'financialProjections'
-  | 'legalDocuments';
-
-// Result interface for file uploads
-interface UploadResult {
-  success: boolean;
-  url?: string;
-  error?: string;
-}
-
 // The single bucket name for all uploads
 const BUCKET_NAME = 'plantify-uploads';
 

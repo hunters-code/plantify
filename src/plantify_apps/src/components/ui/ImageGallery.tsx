@@ -1,7 +1,10 @@
 'use client';
 
+import { useState, HTMLAttributes } from 'react';
+
+import Image from 'next/image';
+
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import React, { useState, HTMLAttributes } from 'react';
 
 interface ImageGalleryProps extends HTMLAttributes<HTMLDivElement> {
   nftImage?: string;
@@ -42,9 +45,11 @@ export default function ImageGallery({
     <div className={`relative ${className}`} {...props}>
       {/* Main Image Container */}
       <div className='relative rounded-3xl overflow-hidden'>
-        <img
-          src={images[activeIndex]}
+        <Image
+          src={images[activeIndex] || '/assets/images/product.png'}
           alt='Product'
+          height={400}
+          width={10000}
           className='object-cover w-full h-[400px] transition-all duration-500'
         />
 

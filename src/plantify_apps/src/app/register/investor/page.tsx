@@ -1,12 +1,14 @@
 'use client';
 
-import { User, FileText, Loader2, Banknote, Brain } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-import { Navbar, Footer, Layout } from '@/components';
+import { useRouter } from 'next/navigation';
+
+import { User, FileText, Loader2, Banknote, Brain } from 'lucide-react';
+
+import { Navbar, Layout } from '@/components';
 import FormMultiStep from '@/components/layout/FormMultiStep';
-import { Alert, Button, LoadingSpinner } from '@/components/ui';
+import { Alert, Button } from '@/components/ui';
 import { InvestorService } from '@/services/investors';
 
 import InvestmentProfile from './partial/InvestmentProfile';
@@ -209,9 +211,13 @@ export default function RegisterInvestor() {
       } else {
         setError(result.error || 'Registration failed. Please try again.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Registration error:', err);
-      setError(err.message || 'Registration failed. Please try again.');
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'Registration failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

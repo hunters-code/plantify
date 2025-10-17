@@ -78,8 +78,8 @@ export class BaseService {
    * @returns The result of the method execution
    */
   protected static async executeWithInitialization<T>(
-    method: (...args: any[]) => Promise<T>,
-    ...args: any[]
+    method: (...args: unknown[]) => Promise<T>,
+    ...args: unknown[]
   ): Promise<T> {
     await this.ensureInitialized();
     return await method.apply(this, args);
