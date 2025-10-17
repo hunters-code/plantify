@@ -88,6 +88,11 @@ function ExploreDetailContent() {
 
   const [activeTab, setActiveTab] = useState(0);
   const [startup, setStartup] = useState<Startup | null>(null);
+  const [fundingStatus, setFundingStatus] = useState<{
+    totalRaised: number;
+    fundingGoal: number;
+    progressPercentage: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -110,8 +115,11 @@ function ExploreDetailContent() {
       setLoading(true);
       setError(null);
 
-      // Use StartupService to fetch details
-      const startupData = await StartupService.getStartupDetails(id);
+      // Use StartupService to fetch details and funding status
+      const [startupData, fundingResult] = await Promise.all([
+        StartupService.getStartupDetails(id),
+        StartupService.getFundingStatus(id),
+      ]);
 
       if (startupData) {
         // Transform backend data to match UI requirements
@@ -126,6 +134,7 @@ function ExploreDetailContent() {
             startupData.teamMembers?.map(member => ({
               name: member.name,
               role: member.role,
+              photo: member.photo[0],
             })) || [],
           companyImages: startupData.companyImages || [],
           nftImage:
@@ -147,6 +156,22 @@ function ExploreDetailContent() {
           monthlyExpenses: startupData.monthlyExpenses || '0',
         };
         setStartup(transformedStartup);
+
+        // Process funding status if available
+        if (fundingResult.success && fundingResult.data) {
+          setFundingStatus({
+            totalRaised: Number(fundingResult.data.totalRaised),
+            fundingGoal: Number(fundingResult.data.fundingGoal),
+            progressPercentage: Number(fundingResult.data.progressPercentage),
+          });
+        } else {
+          // Fallback values if funding status is not available
+          setFundingStatus({
+            totalRaised: 0,
+            fundingGoal: Number(startupData.fundingGoal) || 0,
+            progressPercentage: 0,
+          });
+        }
       } else {
         setError('Startup not found');
       }
@@ -380,7 +405,25 @@ function ExploreDetailContent() {
                   ${startup.fundingGoal}
                 </span>
               </p>
-              <ProgressBar value={45} max={100} color='bg-orange-500' />
+              <div className='mt-1'>
+                <ProgressBar
+                  value={fundingStatus?.progressPercentage || 0}
+                  max={100}
+                  color='bg-orange-500'
+                />
+                <p className='text-xs mt-1 text-orange-600 font-medium'>
+                  Funding Progress: {fundingStatus?.progressPercentage || 0}%
+                  Funded
+                </p>
+                <div className='flex justify-between text-sm font-medium mt-1'>
+                  <span className='text-orange-600'>
+                    ${fundingStatus?.totalRaised?.toLocaleString() || '0'}
+                  </span>
+                  <span className='text-gray-400'>
+                    ${fundingStatus?.fundingGoal?.toLocaleString() || '0'}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <Button onClick={handleInvestNow} disabled={!isAuthenticated}>
