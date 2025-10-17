@@ -1,15 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { BanknoteArrowUp, CreditCard, IdCard, WalletCards } from 'lucide-react';
 
-import ProfileInvestor from './partial/ProfileInvestor';
-import Investment from './partial/Investment';
-import Portfolio from './partial/Portfolio';
-import Wallet from './partial/Wallet';
+import { BanknoteArrowUp, CreditCard, IdCard, WalletCards } from 'lucide-react';
 
 import { Layout } from '@/components';
 import Tabs from '@/components/layout/Tabs';
+
+import Investment from './partial/Investment';
+import Portfolio from './partial/Portfolio';
+import ProfileInvestor from './partial/ProfileInvestor';
+import Wallet from './partial/Wallet';
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState(0);

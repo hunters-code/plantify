@@ -1,5 +1,10 @@
 'use client';
 
+import React, { useState, useEffect, useRef, JSX } from 'react';
+
+import { useRouter, usePathname } from 'next/navigation';
+
+import { Principal } from '@dfinity/principal';
 import {
   Fingerprint,
   Home,
@@ -10,13 +15,9 @@ import {
   ChevronDown,
   Loader2,
 } from 'lucide-react';
-import { useRouter, usePathname } from 'next/navigation';
-import React, { useState, useEffect, useRef, JSX } from 'react';
 
 import { useAuth } from '@/contexts/AuthContext';
-import type { TransferAccount } from '@/declarations/plantify_backend/plantify_backend.did';
 import { icrcService } from '@/services/ICRCService';
-import { Principal } from '@dfinity/principal';
 
 import { Logo } from '../icons';
 
@@ -34,19 +35,12 @@ export default function Navbar(): JSX.Element {
   const [ckUSDCBalance, setCkUSDCBalance] = useState<string>('0');
   const [balanceLoading, setBalanceLoading] = useState<boolean>(false);
   const [signOutLoading, setSignOutLoading] = useState<boolean>(false);
-  const [balancesFetched, setBalancesFetched] = useState<boolean>(false);
 
   const router = useRouter();
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const {
-    isAuthenticated,
-    isLoading,
-    userType,
-    principal,
-    signOut,
-    getIdentity,
-  } = useAuth();
+  const { isAuthenticated, isLoading, userType, principal, signOut } =
+    useAuth();
 
   const getNavigationItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
@@ -79,7 +73,6 @@ export default function Navbar(): JSX.Element {
   // Reset balances when user signs out
   useEffect(() => {
     if (!isAuthenticated) {
-      setBalancesFetched(false);
       setIcpBalance('0');
       setCkUSDCBalance('0');
     }
@@ -122,7 +115,6 @@ export default function Navbar(): JSX.Element {
       setCkUSDCBalance('0.00');
     } finally {
       setBalanceLoading(false);
-      setBalancesFetched(true);
     }
   };
 

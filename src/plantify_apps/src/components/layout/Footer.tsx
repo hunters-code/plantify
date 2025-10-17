@@ -1,5 +1,8 @@
 import React from 'react';
 
+import Image from 'next/image';
+import Link from 'next/link';
+
 import { ICPIcon } from '@/components/icons';
 
 interface LinkItem {
@@ -50,13 +53,15 @@ export default function Footer() {
           <div className='grid grid-cols-1 gap-8 sm:grid-cols-12'>
             {/* Brand / blurb */}
             <div className='sm:col-span-4'>
-              <a href='/' className='inline-flex items-center gap-2'>
-                <img
+              <Link href='/' className='inline-flex items-center gap-2'>
+                <Image
                   src='/assets/images/company-logo.png'
                   alt='Coworking founders and investors'
+                  width={128}
+                  height={32}
                   className='w-32 object-cover'
                 />
-              </a>
+              </Link>
               <p className='mt-3 max-w-xs text-sm text-gray-600'>
                 A decentralized startup investment platform offering stable
                 returns.

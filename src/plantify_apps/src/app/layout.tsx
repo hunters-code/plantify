@@ -1,5 +1,6 @@
-import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+
+import type { Metadata } from 'next';
 
 import { Providers } from './providers';
 import './globals.css';
@@ -27,10 +28,12 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <head>
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href='https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;500;600;700&display=swap'
           rel='stylesheet'
         />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href='https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap'
           rel='stylesheet'

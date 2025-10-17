@@ -1,6 +1,6 @@
 import { SVGProps } from 'react';
 
-export const EyeIcon = (props: SVGProps<SVGSVGElement>) => (
+export const EyeIcon = (_props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='21'
@@ -37,7 +37,7 @@ export const EyeIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export const InvestIcon = (props: SVGProps<SVGSVGElement>) => (
+export const InvestIcon = (_props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='20'
@@ -74,7 +74,7 @@ export const InvestIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export const GlobeIcon = (props: SVGProps<SVGSVGElement>) => (
+export const GlobeIcon = (_props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='20'
@@ -141,7 +141,7 @@ export const GlobeIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export const CancelIcon = (props: SVGProps<SVGAElement>) => (
+export const CancelIcon = (_props: SVGProps<SVGAElement>) => (
   <svg
     width='20'
     height='20'

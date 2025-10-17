@@ -1,7 +1,10 @@
 'use client';
 
-import { Trash2, Loader2, X } from 'lucide-react';
 import React, { useState } from 'react';
+
+import Image from 'next/image';
+
+import { Trash2, Loader2, X } from 'lucide-react';
 
 import { Input, Textarea, Button } from '@/components/ui';
 import FileUpload from '@/components/ui/FileUpload';
@@ -14,7 +17,7 @@ interface TeamBackgroundStepProps {
   formData: StartupFormData;
   setFormData: (
     field: string,
-    value: string | File | null | Array<any>,
+    value: string | File | null | Array<unknown>,
     shouldValidate?: boolean
   ) => void;
   errors: Record<string, string>;
@@ -25,7 +28,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
   formData,
   setFormData,
   errors = {},
-  touched = {},
+  touched: _touched = {},
 }) => {
   const [isUploadingFounder, setIsUploadingFounder] = useState(false);
   const [isUploadingTeamMember, setIsUploadingTeamMember] = useState<
@@ -93,7 +96,7 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
         isFounder: false,
       };
     }
-    (updatedTeamMembers[index] as any)[field] = value;
+    (updatedTeamMembers[index] as Record<string, unknown>)[field] = value;
 
     setFormData('teamMembers', updatedTeamMembers);
   };
@@ -292,9 +295,11 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
             {formData.founderPhotoUrl && !isUploadingFounder ? (
               <div className='relative inline-block'>
                 <div className='h-32 w-32 rounded-lg overflow-hidden border border-gray-200 shadow-sm'>
-                  <img
+                  <Image
                     src={formData.founderPhotoUrl}
                     alt='Founder Photo Preview'
+                    width={128}
+                    height={128}
                     className='h-full w-full object-cover'
                   />
                 </div>
@@ -429,9 +434,11 @@ const TeamBackgroundStep: React.FC<TeamBackgroundStepProps> = ({
                   {member.photoUrl && isUploadingTeamMember !== index ? (
                     <div className='relative inline-block'>
                       <div className='h-32 w-32 rounded-lg overflow-hidden border border-gray-200 shadow-sm'>
-                        <img
+                        <Image
                           src={member.photoUrl}
                           alt='Team Member Photo Preview'
+                          width={128}
+                          height={128}
                           className='h-full w-full object-cover'
                         />
                       </div>

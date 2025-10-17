@@ -10,7 +10,6 @@ import type {
   Result_10,
   Result_18,
   Result_19,
-  Result_23,
   Result_24,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 

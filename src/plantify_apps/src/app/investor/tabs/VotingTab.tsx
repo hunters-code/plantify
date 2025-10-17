@@ -1,9 +1,10 @@
-import { Eye, FileText, ThumbsDown, ThumbsUp, AlertCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
+import { Eye, FileText, ThumbsDown, ThumbsUp, AlertCircle } from 'lucide-react';
+
 import { Button, Badge, Card, LoadingSpinner } from '@/components/ui';
-import { VotingService } from '@/services/investors/VotingService';
 import { InvestorService } from '@/services/investors/InvestorService';
+import { VotingService } from '@/services/investors/VotingService';
 
 type VoteTypeVariant = 'approve' | 'reject' | 'abstain';
 
@@ -270,7 +271,6 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
         </Button>
       </div>
 
-  
       {pendingReports.length === 0 ? (
         <div className='p-8 bg-neutral-100 rounded-[16px]'>
           <div className='text-center'>
@@ -430,7 +430,6 @@ export default function VotingTab({ onBackToOverview }: VotingTabProps) {
           })}
         </div>
       )}
-
     </div>
   );
 }

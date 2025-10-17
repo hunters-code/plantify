@@ -1,5 +1,8 @@
 'use client';
 
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
 import {
   CircleDollarSign,
   DraftingCompass,
@@ -7,7 +10,6 @@ import {
   ShieldUser,
   UsersRound,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 import Button from '@/components/ui/Button';
 
@@ -49,9 +51,11 @@ export default function Hero() {
 
         {/* Hero image */}
         <div className='mt-10'>
-          <img
+          <Image
             src='/assets/images/hero.webp'
             alt='Coworking founders and investors'
+            width={800}
+            height={400}
             className='w-full rounded-3xl shadow-xl ring-1 object-cover'
           />
         </div>

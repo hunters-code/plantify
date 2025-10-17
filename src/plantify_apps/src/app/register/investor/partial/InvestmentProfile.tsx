@@ -6,7 +6,6 @@ import {
   RISK_TOLERANCE_OPTIONS,
   INVESTMENT_GOAL_OPTIONS,
   CAPITAL_OPTIONS,
-  Option,
 } from '@/constants/investmentOptions';
 
 interface FormData {

@@ -1,8 +1,10 @@
 'use client';
 
-import { Copy, DraftingCompass, ShieldCheck, CheckCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+
+import { useRouter } from 'next/navigation';
+
+import { Copy, DraftingCompass, ShieldCheck, CheckCircle } from 'lucide-react';
 
 import Layout from '@/components/layout/Layout';
 import {

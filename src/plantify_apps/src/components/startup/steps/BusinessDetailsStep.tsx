@@ -6,7 +6,7 @@ import { StartupFormData } from '../types';
 
 interface BusinessDetailsStepProps {
   formData: StartupFormData;
-  setFormData: (field: string, value: any, shouldValidate?: boolean) => void;
+  setFormData: (field: string, value: string, shouldValidate?: boolean) => void;
   errors: Record<string, string>;
   touched: Record<string, boolean>;
 }
@@ -15,7 +15,7 @@ const BusinessDetailsStep: React.FC<BusinessDetailsStepProps> = ({
   formData,
   setFormData,
   errors = {},
-  touched = {},
+  touched: _touched = {},
 }) => {
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;

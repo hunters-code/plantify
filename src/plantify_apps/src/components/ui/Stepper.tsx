@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 export interface StepperStep {

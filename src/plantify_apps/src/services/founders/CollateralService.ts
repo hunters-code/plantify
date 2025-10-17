@@ -6,6 +6,7 @@ import type {
   CollateralDashboardResponse,
   Result_20,
   Result_21,
+  CollateralTopUp,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
@@ -70,9 +71,11 @@ export class CollateralService extends BaseService {
    * @param startupId - The ID of the startup
    * @returns The top-up history or error message
    */
-  public static async getCollateralTopUpHistory(
-    startupId: string
-  ): Promise<{ success: boolean; history?: any; error?: string }> {
+  public static async getCollateralTopUpHistory(startupId: string): Promise<{
+    success: boolean;
+    history?: CollateralTopUp[];
+    error?: string;
+  }> {
     try {
       const actor = await this.getActor();
       const result: Result_20 =

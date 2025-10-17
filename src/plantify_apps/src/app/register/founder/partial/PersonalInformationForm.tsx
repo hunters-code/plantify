@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, useCallback, ChangeEvent } from 'react';
 
 import { Input, Textarea } from '@/components/ui';
 
@@ -48,44 +48,44 @@ export default function PersonalInformationForm({
     address: false,
   });
 
-  const validateField = (
-    field: keyof typeof formData,
-    value: string
-  ): string => {
-    let error = '';
+  const validateField = useCallback(
+    (field: keyof typeof formData, value: string): string => {
+      let error = '';
 
-    switch (field) {
-      case 'fullName':
-        if (!value.trim()) error = 'Full name is required';
-        else if (value.trim().length < 3)
-          error = 'Full name must be at least 3 characters';
-        else if (!/^[a-zA-Z\s]+$/.test(value))
-          error = 'Full name can only contain letters and spaces';
-        break;
+      switch (field) {
+        case 'fullName':
+          if (!value.trim()) error = 'Full name is required';
+          else if (value.trim().length < 3)
+            error = 'Full name must be at least 3 characters';
+          else if (!/^[a-zA-Z\s]+$/.test(value))
+            error = 'Full name can only contain letters and spaces';
+          break;
 
-      case 'email':
-        if (!value.trim()) error = 'Email is required';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          error = 'Please enter a valid email address';
-        break;
+        case 'email':
+          if (!value.trim()) error = 'Email is required';
+          else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+            error = 'Please enter a valid email address';
+          break;
 
-      case 'phone':
-        if (!value.trim()) error = 'Phone number is required';
-        else if (!/^[\d+\-\s()]+$/.test(value))
-          error = 'Please enter a valid phone number';
-        else if (value.replace(/\D/g, '').length < 10)
-          error = 'Phone number must be at least 10 digits';
-        break;
+        case 'phone':
+          if (!value.trim()) error = 'Phone number is required';
+          else if (!/^[\d+\-\s()]+$/.test(value))
+            error = 'Please enter a valid phone number';
+          else if (value.replace(/\D/g, '').length < 10)
+            error = 'Phone number must be at least 10 digits';
+          break;
 
-      case 'address':
-        if (!value.trim()) error = 'Address is required';
-        else if (value.trim().length < 10)
-          error = 'Please provide a complete address (minimum 10 characters)';
-        break;
-    }
+        case 'address':
+          if (!value.trim()) error = 'Address is required';
+          else if (value.trim().length < 10)
+            error = 'Please provide a complete address (minimum 10 characters)';
+          break;
+      }
 
-    return error;
-  };
+      return error;
+    },
+    []
+  );
 
   useEffect(() => {
     const newErrors: Record<keyof typeof formData, string> = {
@@ -99,7 +99,7 @@ export default function PersonalInformationForm({
         : '',
     };
     setErrors(newErrors);
-  }, [formData, touched]);
+  }, [formData, touched, validateField]);
 
   const handleBlur = (field: keyof typeof formData): void => {
     setTouched(prev => ({ ...prev, [field]: true }));

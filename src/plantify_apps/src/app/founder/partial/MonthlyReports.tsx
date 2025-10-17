@@ -1,7 +1,10 @@
 'use client';
 
-import { FileText, Plus, X, CheckCircle, Clock, Eye, Edit } from 'lucide-react';
 import { useState, useEffect } from 'react';
+
+import Image from 'next/image';
+
+import { FileText, Plus, X, CheckCircle, Clock, Eye, Edit } from 'lucide-react';
 
 import { Alert, Button, Card, Input } from '@/components/ui';
 import type {
@@ -12,7 +15,6 @@ import type {
 } from '@/declarations/plantify_backend/plantify_backend.did';
 import { MonthlyReportService } from '@/services/founders/MonthlyReportService';
 import { formatCurrency } from '@/utils/formatCurrency';
-import Image from 'next/image';
 
 type FormData = {
   monthlyRevenue: string;

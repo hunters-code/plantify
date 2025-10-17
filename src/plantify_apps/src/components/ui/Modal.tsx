@@ -1,7 +1,8 @@
 'use client';
 
-import { X } from 'lucide-react';
 import React, { useEffect } from 'react';
+
+import { X } from 'lucide-react';
 
 type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 

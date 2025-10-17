@@ -1,5 +1,6 @@
-import { AlertCircle, CheckCircle, Info, X } from 'lucide-react';
 import React, { ReactNode } from 'react';
+
+import { AlertCircle, CheckCircle, Info, X } from 'lucide-react';
 
 type AlertType = 'success' | 'error' | 'warning' | 'info';
 

@@ -1,7 +1,10 @@
 'use client';
 
-import { Eye } from 'lucide-react';
 import React, { useState, HTMLAttributes } from 'react';
+
+import Image from 'next/image';
+
+import { Eye } from 'lucide-react';
 
 interface ImageGalleryProps extends HTMLAttributes<HTMLDivElement> {
   images?: string[];
@@ -27,7 +30,7 @@ export default function ImageGallery({
     <div className={className} {...props}>
       {/* Main Image */}
       <div className='rounded-xl overflow-hidden shadow-md'>
-        <img
+        <Image
           src={images[activeIndex]}
           alt='Product'
           width={600}
@@ -46,7 +49,7 @@ export default function ImageGallery({
               activeIndex === i ? 'border-purple-500' : 'border-transparent'
             }`}
           >
-            <img
+            <Image
               src={img}
               alt={`Thumbnail ${i}`}
               width={80}
@@ -62,9 +65,11 @@ export default function ImageGallery({
             onClick={onViewMore}
           >
             {/* Background Image */}
-            <img
+            <Image
               src={images[0] || '/assets/images/product.png'}
               alt='View More'
+              width={80}
+              height={80}
               className='object-cover w-full h-full'
             />
 

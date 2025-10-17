@@ -1,10 +1,14 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
-import LoadingSpinner from './LoadingSpinner';
-import { Button } from '.';
+
+import Image from 'next/image';
+
 import { Sparkle } from 'lucide-react';
+
+import LoadingSpinner from './LoadingSpinner';
+
+import { Button } from '.';
 
 interface NFTAnalysisCardProps {
   startupId?: string;

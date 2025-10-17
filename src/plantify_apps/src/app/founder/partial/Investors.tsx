@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 import {
   Search,
   Filter,
@@ -11,7 +13,6 @@ import {
   Award,
   Activity,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 import { Badge, Button, Card, CardSkeleton } from '@/components/ui';
 import type {

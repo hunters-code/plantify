@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Calendar,
-  CalendarDays,
-  TrendingUp,
-  DollarSign,
-  FileText,
-} from 'lucide-react';
+import { DollarSign, FileText } from 'lucide-react';
 
 export default function Financials({ startup }) {
   if (!startup) {

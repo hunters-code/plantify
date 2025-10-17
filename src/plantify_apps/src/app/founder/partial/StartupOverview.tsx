@@ -1,7 +1,8 @@
 'use client';
 
-import { Eye, MapPin, Sparkles, ThumbsUp, WalletCards } from 'lucide-react';
 import { useState, useEffect } from 'react';
+
+import { Eye, MapPin, Sparkles, ThumbsUp, WalletCards } from 'lucide-react';
 
 import { Badge, Button, Card, ProgressBar } from '@/components/ui';
 import type {

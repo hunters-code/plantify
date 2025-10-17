@@ -1,8 +1,9 @@
 'use client';
 
+import { CreditCard } from 'lucide-react';
+
 import { Button } from '@/components';
 import { ICPIcon } from '@/components/icons';
-import { Wallet, ArrowUpRightFromSquare, CreditCard } from 'lucide-react';
 
 export default function WalletPage() {
   const walletStats = [

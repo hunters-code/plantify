@@ -21,9 +21,9 @@ interface TermsAgreementFormProps {
     terms: boolean;
     risks: boolean;
     transparency: boolean;
-    [key: string]: any;
+    [key: string]: boolean | string;
   };
-  handleInputChange: (field: keyof FormData, value: any) => void;
+  handleInputChange: (field: keyof FormData, value: boolean | string) => void;
 }
 
 function TermsAgreementForm({

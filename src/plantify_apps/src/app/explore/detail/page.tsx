@@ -1,5 +1,10 @@
 'use client';
 
+import { useState, useEffect, useCallback, Suspense } from 'react';
+
+import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+
 import {
   AlertTriangle,
   Banknote,
@@ -13,11 +18,8 @@ import {
   ThumbsUp,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, useCallback, Suspense } from 'react';
-import { Principal } from '@dfinity/principal';
 
+import { Layout } from '@/components';
 import Footer from '@/components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
 import Tabs from '@/components/layout/Tabs';
@@ -34,22 +36,15 @@ import {
   CardSkeleton,
   ChatInterface,
 } from '@/components/ui';
-import { InvestorService } from '@/services/investors/InvestorService';
-import { StartupService } from '@/services/marketplace';
-import { icrcService } from '@/services/ICRCService';
-import { getRiskLevel } from '@/utils/riskLevels';
-import {
-  createPurchaseSteps,
-  PurchaseStep,
-} from '@/components/ui/PurchaseProgress';
 import { useAuth } from '@/contexts/AuthContext';
+import { StartupService } from '@/services/marketplace';
+import { getRiskLevel } from '@/utils/riskLevels';
 
 import Documents from './partial/Documents';
 import Financials from './partial/Financials';
 import FounderTeam from './partial/FounderTeam';
 import Overview from './partial/Overview';
 import Risks from './partial/Risks';
-import { Layout } from '@/components';
 
 interface Startup {
   id: string;
@@ -65,6 +60,7 @@ interface Startup {
   monthlyRevenue: string;
   nftPrice: string;
   fundingGoal: string;
+  [key: string]: unknown;
 }
 
 interface InvestmentDetails {
@@ -80,13 +76,8 @@ interface InvestmentDetails {
 
 function ExploreDetailContent() {
   const searchParams = useSearchParams();
-  const id = searchParams.get('id') || '1'; // Get ID from query parameter
-  const {
-    isAuthenticated,
-    principal,
-    identity,
-    isLoading: authLoading,
-  } = useAuth();
+  const id = searchParams?.get('id') || '1'; // Get ID from query parameter
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const investmentLoading = false;
 
   const [activeTab, setActiveTab] = useState(0);
@@ -190,7 +181,7 @@ function ExploreDetailContent() {
     // Check if user is authenticated
     if (!isAuthenticated) {
       // You can add a sign-in modal or redirect to sign-in page here
-      alert('Please sign in to invest in startups');
+      console.log('Please sign in to invest in startups');
       return;
     }
 
@@ -236,7 +227,7 @@ function ExploreDetailContent() {
         : fallbackNftPrice;
 
       const actualAvailableNFTs = nftsResult.success
-        ? nftsResult.data?.length || fallbackAvailableNFTs
+        ? nftsResult.data?.totalCount || fallbackAvailableNFTs
         : fallbackAvailableNFTs;
 
       // Only update if the data is different from fallback
@@ -257,8 +248,8 @@ function ExploreDetailContent() {
           nftPrice: actualNftPrice,
           monthlyReturns: actualMonthlyReturns,
           expectedROI: actualExpectedROI,
-          availableNFTs: actualAvailableNFTs,
-          totalNFTs: actualAvailableNFTs + 5,
+          availableNFTs: Number(actualAvailableNFTs),
+          totalNFTs: Number(actualAvailableNFTs) + 5,
           soldNFTs: 5,
         };
 
@@ -434,7 +425,7 @@ function ExploreDetailContent() {
                 }
               : undefined
           }
-          onSuccess={payload => {
+          onSuccess={_payload => {
             // Don't auto-close modal on success, let user close manually
           }}
         />
@@ -443,7 +434,7 @@ function ExploreDetailContent() {
       <ChatInterface
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
-        startupData={startup as any}
+        startupData={startup}
         startupName={startup.startupName}
         onInvestClick={handleInvestFromChat}
       />

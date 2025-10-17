@@ -1,5 +1,6 @@
-import { Sparkle } from 'lucide-react';
 import React from 'react';
+
+import { Sparkle } from 'lucide-react';
 
 import { ProgressBar } from '@/components/ui';
 import { formatCurrency, formatNumber } from '@/utils/formatCurrency';

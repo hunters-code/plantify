@@ -4,12 +4,8 @@ import type {
   Result_5,
   Startup,
   StartupCreationRequest,
-  Result_23,
-  StartupSummary,
   DashboardOverview,
-  DashboardOverviewResponse,
   StartupOverview,
-  StartupOverviewResponse,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';

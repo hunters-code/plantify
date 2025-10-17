@@ -1,8 +1,10 @@
 'use client';
 
-import { Loader2, X } from 'lucide-react';
-import Image from 'next/image';
 import React, { ChangeEvent, useState } from 'react';
+
+import Image from 'next/image';
+
+import { Loader2, X } from 'lucide-react';
 
 import FileUpload from '@/components/ui/FileUpload';
 import { COMPANY_TYPE_OPTIONS } from '@/constants/companyTypes';

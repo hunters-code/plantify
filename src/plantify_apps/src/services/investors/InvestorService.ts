@@ -2,7 +2,6 @@ import type {
   Investor,
   InvestorRegistrationRequest,
   InvestorProfileUpdateRequest,
-  Result_4,
   NFTPurchaseRequest,
   NFTPurchaseResponse,
   NFTPurchaseHistory,
@@ -14,15 +13,11 @@ import type {
   InvestorStartupInvestmentResponse,
   MyInvestmentPortfolio,
   MyInvestmentPortfolioResponse,
-  TopInvestor,
-  RecentInvestmentSummary,
-  InvestorGrowthData,
   Result_2,
   Result_9,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 
 import { BaseService } from '../BaseService';
-import { Principal } from '@dfinity/principal';
 
 /**
  * Service for investor-related operations

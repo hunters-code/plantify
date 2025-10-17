@@ -12,6 +12,9 @@
     "format:check": "prettier --check \"src/**/*.{json,js,jsx,ts,tsx,css,scss,md}\"",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format:lint": "npm run lint:fix && npm run format",
+    "lint:format": "npm run lint:fix && npm run format",
+    "sort-imports": "eslint . --ext .js,.jsx,.ts,.tsx --fix --rule 'import/order: error'",
     "type-check": "tsc --noEmit",
     "type-check:staged": "tsc --noEmit --skipLibCheck --jsx preserve"
   },
@@ -45,6 +48,8 @@
     "dotenv": "^16.3.1",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "postcss": "^8.5.6",
@@ -54,7 +59,11 @@
     "typescript": "^5"
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+    "**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "**/*.{json,css,scss,md}": [
       "prettier --write"
     ]
   }

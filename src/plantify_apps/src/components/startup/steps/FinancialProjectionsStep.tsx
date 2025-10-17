@@ -8,7 +8,11 @@ import { StartupFormData } from '../types';
 
 interface FinancialProjectionsStepProps {
   formData: StartupFormData;
-  setFormData: (field: string, value: any, shouldValidate?: boolean) => void;
+  setFormData: (
+    field: string,
+    value: string | number,
+    shouldValidate?: boolean
+  ) => void;
   errors: Record<string, string>;
   touched: Record<string, boolean>;
 }
@@ -17,7 +21,7 @@ const FinancialProjectionsStep: React.FC<FinancialProjectionsStepProps> = ({
   formData,
   setFormData,
   errors = {},
-  touched = {},
+  touched: _touched = {},
 }) => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

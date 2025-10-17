@@ -1,5 +1,9 @@
 'use client';
 
+import React, { useState } from 'react';
+
+import Image from 'next/image';
+
 import {
   BadgeDollarSign,
   TrendingUp,
@@ -10,7 +14,6 @@ import {
   ThumbsUp,
   MapPin,
 } from 'lucide-react';
-import React, { useState } from 'react';
 
 import Button from '@/components/ui/Button';
 import InvestmentModal from '@/components/ui/InvestmentModal';
@@ -53,7 +56,16 @@ export default function ProductCard({
   builtByCaffeineAI,
 }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [investmentData, setInvestmentData] = useState<any>(null);
+  const [investmentData, setInvestmentData] = useState<{
+    id: string | number;
+    name: string;
+    nftPrice: number;
+    monthlyReturns: number;
+    expectedROI: number;
+    availableNFTs: number;
+    totalNFTs: number;
+    soldNFTs: number;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Dummy API
@@ -74,7 +86,11 @@ export default function ProductCard({
     );
   };
 
-  const purchaseNFTs = async (investmentDetails: any) => {
+  const purchaseNFTs = async (_investmentDetails: {
+    startupId: string | number;
+    quantity: number;
+    totalAmount: number;
+  }) => {
     return new Promise<{ success: boolean; message?: string; error?: string }>(
       resolve =>
         setTimeout(() => {
@@ -122,11 +138,13 @@ export default function ProductCard({
       if (result.success) {
         // Don't auto-close modal on success, let user close manually
       } else {
-        alert(`Investment failed: ${result.error}`);
+        console.error(`Investment failed: ${result.error}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Investment error:', error);
-      alert(`Investment failed: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Investment failed: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -136,7 +154,7 @@ export default function ProductCard({
     <div className='bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden'>
       {/* Image */}
       <div className='relative h-60 w-full'>
-        <img src={image} alt={title} className='h-full w-full object-cover' />
+        <Image src={image} alt={title} fill className='object-cover' />
 
         {/* Caffeine.AI badge */}
         {builtByCaffeineAI && (
