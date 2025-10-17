@@ -7,9 +7,9 @@ export default function Overview({ startup }) {
     );
   }
   return (
-    <div className='bg-white p-4 rounded-lg'>
+    <div className='flex flex-col gap-4'>
       {/* Company Overview */}
-      <div>
+      <div className='bg-neutral-100 p-4 rounded-[16px]'>
         <h2 className='text-xl font-semibold font-ibm'>Company Overview</h2>
         <p className='text-gray-600 text-sm mt-2'>
           {startup.description || 'No company description available.'}
@@ -31,7 +31,7 @@ export default function Overview({ startup }) {
       </div>
 
       {/* Business Model */}
-      <div>
+      <div className='bg-neutral-100 p-4 rounded-[16px]'>
         <h3 className='text-lg font-medium font-ibm'>Revenue Model</h3>
         <p className='text-gray-600 text-sm'>
           {startup.revenueModel || 'Revenue model information not available.'}
@@ -45,7 +45,7 @@ export default function Overview({ startup }) {
       </div>
 
       {/* Competitive Advantage */}
-      <div>
+      <div className='bg-neutral-100 p-4 rounded-[16px]'>
         <h3 className='text-lg font-medium font-ibm'>Competitive Advantage</h3>
         {startup.competitiveAdvantage ? (
           <div className='mt-2'>
@@ -71,7 +71,7 @@ export default function Overview({ startup }) {
       </div>
 
       {/* Metrics */}
-      <div>
+      <div className='bg-neutral-100 p-4 rounded-[16px]'>
         <h3 className='text-lg font-medium font-ibm'>Key Business Metrics</h3>
         <div className='grid grid-cols-2 gap-4 mt-3'>
           <div className='bg-white rounded-lg p-4 shadow-sm'>
@@ -103,7 +103,7 @@ export default function Overview({ startup }) {
 
       {/* Additional Information */}
       {(startup.useOfFunds || startup.operationalProcess) && (
-        <div>
+        <div className='bg-neutral-100 p-4 rounded-[16px]'>
           <h3 className='text-lg font-medium font-ibm'>
             Additional Information
           </h3>

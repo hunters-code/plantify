@@ -11,11 +11,7 @@ export default function FounderTeam({ startup }) {
     );
   }
 
-  // Handle team members data
   const teamMembers = startup.teamMembers || [];
-
-  // Since we don't have isFounder flag in the data, let's assume the first member is the founder
-  // or look for roles containing 'founder', 'ceo', etc.
   const isFounderRole = role => {
     const founderKeywords = [
       'founder',
@@ -34,11 +30,9 @@ export default function FounderTeam({ startup }) {
     member => !isFounderRole(member.role)
   );
 
-  // Extract achievements from startup data if available
   const getAchievements = () => {
     const achievements = [];
 
-    // Try to extract achievements from different possible fields in the startup data
     if (startup.achievements && Array.isArray(startup.achievements)) {
       return startup.achievements.map((achievement, index) => ({
         icon: achievement.icon || getDefaultIcon(index),
@@ -46,13 +40,11 @@ export default function FounderTeam({ startup }) {
       }));
     }
 
-    // If there's a founderBackground field, try to extract achievements from i
     if (startup.founderBackground) {
-      // Look for bullet points or numbered lists in the tex
       const lines = startup.founderBackground
         .split(/[•\-\*\d+\.\n]/)
         .filter(line => line.trim().length > 0)
-        .slice(0, 3); // Take up to 3 achievements
+        .slice(0, 3);
 
       return lines.map((line, index) => ({
         icon: getDefaultIcon(index),
@@ -100,7 +92,7 @@ export default function FounderTeam({ startup }) {
             {founders.map((member, i) => (
               <div
                 key={i}
-                className='bg-white rounded-lg overflow-hidden shadow-sm'
+                className='bg-white rounded-lg overflow-hidden shadow-sm p-2'
               >
                 <div className='w-full aspect-square overflow-hidden relative'>
                   <Image
@@ -110,9 +102,9 @@ export default function FounderTeam({ startup }) {
                         : '/assets/images/user.png'
                     }
                     alt={member.name}
-                    className='object-cover'
+                    className='object-cover w-auto'
                     fill
-                    sizes='(max-width: 768px) 100vw, 25vw'
+                    sizes='(width: 768px) 100vw, 25vw'
                   />
                 </div>
                 <div className='p-3'>
@@ -133,7 +125,7 @@ export default function FounderTeam({ startup }) {
             {otherMembers.map((member, i) => (
               <div
                 key={i}
-                className='bg-white rounded-lg overflow-hidden shadow-sm'
+                className='bg-white rounded-lg overflow-hidden shadow-sm p-2'
               >
                 <div className='w-full aspect-square overflow-hidden relative'>
                   <Image

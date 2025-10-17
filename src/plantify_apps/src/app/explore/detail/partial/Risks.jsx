@@ -13,7 +13,7 @@ export default function Risks({ startup }) {
   return (
     <div className='max-w-3xl mt-8 space-y-8'>
       {/* Risk Assessment */}
-      <Card className='bg-white'>
+      <div className='bg-neutral-100 p-4 rounded-[16px]'>
         <h2 className='text-lg font-semibold text-gray-900 font-ibm'>
           Risk Assessment
         </h2>
@@ -51,10 +51,10 @@ export default function Risks({ startup }) {
             </p>
           </Card>
         </div>
-      </Card>
+      </div>
 
       {/* General Investment Risks */}
-      <Card className='bg-white'>
+      <div className='bg-neutral-100 p-4 rounded-[16px]'>
         <h2 className='text-lg font-semibold text-gray-900 font-ibm'>
           General Investment Risks
         </h2>
@@ -71,7 +71,7 @@ export default function Risks({ startup }) {
             <li>Market volatility impact</li>
           </ul>
         </Card>
-      </Card>
+      </div>
     </div>
   );
 }

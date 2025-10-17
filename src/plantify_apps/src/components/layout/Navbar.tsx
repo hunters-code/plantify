@@ -16,6 +16,7 @@ import {
   Loader2,
 } from 'lucide-react';
 
+import Button from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { icrcService } from '@/services/ICRCService';
 
@@ -207,7 +208,7 @@ export default function Navbar(): JSX.Element {
                   </button>
 
                   {dropdownOpen && (
-                    <div className='absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50'>
+                    <div className='absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] sm:max-w-sm bg-white rounded-lg shadow-lg border border-gray-200 z-50'>
                       <div className='p-4'>
                         {userType && (
                           <div className='mb-4'>
@@ -252,12 +253,12 @@ export default function Navbar(): JSX.Element {
                           </div>
                         </div>
 
-                        <div className='grid grid-cols-2 gap-4'>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                           <div>
                             <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>
                               ICP Balance
                             </label>
-                            <div className='mt-1 text-lg font-semibold text-gray-900'>
+                            <div className='mt-1 text-lg font-semibold text-gray-900 break-words'>
                               {balanceLoading ? (
                                 <Loader2 size={16} className='animate-spin' />
                               ) : (
@@ -270,11 +271,11 @@ export default function Navbar(): JSX.Element {
                             <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>
                               ckUSDC Balance
                             </label>
-                            <div className='mt-1 text-lg font-semibold text-gray-900'>
+                            <div className='mt-1 text-lg font-semibold text-gray-900 break-words'>
                               {balanceLoading ? (
                                 <Loader2 size={16} className='animate-spin' />
                               ) : (
-                                <div className='flex items-center gap-1'>
+                                <div className='flex flex-wrap items-center gap-1'>
                                   <span>{ckUSDCBalance} ckUSDC</span>
                                   <span className='text-xs text-green-600 font-normal'>
                                     (ICRC)
@@ -283,6 +284,21 @@ export default function Navbar(): JSX.Element {
                               )}
                             </div>
                           </div>
+                        </div>
+
+                        <div className='mt-4'>
+                          <Button
+                            onClick={() =>
+                              router.push(
+                                userType === 'investor'
+                                  ? '/investor'
+                                  : '/founder'
+                              )
+                            }
+                            className='w-full text-white transition rounded-lg py-2 text-sm font-medium'
+                          >
+                            Go to Dashboard
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -406,12 +422,12 @@ export default function Navbar(): JSX.Element {
                               </div>
                             </div>
 
-                            <div className='grid grid-cols-2 gap-4'>
+                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                               <div>
                                 <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>
                                   ICP Balance
                                 </label>
-                                <div className='mt-1 text-lg font-semibold text-gray-900'>
+                                <div className='mt-1 text-lg font-semibold text-gray-900 break-words'>
                                   {balanceLoading ? (
                                     <Loader2
                                       size={16}
@@ -427,14 +443,14 @@ export default function Navbar(): JSX.Element {
                                 <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>
                                   ckUSDC Balance
                                 </label>
-                                <div className='mt-1 text-lg font-semibold text-gray-900'>
+                                <div className='mt-1 text-lg font-semibold text-gray-900 break-words'>
                                   {balanceLoading ? (
                                     <Loader2
                                       size={16}
                                       className='animate-spin'
                                     />
                                   ) : (
-                                    <div className='flex items-center gap-1'>
+                                    <div className='flex flex-wrap items-center gap-1'>
                                       <span>{ckUSDCBalance} ckUSDC</span>
                                       <span className='text-xs text-green-600 font-normal'>
                                         (ICRC)

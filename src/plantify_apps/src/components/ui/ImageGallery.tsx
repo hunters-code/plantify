@@ -1,83 +1,94 @@
 'use client';
 
-import React, { useState, HTMLAttributes } from 'react';
+import { useState, HTMLAttributes } from 'react';
 
 import Image from 'next/image';
 
-import { Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ImageGalleryProps extends HTMLAttributes<HTMLDivElement> {
-  images?: string[];
+  nftImage?: string;
+  companyImages?: string[];
   className?: string;
-  showViewMore?: boolean;
-  onViewMore?: () => void;
 }
 
 export default function ImageGallery({
-  images = [],
+  nftImage,
+  companyImages = [],
   className = '',
-  showViewMore = false,
-  onViewMore,
   ...props
 }: ImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Combine nftImage as first image, then companyImages
+  const allImages = [nftImage, ...companyImages].filter(
+    img => img && !img.includes('undefined')
+  );
+
+  // If no images, use default
+  const images =
+    allImages.length > 0 ? allImages : ['/assets/images/product.png'];
 
   if (!images || images.length === 0) {
     return null;
   }
 
+  const goToPrevious = () => {
+    setActiveIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const goToNext = () => {
+    setActiveIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
   return (
-    <div className={className} {...props}>
-      {/* Main Image */}
-      <div className='rounded-xl overflow-hidden shadow-md'>
+    <div className={`relative ${className}`} {...props}>
+      {/* Main Image Container */}
+      <div className='relative rounded-3xl overflow-hidden'>
         <Image
-          src={images[activeIndex]}
+          src={images[activeIndex] || '/assets/images/product.png'}
           alt='Product'
-          width={600}
           height={400}
-          className='object-cover w-full h-[350px] transition-all duration-300'
+          width={10000}
+          className='object-cover w-full h-[400px] transition-all duration-500'
         />
-      </div>
 
-      {/* Thumbnail List */}
-      <div className='flex gap-3 mt-4'>
-        {images.map((img, i) => (
-          <div
-            key={i}
-            onClick={() => setActiveIndex(i)}
-            className={`w-20 h-20 rounded-lg overflow-hidden shadow cursor-pointer border-2 transition-all duration-200 ${
-              activeIndex === i ? 'border-purple-500' : 'border-transparent'
-            }`}
-          >
-            <Image
-              src={img}
-              alt={`Thumbnail ${i}`}
-              width={80}
-              height={80}
-              className='object-cover w-full h-full'
-            />
-          </div>
-        ))}
+        {/* Navigation Buttons */}
+        {images.length > 1 && (
+          <>
+            {/* Left Button */}
+            <button
+              onClick={goToPrevious}
+              className='absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors'
+              aria-label='Previous image'
+            >
+              <ChevronLeft size={24} className='text-gray-800' />
+            </button>
 
-        {showViewMore && (
-          <div
-            className='relative w-20 h-20 rounded-lg overflow-hidden cursor-pointer'
-            onClick={onViewMore}
-          >
-            {/* Background Image */}
-            <Image
-              src={images[0] || '/assets/images/product.png'}
-              alt='View More'
-              width={80}
-              height={80}
-              className='object-cover w-full h-full'
-            />
+            {/* Right Button */}
+            <button
+              onClick={goToNext}
+              className='absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors'
+              aria-label='Next image'
+            >
+              <ChevronRight size={24} className='text-gray-800' />
+            </button>
+          </>
+        )}
 
-            {/* Overlay */}
-            <div className='absolute inset-0 bg-purple-600 bg-opacity-70 flex flex-col items-center justify-center text-white font-medium'>
-              <Eye size={16} />
-              <span className='text-xs'>View More</span>
-            </div>
+        {/* Dots Indicator */}
+        {images.length > 1 && (
+          <div className='absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2'>
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveIndex(i)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  activeIndex === i ? 'bg-white w-6' : 'bg-white/50'
+                }`}
+                aria-label={`Go to image ${i + 1}`}
+              />
+            ))}
           </div>
         )}
       </div>
