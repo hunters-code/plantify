@@ -59,6 +59,7 @@ interface Startup {
   status: string;
   location: string;
   teamMembers: { name: string; role: string }[];
+  nftImage: string;
   companyImages: string[];
   companyLogo: string[];
   periodicProfitSharing: string;
@@ -135,6 +136,7 @@ function ExploreDetailContent() {
               role: member.role,
             })) || [],
           companyImages: startupData.companyImages || [],
+          nftImage: startupData.nftImage,
           companyLogo:
             startupData.companyLogo && startupData.companyLogo.length > 0
               ? [startupData.companyLogo[0] as string]
@@ -330,9 +332,8 @@ function ExploreDetailContent() {
         <div className='max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8'>
           {/* Left Side */}
           <ImageGallery
-            images={images.filter(img => img && !img.includes('undefined'))}
-            showViewMore={true}
-            onViewMore={() => console.log('View more clicked')}
+            nftImage={startup?.nftImage}
+            companyImages={startup?.companyImages || []}
           />
 
           {/* Right Side */}
