@@ -2,8 +2,6 @@
 
 import React from 'react';
 
-import Image from 'next/image';
-
 import {
   Target,
   Eye,
@@ -48,37 +46,6 @@ export default function About() {
       title: 'Impact',
       description:
         'Creating positive impact by enabling innovative startups to solve real-world problems.',
-    },
-  ];
-
-  const team = [
-    {
-      name: 'Alex Johnson',
-      role: 'CEO & Co-Founder',
-      image: '/assets/images/team-1.jpg',
-      description:
-        'Former startup founder with 10+ years in fintech and blockchain.',
-    },
-    {
-      name: 'Sarah Chen',
-      role: 'CTO & Co-Founder',
-      image: '/assets/images/team-2.jpg',
-      description:
-        'Ex-Google engineer specializing in distributed systems and AI.',
-    },
-    {
-      name: 'Michael Rodriguez',
-      role: 'Head of Investments',
-      image: '/assets/images/team-3.jpg',
-      description:
-        'Former VC partner with expertise in early-stage startup evaluation.',
-    },
-    {
-      name: 'Emily Watson',
-      role: 'Head of Operations',
-      image: '/assets/images/team-4.jpg',
-      description:
-        'Operations expert with background in scaling tech platforms.',
     },
   ];
 

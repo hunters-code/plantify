@@ -15,7 +15,10 @@ import {
 import { ProductCard } from '@/components/features';
 import { Button, Card, LoadingSpinner, StatsCard } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
-import type { StartupSummary } from '@/declarations/plantify_backend/plantify_backend.did';
+import type {
+  StartupSummary,
+  InvestorRecentInvestment,
+} from '@/declarations/plantify_backend/plantify_backend.did';
 import { InvestorService } from '@/services/investors/InvestorService';
 import { StartupService } from '@/services/marketplace/StartupService';
 import { getRiskLevel } from '@/utils/riskLevels';
@@ -39,10 +42,18 @@ interface DashboardData {
   error?: string;
 }
 
+interface RecentActivity {
+  type: 'profit' | 'investment';
+  company: string;
+  amount: number;
+  date: string;
+  logo?: string;
+}
+
 interface OverviewTabProps {
   dashboardData: DashboardData;
   matchingStartups: Startup[];
-  recentActivity: any[];
+  recentActivity: RecentActivity[];
 }
 
 interface Startup {
@@ -62,13 +73,6 @@ interface Startup {
   targetAmount?: number;
 }
 
-interface ActivityItem {
-  type: 'profit' | 'investment';
-  company: string;
-  amount: number;
-  date: string;
-}
-
 export default function OverviewTab({
   dashboardData: propsDashboardData,
   matchingStartups: propsMatchingStartups,
@@ -85,7 +89,7 @@ export default function OverviewTab({
   const [matchingStartups, setMatchingStartups] = useState<Startup[]>(
     propsMatchingStartups || []
   );
-  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>(
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>(
     propsRecentActivity || []
   );
   const [error, setError] = useState<string | null>(
@@ -171,8 +175,8 @@ export default function OverviewTab({
           ),
           totalNFTsOwned: Number(data.totalNFTsOwned ?? 0),
           recentInvestments: Array.isArray(data.recentInvestments)
-            ? data.recentInvestments.map((item: any) => ({
-                type: 'investment',
+            ? data.recentInvestments.map((item: InvestorRecentInvestment) => ({
+                type: 'investment' as const,
                 company: item.startupName || 'Unknown Company',
                 amount: Number(item.amount ?? 0),
                 date: new Date(
@@ -184,12 +188,12 @@ export default function OverviewTab({
 
         setRecentActivity(
           Array.isArray(data.recentInvestments)
-            ? data.recentInvestments.map((a: any) => ({
-                type: 'investment',
+            ? data.recentInvestments.map((a: InvestorRecentInvestment) => ({
+                type: 'investment' as const,
                 company: a.startupName || 'Unknown',
                 amount: Number(a.amount ?? 0),
                 date: new Date(Number(a.date) / 1000000).toLocaleDateString(),
-                logo: a.companyImages?.[0] || '/assets/images/icon-startup.png',
+                logo: '/assets/images/icon-startup.png',
               }))
             : []
         );
@@ -235,7 +239,7 @@ export default function OverviewTab({
     if (!authLoading && userType) {
       fetchDashboardData();
     }
-  }, [authLoading, userType]);
+  }, [authLoading, userType, fetchDashboardData]);
 
   if (loading || !dataReady) {
     return (
