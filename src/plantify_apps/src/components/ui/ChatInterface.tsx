@@ -434,6 +434,48 @@ export default function ChatInterface({
 
         {/* Input Area */}
         <div className='p-4 border-t border-gray-200 bg-white'>
+          {/* Suggestion Buttons */}
+          {messages.length === 0 && (
+            <div className='mb-3 flex flex-wrap gap-2'>
+              <button
+                onClick={() =>
+                  handleSendMessage('Give me a full startup analysis')
+                }
+                disabled={isLoading}
+                className='px-3 py-2 text-xs bg-purple-50 text-purple-700 rounded-full border border-purple-200 hover:bg-purple-100 transition-colors disabled:opacity-50'
+              >
+                📊 Full Analysis
+              </button>
+              <button
+                onClick={() =>
+                  handleSendMessage('What are the investment risks?')
+                }
+                disabled={isLoading}
+                className='px-3 py-2 text-xs bg-orange-50 text-orange-700 rounded-full border border-orange-200 hover:bg-orange-100 transition-colors disabled:opacity-50'
+              >
+                ⚠️ Risk Assessment
+              </button>
+              <button
+                onClick={() =>
+                  handleSendMessage('What is the market valuation?')
+                }
+                disabled={isLoading}
+                className='px-3 py-2 text-xs bg-green-50 text-green-700 rounded-full border border-green-200 hover:bg-green-100 transition-colors disabled:opacity-50'
+              >
+                💰 Valuation
+              </button>
+              <button
+                onClick={() =>
+                  handleSendMessage('Should I invest in this startup?')
+                }
+                disabled={isLoading}
+                className='px-3 py-2 text-xs bg-blue-50 text-blue-700 rounded-full border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50'
+              >
+                🎯 Investment Recommendation
+              </button>
+            </div>
+          )}
+
           <div className='relative flex items-end border border-gray-200 rounded-2xl bg-white focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-transparent'>
             <textarea
               value={inputText}

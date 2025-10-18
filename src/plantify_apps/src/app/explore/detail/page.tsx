@@ -115,11 +115,8 @@ function ExploreDetailContent() {
       setLoading(true);
       setError(null);
 
-      // Use StartupService to fetch details and funding status
-      const [startupData, fundingResult] = await Promise.all([
-        StartupService.getStartupDetails(id),
-        StartupService.getFundingStatus(id),
-      ]);
+      // Use StartupService to fetch startup details only
+      const startupData = await StartupService.getStartupDetails(id);
 
       if (startupData) {
         // Transform backend data to match UI requirements
@@ -157,21 +154,20 @@ function ExploreDetailContent() {
         };
         setStartup(transformedStartup);
 
-        // Process funding status if available
-        if (fundingResult.success && fundingResult.data) {
-          setFundingStatus({
-            totalRaised: Number(fundingResult.data.totalRaised),
-            fundingGoal: Number(fundingResult.data.fundingGoal),
-            progressPercentage: Number(fundingResult.data.progressPercentage),
-          });
-        } else {
-          // Fallback values if funding status is not available
-          setFundingStatus({
-            totalRaised: 0,
-            fundingGoal: Number(startupData.fundingGoal) || 0,
-            progressPercentage: 0,
-          });
-        }
+        // Calculate funding status from startup data
+        const fundingGoalNum =
+          Number(startupData.fundingGoal?.replace(/[^0-9.]/g, '')) || 0;
+        const totalRaisedNum = Number(startupData.totalFunded) || 0;
+        const progressPercentage =
+          fundingGoalNum > 0
+            ? Math.min(Math.floor((totalRaisedNum / fundingGoalNum) * 100), 100)
+            : 0;
+
+        setFundingStatus({
+          totalRaised: totalRaisedNum,
+          fundingGoal: fundingGoalNum,
+          progressPercentage,
+        });
       } else {
         setError('Startup not found');
       }

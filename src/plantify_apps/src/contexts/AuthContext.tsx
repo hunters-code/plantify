@@ -121,6 +121,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         } catch (error) {
           console.error('Error checking user status:', error);
+
+          // Handle signature verification errors
+          if (
+            error instanceof Error &&
+            error.message.includes('Invalid signature')
+          ) {
+            console.warn(
+              'Signature verification failed, attempting to re-authenticate...'
+            );
+
+            // Clear the current authentication state
+            BaseService.clear();
+            setIsAuthenticated(false);
+            setIsRegistered(false);
+            setUserType(null);
+            setPrincipal(null);
+            setActor(null);
+
+            // Try to re-authenticate
+            try {
+              if (authClient) {
+                await authClient.logout();
+              }
+            } catch (logoutError) {
+              console.error('Error during logout:', logoutError);
+            }
+          }
         } finally {
           setIsLoading(false);
         }
@@ -128,7 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkUserStatus();
-  }, [isAuthenticated, actor]);
+  }, [isAuthenticated, actor, authClient]);
 
   const signIn = async (): Promise<void> => {
     if (!authClient) {

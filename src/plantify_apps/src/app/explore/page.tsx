@@ -102,7 +102,10 @@ function ExploreContent() {
     const nftPrice = parseFloat(startup.nftPrice) || 100;
     const totalNFTs = Math.floor(fundingGoal / nftPrice);
     const fundedAmount = Number(startup.totalFunded) || 0;
-    const fundingProgress = Math.floor((fundedAmount / fundingGoal) * 100);
+    const fundingProgress =
+      fundingGoal > 0
+        ? Math.min(Math.floor((fundedAmount / fundingGoal) * 100), 100)
+        : 0;
     const available =
       Number(startup.availableNFTs) || Math.floor(totalNFTs * 0.4);
 
