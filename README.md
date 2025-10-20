@@ -303,13 +303,11 @@ We welcome contributions from the community! 🎉
 
 ### 💬 **Get Help**
 
-[![Discord](https://img.shields.io/badge/Discord-Join_Community-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/plantify)
-[![Telegram](https://img.shields.io/badge/Telegram-Join_Chat-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/plantify)
-[![Email](https://img.shields.io/badge/Email-support@plantify.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:support@plantify.com)
+[![Email](https://img.shields.io/badge/Email-support@plantify.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:nashirjamali@gmail.com)
 
 ### 🌟 **Follow Us**
 
-[![Instagram](https://img.shields.io/badge/Twitter-Follow_Us-1DA1F2?style=for-the-badge&logo=instagram&logoColor=white)](https://twitter.com/plantify)
+[![Instagram](https://img.shields.io/badge/Instgram-Follow_Us-1DA1F2?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/plantify.fund/)
 
 
 </div>
@@ -340,9 +338,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### 🎖️ **Awards & Recognition**
 
-[![ICP Indonesia Hackathon 7 Runner-up](https://img.shields.io/badge/🏆_Hackathon-Winner-FFD700?style=for-the-badge)]
-[![WCHL Qualification Round Indonesia 3rd winner](https://img.shields.io/badge/🚀_Innovation-Award-FF6B35?style=for-the-badge)]
-[![WCHL Regional Round Asia 3rd winner](https://img.shields.io/badge/⛓️_Best_Blockchain-App-7B68EE?style=for-the-badge)]
+![ICP Indonesia Hackathon 7 – Runner-up](https://img.shields.io/badge/ICP%20Indonesia%20Hackathon%207-Runner--up-FFD700?style=for-the-badge)
+![WCHL Qualification Round Indonesia – 3rd Place](https://img.shields.io/badge/WCHL%20Qualification%20Indonesia-3rd%20Place-FF6B35?style=for-the-badge)
+![WCHL Regional Round Asia – 3rd Place](https://img.shields.io/badge/WCHL%20Regional%20Asia-3rd%20Place-7B68EE?style=for-the-badge)
 </div>
 
 ---
