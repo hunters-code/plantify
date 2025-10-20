@@ -2,7 +2,7 @@
 
 <div align="center">
   
-  ![Plantify Cover](plantify-cover-2.png)
+  ![Plantify Cover](docs/images/plantify-cover-2.png)
   
   ### 🚀 The AI-Powered Investment Platform for Sustainable Startups
   
