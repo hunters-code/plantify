@@ -6,11 +6,7 @@ import { Plus, TrendingUp, Shield, Clock, AlertTriangle } from 'lucide-react';
 
 import { Card, Button, Alert } from '@/components/ui';
 import type {
-  CollateralInfo,
-  CollateralTopUp,
   CollateralTopUpSummary,
-  CollateralProgress,
-  CollateralStatus,
   CollateralDashboard,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 import { CollateralService } from '@/services/founders/CollateralService';

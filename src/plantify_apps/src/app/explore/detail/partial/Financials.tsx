@@ -2,13 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import {
-  Calendar,
-  TrendingUp,
-  DollarSign,
-  FileText,
-  CalendarDays,
-} from 'lucide-react';
+import { Calendar, TrendingUp, DollarSign, CalendarDays } from 'lucide-react';
 
 import { MonthlyReportService } from '@/services/founders/MonthlyReportService';
 

@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { Lock, BanknoteArrowDown } from 'lucide-react';
+import { Lock } from 'lucide-react';
 
-import { Button, Card, CardSkeleton } from '@/components/ui';
+import { Card, CardSkeleton } from '@/components/ui';
 import FundingProgress from '@/components/ui/FundingProgress';
 import type {
   Startup,

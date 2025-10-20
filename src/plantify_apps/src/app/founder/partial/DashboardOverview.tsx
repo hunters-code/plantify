@@ -6,7 +6,7 @@ import {
   DashboardStatsData,
 } from '@/constants/dashboardFounderStats';
 import { FounderService } from '@/services/founders/FounderService';
-import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
+// import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
 
 // Extended Startup type with additional properties
 interface ExtendedStartup {

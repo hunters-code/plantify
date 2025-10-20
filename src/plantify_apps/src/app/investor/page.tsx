@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -8,10 +8,6 @@ import { Eye, Vote, CreditCard, TrendingUp, LucideIcon } from 'lucide-react';
 
 import { Layout } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
-import type {
-  MyInvestmentPortfolio,
-  NFTPurchaseInfo,
-} from '@/declarations/plantify_backend/plantify_backend.did';
 import { InvestorService } from '@/services/investors/InvestorService';
 
 import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
@@ -59,7 +55,7 @@ interface TabConfig {
   icon: LucideIcon;
 }
 
-export default function InvestorDashboard() {
+function InvestorDashboardContent() {
   const {
     userType,
     isLoading: authLoading,
@@ -82,7 +78,7 @@ export default function InvestorDashboard() {
     averageInvestmentPerStartup: 0,
     totalNFTsOwned: 0,
   });
-  const [purchaseHistory] = useState<NFTPurchaseInfo[]>([]);
+
   const [error, setError] = useState<string | null>(null);
 
   // Portfolio state
@@ -94,11 +90,6 @@ export default function InvestorDashboard() {
     loading: true,
     investments: [],
   });
-  const [portfolio, setPortfolio] = useState<MyInvestmentPortfolio | null>(
-    null
-  );
-
-  const [isLoading, setLoading] = useState(true);
 
   // Update active tab when URL parameter changes
   useEffect(() => {
@@ -113,39 +104,33 @@ export default function InvestorDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
         setPortfolioData(prev => ({ ...prev, loading: true }));
 
         // Check if user is registered as investor using AuthContext
 
         // Wait for auth to finish loading before checking userType
         if (authLoading) {
-          setLoading(false);
           return;
         }
 
         // Also wait if user is authenticated but registration status is still being determined
         if (isAuthenticated && !isRegistered && userType === null) {
-          setLoading(false);
           return;
         }
 
         // Check if user is authenticated and registered
         if (!isAuthenticated) {
           setError('Please sign in to access investor dashboard.');
-          setLoading(false);
           return;
         }
 
         if (!isRegistered) {
           setError('You are not registered. Please register first.');
-          setLoading(false);
           return;
         }
 
         if (userType !== 'investor') {
           setError('You are not registered as an investor.');
-          setLoading(false);
           return;
         }
 
@@ -162,8 +147,6 @@ export default function InvestorDashboard() {
           await InvestorService.getMyInvestmentPortfolio();
 
         if (portfolioResult.success && portfolioResult.portfolio) {
-          setPortfolio(portfolioResult.portfolio);
-
           // Map portfolio items to investments for PortfolioTab
           const mappedInvestments =
             portfolioResult.portfolio.portfolioItems.map(item => {
@@ -241,52 +224,18 @@ export default function InvestorDashboard() {
         }
       } catch (err) {
         console.error(err);
-        setDashboardData(prev => ({
-          ...prev,
-          error: 'Gagal memuat data investor',
-        }));
+        setError('Gagal memuat data investor');
         setPortfolioData({
           loading: false,
           investments: [],
           error: 'Failed to load portfolio data',
         });
       } finally {
-        setLoading(false);
       }
     };
 
     fetchData();
   }, [userType, authLoading, isAuthenticated, isRegistered]);
-
-  const calculateDashboardMetrics = (
-    history: NFTPurchaseInfo[]
-  ): DashboardData => {
-    let totalInvested = 0;
-    const startupSet = new Set<string>();
-
-    history.forEach((purchase: NFTPurchaseInfo) => {
-      totalInvested += Number(purchase.amount);
-      startupSet.add(purchase.startupId);
-    });
-
-    const returnPercentage = 25;
-    const totalReturns = Math.floor(totalInvested * (returnPercentage / 100));
-    const monthlyCommitments = Math.floor(totalInvested / 12);
-
-    return {
-      totalInvested,
-      totalReturns,
-      returnPercentage,
-      monthlyCommitments,
-      activeInvestments: startupSet.size,
-      upcomingVotes: 0,
-      votingPending: 0,
-      recentInvestments: [],
-      uniqueStartupsInvested: 0,
-      averageInvestmentPerStartup: 0,
-      totalNFTsOwned: 0,
-    };
-  };
 
   const refetch = () => {
     window.location.reload();
@@ -363,7 +312,7 @@ export default function InvestorDashboard() {
             <OverviewTab
               dashboardData={dashboardData}
               matchingStartups={[]}
-              recentActivity={purchaseHistory}
+              recentActivity={[]}
             />
           </>
         )}
@@ -396,5 +345,13 @@ export default function InvestorDashboard() {
         )}
       </div>
     </Layout>
+  );
+}
+
+export default function InvestorDashboard() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InvestorDashboardContent />
+    </Suspense>
   );
 }
