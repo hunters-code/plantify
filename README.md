@@ -2,13 +2,12 @@
 
 <div align="center">
   
-  ![Plantify Banner](docs/images/plantify-image.jpg)
+  ![Plantify Cover](plantify-cover.png)
   
   ### 🚀 The AI-Powered Investment Platform for Sustainable Startups
   
-  [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Now-4A90E2?style=for-the-badge)](https://ueifo-jqaaa-aaaah-qqewa-cai.icp0.io/)
-  [![Backend Dashboard](https://img.shields.io/badge/⚙️_Backend-ICP_Dashboard-7B68EE?style=for-the-badge)](https://dashboard.internetcomputer.org/canister/oncwy-yqaaa-aaaae-qfzja-cai)
-  [![Architecture](https://img.shields.io/badge/📋_Architecture-View_Diagram-32CD32?style=for-the-badge)](docs/Architecture-Diagram.md)
+  [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Now-4A90E2?style=for-the-badge)](https://hiplantify.com/)
+  [![Backend API](https://img.shields.io/badge/⚙️_Backend_API-Candid_UI-7B68EE?style=for-the-badge)](https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=oncwy-yqaaa-aaaae-qfzja-cai)
   
   **Plantify connects investors with sustainable startups through AI-powered analysis, intelligent matching, and automated investment processes on the Internet Computer blockchain.**
   
@@ -34,7 +33,7 @@ Every transaction, vote, and profit distribution is secured by blockchain techno
 </td>
 <td width="50%">
 
-![Design Architecture](docs/images/design_architecture.png)
+![Infrastructure Architecture](infrastructure-diagram.png)
 
 </td>
 </tr>
@@ -100,84 +99,13 @@ Every transaction, vote, and profit distribution is secured by blockchain techno
 
 ---
 
-## 🏗️ Architecture Overview
-
-<div align="center">
-
-```mermaid
-graph TD
-    %% Users
-    subgraph "👥 Users"
-        F[👨‍💼 Founder]
-        I[💰 Investor]
-    end
-
-    %% Frontend
-    subgraph "🖥️ Frontend (Next.js)"
-        Web[Web Application]
-    end
-
-    %% Authentication
-    subgraph "🔐 Authentication"
-        II[Internet Identity]
-    end
-
-    %% Backend
-    subgraph "⚙️ Backend (ICP Canister)"
-        API[Plantify Backend API]
-    end
-
-    %% Database
-    subgraph "💾 Database"
-        ICP_DB[(ICP Storage)]
-        Supabase[(Supabase)]
-    end
-
-    %% External Services
-    subgraph "🌐 External Services"
-        AI[OpenAI API]
-        ICP_Ledger[ICP Ledger]
-        USDC_Ledger[ckUSDC Ledger]
-    end
-
-    %% Connections
-    F --> Web
-    I --> Web
-    Web --> II
-    Web --> API
-    API --> ICP_DB
-    API --> Supabase
-    API --> AI
-    API --> ICP_Ledger
-    API --> USDC_Ledger
-
-    %% Styling
-    classDef user fill:#4A90E2,stroke:#2E5C8A,stroke-width:2px,color:#FFFFFF
-    classDef frontend fill:#32CD32,stroke:#228B22,stroke-width:2px,color:#000000
-    classDef auth fill:#FF6B35,stroke:#CC5429,stroke-width:2px,color:#FFFFFF
-    classDef backend fill:#7B68EE,stroke:#4B0082,stroke-width:2px,color:#FFFFFF
-    classDef database fill:#FFB347,stroke:#E6A041,stroke-width:2px,color:#000000
-    classDef external fill:#FF69B4,stroke:#C71585,stroke-width:2px,color:#FFFFFF
-
-    class F,I user
-    class Web frontend
-    class II auth
-    class API backend
-    class ICP_DB,Supabase database
-    class AI,ICP_Ledger,USDC_Ledger external
-```
-
-</div>
-
----
-
 ## 🔧 Tech Stack
 
 <div align="center">
 
 ### 🖥️ **Frontend**
 ![Next.js](https://img.shields.io/badge/Next.js_15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![React](https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Internet Computer Canister](https://img.shields.io/badge/Internet_Computer-29ABE2?style=for-the-badge&logo=internet-computer&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
@@ -186,9 +114,8 @@ graph TD
 ![Internet Computer](https://img.shields.io/badge/Internet_Computer-29ABE2?style=for-the-badge&logo=internet-computer&logoColor=white)
 ![Candid](https://img.shields.io/badge/Candid_Interface-29ABE2?style=for-the-badge&logo=internet-computer&logoColor=white)
 
-### 💾 **Database & Storage**
+### 💾 **Storage**
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 
 ### 🌐 **External Services**
 ![OpenAI](https://img.shields.io/badge/OpenAI_GPT--4-412991?style=for-the-badge&logo=openai&logoColor=white)
@@ -273,7 +200,7 @@ npm run dev
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/hunters-code/plantify?style=for-the-badge)
 ![GitHub language count](https://img.shields.io/github/languages/count/hunters-code/plantify?style=for-the-badge)
-![GitHub top language](https://img.shields.io/github/languages/top/hunters-code/plantify?style=for-the-badge)
+![GitHub top language](https://img.shields.io/badge/GitHub_languages/top/hunters-code/plantify?style=for-the-badge)
 
 ### 📈 **Codebase Overview**
 
@@ -382,9 +309,8 @@ We welcome contributions from the community! 🎉
 
 ### 🌟 **Follow Us**
 
-[![Twitter](https://img.shields.io/badge/Twitter-Follow_Us-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/plantify)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/company/plantify)
-[![Medium](https://img.shields.io/badge/Medium-Read_Blog-12100E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@plantify)
+[![Instagram](https://img.shields.io/badge/Twitter-Follow_Us-1DA1F2?style=for-the-badge&logo=instagram&logoColor=white)](https://twitter.com/plantify)
+
 
 </div>
 
@@ -410,15 +336,13 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 - 🌐 **Internet Computer Foundation** - For the amazing blockchain infrastructure
 - 🤖 **OpenAI** - For providing powerful AI capabilities
-- 🗃️ **Supabase** - For reliable database services
 - 👥 **Community** - For continuous support and feedback
 
 ### 🎖️ **Awards & Recognition**
 
-[![Hackathon Winner](https://img.shields.io/badge/🏆_Hackathon-Winner-FFD700?style=for-the-badge)](https://hackathon.com)
-[![Innovation Award](https://img.shields.io/badge/🚀_Innovation-Award-FF6B35?style=for-the-badge)](https://innovation.com)
-[![Best Blockchain](https://img.shields.io/badge/⛓️_Best_Blockchain-App-7B68EE?style=for-the-badge)](https://blockchain.com)
-
+[![ICP Indonesia Hackathon 7 Runner-up](https://img.shields.io/badge/🏆_Hackathon-Winner-FFD700?style=for-the-badge)]
+[![WCHL Qualification Round Indonesia 3rd winner](https://img.shields.io/badge/🚀_Innovation-Award-FF6B35?style=for-the-badge)]
+[![WCHL Regional Round Asia 3rd winner](https://img.shields.io/badge/⛓️_Best_Blockchain-App-7B68EE?style=for-the-badge)]
 </div>
 
 ---
