@@ -2,25 +2,33 @@
 
 import React, { useState, useEffect } from 'react';
 
-import {
-  Eye,
-  Vote,
-  CreditCard,
-  TrendingUp,
-  ArrowUpRight,
-  LucideIcon,
-} from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+
+import { Eye, Vote, CreditCard, TrendingUp, LucideIcon } from 'lucide-react';
 
 import { Layout } from '@/components';
-import { Button } from '@/components/ui';
+import { useAuth } from '@/contexts/AuthContext';
 import type {
   MyInvestmentPortfolio,
   NFTPurchaseInfo,
-  PortfolioItem,
 } from '@/declarations/plantify_backend/plantify_backend.did';
 import { InvestorService } from '@/services/investors/InvestorService';
 
 import { OverviewTab, PortfolioTab, VotingTab, TransactionsTab } from './tabs';
+
+interface Investment {
+  id: string;
+  startupName: string;
+  sector: string;
+  riskLevel: string;
+  investedAmount: number;
+  nftCount: number;
+  monthlyReturn: number;
+  totalReturns: number;
+  roi: number;
+  progress: number;
+  startupLogo?: string;
+}
 
 interface ActivityItem {
   type: 'profit' | 'investment';
@@ -52,7 +60,15 @@ interface TabConfig {
 }
 
 export default function InvestorDashboard() {
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const {
+    userType,
+    isLoading: authLoading,
+    isAuthenticated,
+    isRegistered,
+  } = useAuth();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams?.get('tab') as TabType;
+  const [activeTab, setActiveTab] = useState<TabType>(tabParam || 'overview');
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     totalInvested: 0,
     totalReturns: 0,
@@ -66,14 +82,13 @@ export default function InvestorDashboard() {
     averageInvestmentPerStartup: 0,
     totalNFTsOwned: 0,
   });
-  const [purchaseHistory, setPurchaseHistory] = useState<NFTPurchaseInfo[]>([]);
+  const [purchaseHistory] = useState<NFTPurchaseInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [investor, setInvestor] = useState<{ fullName?: string } | null>(null);
 
   // Portfolio state
   const [portfolioData, setPortfolioData] = useState<{
     loading: boolean;
-    investments: any[];
+    investments: Investment[];
     error?: string;
   }>({
     loading: true,
@@ -83,7 +98,17 @@ export default function InvestorDashboard() {
     null
   );
 
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
+
+  // Update active tab when URL parameter changes
+  useEffect(() => {
+    if (
+      tabParam &&
+      ['overview', 'portfolio', 'voting', 'transactions'].includes(tabParam)
+    ) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,13 +116,45 @@ export default function InvestorDashboard() {
         setLoading(true);
         setPortfolioData(prev => ({ ...prev, loading: true }));
 
-        // Fetch investor profile
-        const investorData = await InvestorService.getInvestorByPrincipal();
+        // Check if user is registered as investor using AuthContext
 
-        if (!investorData) {
-          setError('Investor not found. Please register as an investor.');
+        // Wait for auth to finish loading before checking userType
+        if (authLoading) {
           setLoading(false);
           return;
+        }
+
+        // Also wait if user is authenticated but registration status is still being determined
+        if (isAuthenticated && !isRegistered && userType === null) {
+          setLoading(false);
+          return;
+        }
+
+        // Check if user is authenticated and registered
+        if (!isAuthenticated) {
+          setError('Please sign in to access investor dashboard.');
+          setLoading(false);
+          return;
+        }
+
+        if (!isRegistered) {
+          setError('You are not registered. Please register first.');
+          setLoading(false);
+          return;
+        }
+
+        if (userType !== 'investor') {
+          setError('You are not registered as an investor.');
+          setLoading(false);
+          return;
+        }
+
+        // Try to fetch investor profile
+        const investorData = await InvestorService.getInvestorByPrincipal();
+
+        // If no investor data but user is marked as investor, continue with default data
+        if (!investorData) {
+          // Don't return error, continue with portfolio fetch
         }
 
         // Fetch portfolio data using getMyInvestmentPortfolio
@@ -133,6 +190,7 @@ export default function InvestorDashboard() {
                 totalReturns,
                 roi,
                 progress: 100, // Default progress value
+                startupLogo: item.startupLogo?.[0] || undefined,
               };
             });
 
@@ -198,7 +256,7 @@ export default function InvestorDashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [userType, authLoading, isAuthenticated, isRegistered]);
 
   const calculateDashboardMetrics = (
     history: NFTPurchaseInfo[]
@@ -246,7 +304,7 @@ export default function InvestorDashboard() {
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {/* Header */}
         <div className='mb-8'>
-          <div className='flex items-center justify-between'>
+          {/* <div className='flex items-center justify-between'>
             <div>
               <h1 className='text-3xl font-bold text-gray-900 mb-2'>
                 Investor Dashboard
@@ -265,20 +323,20 @@ export default function InvestorDashboard() {
               <ArrowUpRight size={16} />
               Refresh
             </Button>
-          </div>
+          </div> */}
 
           {/* Tabs */}
-          <div className='flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit mt-4'>
+          <div className='flex gap-2 mb-6 border border-neutral-200 rounded-full w-fit mt-4'>
             {tabs.map(tab => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center justify-center gap-[6px] px-4 py-2 text-sm font-medium transition rounded-[12px] ${
                     activeTab === tab.id
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'border border-gray-200 bg-gray-100 shadow-[0_3px_3px_rgba(255,255,255,0.40)_inset,0_-2px_1px_rgba(0,0,0,0.25)_inset,0_2px_4px_rgba(0,0,0,0.16)] text-gray-900'
+                      : 'text-gray-600 hover:bg-white'
                   }`}
                 >
                   <Icon size={16} />
@@ -298,11 +356,16 @@ export default function InvestorDashboard() {
 
         {/* Tab Content */}
         {activeTab === 'overview' && (
-          <OverviewTab
-            dashboardData={dashboardData}
-            matchingStartups={[]}
-            recentActivity={purchaseHistory}
-          />
+          <>
+            <h1 className='text-3xl font-bold text-gray-900 mb-2'>
+              Dashboard Investor
+            </h1>
+            <OverviewTab
+              dashboardData={dashboardData}
+              matchingStartups={[]}
+              recentActivity={purchaseHistory}
+            />
+          </>
         )}
 
         {activeTab === 'portfolio' && (
@@ -325,7 +388,7 @@ export default function InvestorDashboard() {
         )}
 
         {activeTab === 'voting' && (
-          <VotingTab onBackToOverview={() => setActiveTab('overview')} />
+          <VotingTab _onBackToOverview={() => setActiveTab('overview')} />
         )}
 
         {activeTab === 'transactions' && (

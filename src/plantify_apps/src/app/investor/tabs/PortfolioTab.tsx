@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { TrendingUp, AlertCircle, Eye, Vote, Plus } from 'lucide-react';
 
 import { Button, Card, LoadingSpinner } from '@/components/ui';
 import Badge, { type BadgeVariant } from '@/components/ui/Badge';
-import { InvestorService } from '@/services/investors/InvestorService';
 
 interface Investment {
   id: string;
@@ -21,17 +21,18 @@ interface Investment {
   totalReturns: number;
   roi: number;
   progress: number;
+  startupLogo?: string;
 }
 
 interface PortfolioTabProps {
   portfolioData: {
     loading: boolean;
-    investments: any[];
+    investments: Investment[];
     error?: string;
   };
-  onViewDetails: (investment: Investment) => void;
-  onVoteReport: (investment: Investment) => void;
-  onAddInvestment: (investment: Investment) => void;
+  onViewDetails?: (investment: Investment) => void;
+  onVoteReport?: (investment: Investment) => void;
+  onAddInvestment?: (investment: Investment) => void;
   onRefresh?: () => void;
 }
 
@@ -136,60 +137,80 @@ export default function PortfolioTab({
       </div>
 
       <div className='space-y-6'>
-        {investments.map(investment => (
-          <Card key={investment.id} className='p-6'>
+        {investments.map((investment, index) => (
+          <div
+            key={index}
+            className='bg-[#FAFAFA] p-6 border border-gray-200 rounded-[16px]'
+          >
             <div className='flex items-start justify-between mb-4'>
               <div className='flex items-center gap-3'>
                 <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
-                  <div className='w-4 h-4 bg-green-500 rounded-full'></div>
+                  <Image
+                    src={
+                      investment.startupLogo ||
+                      '/assets/images/icon-startup.png'
+                    }
+                    alt={`${investment.startupName} logo`}
+                    width={32}
+                    height={32}
+                    className='object-contain'
+                  />
                 </div>
                 <div>
                   <h3 className='text-lg font-semibold text-gray-900'>
                     {investment.startupName}
                   </h3>
-                  <div className='flex items-center gap-2 mt-1'>
-                    <Badge variant='outline' className='text-xs'>
-                      {investment.sector}
-                    </Badge>
-                    <Badge
-                      variant={getRiskVariant(investment.riskLevel)}
-                      className='text-xs'
-                    >
-                      {investment.riskLevel}
-                    </Badge>
-                  </div>
                 </div>
+              </div>
+              <div className='flex items-center gap-2 mt-1'>
+                <Badge variant='outline' className='text-xs'>
+                  {investment.sector}
+                </Badge>
+                <Badge
+                  variant={getRiskVariant(investment.riskLevel)}
+                  className='text-xs'
+                >
+                  {investment.riskLevel}
+                </Badge>
               </div>
             </div>
 
             <div className='grid grid-cols-4 gap-6 mb-6'>
-              <div>
+              <Card>
                 <p className='text-sm text-gray-600 mb-1'>Invested</p>
-                <p className='text-xl font-bold text-gray-900'>
-                  ${investment.investedAmount.toLocaleString()}
-                </p>
-                <p className='text-xs text-gray-500'>
-                  ({investment.nftCount} NFTs)
-                </p>
-              </div>
+                <div className='flex items-end gap-2'>
+                  <p className='text-xl font-bold text-gray-900'>
+                    ${investment.investedAmount.toLocaleString()}
+                  </p>
+                  <p className='text-xs text-gray-500 pb-1'>
+                    ({investment.nftCount} NFTs)
+                  </p>
+                </div>
+              </Card>
 
-              <div>
+              <Card>
                 <p className='text-sm text-gray-600 mb-1'>Monthly return</p>
-                <p className='text-xl font-bold text-green-600'>
-                  ${investment.monthlyReturn.toLocaleString()}
-                </p>
-                <p className='text-xs text-gray-500'>per month</p>
-              </div>
+                <div className='flex items-end gap-2'>
+                  <p className='text-xl font-bold text-green-600'>
+                    ${investment.monthlyReturn.toLocaleString()}
+                  </p>
+                  <p className='text-xs text-gray-500 pb-1'>per month</p>
+                </div>
+              </Card>
 
-              <div>
+              <Card>
                 <p className='text-sm text-gray-600 mb-1'>Total returns</p>
-                <p className='text-xl font-bold text-blue-600'>
-                  ${investment.totalReturns.toLocaleString()}
-                </p>
-                <p className='text-xs text-blue-600'>{investment.roi}% ROI</p>
-              </div>
+                <div className='flex items-end gap-2'>
+                  <p className='text-xl font-bold text-blue-600'>
+                    ${investment.totalReturns.toLocaleString()}
+                  </p>
+                  <p className='text-xs text-blue-600 pb-1'>
+                    {investment.roi}% ROI
+                  </p>
+                </div>
+              </Card>
 
-              <div>
+              <Card>
                 <p className='text-sm text-gray-600 mb-1'>Progress</p>
                 <div className='flex items-center gap-2'>
                   <p className='text-xl font-bold text-gray-900'>
@@ -204,14 +225,16 @@ export default function PortfolioTab({
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             </div>
 
-            <div className='flex gap-3'>
+            <div className='flex gap-3 justify-end'>
               <Button
                 variant='secondary'
                 className='flex items-center gap-2'
-                onClick={() => onViewDetails(investment)}
+                onClick={() =>
+                  navigate.push(`/explore/detail?id=${investment.id}`)
+                }
               >
                 <Eye className='w-4 h-4' />
                 View details
@@ -219,7 +242,7 @@ export default function PortfolioTab({
               <Button
                 variant='secondary'
                 className='flex items-center gap-2'
-                onClick={() => onVoteReport(investment)}
+                onClick={() => navigate.push('/investor?tab=voting')}
               >
                 <Vote className='w-4 h-4' />
                 Vote on report
@@ -227,13 +250,15 @@ export default function PortfolioTab({
               <Button
                 variant='primary'
                 className='flex items-center gap-2'
-                onClick={() => onAddInvestment(investment)}
+                onClick={() =>
+                  navigate.push(`/explore/detail?id=${investment.id}`)
+                }
               >
                 <Plus className='w-4 h-4' />
                 Add investment
               </Button>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
     </div>

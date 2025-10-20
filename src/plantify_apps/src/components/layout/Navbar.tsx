@@ -45,9 +45,17 @@ export default function Navbar(): JSX.Element {
 
   const getNavigationItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
-      { label: 'Explore Startups', path: '/', onClick: () => router.push('/') },
-      { label: 'How it Works', path: '/', onClick: () => router.push('/') },
-      { label: 'About', path: '/', onClick: () => router.push('/') },
+      {
+        label: 'Explore Startups',
+        path: '/explore',
+        onClick: () => router.push('/explore'),
+      },
+      {
+        label: 'How it Works',
+        path: '/how-it-works',
+        onClick: () => router.push('/how-it-works'),
+      },
+      { label: 'About', path: '/about', onClick: () => router.push('/about') },
     ];
 
     return baseItems;
@@ -173,7 +181,7 @@ export default function Navbar(): JSX.Element {
                   </a>
                 ) : (
                   <button
-                    className={`hover:text-gray-900 transition ${
+                    className={`hover:text-gray-900 transition cursor-pointer ${
                       isActivePath(item.path) ? 'text-gray-900 font-medium' : ''
                     }`}
                     onClick={item.onClick}
@@ -351,7 +359,7 @@ export default function Navbar(): JSX.Element {
               {getNavigationItems().map((item, index) => (
                 <li key={index}>
                   <button
-                    className={`w-full text-left px-3.5 py-2 rounded-md hover:bg-gray-100 ${
+                    className={`w-full text-left px-3.5 py-2 rounded-md hover:bg-gray-100 cursor-pointer ${
                       isActivePath(item.path) ? 'font-medium text-gray-900' : ''
                     }`}
                     onClick={item.onClick}
